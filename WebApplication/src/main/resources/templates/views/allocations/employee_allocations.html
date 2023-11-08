@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+    <link rel="stylesheet" th:href="@{/css/color.css}">
+    <link rel="stylesheet" th:href="@{/css/common.css}">
+
+    <!-- bootstrap -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+    <!-- bootstrap -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4"
+            crossorigin="anonymous"></script>
+    <!-- jquery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+</head>
+<body class="d-flex flex-column min-vh-100">
+<div th:replace="~{fragments/navbar}">Navbar</div>
+<div class="container-fluid">
+    <!-- content -->
+    <h1 class="text-center" th:text="#{view.allocation.title-employee}"></h1>
+    <hr>
+    <div class="container">
+        <!-- statistics -->
+        <div class="row d-flex justify-content-center">
+            <div class="col-8">
+                <h4 class="text-center" th:text="#{view.allocation.statistics.title}"></h4>
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th scope="col" th:text="#{view.allocation.statistics.col.term}"></th>
+                        <th scope="col" th:text="#{view.allocation.statistics.col.begin}"></th>
+                        <th scope="col" th:text="#{view.allocation.statistics.col.end}"></th>
+                        <th scope="col" th:text="#{view.allocation.statistics.col.count}"></th>
+                        <th scope="col" th:text="#{view.allocation.statistics.col.fte}"></th>
+                        <th scope="col" th:text="#{view.allocation.statistics.col.hpw}"></th>
+                    </tr>
+                    </thead>
+                    <tbody id="visualisation">
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <!-- filter form -->
+        <div class="accordion accordion-flush m-3" id="accordionFilter">
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingOne">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#collapseFilter" th:text="#{view.allocation.filter}">
+                    </button>
+                </h2>
+                <div id="collapseFilter" class="accordion-collapse collapse"
+                     data-bs-parent="#accordionFilter">
+                    <div class="accordion-body">
+                        <div class="row d-flex justify-content-center">
+                            <form id="filter_form" class="m-4 p-4 border">
+                                <h4 class="text-center" th:text="#{view.allocation.filter-form.title}"></h4>
+                                <div class="row d-flex justify-content-center">
+                                    <div class="col-2 d-flex align-items-center p-0 justify-content-end">
+                                        <label for="filter_form_project"
+                                               th:text="#{view.allocation.filter-form.select-project}"></label>
+                                    </div>
+                                    <div class="col-2">
+                                        <select id="filter_form_project" class="form-select common-border-radius">
+                                            <option value="ALL" selected
+                                                    th:text="#{view.allocation.filter-form.all-projects}"></option>
+                                            <tr th:each="project : ${projects}">
+                                                <option th:value="${project.projectName}"
+                                                        th:text="${project.projectName}"></option>
+                                            </tr>
+                                        </select>
+                                    </div>
+                                    <div class="col-2 d-flex align-items-center p-0 justify-content-end"
+                                         hidden="hidden">
+                                        <label for="filter_form_employee"
+                                               th:text="#{view.allocation.filter-form.select-employee}"></label>
+                                    </div>
+                                    <div class="col-2" hidden="hidden">
+                                        <select id="filter_form_employee" class="form-select common-border-radius">
+                                            <option value=-1 selected
+                                                    th:text="#{view.allocation.filter-form.all-states}"></option>
+                                            <tr th:each="emp : ${employees}">
+                                                <option th:text="${emp.firstName} + ' ' + ${emp.lastName} + ' ' + ${emp.orionLogin}"
+                                                        th:value="${emp.id}"></option>
+                                            </tr>
+                                        </select>
+                                    </div>
+                                    <div class="col-2 d-flex align-items-center p-0 justify-content-end">
+                                        <label for="filter_form_state"
+                                               th:text="#{view.allocation.filter-form.select-state}"></label>
+                                    </div>
+                                    <div class="col-2">
+                                        <select id="filter_form_state" class="form-select common-border-radius">
+                                            <option value="ALL" selected
+                                                    th:text="#{view.allocation.filter-form.all-states}"></option>
+                                            <option value="ACTIVE"
+                                                    th:text="#{view.allocation.filter-form.state.active}"></option>
+                                            <option value="UNREALIZED"
+                                                    th:text="#{view.allocation.filter-form.state.unrealized}">
+                                            </option>
+                                            <option value="PAST"
+                                                    th:text="#{view.allocation.filter-form.state.past}"></option>
+                                            <option value="INACTIVE"
+                                                    th:text="#{view.allocation.filter-form.state.cancelled}"></option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="row d-flex justify-content-center pt-4">
+                                    <div class="col-1 d-flex align-items-end p-0 justify-content-end">
+                                        <label for="filter_form_date_from" class="form-label"
+                                               th:text="#{view.allocation.filter-form.date-from}">
+                                        </label>
+                                    </div>
+                                    <div class="col-2">
+                                        <input
+                                                id="filter_form_date_from" type="date"
+                                                class="form-control common-border-radius">
+                                    </div>
+                                    <div class="col-1 d-flex align-items-end p-0 justify-content-end">
+                                        <label for="filter_form_date_until" class="form-label"
+                                               th:text="#{view.allocation.filter-form.date-to}">
+                                        </label>
+                                    </div>
+                                    <div class="col-2">
+                                        <input
+                                                id="filter_form_date_until" type="date"
+                                                class="form-control common-border-radius">
+                                    </div>
+                                </div>
+                                <div class="row d-flex justify-content-center pt-4">
+                                    <div class="col-1 d-flex align-items-center p-0 justify-content-end">
+                                        <label for="filter_form_scope_from" class="form-label"
+                                               th:text="#{view.allocation.filter-form.scope-from}"></label>
+                                    </div>
+                                    <div class="col-2">
+                                        <div class="input-group">
+                                            <input value="0" id="filter_form_scope_from" type="number"
+                                                   class="form-control common-border-radius">
+                                            <span class="input-group-text common-border-radius"
+                                                  th:text="#{view.allocation.filter-form.fte}"></span>
+                                        </div>
+                                        <div class="input-group">
+                                            <input value="0" id="scope_from_hpw" type="number"
+                                                   class="form-control common-border-radius">
+                                            <span class="input-group-text common-border-radius"
+                                                  th:text="#{view.allocation.filter-form.hpw}"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-1 d-flex align-items-center p-0 justify-content-end">
+                                        <label for="filter_form_scope_to" class="form-label"
+                                               th:text="#{view.allocation.filter-form.scope-to}"></label>
+                                    </div>
+                                    <div class="col-2">
+                                        <div class="input-group">
+                                            <input value="1" id="filter_form_scope_to" type="number"
+                                                   class="form-control common-border-radius">
+                                            <span class="input-group-text common-border-radius"
+                                                  th:text="#{view.allocation.filter-form.fte}"></span>
+                                        </div>
+                                        <div class="input-group">
+                                            <input value="40" id="scope_to_hpw" type="number"
+                                                   class="form-control common-border-radius">
+                                            <span class="input-group-text common-border-radius"
+                                                  th:text="#{view.allocation.filter-form.hpw}"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row d-flex justify-content-center pt-4">
+                                    <button id="filter_form_reset" type="button"
+                                            class="col-3 btn btn-primary common-border-radius me-5"
+                                            th:text="#{view.allocation.filter-form.reset}"></button>
+                                    <button id="filter_form_submit" type="button"
+                                            class="col-3 btn btn-primary common-border-radius"
+                                            th:text="#{view.allocation.filter-form.search}"></button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- show selected count/max + sort allocations by -->
+        <div class="row">
+            <div class="col-9 p-0 d-flex align-items-center">
+                <span class="text-start">
+                    <span th:text="#{view.allocation.select.text}"></span>
+                    <span id="filter_form_current"></span>/<span id="filter_form_maximum"></span>
+                    <span th:text="#{view.allocation.select.allocations}"></span>
+                </span>
+            </div>
+            <div class="col-3 p-0">
+                <div class="input-group p-0">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text common-border-radius"
+                              th:text="#{view.allocation.sort.text}"></span>
+                    </div>
+                    <select id="sorter" class="form-select common-border-radius">
+                        <option value="FROM-E" th:text="#{view.allocation.sort.by.from-date-n}"></option>
+                        <option value="FROM-F" th:text="#{view.allocation.sort.by.from-date-o}"></option>
+                        <option value="UNTIL-E" th:text="#{view.allocation.sort.by.to-date-n}"></option>
+                        <option value="UNTIL-F" th:text="#{view.allocation.sort.by.to-date-o}"></option>
+                        <option value="SCOPE-L" th:text="#{view.allocation.sort.by.scope-l}"></option>
+                        <option value="SCOPE-H" selected th:text="#{view.allocation.sort.by.scope-h}"></option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <!-- group by -->
+        <div class="row">
+            <button type="button" class="col btn btn-secondary common-border-radius" id="ungroup"
+                    th:text="#{view.allocation.group.ungroup}"></button>
+            <button type="button" class="col btn btn-secondary common-border-radius" id="by_state"
+                    th:text="#{view.allocation.group.bystate}"></button>
+        </div>
+        <!-- allocations -->
+        <div class="row">
+            <div class="accordion p-0" id="acc-allocations">
+                <div id="ungroup_pos" hidden="hidden">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#collapseUngrouped" th:text="#{view.allocation.group.ungroup}">
+                            </button>
+                        </h2>
+                        <div id="collapseUngrouped" class="accordion-collapse collapse"
+                             aria-labelledby="headingOne"
+                             data-bs-parent="#acc-allocations">
+                            <div class="accordion-body">
+                                <table class="table">
+                                    <thead>
+                                    <tr>
+                                        <th scope="col"></th>
+                                        <th scope="col" th:text="#{allocation.table.validFrom}"></th>
+                                        <th scope="col" th:text="#{allocation.table.validUntil}"></th>
+                                        <th scope="col" th:text="#{allocation.table.scope-fte}"></th>
+                                        <th scope="col" th:text="#{allocation.table.scope-hpw}"></th>
+                                        <th scope="col"></th>
+                                        <th scope="col"></th>
+                                    </tr>
+                                    </thead>
+                                    <tbody id="ungroup_pos_target">
+
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="by_state_pos" hidden="hidden">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#collapseActive" th:text="#{view.allocation.group.active}">
+                            </button>
+                        </h2>
+                        <div id="collapseActive" class="accordion-collapse collapse"
+                             data-bs-parent="#acc-allocations">
+                            <div class="accordion-body">
+                                <table class="table">
+                                    <thead>
+                                    <tr>
+                                        <th scope="col"></th>
+                                        <th scope="col" th:text="#{allocation.table.validFrom}"></th>
+                                        <th scope="col" th:text="#{allocation.table.validUntil}"></th>
+                                        <th scope="col" th:text="#{allocation.table.scope-fte}"></th>
+                                        <th scope="col" th:text="#{allocation.table.scope-hpw}"></th>
+                                        <th scope="col"></th>
+                                        <th scope="col"></th>
+                                    </tr>
+                                    </thead>
+                                    <tbody id="by_state_pos_target_active">
+
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#collapseUnrealized" th:text="#{view.allocation.group.unrealized}">
+                            </button>
+                        </h2>
+                        <div id="collapseUnrealized" class="accordion-collapse collapse"
+                             aria-labelledby="headingOne"
+                             data-bs-parent="#acc-allocations">
+                            <div class="accordion-body">
+                                <table class="table">
+                                    <thead>
+                                    <tr>
+                                        <th scope="col"></th>
+                                        <th scope="col" th:text="#{allocation.table.validFrom}"></th>
+                                        <th scope="col" th:text="#{allocation.table.validUntil}"></th>
+                                        <th scope="col" th:text="#{allocation.table.scope-fte}"></th>
+                                        <th scope="col" th:text="#{allocation.table.scope-hpw}"></th>
+                                        <th scope="col"></th>
+                                        <th scope="col"></th>
+                                    </tr>
+                                    </thead>
+                                    <tbody id="by_state_pos_target_unrealized">
+
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#collapsePast" th:text="#{view.allocation.group.past}">
+                            </button>
+                        </h2>
+                        <div id="collapsePast" class="accordion-collapse collapse"
+                             aria-labelledby="headingOne"
+                             data-bs-parent="#acc-allocations">
+                            <div class="accordion-body">
+                                <table class="table">
+                                    <thead>
+                                    <tr>
+                                        <th scope="col"></th>
+                                        <th scope="col" th:text="#{allocation.table.validFrom}"></th>
+                                        <th scope="col" th:text="#{allocation.table.validUntil}"></th>
+                                        <th scope="col" th:text="#{allocation.table.scope-fte}"></th>
+                                        <th scope="col" th:text="#{allocation.table.scope-hpw}"></th>
+                                        <th scope="col"></th>
+                                        <th scope="col"></th>
+                                    </tr>
+                                    </thead>
+                                    <tbody id="by_state_pos_target_past">
+
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#collapseCancelled" th:text="#{view.allocation.group.cancelled}">
+                            </button>
+                        </h2>
+                        <div id="collapseCancelled" class="accordion-collapse collapse"
+                             aria-labelledby="headingOne"
+                             data-bs-parent="#acc-allocations">
+                            <div class="accordion-body">
+                                <table class="table">
+                                    <thead>
+                                    <tr>
+                                        <th scope="col"></th>
+                                        <th scope="col" th:text="#{allocation.table.validFrom}"></th>
+                                        <th scope="col" th:text="#{allocation.table.validUntil}"></th>
+                                        <th scope="col" th:text="#{allocation.table.scope-fte}"></th>
+                                        <th scope="col" th:text="#{allocation.table.scope-hpw}"></th>
+                                        <th scope="col"></th>
+                                        <th scope="col"></th>
+                                    </tr>
+                                    </thead>
+                                    <tbody id="by_state_pos_target_cancelled">
+
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- allocation storage -->
+        <div id="allocation_storage">
+            <table class="table">
+                <thead hidden="hidden">
+                <tr>
+                    <th scope="col"></th>
+                    <th scope="col" th:text="#{allocation.table.validFrom}"></th>
+                    <th scope="col" th:text="#{allocation.table.validUntil}"></th>
+                    <th scope="col" th:text="#{allocation.table.scope-fte}"></th>
+                    <th scope="col" th:text="#{allocation.table.scope-hpw}"></th>
+                    <th scope="col"></th>
+                    <th scope="col"></th>
+                </tr>
+                </thead>
+                <tbody id="allocations">
+                <tr th:each="allocation : ${allocations}" th:id="all_id_ + ${allocation.id}">
+                    <th scope="row">
+                        <div>
+                            <div hidden="hidden" th:value="${allocation.currentState}"
+                                 th:id="all_id_ + ${allocation.id} + _state"></div>
+                            <div hidden="hidden" th:value="${allocation.project.projectName}"
+                                 th:id="all_id_ + ${allocation.id} + _project"></div>
+                            <div hidden="hidden" th:value="${allocation.validFrom}"
+                                 th:id="all_id_ + ${allocation.id} + _valid_from"></div>
+                            <div hidden="hidden" th:value="${allocation.validUntil}"
+                                 th:id="all_id_ + ${allocation.id} + _valid_until"></div>
+                            <div hidden="hidden" th:value="${allocation.allocationScope}"
+                                 th:id="all_id_ + ${allocation.id} + _scope"></div>
+                            <div hidden="hidden" th:value="${allocation.worker.id}"
+                                 th:id="all_id_ + ${allocation.id} + _worker"></div>
+                        </div>
+                    </th>
+                    <td th:text="${allocation.validFrom}"></td>
+                    <td th:text="${allocation.validUntil}"></td>
+                    <td th:text="${allocation.getScopeInFTE()}"></td>
+                    <td th:text="${allocation.getScopeInHPW()}"></td>
+                    <td>
+                        <button type="button" class="btn btn-outline-info common-border-radius"
+                                data-bs-toggle="modal"
+                                th:data-bs-target="'#modal_desc_' + ${allocation.id}"
+                                th:text="#{view.project.table.description}"></button>
+                        <!-- Modal -->
+                        <div class="modal modal-lg fade" th:id="'modal_desc_' + ${allocation.id}" tabindex="-1">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" th:text="#{view.project.table.description}"></h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <textarea class="w-100" th:text="${allocation.description}" readonly>
+                                        </textarea>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
+                                                th:text="#{view.employee.subordinate.close}">
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <button type="button" class="btn btn-outline-info common-border-radius"
+                                data-bs-toggle="modal"
+                                th:data-bs-target="'#modal_proj_' + ${allocation.id}"
+                                th:text="#{allocation.table.project-info}"></button>
+                        <!-- Modal -->
+                        <div class="modal modal-lg fade" th:id="'modal_proj_' + ${allocation.id}" tabindex="-1">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" th:text="#{allocation.table.project-info}"></h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="row">
+                                            <span class="col" th:text="#{view.project.table.name} + ':'"></span>
+                                            <span class="col text-start"
+                                                  th:text="${allocation.project.projectName}"></span>
+                                        </div>
+                                        <div class="row">
+                                            <span class="col" th:text="#{view.project.table.manager} + ':'"></span>
+                                            <span class="col"
+                                                  th:text="${allocation.project.projectManager.firstName} + ' ' + ${allocation.project.projectManager.lastName} + ' (' + ${allocation.project.projectManager.orionLogin} + ')'"></span>
+                                        </div>
+                                        <div class="row">
+                                            <span class="col"
+                                                  th:text="#{view.project.table.wrk-abbrevation} + ':'"></span>
+                                            <span class="col"
+                                                  th:text="${allocation.project.projectWorkplace.abbreviation}"></span>
+                                        </div>
+                                        <div class="row">
+                                            <span class="col"
+                                                  th:text="#{view.project-management.table.from} + ':'"></span>
+                                            <span class="col" th:text="${allocation.project.validFrom}"></span>
+                                        </div>
+                                        <div class="row">
+                                            <span class="col"
+                                                  th:text="#{view.project-management.table.until} + ':'"></span>
+                                            <span class="col" th:text="${allocation.project.validUntil}"></span>
+                                        </div>
+                                        <div class="row">
+                                            <span class="col"
+                                                  th:text="#{view.project-management.table.description} + ':'"></span>
+                                            <span class="col" th:text="${allocation.project.description}"></span>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
+                                                th:text="#{view.employee.subordinate.close}">
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<div th:replace="~{fragments/footer}">Footer</div>
+<!-- scripts -->
+<script type="text/javascript" th:src="@{/js/form_integrity/allocation_scope.js}"></script>
+<script type="text/javascript" th:src="@{/js/form_integrity/allocation_date.js}"></script>
+<script type="text/javascript" th:src="@{/js/allocation/allocation.js}"></script>
+<script type="text/javascript" th:inline="javascript">
+    /* ux */
+    let scopeController =
+        new AllocationScopeFilterController('filter_form_scope_from', 'scope_from_hpw', 'filter_form_scope_to', 'scope_to_hpw');
+    let dateController =
+        new AllocationDateController('filter_form_date_from', 'filter_form_date_to');
+    /* data */
+    let ids = [];
+    /*[# th:each="n : ${allocations}"]*/
+    ids.push("[(${n.id})]");
+    /*[/]*/
+    let allocationController =
+        new AllocationGroupAndSortController('allocation_storage', 'ungroup', 'by_state', 'sorter');
+    let allocationFilterController =
+        new AllocationFilterController('filter_form');
+
+    allocationController.buttonUngroup();
+    allocationController.sorter.performSort();
+</script>
+</body>
+</html>

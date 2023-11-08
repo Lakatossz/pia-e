@@ -1,0 +1,72 @@
+<!-- navbar -->
+<nav class="navbar navbar-expand-lg bg-light" xmlns:sec="http://www.w3.org/1999/xhtml">
+    <div class="container">
+        <!--        <span class="navbar-brand mb-0 h1">Navbar</span>-->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarContent">
+            <div class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/}">Index</a>
+                </li>
+                <li class="nav-item" sec:authorize="hasAuthority('SECRETARIAT')">
+                    <a class="nav-link" th:href="@{/w}" th:text="#{link.workplace}"></a>
+                </li>
+                <li class="nav-item" sec:authorize="hasAuthority('SECRETARIAT')">
+                    <a class="nav-link" th:href="@{/e}" th:text="#{link.employee}"></a>
+                </li>
+                <li class="nav-item" sec:authorize="hasAuthority('SECRETARIAT')">
+                    <a class="nav-link" th:href="@{/p}" th:text="#{link.project}"></a>
+                </li>
+            </div>
+            <div class="navbar-nav d-flex justify-content-end">
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/pw/change}" th:text="#{link.change-pw}">Změnit heslo</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/logout}" th:text="#{link.logout}">Odhlásit se</a>
+                </li>
+            </div>
+            <div class="vr me-2"></div>
+            <div class="navbar-nav d-flex justify-content-end">
+                <div class="nav-item dropdown">
+                    <a id="language_dropdown" class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown"
+                       aria-expanded="false">Language</a>
+                    <ul id="locale_chooser" class="dropdown-menu">
+                        <tr th:each="sLocale : ${@i18nLanguageService.getSupportedLanguagesLocale()}">
+                            <li><a th:id="${sLocale} + _item" th:value="${sLocale}" class="dropdown-item"
+                                   th:text="#{'locale.' + ${sLocale}}" th:onclick="changeLocale([[${sLocale}]])"></a>
+                            </li>
+                        </tr>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+<!-- locale chooser -->
+<script type="text/javascript" th:inline="javascript">
+    let supportedLocales = [[${@i18nLanguageService.getSupportedLanguagesLocale()}]];
+    let currentLocale = [[${#locale}]];
+
+    supportedLocales.forEach(function (locale) {
+        if (locale === currentLocale) {
+            document.getElementById(locale + '_item').hidden = true;
+            return;
+        }
+
+        document.getElementById(locale + '_item').hidden = false;
+    });
+    document.getElementById('language_dropdown').text = [[#{locale.current}]];
+</script>
+<!-- locale changer -->
+<script type="text/javascript" th:inline="javascript">
+    function changeLocale(locale) {
+        let currentUrl = window.location.href;
+        let newUrl = new URL(currentUrl);
+        newUrl.searchParams.set('lang', locale);
+        location.replace(newUrl);
+    }
+
+</script>

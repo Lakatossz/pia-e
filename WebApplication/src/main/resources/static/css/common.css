@@ -1,0 +1,13 @@
+.common-accordion-button-text {
+    text-align: center !important;
+}
+
+.accordion-item, .accordion-button  {
+    border-radius: 0 !important;
+}
+
+.common-border-radius {
+    -webkit-border-radius: 0 !important;
+    -moz-border-radius: 0 !important;
+    border-radius: 0 !important;
+}

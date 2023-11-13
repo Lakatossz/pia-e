@@ -190,7 +190,7 @@ public class UserServiceUnitTests {
     @WithMockUser("foo")
     public void test_if_user_is_project_manager_if_true() {
         when(employeeService.getEmployee("foo")).thenReturn(Employee.builder().orionLogin("foo").id(1L).build());
-        when(projectService.getProject(1L)).thenReturn(Project.builder().projectManager(Employee.builder().id(1L).build()).build());
+        when(projectService.getProject(1L)).thenReturn(new Project().projectManager(Employee.builder().id(1L).build()));
 
         Assertions.assertTrue(securityService.isProjectManager(1L));
     }
@@ -199,7 +199,7 @@ public class UserServiceUnitTests {
     @WithMockUser("foo")
     public void test_if_user_is_project_manager_if_false() {
         when(employeeService.getEmployee("foo")).thenReturn(Employee.builder().orionLogin("foo").id(1L).build());
-        when(projectService.getProject(1L)).thenReturn(Project.builder().projectManager(Employee.builder().id(2L).build()).build());
+        when(projectService.getProject(1L)).thenReturn(new Project().projectManager(Employee.builder().id(2L).build()));
 
         Assertions.assertFalse(securityService.isProjectManager(1L));
     }
@@ -217,10 +217,10 @@ public class UserServiceUnitTests {
     @WithMockUser("foo")
     public void test_if_user_is_at_least_project_manager_if_is() {
         List<Project> projects = new ArrayList<>();
-        projects.add(Project.builder().id(1L).projectManager(Employee.builder().id(1L).build()).build());
+        projects.add(new Project().id(1L).projectManager(Employee.builder().id(1L).build()));
         when(projectService.getProjects()).thenReturn(projects);
         when(employeeService.getEmployee("foo")).thenReturn(Employee.builder().orionLogin("foo").id(1L).build());
-        when(projectService.getProject(1L)).thenReturn(Project.builder().id(1L).projectManager(Employee.builder().id(1L).build()).build());
+        when(projectService.getProject(1L)).thenReturn(new Project().id(1L).projectManager(Employee.builder().id(1L).build()));
 
         Assertions.assertTrue(securityService.isAtLeastProjectManager());
     }
@@ -229,10 +229,10 @@ public class UserServiceUnitTests {
     @WithMockUser("foo")
     public void test_if_user_is_at_least_project_manager_if_is_not() {
         List<Project> projects = new ArrayList<>();
-        projects.add(Project.builder().id(1L).projectManager(Employee.builder().id(2L).build()).build());
+        projects.add(new Project().id(1L).projectManager(Employee.builder().id(2L).build()));
         when(projectService.getProjects()).thenReturn(projects);
         when(employeeService.getEmployee("foo")).thenReturn(Employee.builder().orionLogin("foo").id(1L).build());
-        when(projectService.getProject(1L)).thenReturn(Project.builder().id(1L).projectManager(Employee.builder().id(2L).build()).build());
+        when(projectService.getProject(1L)).thenReturn(new Project().id(1L).projectManager(Employee.builder().id(2L).build()));
 
         Assertions.assertFalse(securityService.isAtLeastProjectManager());
     }
@@ -241,7 +241,7 @@ public class UserServiceUnitTests {
     @WithMockUser("foo")
     public void test_if_user_is_workplace_manager_if_yes() {
         when(employeeService.getEmployee("foo")).thenReturn(Employee.builder().id(1L).orionLogin("foo").build());
-        when(projectService.getProject(1L)).thenReturn(Project.builder().projectWorkplace(Workplace.builder().id(1L).build()).build());
+        when(projectService.getProject(1L)).thenReturn(new Project().projectWorkplace(Workplace.builder().id(1L).build()));
         when(workplaceService.getWorkplace(1L)).thenReturn(Workplace.builder().manager(Employee.builder().id(1L).build()).build());
 
         Assertions.assertTrue(securityService.isWorkplaceManager(1));
@@ -251,7 +251,7 @@ public class UserServiceUnitTests {
     @WithMockUser("foo")
     public void test_if_user_is_workplace_manager_if_no() {
         when(employeeService.getEmployee("foo")).thenReturn(Employee.builder().id(1L).orionLogin("foo").build());
-        when(projectService.getProject(1L)).thenReturn(Project.builder().projectWorkplace(Workplace.builder().id(1L).build()).build());
+        when(projectService.getProject(1L)).thenReturn(new Project().projectWorkplace(Workplace.builder().id(1L).build()));
         when(workplaceService.getWorkplace(1L)).thenReturn(Workplace.builder().manager(Employee.builder().id(2L).build()).build());
 
         Assertions.assertFalse(securityService.isWorkplaceManager(1));

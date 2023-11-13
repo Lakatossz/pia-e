@@ -39,17 +39,16 @@ public class AllocationService {
     public void createAllocation(AllocationVO allocationVO) {
         int scope = (int) (allocationVO.getAllocationScope() * 40 * 60); // fte to minutes
         var allocationProject = projectRepository.fetchProject(allocationVO.getProjectId());
-        if (allocationVO.getValidFrom().isBefore(allocationProject.getValidFrom()) || allocationVO.getValidUntil().isAfter(allocationProject.getValidUntil()))
+        if (allocationVO.getValidFrom().isBefore(allocationProject.getDateFrom()) || allocationVO.getValidUntil().isAfter(allocationProject.getDateUntil()))
             throw new ServiceException();
 
-        Allocation allocation = Allocation.builder()
+        Allocation allocation = new Allocation()
                 .worker(Employee.builder().id(allocationVO.getEmployeeId()).build())
-                .project(Project.builder().id(allocationVO.getProjectId()).build())
+                .project(new Project().id(allocationVO.getProjectId()))
                 .allocationScope(scope)
-                .validFrom(allocationVO.getValidFrom())
-                .validUntil(allocationVO.getValidUntil())
-                .description(allocationVO.getDescription())
-                .build();
+                .dateFrom(allocationVO.getValidFrom())
+                .dateUntil(allocationVO.getValidUntil())
+                .description(allocationVO.getDescription());
 
         var processedAllocations = processAllocations(getEmployeeAllocations(allocationVO.getEmployeeId()));
         for (AllocationInterval interval : processedAllocations) {
@@ -75,18 +74,17 @@ public class AllocationService {
     public void updateAllocation(AllocationVO allocationVO, long id) {
         int scope = (int) (allocationVO.getAllocationScope() * 40 * 60); // fte to minutes
         var allocationProject = projectRepository.fetchProject(allocationVO.getProjectId());
-        if (allocationVO.getValidFrom().isBefore(allocationProject.getValidFrom()) || allocationVO.getValidUntil().isAfter(allocationProject.getValidUntil()))
+        if (allocationVO.getValidFrom().isBefore(allocationProject.getDateFrom()) || allocationVO.getValidUntil().isAfter(allocationProject.getDateUntil()))
             throw new ServiceException();
 
-        Allocation allocation = Allocation.builder()
+        Allocation allocation = new Allocation()
                 .worker(Employee.builder().id(allocationVO.getEmployeeId()).build())
-                .project(Project.builder().id(allocationVO.getProjectId()).build())
+                .project(new Project().id(allocationVO.getProjectId()))
                 .allocationScope(scope)
-                .validFrom(allocationVO.getValidFrom())
-                .validUntil(allocationVO.getValidUntil())
+                .dateFrom(allocationVO.getValidFrom())
+                .dateUntil(allocationVO.getValidUntil())
                 .description(allocationVO.getDescription())
-                .active(allocationVO.getIsActive())
-                .build();
+                .active(allocationVO.getIsActive());
 
         if (allocationVO.getIsActive()) {
             var processedAllocations = processAllocations(getEmployeeAllocations(allocationVO.getEmployeeId()));
@@ -117,7 +115,7 @@ public class AllocationService {
             projects.add(allocation.getProject());
         }
 
-        return new AllocationPayload(projects.stream().toList(), null, injectProject(assignmentsList));
+        return new AllocationPayload(projects.stream().toList(), null, null, null, injectProject(assignmentsList));
     }
 
     /**
@@ -144,7 +142,7 @@ public class AllocationService {
         }
         List<Employee> employees = employeeService.getSubordinates(superiorId);
 
-        return new AllocationPayload(projects.stream().toList(), employees, injectEmployee(injectProject(assignmentsList)));
+        return new AllocationPayload(projects.stream().toList(), null, null, employees, injectEmployee(injectProject(assignmentsList)));
     }
 
     /**
@@ -157,7 +155,7 @@ public class AllocationService {
         var allocationList = injectEmployee(assignmentRepository.fetchProjectAllocations(id));
         List<Employee> employees = projectRepository.fetchProjectEmployees(id);
 
-        return new AllocationPayload(null, employees, allocationList);
+        return new AllocationPayload(null, null, null, employees, allocationList);
     }
 
     /**
@@ -170,8 +168,8 @@ public class AllocationService {
     public AllocationRule getAllocationsRules(long projectId, long employeeId) {
         var project = projectRepository.fetchProject(projectId);
 
-        LocalDate minDate = project.getValidFrom();
-        LocalDate maxDate = project.getValidUntil();
+        LocalDate minDate = project.getDateFrom();
+        LocalDate maxDate = project.getDateUntil();
 
         var employeeAllocations = assignmentRepository.fetchEmployeeAllocations(employeeId);
 
@@ -192,8 +190,8 @@ public class AllocationService {
 
         Set<LocalDate> dates = new HashSet<>();
         allocations.forEach(allocation -> {
-            dates.add(allocation.getValidFrom());
-            dates.add(allocation.getValidUntil());
+            dates.add(allocation.getDateFrom());
+            dates.add(allocation.getDateUntil());
         });
 
         List<LocalDate> sortedDates = new ArrayList<>(dates.stream().toList());
@@ -233,7 +231,7 @@ public class AllocationService {
             var project = mapProjects.get(a.getProject().getId());
 
             withProject.add(new Allocation(a.getId(), a.getWorker(), project, a.getAllocationScope(),
-                    a.getValidFrom(), a.getValidUntil(), a.getDescription(), a.getActive()));
+                    a.getDateFrom(), a.getDateUntil(), a.getDescription(), a.getActive()));
         }
 
         return withProject;
@@ -255,7 +253,7 @@ public class AllocationService {
             var worker = mapEmployees.get(a.getWorker().getId());
 
             withEmployee.add(new Allocation(a.getId(), worker, a.getProject(), a.getAllocationScope(),
-                    a.getValidFrom(), a.getValidUntil(), a.getDescription(), a.getActive()));
+                    a.getDateFrom(), a.getDateUntil(), a.getDescription(), a.getActive()));
         }
 
         return withEmployee;

@@ -29,7 +29,7 @@
             <div class="row m-3">
                 <div class="col">
                     <label for="project_name" class="form-label" th:text="#{form.create-project.label.pname}"></label>
-                    <input th:field="*{projectName}" type="text" id="project_name" name="project_name"
+                    <input th:field="*{name}" type="text" id="project_name" name="project_name"
                            class="form-control common-border-radius" required>
                     <div class="invalid-feedback" th:text="#{form.create-project.invalid.pname}"></div>
                 </div>
@@ -100,7 +100,7 @@
 <script type="text/javascript" th:inline="javascript">
     let restrictions = [];
     /*[# th:each="n : ${restrictions}"]*/
-    restrictions.push(new ProjectRestrictions("[(${n.projectName})]"))
+    restrictions.push(new ProjectRestrictions("[(${n.name})]"))
     /*[/]*/
     let emp_restrictions = [];
 

@@ -31,7 +31,7 @@
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     </div>
-    <h1 class="text-center" th:text="#{view.project-management.header} + ' - ' + ${project.projectName}"></h1>
+    <h1 class="text-center" th:text="#{view.project-management.header} + ' - ' + ${project.name}"></h1>
     <hr>
     <div class="container">
         <!-- project info -->
@@ -50,11 +50,11 @@
                 </thead>
                 <tbody>
                 <tr>
-                    <th scope="row" th:text="${project.projectName}"></th>
+                    <th scope="row" th:text="${project.name}"></th>
                     <td th:text="${project.projectManager.firstName} + ' ' + ${project.projectManager.lastName}"></td>
                     <td th:text="${project.projectWorkplace.abbreviation}"></td>
-                    <td th:text="${project.validFrom}"></td>
-                    <td th:text="${project.validUntil}"></td>
+                    <td th:text="${project.dateFrom}"></td>
+                    <td th:text="${project.dateUntil}"></td>
                     <td>
                         <button type="button" class="btn btn-outline-info common-border-radius w-100"
                                 data-bs-toggle="modal"
@@ -196,8 +196,8 @@
                                                                 <option value="ALL" selected
                                                                         th:text="#{view.allocation.filter-form.all-projects}"></option>
                                                                 <tr th:each="project : ${projects}">
-                                                                    <option th:value="${project.projectName}"
-                                                                            th:text="${project.projectName}"></option>
+                                                                    <option th:value="${project.name}"
+                                                                            th:text="${project.name}"></option>
                                                                 </tr>
                                                             </select>
                                                         </div>
@@ -560,11 +560,11 @@
                                             <div>
                                                 <div hidden="hidden" th:value="${allocation.currentState}"
                                                      th:id="all_id_ + ${allocation.id} + _state"></div>
-                                                <div hidden="hidden" th:value="${allocation.project.projectName}"
+                                                <div hidden="hidden" th:value="${allocation.project.name}"
                                                      th:id="all_id_ + ${allocation.id} + _project"></div>
-                                                <div hidden="hidden" th:value="${allocation.validFrom}"
+                                                <div hidden="hidden" th:value="${allocation.getDateFrom}"
                                                      th:id="all_id_ + ${allocation.id} + _valid_from"></div>
-                                                <div hidden="hidden" th:value="${allocation.validUntil}"
+                                                <div hidden="hidden" th:value="${allocation.getDateUntil}"
                                                      th:id="all_id_ + ${allocation.id} + _valid_until"></div>
                                                 <div hidden="hidden" th:value="${allocation.allocationScope}"
                                                      th:id="all_id_ + ${allocation.id} + _scope"></div>
@@ -575,8 +575,8 @@
                                         <td
                                                 th:text="${allocation.worker.firstName} + ' ' + ${allocation.worker.lastName} + ' (' + ${allocation.worker.orionLogin}+')'">
                                         </td>
-                                        <td th:text="${allocation.validFrom}"></td>
-                                        <td th:text="${allocation.validUntil}"></td>
+                                        <td th:text="${allocation.getDateFrom}"></td>
+                                        <td th:text="${allocation.getDateUntil}"></td>
                                         <td th:text="${allocation.getScopeInFTE()}"></td>
                                         <td th:text="${allocation.getScopeInHPW()}"></td>
                                         <td>

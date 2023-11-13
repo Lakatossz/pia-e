@@ -23,12 +23,12 @@ public interface IProjectRepository {
     public Project fetchProject(long projectId);
 
     /**
-     * Fetch a project by its projectName. Throws runtime exception if invalid id is given.
+     * Fetch a project by its name. Throws runtime exception if invalid id is given.
      *
-     * @param projectName project name
+     * @param name project name
      * @return fetched {@link Project}
      */
-    public Project fetchProject(String projectName);
+    public Project fetchProject(String name);
 
     /**
      * Fetch all projects. Throws runtime exception if error occurs.

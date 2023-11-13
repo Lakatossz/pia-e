@@ -3,6 +3,8 @@ package cz.zcu.kiv.mjakubas.piae.sem.jdbc.mapper;
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Allocation;
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Employee;
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Project;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;
@@ -24,20 +26,19 @@ public class AllocationMapper implements RowMapper<Allocation> {
         Project project = null;
         try {
             var name = rs.getString("pro_name");
-            project = Project.builder().id(projectId).projectName(name).build();
+            project = new Project().id(projectId).name(name);
         } catch (Exception e) {
-            project = Project.builder().id(projectId).build();
+            project = new Project().id(projectId);
         }
 
-        return Allocation.builder()
+        return new Allocation()
                 .id(id)
                 .worker(Employee.builder().id(employeeId).build())
                 .project(project)
-                .validFrom(activeFrom)
-                .validUntil(activeUntil)
+                .dateFrom(activeFrom)
+                .dateUntil(activeUntil)
                 .allocationScope(scope)
                 .description(description)
-                .active(active)
-                .build();
+                .active(active);
     }
 }

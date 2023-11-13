@@ -53,7 +53,7 @@ public class SecurityService {
      * @param password plaintext password
      */
     @Transactional
-    protected void createUserUser(@NonNull long id, @NonNull String password) {
+    public void createUserUser(@NonNull long id, @NonNull String password) {
         var pw = passwordEncoder.encode(password);
         if (!userRepository.createNewUser(id, pw)) {
             throw new ServiceException();
@@ -67,7 +67,7 @@ public class SecurityService {
      * @param orionLogin employee orion login
      */
     @Transactional
-    protected void createUserRole(@NonNull String orionLogin) {
+    public void createUserRole(@NonNull String orionLogin) {
         if (!userRepository.addUserRole(orionLogin)) {
             throw new ServiceException();
         }

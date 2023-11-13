@@ -82,10 +82,10 @@ public class ProjectV1Controller {
         Project data = projectService.getProject(id);
 
         model.addAttribute("projectVO",
-                new ProjectVO(data.getProjectName(),
+                new ProjectVO(data.getName(),
                         data.getProjectManager().getFirstName() + " " + data.getProjectManager().getLastName() + " (" + data.getProjectManager().getOrionLogin() + ")",
-                        data.getProjectWorkplace().getId(), data.getValidFrom(),
-                        data.getValidUntil(), data.getDescription()));
+                        data.getProjectWorkplace().getId(), data.getDateFrom(),
+                        data.getDateUntil(), data.getDescription()));
 
         model.addAttribute("employees", employeeService.getEmployees());
         model.addAttribute("workplaces", workplaceService.getWorkplaces());

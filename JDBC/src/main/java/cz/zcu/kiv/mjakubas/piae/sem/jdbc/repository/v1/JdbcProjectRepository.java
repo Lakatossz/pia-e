@@ -44,16 +44,16 @@ public class JdbcProjectRepository implements IProjectRepository {
     }
 
     @Override
-    public Project fetchProject(String projectName) {
+    public Project fetchProject(String name) {
         var sql = """
                 SELECT p.*, w.wrk_abbrevation, e.* FROM project p
                 INNER JOIN workplace w ON w.workplace_id=p.pro_workplace_id
                 INNER JOIN employee e ON e.employee_id=p.pro_manager_id
-                WHERE p.pro_enabled=:isEnabled AND p.pro_name=:projectName
+                WHERE p.pro_enabled=:isEnabled AND p.pro_name=:name
                 """;
 
         var params = new MapSqlParameterSource();
-        params.addValue("projectName", projectName);
+        params.addValue("name", name);
         params.addValue("isEnabled", true);
 
         return jdbcTemplate.query(sql, params, PROJECT_MAPPER).get(0);
@@ -77,10 +77,10 @@ public class JdbcProjectRepository implements IProjectRepository {
     @Override
     public List<Employee> fetchProjectEmployees(long projectId) {
         var sql = """
-                SELECT e.*, w.wrk_abbrevation FROM project_employee pe
-                INNER JOIN employee e ON e.employee_id=pe.pre_employee_id
+                SELECT e.*, w.wrk_abbrevation FROM assignment pe
+                INNER JOIN employee e ON e.employee_id=pe.ass_employee_id
                 INNER JOIN workplace w ON w.workplace_id=e.emp_workplace_id
-                WHERE pe.pre_enabled=:isEnabled AND pe.pre_project_id=:project_id
+                WHERE pe.ass_enabled=:isEnabled AND pe.ass_project_id=:project_id
                 """;
 
         var params = new MapSqlParameterSource();
@@ -95,19 +95,19 @@ public class JdbcProjectRepository implements IProjectRepository {
         var sql = """
                 INSERT INTO project
                 (pro_enabled, pro_name, pro_manager_id, pro_workplace_id,\s
-                pro_active_from, pro_active_until, pro_description)
+                pro_date_from, pro_date_until, pro_description)
                 VALUES
                 (:pro_enabled, :pro_name, :pro_manager_id, :pro_workplace_id,\s
-                :pro_active_from, :pro_active_until, :pro_description);
+                :pro_date_from, :pro_date_until, :pro_description);
                 """;
 
         var params = new MapSqlParameterSource();
         params.addValue("pro_enabled", 1);
-        params.addValue("pro_name", project.getProjectName());
+        params.addValue("pro_name", project.getName());
         params.addValue("pro_manager_id", project.getProjectManager().getId());
         params.addValue("pro_workplace_id", project.getProjectWorkplace().getId());
-        params.addValue("pro_active_from", project.getValidFrom());
-        params.addValue("pro_active_until", project.getValidUntil());
+        params.addValue("pro_date_from", project.getDateFrom());
+        params.addValue("pro_date_until", project.getDateUntil());
         params.addValue("pro_description", project.getDescription());
 
 
@@ -119,17 +119,17 @@ public class JdbcProjectRepository implements IProjectRepository {
         var sql = """
                 UPDATE project
                 SET pro_enabled = :pro_enabled, pro_name = :pro_name, pro_manager_id = :pro_manager_id,
-                pro_workplace_id = :pro_workplace_id, pro_active_from = :pro_active_from, pro_description = :pro_description
+                pro_workplace_id = :pro_workplace_id, pro_date_from = :pro_date_from, pro_description = :pro_description
                 WHERE project_id = :project_id
                 """;
 
         var params = new MapSqlParameterSource();
         params.addValue("pro_enabled", 1);
-        params.addValue("pro_name", project.getProjectName());
+        params.addValue("pro_name", project.getName());
         params.addValue("pro_manager_id", project.getProjectManager().getId());
         params.addValue("pro_workplace_id", project.getProjectWorkplace().getId());
-        params.addValue("pro_active_from", project.getValidFrom());
-        params.addValue("pro_active_until", project.getValidUntil());
+        params.addValue("pro_date_from", project.getDateFrom());
+        params.addValue("pro_date_until", project.getDateUntil());
         params.addValue("pro_description", project.getDescription());
         params.addValue("project_id", projectId);
 
@@ -159,15 +159,15 @@ public class JdbcProjectRepository implements IProjectRepository {
     public boolean addEmployee(long employeeId, long projectId) {
         var sql = """
                 INSERT INTO project_employee
-                (pre_enabled, pre_project_id, pre_employee_id)
+                (ass_enabled, ass_project_id, ass_employee_id)
                 VALUES
-                (:pre_enabled, :pre_project_id, :pre_employee_id)
+                (:ass_enabled, :ass_project_id, :ass_employee_id)
                 """;
 
         var params = new MapSqlParameterSource();
-        params.addValue("pre_enabled", true);
-        params.addValue("pre_project_id", projectId);
-        params.addValue("pre_employee_id", employeeId);
+        params.addValue("ass_enabled", true);
+        params.addValue("ass_project_id", projectId);
+        params.addValue("ass_employee_id", employeeId);
 
 
         return jdbcTemplate.update(sql, params) == 1;
@@ -177,12 +177,12 @@ public class JdbcProjectRepository implements IProjectRepository {
     public boolean removeEmployee(long employeeId, long projectId) {
         var sql = """
                 UPDATE project_employee
-                SET pre_enabled = :pro_enabled
-                WHERE pro_enabled =:isEnabled AND pre.project_id = :project_id AND pre.employee_id=:employee_id
+                SET ass_enabled = :pro_enabled
+                WHERE pro_enabled =:isEnabled AND ass.project_id = :project_id AND ass.employee_id=:employee_id
                 """;
 
         var params = new MapSqlParameterSource();
-        params.addValue("pre_enabled", false);
+        params.addValue("ass_enabled", false);
         params.addValue("project_id", projectId);
         params.addValue("isEnabled", true);
         params.addValue("employee_id", employeeId);

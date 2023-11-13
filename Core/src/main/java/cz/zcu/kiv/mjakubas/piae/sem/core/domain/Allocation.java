@@ -1,34 +1,37 @@
 package cz.zcu.kiv.mjakubas.piae.sem.core.domain;
 
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDate;
 
-@Data
+@Getter
+@Setter
 public class Allocation {
 
-    private final long id;
-    private final Employee worker;
-    private final Project project;
-    private final int allocationScope;
-    private final LocalDate validFrom;
-    private final LocalDate validUntil;
-    private final String description;
-    private final Boolean active;
+    private long id;
+    private Employee worker;
+    private Project project;
+    private int allocationScope;
+    private LocalDate dateFrom;
+    private LocalDate dateUntil;
+    private String description;
+    private Boolean active;
 
-    private final AssignmentState currentState;
+    private AssignmentState currentState;
 
-    @Builder(access = AccessLevel.PUBLIC)
+    public Allocation() {
+
+    }
+
     public Allocation(long id, Employee worker, Project project, int allocationScope,
-                      LocalDate validFrom, LocalDate validUntil, String description, Boolean active) {
+                      LocalDate dateFrom, LocalDate dateUntil, String description, Boolean active) {
         this.id = id;
         this.worker = worker;
         this.project = project;
         this.allocationScope = allocationScope;
-        this.validFrom = validFrom;
-        this.validUntil = validUntil;
+        this.dateFrom = dateFrom;
+        this.dateUntil = dateUntil;
         this.description = description;
         if (active == null)
             this.active = true;
@@ -43,16 +46,16 @@ public class Allocation {
     }
 
     private AssignmentState calculateState() {
-        if (this.validFrom == null || this.validUntil == null)
+        if (this.dateFrom == null || this.dateUntil == null)
             return AssignmentState.UNKNOWN;
 
         if (!this.active)
             return AssignmentState.INACTIVE;
 
-        if (LocalDate.now().isBefore(this.validFrom))
+        if (LocalDate.now().isBefore(this.dateFrom))
             return AssignmentState.UNREALIZED;
 
-        if (LocalDate.now().isAfter(this.validUntil))
+        if (LocalDate.now().isAfter(this.dateUntil))
             return AssignmentState.PAST;
 
         return AssignmentState.ACTIVE;
@@ -64,5 +67,68 @@ public class Allocation {
 
     public String getScopeInHPW() {
         return String.format("%.2f", (allocationScope / 60.0));
+    }
+
+    public Allocation id(long id) {
+        this.id = id;
+        return this;
+    }
+
+    public Allocation worker(Employee worker) {
+        this.worker = worker;
+        return this;
+    }
+
+    public Allocation project(Project project) {
+        this.project = project;
+        return this;
+    }
+
+    public Allocation allocationScope(int allocationScope) {
+        this.allocationScope = allocationScope;
+        return this;
+    }
+
+    public Allocation dateFrom(LocalDate dateFrom) {
+        this.dateFrom = dateFrom;
+        return this;
+    }
+
+    public Allocation dateUntil(LocalDate dateUntil) {
+        this.dateUntil = dateUntil;
+        return this;
+    }
+
+    public Allocation description(String description) {
+        this.description = description;
+        return this;
+    }
+
+    public Allocation active(Boolean active) {
+        if (active == null)
+            this.active = true;
+        else
+            this.active = active;
+        return this;
+    }
+
+    public Allocation currentState(AssignmentState currentState) {
+        this.currentState = currentState;
+        return this;
+    }
+
+    @Override
+    public String toString() {
+        return "Allocation{" +
+                "id=" + id +
+                ", worker=" + worker +
+                ", project=" + project +
+                ", allocationScope=" + allocationScope +
+                ", dateFrom=" + dateFrom +
+                ", dateUntil=" + dateUntil +
+                ", description='" + description + '\'' +
+                ", active=" + active +
+                ", currentState=" + currentState +
+                '}';
     }
 }

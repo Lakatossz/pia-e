@@ -115,8 +115,8 @@ public class JdbcAllocationRepository implements IAllocationRepository {
         params.addValue("isEnabled", 1);
         params.addValue("eId", allocation.getWorker().getId());
         params.addValue("pId", allocation.getProject().getId());
-        params.addValue("aFrom", allocation.getValidFrom());
-        params.addValue("aUntil", allocation.getValidUntil());
+        params.addValue("aFrom", allocation.getDateFrom());
+        params.addValue("aUntil", allocation.getDateUntil());
         params.addValue("scope", allocation.getAllocationScope());
         params.addValue("descr", allocation.getDescription());
         params.addValue("active", 1);
@@ -137,8 +137,8 @@ public class JdbcAllocationRepository implements IAllocationRepository {
         params.addValue("isEnabled", 1);
         params.addValue("eId", allocation.getWorker().getId());
         params.addValue("pId", allocation.getProject().getId());
-        params.addValue("aFrom", allocation.getValidFrom());
-        params.addValue("aUntil", allocation.getValidUntil());
+        params.addValue("aFrom", allocation.getDateFrom());
+        params.addValue("aUntil", allocation.getDateUntil());
         params.addValue("scope", allocation.getAllocationScope());
         params.addValue("active", allocation.getActive());
         params.addValue("id", allocationId);

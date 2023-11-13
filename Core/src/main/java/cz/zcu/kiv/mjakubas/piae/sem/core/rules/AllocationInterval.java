@@ -18,8 +18,8 @@ public class AllocationInterval {
     private HashMap<Allocation.AssignmentState, Integer> scopes;
 
     public boolean isFromInterval(Allocation allocation) {
-        var alFrom = allocation.getValidFrom();
-        var alUntil = allocation.getValidUntil();
+        var alFrom = allocation.getDateFrom();
+        var alUntil = allocation.getDateUntil();
 
         return (alFrom.isBefore(this.until) || alFrom.isEqual(this.until)) && (alUntil.isAfter(this.from) || alUntil.isEqual(this.from));
     }

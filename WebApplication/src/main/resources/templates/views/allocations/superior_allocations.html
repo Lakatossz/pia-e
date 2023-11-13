@@ -70,8 +70,8 @@
                                             <option value="ALL" selected
                                                     th:text="#{view.allocation.filter-form.all-projects}"></option>
                                             <tr th:each="project : ${projects}">
-                                                <option th:value="${project.projectName}"
-                                                        th:text="${project.projectName}"></option>
+                                                <option th:value="${project.name}"
+                                                        th:text="${project.name}"></option>
                                             </tr>
                                         </select>
                                     </div>
@@ -395,11 +395,11 @@
                         <div>
                             <div hidden="hidden" th:value="${allocation.currentState}"
                                  th:id="all_id_ + ${allocation.id} + _state"></div>
-                            <div hidden="hidden" th:value="${allocation.project.projectName}"
+                            <div hidden="hidden" th:value="${allocation.project.name}"
                                  th:id="all_id_ + ${allocation.id} + _project"></div>
-                            <div hidden="hidden" th:value="${allocation.validFrom}"
+                            <div hidden="hidden" th:value="${allocation.getDateFrom}"
                                  th:id="all_id_ + ${allocation.id} + _valid_from"></div>
-                            <div hidden="hidden" th:value="${allocation.validUntil}"
+                            <div hidden="hidden" th:value="${allocation.getDateUntil}"
                                  th:id="all_id_ + ${allocation.id} + _valid_until"></div>
                             <div hidden="hidden" th:value="${allocation.allocationScope}"
                                  th:id="all_id_ + ${allocation.id} + _scope"></div>
@@ -410,8 +410,8 @@
                     <td
                             th:text="${allocation.worker.firstName} + ' ' + ${allocation.worker.lastName} + ' (' + ${allocation.worker.orionLogin}+')'">
                     </td>
-                    <td th:text="${allocation.validFrom}"></td>
-                    <td th:text="${allocation.validUntil}"></td>
+                    <td th:text="${allocation.getDateFrom}"></td>
+                    <td th:text="${allocation.getDateUntil}"></td>
                     <td th:text="${allocation.getScopeInFTE()}"></td>
                     <td th:text="${allocation.getScopeInHPW()}"></td>
                     <td>
@@ -459,7 +459,7 @@
                                         <div class="row">
                                             <span class="col" th:text="#{view.project.table.name} + ':'"></span>
                                             <span class="col text-start"
-                                                  th:text="${allocation.project.projectName}"></span>
+                                                  th:text="${allocation.project.name}"></span>
                                         </div>
                                         <div class="row">
                                             <span class="col" th:text="#{view.project.table.manager} + ':'"></span>

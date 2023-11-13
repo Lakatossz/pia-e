@@ -98,19 +98,18 @@ public class ProjectService {
     @Transactional
     public void createProject(@NonNull ProjectVO projectVO) {
         var data = employeeService.getEmployee(projectVO.getProjectManagerOrionLogin());
-        if (projectVO.getDateValidUntil() != null) {
-            if (projectVO.getDateValidFrom().isAfter(projectVO.getDateValidUntil()))
+        if (projectVO.getDateUntil() != null) {
+            if (projectVO.getDateFrom().isAfter(projectVO.getDateUntil()))
                 throw new ServiceException();
         }
 
-        Project project = Project.builder()
-                .projectName(projectVO.getProjectName())
+        Project project = new Project()
+                .name(projectVO.getName())
                 .projectManager(Employee.builder().id(data.getId()).build())
                 .projectWorkplace(Workplace.builder().id(projectVO.getWorkplaceId()).build())
-                .validFrom(projectVO.getDateValidFrom())
-                .validUntil(projectVO.getDateValidUntil() != null ? projectVO.getDateValidUntil() : LocalDate.of(9999, 9, 9))
-                .description(projectVO.getDescription())
-                .build();
+                .dateFrom(projectVO.getDateFrom())
+                .dateUntil(projectVO.getDateUntil() != null ? projectVO.getDateUntil() : LocalDate.of(9999, 9, 9))
+                .description(projectVO.getDescription());
 
         if (!projectRepository.createProject(project))
             throw new ServiceException();
@@ -125,27 +124,26 @@ public class ProjectService {
     @Transactional
     public void editProject(@NonNull ProjectVO projectVO, long id) {
         var data = employeeService.getEmployee(projectVO.getProjectManagerOrionLogin());
-        if (projectVO.getDateValidUntil() != null) {
-            if (projectVO.getDateValidFrom().isAfter(projectVO.getDateValidUntil()))
+        if (projectVO.getDateUntil() != null) {
+            if (projectVO.getDateFrom().isAfter(projectVO.getDateUntil()))
                 throw new ServiceException();
         }
         var processed = allocationService.processAllocations(allocationService.getProjectAllocations(id).getAllocations());
         if (processed.size() > 0) {
-            if (processed.get(0).getFrom().isBefore(projectVO.getDateValidFrom())
-                    || processed.get(processed.size() - 1).getUntil().isAfter(projectVO.getDateValidUntil()))
+            if (processed.get(0).getFrom().isBefore(projectVO.getDateFrom())
+                    || processed.get(processed.size() - 1).getUntil().isAfter(projectVO.getDateUntil()))
                 throw new ServiceException();
         }
 
 
-        Project project = Project.builder()
+        Project project = new Project()
                 .id(id)
-                .projectName(projectVO.getProjectName())
+                .name(projectVO.getName())
                 .projectManager(Employee.builder().id(data.getId()).build())
                 .projectWorkplace(Workplace.builder().id(projectVO.getWorkplaceId()).build())
-                .validFrom(projectVO.getDateValidFrom())
-                .validUntil(projectVO.getDateValidUntil() != null ? projectVO.getDateValidUntil() : LocalDate.of(9999, 9, 9))
-                .description(projectVO.getDescription())
-                .build();
+                .dateFrom(projectVO.getDateFrom())
+                .dateUntil(projectVO.getDateUntil() != null ? projectVO.getDateUntil() : LocalDate.of(9999, 9, 9))
+                .description(projectVO.getDescription());
 
         if (!projectRepository.updateProject(project, id))
             throw new ServiceException();

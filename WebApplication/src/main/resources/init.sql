@@ -126,32 +126,26 @@ CREATE TABLE IF NOT EXISTS `piae_v1_db`.`project`
 -- -----------------------------------------------------
 -- Table `piae_v1_db`.`assignment`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `piae_v1_db`.`assignment`
-(
-    `assignment_id`    INT           NOT NULL AUTO_INCREMENT,
-    `ass_enabled`      TINYINT       NOT NULL,
-    `ass_employee_id`  INT           NOT NULL,
-    `ass_project_id`   INT           NOT NULL,
-    `ass_active_from`  DATE          NOT NULL,
-    `ass_active_until` DATE          NOT NULL,
-    `ass_scope`        INT           NOT NULL,
-    `ass_description`  VARCHAR(2000) NOT NULL,
-    `ass_active`       TINYINT       NOT NULL,
-    PRIMARY KEY (`assignment_id`),
-    INDEX `fk_ass_employee_id_idx` (`ass_employee_id` ASC) VISIBLE,
-    INDEX `fk_ass_project_id_idx` (`ass_project_id` ASC) VISIBLE,
-    CONSTRAINT `fk_ass_employee_id`
-        FOREIGN KEY (`ass_employee_id`)
-            REFERENCES `piae_v1_db`.`employee` (`employee_id`)
-            ON DELETE NO ACTION
-            ON UPDATE NO ACTION,
-    CONSTRAINT `fk_ass_project_id`
-        FOREIGN KEY (`ass_project_id`)
-            REFERENCES `piae_v1_db`.`project` (`project_id`)
-            ON DELETE NO ACTION
-            ON UPDATE NO ACTION
-)
-    ENGINE = InnoDB;
+CREATE TABLE `assignment` (
+                              `assignment_id` int NOT NULL AUTO_INCREMENT,
+                              `ass_enabled` tinyint NOT NULL,
+                              `ass_employee_id` int NOT NULL,
+                              `ass_project_id` int DEFAULT NULL,
+                              `ass_course_id` int DEFAULT NULL,
+                              `ass_active` int NOT NULL,
+                              `ass_function_id` int DEFAULT NULL,
+                              `ass_active_from` date NOT NULL,
+                              `ass_active_until` date NOT NULL,
+                              `ass_scope` int NOT NULL,
+                              `ass_description` varchar(2000) COLLATE utf8mb3_czech_ci NOT NULL,
+                              PRIMARY KEY (`assignment_id`),
+                              KEY `fk_ass_employee_id_idx` (`ass_employee_id`),
+                              KEY `fk_ass_project_id_idx` (`ass_project_id`),
+                              KEY `fk_ass_course_id_idx` (`ass_course_id`),
+                              KEY `fk_ass_function_id_idx` (`ass_function_id`),
+                              CONSTRAINT `fk_ass_employee_id` FOREIGN KEY (`ass_employee_id`) REFERENCES `employee` (`employee_id`),
+                              CONSTRAINT `fk_ass_project_id` FOREIGN KEY (`ass_project_id`) REFERENCES `project` (`project_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_czech_ci;
 
 
 -- -----------------------------------------------------

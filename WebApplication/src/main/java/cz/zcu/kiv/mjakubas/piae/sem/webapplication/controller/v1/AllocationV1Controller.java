@@ -34,8 +34,8 @@ public class AllocationV1Controller {
 
         model.addAttribute("employees", employeeService.getEmployees());
 
-        model.addAttribute("minDate", project.getValidFrom());
-        model.addAttribute("maxDate", project.getValidUntil());
+        model.addAttribute("minDate", project.getDateFrom());
+        model.addAttribute("maxDate", project.getDateUntil());
 
         var rules = allocationService.getAllocationsRules(projectId, employeeId);
         model.addAttribute("rules", rules);
@@ -65,8 +65,8 @@ public class AllocationV1Controller {
 
         model.addAttribute("employees", employeeService.getEmployees());
 
-        model.addAttribute("minDate", project.getValidFrom());
-        model.addAttribute("maxDate", project.getValidUntil());
+        model.addAttribute("minDate", project.getDateFrom());
+        model.addAttribute("maxDate", project.getDateUntil());
 
         var rules = allocationService.getAllocationsRules(project.getId(), employee.getId());
         model.addAttribute("rules", rules);
@@ -76,8 +76,8 @@ public class AllocationV1Controller {
         allocationVO.setEmployeeId(employee.getId());
         allocationVO.setAllocationScope(allocation.getAllocationScope());
         allocationVO.setDescription(allocation.getDescription());
-        allocationVO.setValidFrom(allocation.getValidFrom());
-        allocationVO.setValidUntil(allocation.getValidUntil());
+        allocationVO.setValidFrom(allocation.getDateFrom());
+        allocationVO.setValidUntil(allocation.getDateUntil());
         model.addAttribute("assignmentVO", allocationVO);
 
         return "forms/allocation/edit_assignment_form";

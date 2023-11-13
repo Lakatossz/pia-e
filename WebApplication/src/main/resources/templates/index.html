@@ -28,11 +28,11 @@
         <a th:href="'a/of/superior/' + ${me.id}" class="btn btn-primary" th:text="#{index.my-sub-allocations}"></a>
         <tr th:each="p : ${myProjects}">
             <a th:href="'p/' + ${p.id} + '/manage'" class="btn btn-primary"
-               th:text="'Projekt: ' + ${p.projectName}"></a>
+               th:text="'Projekt: ' + ${p.name}"></a>
         </tr>
         <tr th:each="p : ${workplaceProjects}">
             <a th:href="'p/' + ${p.id} + '/manage'" class="btn btn-primary"
-               th:text="'Projekt: ' + ${p.projectName}"></a>
+               th:text="'Projekt: ' + ${p.name}"></a>
         </tr>
         <a th:href="'a/workload'" class="btn btn-primary" th:text="#{index.workload}"
            th:if="${myProjects.size() > 0}"></a>

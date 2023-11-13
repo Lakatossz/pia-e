@@ -16,8 +16,8 @@ public class ProjectMapper implements RowMapper<Project> {
     public Project mapRow(ResultSet rs, int rowNum) throws SQLException {
         var prId = rs.getLong("project_id");
         var name = rs.getString("pro_name");
-        var activeFrom = rs.getObject("pro_active_from", LocalDate.class);
-        var activeUntil = rs.getObject("pro_active_until", LocalDate.class);
+        var dateFrom = rs.getObject("pro_date_from", LocalDate.class);
+        var dateUntil = rs.getObject("pro_date_until", LocalDate.class);
         var description = rs.getString("pro_description");
 
         var abbrevation = rs.getString("wrk_abbrevation");
@@ -30,14 +30,13 @@ public class ProjectMapper implements RowMapper<Project> {
 
         var manager = EMPLOYEE_MAPPER.mapRow(rs, rowNum);
 
-        return Project.builder()
+        return new Project()
                 .id(prId)
-                .projectName(name)
-                .validFrom(activeFrom)
-                .validUntil(activeUntil)
+                .name(name)
+                .dateFrom(dateFrom)
+                .dateUntil(dateUntil)
                 .description(description)
                 .projectWorkplace(Workplace.builder().id(wrkId).abbreviation(abbrevation).build())
-                .projectManager(manager)
-                .build();
+                .projectManager(manager);
     }
 }

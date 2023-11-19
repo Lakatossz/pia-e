@@ -1,9 +1,13 @@
 package cz.zcu.kiv.mjakubas.piae.sem.core.service;
 
+import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Course;
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Employee;
+import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Function;
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Project;
 import cz.zcu.kiv.mjakubas.piae.sem.core.repository.IUserRepository;
+import cz.zcu.kiv.mjakubas.piae.sem.core.service.v1.CourseService;
 import cz.zcu.kiv.mjakubas.piae.sem.core.service.v1.EmployeeService;
+import cz.zcu.kiv.mjakubas.piae.sem.core.service.v1.FunctionService;
 import cz.zcu.kiv.mjakubas.piae.sem.core.service.v1.ProjectService;
 import cz.zcu.kiv.mjakubas.piae.sem.core.service.v1.WorkplaceService;
 import cz.zcu.kiv.mjakubas.piae.sem.core.vo.EmployeeVO;
@@ -28,6 +32,8 @@ public class SecurityService {
     private IUserRepository userRepository;
     private EmployeeService employeeService;
     private ProjectService projectService;
+    private CourseService courseService;
+    private FunctionService functionService;
     private WorkplaceService workplaceService;
 
     private PasswordEncoder passwordEncoder;
@@ -142,6 +148,34 @@ public class SecurityService {
     }
 
     /**
+     * Checks if current logged user is course manager of parameter id of a course.
+     *
+     * @param courseId course id
+     * @return true if yes, otherwise no
+     */
+    public boolean isCourseManager(Long courseId) {
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        var employee = employeeService.getEmployee(auth.getName());
+        var course = courseService.getCourse(courseId);
+
+        return course.getCourseManager().getId() == employee.getId();
+    }
+
+    /**
+     * Checks if current logged user is function manager of parameter id of a function.
+     *
+     * @param functionId function id
+     * @return true if yes, otherwise no
+     */
+    public boolean isFunctionManager(Long functionId) {
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        var employee = employeeService.getEmployee(auth.getName());
+        var function = functionService.getFunction(functionId);
+
+        return function.getFunctionManager().getId() == employee.getId();
+    }
+
+    /**
      * Checks if current logged user is at least project manager.
      *
      * @return true if yes, otherwise false
@@ -150,6 +184,36 @@ public class SecurityService {
         var projects = projectService.getProjects();
         for (Project p : projects) {
             if (isProjectManager(p.getId()))
+                return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Checks if current logged user is at least course manager.
+     *
+     * @return true if yes, otherwise false
+     */
+    public boolean isAtLeastCourseManager() {
+        var courses = courseService.getCourses();
+        for (Course c : courses) {
+            if (isCourseManager(c.getId()))
+                return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Checks if current logged user is at least function manager.
+     *
+     * @return true if yes, otherwise false
+     */
+    public boolean isAtLeastFunctionManager() {
+        var functions = functionService.getFunctions();
+        for (Function f : functions) {
+            if (isFunctionManager(f.getId()))
                 return true;
         }
 

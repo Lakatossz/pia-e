@@ -95,10 +95,12 @@ public class JdbcProjectRepository implements IProjectRepository {
         var sql = """
                 INSERT INTO project
                 (pro_enabled, pro_name, pro_manager_id, pro_workplace_id,\s
-                pro_date_from, pro_date_until, pro_description)
+                pro_date_from, pro_date_until, pro_description, pro_probability, 
+                pro_budget, pro_participation, pro_total_time)
                 VALUES
                 (:pro_enabled, :pro_name, :pro_manager_id, :pro_workplace_id,\s
-                :pro_date_from, :pro_date_until, :pro_description);
+                :pro_date_from, :pro_date_until, :pro_description, :pro_probability,
+                :pro_budget, :pro_participation, :pro_total_time);
                 """;
 
         var params = new MapSqlParameterSource();
@@ -109,6 +111,10 @@ public class JdbcProjectRepository implements IProjectRepository {
         params.addValue("pro_date_from", project.getDateFrom());
         params.addValue("pro_date_until", project.getDateUntil());
         params.addValue("pro_description", project.getDescription());
+        params.addValue("pro_probability", project.getProbability());
+        params.addValue("pro_budget", project.getBudget());
+        params.addValue("pro_participation", project.getParticipation());
+        params.addValue("pro_total_time", project.getTotalTime());
 
 
         return jdbcTemplate.update(sql, params) == 1;
@@ -119,7 +125,9 @@ public class JdbcProjectRepository implements IProjectRepository {
         var sql = """
                 UPDATE project
                 SET pro_enabled = :pro_enabled, pro_name = :pro_name, pro_manager_id = :pro_manager_id,
-                pro_workplace_id = :pro_workplace_id, pro_date_from = :pro_date_from, pro_description = :pro_description
+                pro_workplace_id = :pro_workplace_id, pro_date_from = :pro_date_from, pro_description = :pro_description,
+                pro_probability = :pro_probability, pro_budget = :pro_budget, pro_participation = :pro_participation,
+                pro_total_time = :pro_total_time
                 WHERE project_id = :project_id
                 """;
 
@@ -131,6 +139,10 @@ public class JdbcProjectRepository implements IProjectRepository {
         params.addValue("pro_date_from", project.getDateFrom());
         params.addValue("pro_date_until", project.getDateUntil());
         params.addValue("pro_description", project.getDescription());
+        params.addValue("pro_probability", project.getProbability());
+        params.addValue("pro_budget", project.getBudget());
+        params.addValue("pro_participation", project.getParticipation());
+        params.addValue("pro_total_time", project.getTotalTime());
         params.addValue("project_id", projectId);
 
         return jdbcTemplate.update(sql, params) == 1;
@@ -149,7 +161,7 @@ public class JdbcProjectRepository implements IProjectRepository {
         params.addValue("project_id", projectId);
         params.addValue("isEnabled", true);
 
-        allocationRepository.fetchProjectAllocations(projectId)
+        allocationRepository.fetchAllocationsByProjectId(projectId)
                 .forEach(allocation -> allocationRepository.removeAllocation(allocation.getId()));
 
         return jdbcTemplate.update(sql, params) == 1;
@@ -187,7 +199,7 @@ public class JdbcProjectRepository implements IProjectRepository {
         params.addValue("isEnabled", true);
         params.addValue("employee_id", employeeId);
 
-        allocationRepository.fetchProjectAllocations(projectId)
+        allocationRepository.fetchAllocationsByProjectId(projectId)
                 .forEach(allocation -> {
                     if (allocation.getWorker().getId() == employeeId)
                         allocationRepository.removeAllocation(allocation.getId());

@@ -15,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.List;
 
 /**
@@ -34,7 +33,7 @@ public class ProjectService {
 
 
     /**
-     * Gets project by its id. Throws SQL error if project doesn't exists.
+     * Gets project by its id. Throws SQL error if project doesn't exist.
      *
      * @param id project id
      * @return project
@@ -63,7 +62,7 @@ public class ProjectService {
     }
 
     /**
-     * Gets all projects of workplace manager. Throws SQL error if manager doesnt exist.
+     * Gets all projects of workplace manager. Throws SQL error if manager doesn't exist.
      *
      * @param id manager id
      * @return list of workplace {@link Project}

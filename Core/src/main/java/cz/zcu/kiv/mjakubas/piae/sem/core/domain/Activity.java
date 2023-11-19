@@ -12,9 +12,7 @@ public abstract class Activity {
     private long id;
     private String name;
     private LocalDate dateFrom;
-
     private LocalDate dateUntil;
-
     private float probability;
 
     public Activity() {

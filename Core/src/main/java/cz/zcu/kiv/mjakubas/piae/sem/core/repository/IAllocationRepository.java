@@ -42,7 +42,23 @@ public interface IAllocationRepository {
      * @param projectId project id
      * @return fetched list of {@link Allocation}
      */
-    public List<Allocation> fetchProjectAllocations(long projectId);
+    public List<Allocation> fetchAllocationsByProjectId(long projectId);
+
+    /**
+     * Fetch all course employees allocations by course id. Throws runtime exception if invalid id is given.
+     *
+     * @param courseId course id
+     * @return fetched list of {@link Allocation}
+     */
+    public List<Allocation> fetchAllocationsByCourseId(long courseId);
+
+    /**
+     * Fetch all function employees allocations by function id. Throws runtime exception if invalid id is given.
+     *
+     * @param functionId function id
+     * @return fetched list of {@link Allocation}
+     */
+    public List<Allocation> fetchAllocationsByFunctionId(long functionId);
 
     /**
      * Fetch all workplace employees allocations by workplace id. Throws runtime exception if invalid id is given.

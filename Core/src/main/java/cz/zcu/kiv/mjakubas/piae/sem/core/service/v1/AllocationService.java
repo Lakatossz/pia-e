@@ -5,6 +5,8 @@ import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Employee;
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Project;
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.payload.AllocationPayload;
 import cz.zcu.kiv.mjakubas.piae.sem.core.repository.IAllocationRepository;
+import cz.zcu.kiv.mjakubas.piae.sem.core.repository.ICourseRepository;
+import cz.zcu.kiv.mjakubas.piae.sem.core.repository.IFunctionRepository;
 import cz.zcu.kiv.mjakubas.piae.sem.core.repository.IProjectRepository;
 import cz.zcu.kiv.mjakubas.piae.sem.core.rules.AllocationInterval;
 import cz.zcu.kiv.mjakubas.piae.sem.core.rules.AllocationRule;
@@ -28,6 +30,8 @@ public class AllocationService {
 
     private final IAllocationRepository assignmentRepository;
     private final IProjectRepository projectRepository;
+    private final ICourseRepository courseRepository;
+    private final IFunctionRepository functionRepository;
     private final EmployeeService employeeService;
 
     /**
@@ -152,8 +156,34 @@ public class AllocationService {
      * @return payload
      */
     public AllocationPayload getProjectAllocations(long id) {
-        var allocationList = injectEmployee(assignmentRepository.fetchProjectAllocations(id));
+        var allocationList = injectEmployee(assignmentRepository.fetchAllocationsByProjectId(id));
         List<Employee> employees = projectRepository.fetchProjectEmployees(id);
+
+        return new AllocationPayload(null, null, null, employees, allocationList);
+    }
+
+    /**
+     * Gets all course allocations. Throws SQL exception if course doesn't exist.
+     *
+     * @param id course id
+     * @return payload
+     */
+    public AllocationPayload getCourseAllocations(long id) {
+        var allocationList = injectEmployee(assignmentRepository.fetchAllocationsByCourseId(id));
+        List<Employee> employees = courseRepository.fetchCourseEmployees(id);
+
+        return new AllocationPayload(null, null, null, employees, allocationList);
+    }
+
+    /**
+     * Gets all function allocations. Throws SQL exception if function doesn't exist.
+     *
+     * @param id function id
+     * @return payload
+     */
+    public AllocationPayload getFunctionAllocations(long id) {
+        var allocationList = injectEmployee(assignmentRepository.fetchAllocationsByProjectId(id));
+        List<Employee> employees = functionRepository.fetchFunctionEmployees(id);
 
         return new AllocationPayload(null, null, null, employees, allocationList);
     }

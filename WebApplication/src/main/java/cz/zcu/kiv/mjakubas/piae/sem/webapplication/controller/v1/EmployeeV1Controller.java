@@ -58,6 +58,22 @@ public class EmployeeV1Controller {
         return "redirect:/e?create=success";
     }
 
+    @GetMapping("/{id}/detail")
+    public String detailEmployee(Model model, @PathVariable long id) {
+        var employee = employeeService.getEmployee(id);
+        var employees = employeeService.getEmployees();
+        var workplaces = workplaceService.getWorkplaces();
+
+        model.addAttribute("userVO",
+                new EmployeeVO(employee.getFirstName(), employee.getLastName(), employee.getEmailAddress(),
+                        employee.getOrionLogin(), employee.getWorkplace().getId(), null));
+
+        model.addAttribute("restrictions", employees);
+        model.addAttribute("workplaces", workplaces);
+
+        return "forms/employee/detail_employee";
+    }
+
     @GetMapping("/{id}/edit")
     public String editEmployee(Model model, @PathVariable long id) {
         var employee = employeeService.getEmployee(id);

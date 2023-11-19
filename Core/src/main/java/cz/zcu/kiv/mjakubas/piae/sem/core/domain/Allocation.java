@@ -12,6 +12,8 @@ public class Allocation {
     private long id;
     private Employee worker;
     private Project project;
+    private Course course;
+    private Function function;
     private int allocationScope;
     private LocalDate dateFrom;
     private LocalDate dateUntil;

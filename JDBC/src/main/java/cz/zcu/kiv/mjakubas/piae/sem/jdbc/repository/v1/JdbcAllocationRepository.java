@@ -29,8 +29,10 @@ public class JdbcAllocationRepository implements IAllocationRepository {
     @Override
     public Allocation fetchAllocation(long allocationId) {
         var sql = """
-                SELECT a.*, p.pro_name FROM assignment a
+                SELECT a.*, p.pro_name, c.crs_name, f.fnc_name FROM assignment a
                 INNER JOIN project p ON p.project_id=a.ass_project_id
+                INNER JOIN course c ON c.course_id=a.ass_course_id
+                INNER JOIN `function` f ON f.function_id=a.ass_function_id
                 WHERE a.ass_enabled=:isEnabled AND a.assignment_id=:id
                 """;
 
@@ -44,8 +46,10 @@ public class JdbcAllocationRepository implements IAllocationRepository {
     @Override
     public List<Allocation> fetchEmployeeAllocations(long employeeId) {
         var sql = """
-                SELECT a.*, p.pro_name FROM assignment a
+                SELECT a.*, p.pro_name, c.crs_name, f.fnc_name FROM assignment a
                 INNER JOIN project p ON p.project_id=a.ass_project_id
+                INNER JOIN course c ON c.course_id=a.ass_course_id
+                INNER JOIN `function` f ON f.function_id=a.ass_function_id
                 WHERE a.ass_enabled=:isEnabled AND a.ass_employee_id=:id
                 """;
 
@@ -59,8 +63,10 @@ public class JdbcAllocationRepository implements IAllocationRepository {
     @Override
     public List<Allocation> fetchSubordinatesAllocations(long superiorId) {
         var sql = """
-                SELECT a.*, p.pro_name FROM assignment a
+                SELECT a.*, p.pro_name, c.crs_name, f.fnc_name FROM assignment a
                 INNER JOIN project p ON p.project_id=a.ass_project_id
+                INNER JOIN course c ON c.course_id=a.ass_course_id
+                INNER JOIN `function` f ON f.function_id=a.ass_function_id
                 INNER JOIN superior s ON s.sup_employee_id=a.ass_employee_id
                 WHERE a.ass_enabled=:isEnabled AND s.sup_superior_id=:id
                 """;
@@ -73,7 +79,7 @@ public class JdbcAllocationRepository implements IAllocationRepository {
     }
 
     @Override
-    public List<Allocation> fetchProjectAllocations(long projectId) {
+    public List<Allocation> fetchAllocationsByProjectId(long projectId) {
         var sql = """
                 SELECT a.* FROM assignment a
                 WHERE a.ass_enabled=:isEnabled AND a.ass_project_id=:id
@@ -87,11 +93,41 @@ public class JdbcAllocationRepository implements IAllocationRepository {
     }
 
     @Override
+    public List<Allocation> fetchAllocationsByCourseId(long courseId) {
+        var sql = """
+                SELECT a.* FROM assignment a
+                WHERE a.ass_enabled=:isEnabled AND a.ass_course_id=:id
+                """;
+
+        var params = new MapSqlParameterSource();
+        params.addValue("isEnabled", 1);
+        params.addValue("id", courseId);
+
+        return jdbcTemplate.query(sql, params, ALLOCATION_MAPPER);
+    }
+
+    @Override
+    public List<Allocation> fetchAllocationsByFunctionId(long functionId) {
+        var sql = """
+                SELECT a.* FROM assignment a
+                WHERE a.ass_enabled=:isEnabled AND a.ass_function_id=:id
+                """;
+
+        var params = new MapSqlParameterSource();
+        params.addValue("isEnabled", 1);
+        params.addValue("id", functionId);
+
+        return jdbcTemplate.query(sql, params, ALLOCATION_MAPPER);
+    }
+
+    @Override
     public List<Allocation> fetchWorkplaceAllocations(long workplaceId) {
         var sql = """
                 SELECT a.* FROM workplace w
                 INNER JOIN project p ON p.pro_workplace_id=w.workplace_id
                 INNER JOIN assignment a ON a.ass_project_id=p.project_id
+                INNER JOIN course c ON c.course_id=a.ass_course_id
+                INNER JOIN `function` f ON f.function_id=a.ass_function_id
                 WHERE a.ass_enabled=:isEnabled AND w.workplace_id=:id
                 """;
 
@@ -106,15 +142,17 @@ public class JdbcAllocationRepository implements IAllocationRepository {
     public boolean createAllocation(@NonNull Allocation allocation) {
         var sql = """
                 INSERT INTO assignment
-                (ass_enabled, ass_employee_id, ass_project_id, ass_active_from, ass_active_until, ass_scope, ass_description, ass_active)
+                (ass_enabled, ass_employee_id, ass_project_id, ass_course_id, ass_function_id, ass_active_from, ass_active_until, ass_scope, ass_description, ass_active)
                 VALUES
-                (:isEnabled, :eId, :pId, :aFrom, :aUntil, :scope, :descr, :active)
+                (:isEnabled, :eId, :pId, :cId, :fId, :aFrom, :aUntil, :scope, :descr, :active)
                 """;
 
         var params = new MapSqlParameterSource();
         params.addValue("isEnabled", 1);
         params.addValue("eId", allocation.getWorker().getId());
         params.addValue("pId", allocation.getProject().getId());
+        params.addValue("cId", allocation.getCourse().getId());
+        params.addValue("fId", allocation.getFunction().getId());
         params.addValue("aFrom", allocation.getDateFrom());
         params.addValue("aUntil", allocation.getDateUntil());
         params.addValue("scope", allocation.getAllocationScope());
@@ -128,7 +166,8 @@ public class JdbcAllocationRepository implements IAllocationRepository {
     public boolean updateAllocation(@NonNull Allocation allocation, long allocationId) {
         var sql = """
                 UPDATE assignment
-                SET ass_enabled=:isEnabled, ass_employee_id=:eId, ass_project_id=:pId, ass_active_from=:aFrom,\s
+                SET ass_enabled=:isEnabled, ass_employee_id=:eId, ass_project_id=:pId, 
+                ass_course_id=:cId, ass_function_id=:fId, ass_active_from=:aFrom, 
                 ass_active_until=:aUntil, ass_scope=:scope, ass_description=:descr, ass_active=:active
                 WHERE assignment_id=:id
                 """;
@@ -137,6 +176,8 @@ public class JdbcAllocationRepository implements IAllocationRepository {
         params.addValue("isEnabled", 1);
         params.addValue("eId", allocation.getWorker().getId());
         params.addValue("pId", allocation.getProject().getId());
+        params.addValue("cId", allocation.getCourse().getId());
+        params.addValue("fId", allocation.getFunction().getId());
         params.addValue("aFrom", allocation.getDateFrom());
         params.addValue("aUntil", allocation.getDateUntil());
         params.addValue("scope", allocation.getAllocationScope());

@@ -14,6 +14,9 @@ public class Project extends Activity {
     private Employee projectManager;
     private Workplace projectWorkplace;
     private String description;
+    private Integer budget;
+    private Integer participation;
+    private Integer totalTime;
     private List<Employee> employees = new ArrayList<>();
 
     public Project() {
@@ -22,11 +25,15 @@ public class Project extends Activity {
 
     public Project(long id, String name, LocalDate dateFrom, LocalDate dateUntil, float probability,
                    Employee projectManager, Workplace projectWorkplace,
-                   String description, List<Employee> employees) {
+                   String description, Integer budget, Integer participation,
+                   Integer totalTime, List<Employee> employees) {
         super(id, name, dateFrom, dateUntil, probability);
         this.projectManager = projectManager;
         this.projectWorkplace = projectWorkplace;
         this.description = description;
+        this.budget = budget;
+        this.participation = participation;
+        this.totalTime = totalTime;
         employees.addAll(employees);
     }
 
@@ -70,6 +77,21 @@ public class Project extends Activity {
         return this;
     }
 
+    public Project budget(Integer budget) {
+        this.budget = budget;
+        return this;
+    }
+
+    public Project participation(Integer participation) {
+        this.participation = participation;
+        return this;
+    }
+
+    public Project totalTime(Integer totalTime) {
+        this.totalTime = totalTime;
+        return this;
+    }
+
     public Project employees(List<Employee> employees) {
         this.employees = employees;
         return this;
@@ -80,7 +102,10 @@ public class Project extends Activity {
         return "Project{" + super.toString() +
                 ", projectManager=" + projectManager +
                 ", projectWorkplace=" + projectWorkplace +
-                ", description='" + description + '\'' +
+                ", description='" + description +
+                ", budget=" + budget +
+                ", participation=" + participation +
+                ", totalTime=" + totalTime + '\'' +
                 ", employees=" + employees +
                 '}';
     }

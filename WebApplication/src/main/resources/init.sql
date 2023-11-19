@@ -93,40 +93,36 @@ CREATE TABLE IF NOT EXISTS `piae_v1_db`.`superior`
 
 
 -- -----------------------------------------------------
--- Table `piae_v1_db`.`project`
+-- Table `piae_v1_db`.`project` definition
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `piae_v1_db`.`project`
-(
-    `project_id`       INT           NOT NULL AUTO_INCREMENT,
-    `pro_enabled`      TINYINT       NOT NULL,
-    `pro_name`         VARCHAR(200)  NOT NULL,
-    `pro_manager_id`   INT           NOT NULL,
-    `pro_workplace_id` INT           NOT NULL,
-    `pro_active_from`  DATE          NOT NULL,
-    `pro_active_until` DATE          NOT NULL,
-    `pro_description`  VARCHAR(2000) NOT NULL,
-    PRIMARY KEY (`project_id`),
-    INDEX `fk_pro_manager_id_idx` (`pro_manager_id` ASC) VISIBLE,
-    INDEX `fk_pro_workplace_id_idx` (`pro_workplace_id` ASC) VISIBLE,
-    UNIQUE INDEX `pro_name_UNIQUE` (`pro_name` ASC) VISIBLE,
-    CONSTRAINT `fk_pro_manager_id`
-        FOREIGN KEY (`pro_manager_id`)
-            REFERENCES `piae_v1_db`.`employee` (`employee_id`)
-            ON DELETE NO ACTION
-            ON UPDATE NO ACTION,
-    CONSTRAINT `fk_pro_workplace_id`
-        FOREIGN KEY (`pro_workplace_id`)
-            REFERENCES `piae_v1_db`.`workplace` (`workplace_id`)
-            ON DELETE NO ACTION
-            ON UPDATE NO ACTION
-)
-    ENGINE = InnoDB;
+
+CREATE TABLE IF NOT EXISTS `piae_v1_db`.`project` (
+                           `project_id` int NOT NULL AUTO_INCREMENT,
+                           `pro_enabled` tinyint NOT NULL,
+                           `pro_name` varchar(200) COLLATE utf8mb3_czech_ci NOT NULL,
+                           `pro_manager_id` int NOT NULL,
+                           `pro_workplace_id` int NOT NULL,
+                           `pro_date_from` date NOT NULL,
+                           `pro_date_until` date NOT NULL,
+                           `pro_description` varchar(2000) COLLATE utf8mb3_czech_ci NOT NULL,
+                           `pro_probability` float NOT NULL,
+                           `pro_budget` int NOT NULL,
+                           `pro_participation` int NOT NULL,
+                           `pro_total_time` int NOT NULL,
+                           PRIMARY KEY (`project_id`),
+                           UNIQUE KEY `pro_name_UNIQUE` (`pro_name`),
+                           KEY `fk_pro_manager_id_idx` (`pro_manager_id`),
+                           KEY `fk_pro_workplace_id_idx` (`pro_workplace_id`),
+                           CONSTRAINT `fk_pro_manager_id` FOREIGN KEY (`pro_manager_id`) REFERENCES `employee` (`employee_id`),
+                           CONSTRAINT `fk_pro_workplace_id` FOREIGN KEY (`pro_workplace_id`) REFERENCES `workplace` (`workplace_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_czech_ci;
 
 
 -- -----------------------------------------------------
 -- Table `piae_v1_db`.`assignment`
 -- -----------------------------------------------------
-CREATE TABLE `assignment` (
+CREATE TABLE IF NOT EXISTS `piae_v1_db`.`assignment`
+(
                               `assignment_id` int NOT NULL AUTO_INCREMENT,
                               `ass_enabled` tinyint NOT NULL,
                               `ass_employee_id` int NOT NULL,
@@ -137,14 +133,16 @@ CREATE TABLE `assignment` (
                               `ass_active_from` date NOT NULL,
                               `ass_active_until` date NOT NULL,
                               `ass_scope` int NOT NULL,
-                              `ass_description` varchar(2000) COLLATE utf8mb3_czech_ci NOT NULL,
+                              `ass_description` varchar(2000) CHARACTER SET utf8mb3 COLLATE utf8mb3_czech_ci NOT NULL,
+                              `ass_is_time` float DEFAULT NULL,
+                              `ass_recalculation` float NOT NULL DEFAULT '1',
+                              `ass_is_certain` tinyint(1) NOT NULL DEFAULT '1',
                               PRIMARY KEY (`assignment_id`),
                               KEY `fk_ass_employee_id_idx` (`ass_employee_id`),
                               KEY `fk_ass_project_id_idx` (`ass_project_id`),
                               KEY `fk_ass_course_id_idx` (`ass_course_id`),
                               KEY `fk_ass_function_id_idx` (`ass_function_id`),
-                              CONSTRAINT `fk_ass_employee_id` FOREIGN KEY (`ass_employee_id`) REFERENCES `employee` (`employee_id`),
-                              CONSTRAINT `fk_ass_project_id` FOREIGN KEY (`ass_project_id`) REFERENCES `project` (`project_id`)
+                              CONSTRAINT `fk_ass_employee_id` FOREIGN KEY (`ass_employee_id`) REFERENCES `employee` (`employee_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_czech_ci;
 
 
@@ -184,6 +182,7 @@ CREATE TABLE IF NOT EXISTS `piae_v1_db`.`user`
     `enabled`     TINYINT      NULL,
     `us_employee` INT          NOT NULL,
     `us_is_temp`  TINYINT      NOT NULL,
+    `role` varchar(100) COLLATE utf8mb3_czech_ci NOT NULL,
     PRIMARY KEY (`user_id`),
     INDEX `fk_user_employee_idx` (`us_employee` ASC) VISIBLE,
     CONSTRAINT `fk_user_employee`
@@ -213,6 +212,164 @@ CREATE TABLE IF NOT EXISTS `piae_v1_db`.`authority`
 )
     ENGINE = InnoDB;
 
+-- -----------------------------------------------------
+-- Table piae_v1_db.course definition
+-- -----------------------------------------------------
+
+CREATE TABLE IF NOT EXISTS `piae_v1_db`.`course`
+(
+                          `course_id` int NOT NULL AUTO_INCREMENT,
+                          `crs_enabled` tinyint NOT NULL,
+                          `crs_name` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_czech_ci NOT NULL,
+                          `crs_manager_id` int NOT NULL,
+                          `crs_workplace_id` int NOT NULL,
+                          `crs_number_of_students` int NOT NULL,
+                          `crs_term` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_czech_ci NOT NULL,
+                          `crs_lecture_length` int NOT NULL,
+                          `crs_exercise_length` int NOT NULL,
+                          `crs_credits` int NOT NULL,
+                          `crs_date_from` date NOT NULL,
+                          `crs_date_until` date NOT NULL,
+                          `crs_probability` float NOT NULL,
+                          PRIMARY KEY (`course_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_czech_ci;
+
+-- -----------------------------------------------------
+-- Table piae_v1_db.course_allocation definition
+-- -----------------------------------------------------
+
+CREATE TABLE IF NOT EXISTS `piae_v1_db`.`course_allocation`
+(
+                                     `course_allocation_id` int NOT NULL AUTO_INCREMENT,
+                                     `cra_course_id` int NOT NULL,
+                                     `cra_allocation` float NOT NULL,
+                                     PRIMARY KEY (`course_allocation_id`),
+                                     KEY `fk_cra_course_id_idx` (`cra_course_id`),
+                                     CONSTRAINT `fk_cra_course_id` FOREIGN KEY (`cra_course_id`) REFERENCES `course` (`course_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_czech_ci;
+
+-- -----------------------------------------------------
+-- Table piae_v1_db.`function` definition
+-- -----------------------------------------------------
+
+CREATE TABLE IF NOT EXISTS `piae_v1_db`.`function`
+(
+                            `function_id` int NOT NULL AUTO_INCREMENT,
+                            `fnc_enabled` tinyint NOT NULL,
+                            `fnc_default_time` float NOT NULL,
+                            `fnc_name` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_czech_ci NOT NULL,
+                            `fnc_manager_id` int NOT NULL,
+                            `fnc_workplace_id` int NOT NULL,
+                            `fnc_date_from` date NOT NULL,
+                            `fnc_date_until` date NOT NULL,
+                            `fnc_probability` float NOT NULL,
+                            PRIMARY KEY (`function_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_czech_ci;
+
+-- -----------------------------------------------------
+-- Table piae_v1_db.function_allocation definition
+-- -----------------------------------------------------
+
+CREATE TABLE IF NOT EXISTS `piae_v1_db`.`function_allocation`
+(
+                                       `function_allocation_id` int NOT NULL AUTO_INCREMENT,
+                                       `fca_function_id` int NOT NULL,
+                                       `fca_allocation` float NOT NULL,
+                                       PRIMARY KEY (`function_allocation_id`),
+                                       KEY `fk_fca_function_id_idx` (`fca_function_id`),
+                                       CONSTRAINT `fk_fca_function_id` FOREIGN KEY (`fca_function_id`) REFERENCES `function` (`function_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_czech_ci;
+
+-- -----------------------------------------------------
+-- Table piae_v1_db.`group` definition
+-- -----------------------------------------------------
+
+CREATE TABLE IF NOT EXISTS `piae_v1_db`.`group`
+(
+                         `group_id` int NOT NULL AUTO_INCREMENT,
+                         `grp_name` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_czech_ci NOT NULL,
+                         PRIMARY KEY (`group_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_czech_ci;
+
+-- -----------------------------------------------------
+-- Table piae_v1_db.group_employee definition
+-- -----------------------------------------------------
+
+CREATE TABLE IF NOT EXISTS `piae_v1_db`.`group_employee` (
+                                  `group_employee_id` int NOT NULL AUTO_INCREMENT,
+                                  `gre_group_id` int NOT NULL,
+                                  `gre_employee_id` int NOT NULL,
+                                  `gre_head_of_group` tinyint(1) NOT NULL,
+                                  PRIMARY KEY (`group_employee_id`),
+                                  KEY `fk_gre_group_id_idx` (`gre_group_id`),
+                                  KEY `fk_gre_employee_id_idx` (`gre_employee_id`),
+                                  CONSTRAINT `fk_gre_employee_id` FOREIGN KEY (`gre_employee_id`) REFERENCES `employee` (`employee_id`),
+                                  CONSTRAINT `fk_gre_group_id` FOREIGN KEY (`gre_group_id`) REFERENCES `group` (`group_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_czech_ci;
+
+-- -----------------------------------------------------
+-- Table piae_v1_db.part_time definition
+-- -----------------------------------------------------
+
+CREATE TABLE IF NOT EXISTS `piae_v1_db`.`part_time` (
+                             `part_time_id` int NOT NULL AUTO_INCREMENT,
+                             `pat_role` varchar(50) COLLATE utf8mb3_czech_ci DEFAULT NULL,
+                             `pat_date_from` date DEFAULT NULL,
+                             `pat_date_until` date DEFAULT NULL,
+                             `pat_time` float DEFAULT NULL,
+                             `pat_is_certain` tinyint(1) DEFAULT NULL,
+                             `pat_recalculation` float DEFAULT NULL,
+                             PRIMARY KEY (`part_time_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_czech_ci;
+
+-- -----------------------------------------------------
+-- Table piae_v1_db.person definition
+-- -----------------------------------------------------
+
+CREATE TABLE IF NOT EXISTS `piae_v1_db`.`person` (
+                          `person_id` int NOT NULL AUTO_INCREMENT,
+                          `per_contract_from` date DEFAULT NULL,
+                          `per_contarct_until` date DEFAULT NULL,
+                          `per_personal_number` varchar(50) COLLATE utf8mb3_czech_ci DEFAULT NULL,
+                          PRIMARY KEY (`person_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_czech_ci;
+
+-- -----------------------------------------------------
+-- Table piae_v1_db.project_allocation definition
+-- -----------------------------------------------------
+
+CREATE TABLE IF NOT EXISTS `piae_v1_db`.`project_allocation` (
+                                      `project_allocation_id` int NOT NULL AUTO_INCREMENT,
+                                      `pra_project_id` int NOT NULL,
+                                      `pra_allocation` float NOT NULL,
+                                      PRIMARY KEY (`project_allocation_id`),
+                                      KEY `fk_pra_project_id_idx` (`pra_project_id`),
+                                      CONSTRAINT `fk_pra_project_id` FOREIGN KEY (`pra_project_id`) REFERENCES `project` (`project_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_czech_ci;
+
+CREATE TABLE IF NOT EXISTS `piae_v1_db`.`course_employee` (
+                                    `course_employee_id` int NOT NULL AUTO_INCREMENT,
+                                    `cre_enabled` tinyint NOT NULL,
+                                    `cre_course_id` int NOT NULL,
+                                    `cre_employee_id` int NOT NULL,
+                                    PRIMARY KEY (`course_employee_id`),
+                                    KEY `fk_cre_course_id_idx` (`cre_course_id`),
+                                    KEY `fk_cre_employee_id_idx` (`cre_employee_id`),
+                                    CONSTRAINT `fk_cre_employee_id` FOREIGN KEY (`cre_employee_id`) REFERENCES `employee` (`employee_id`),
+                                    CONSTRAINT `fk_cre_course_id` FOREIGN KEY (`cre_course_id`) REFERENCES `course` (`course_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_czech_ci;
+
+CREATE TABLE IF NOT EXISTS `piae_v1_db`.`function_employee` (
+                                   `function_employee_id` int NOT NULL AUTO_INCREMENT,
+                                   `fce_enabled` tinyint NOT NULL,
+                                   `fce_function_id` int NOT NULL,
+                                   `fce_employee_id` int NOT NULL,
+                                   PRIMARY KEY (`function_employee_id`),
+                                   KEY `fk_fce_function_id_idx` (`fce_function_id`),
+                                   KEY `fk_fce_employee_id_idx` (`fce_employee_id`),
+                                   CONSTRAINT `fk_fce_employee_id` FOREIGN KEY (`fce_employee_id`) REFERENCES `employee` (`employee_id`),
+                                   CONSTRAINT `fk_fce_function_id` FOREIGN KEY (`fce_function_id`) REFERENCES `function` (`function_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_czech_ci;
 
 SET SQL_MODE = @OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS = @OLD_FOREIGN_KEY_CHECKS;
@@ -224,8 +381,8 @@ VALUES (1, 1, "FAV", "Fakulta aplikovaných věd");
 INSERT INTO employee (employee_id, emp_enabled, emp_workplace_id, emp_first_name, emp_last_name, emp_orion_login,
                       emp_email)
 VALUES (1, 1, 1, "Admin", "Admin", "admin", "admin@admin.adm");
-INSERT INTO user (user_id, password, enabled, us_employee, us_is_temp)
-VALUES (1, '$2a$10$lP26wQKz2CF9DsFPXPqd1euMPDNzVC6NVOgogsrMtBKyzsY0ypSby', 1, 1, 1);
+INSERT INTO user (user_id, password, enabled, us_employee, us_is_temp, role)
+VALUES (1, '$2a$10$lP26wQKz2CF9DsFPXPqd1euMPDNzVC6NVOgogsrMtBKyzsY0ypSby', 1, 1, 1, 'pracovník');
 INSERT INTO authority (authority_id, auth_user_id, auth_authotity)
 VALUES (1, 1, 'ADMIN');
 INSERT INTO authority (authority_id, auth_user_id, auth_authotity)
@@ -234,65 +391,187 @@ VALUES (2, 1, 'SECRETARIAT');
 INSERT INTO employee (employee_id, emp_enabled, emp_workplace_id, emp_first_name, emp_last_name, emp_orion_login,
                       emp_email)
 VALUES (2, 1, 1, "Sekretariát", "Sekretatiát", "sekretariat", "sekretariat@sekr.sekr");
-INSERT INTO user (user_id, password, enabled, us_employee, us_is_temp)
-VALUES (2, '$2a$10$lP26wQKz2CF9DsFPXPqd1euMPDNzVC6NVOgogsrMtBKyzsY0ypSby', 1, 2, 1);
+INSERT INTO user (user_id, password, enabled, us_employee, us_is_temp, role)
+VALUES (2, '$2a$10$lP26wQKz2CF9DsFPXPqd1euMPDNzVC6NVOgogsrMtBKyzsY0ypSby', 1, 2, 1, 'pracovník');
 INSERT INTO authority (authority_id, auth_user_id, auth_authotity)
 VALUES (3, 2, 'SECRETARIAT');
 
 INSERT INTO employee (employee_id, emp_enabled, emp_workplace_id, emp_first_name, emp_last_name, emp_orion_login,
                       emp_email)
 VALUES (3, 1, 1, "Vedoucí", "projektu", "projekt", "vedproject@test.te");
-INSERT INTO user (user_id, password, enabled, us_employee, us_is_temp)
-VALUES (3, '$2a$10$lP26wQKz2CF9DsFPXPqd1euMPDNzVC6NVOgogsrMtBKyzsY0ypSby', 1, 3, 0);
+INSERT INTO user (user_id, password, enabled, us_employee, us_is_temp, role)
+VALUES (3, '$2a$10$lP26wQKz2CF9DsFPXPqd1euMPDNzVC6NVOgogsrMtBKyzsY0ypSby', 1, 3, 0, 'pracovník');
 INSERT INTO authority (authority_id, auth_user_id, auth_authotity)
 VALUES (4, 3, 'USER');
 
 INSERT INTO employee (employee_id, emp_enabled, emp_workplace_id, emp_first_name, emp_last_name, emp_orion_login,
                       emp_email)
 VALUES (4, 1, 1, "Nadřízený", "pracovník", "nadriz", "nadriz@test.te");
-INSERT INTO user (user_id, password, enabled, us_employee, us_is_temp)
-VALUES (4, '$2a$10$lP26wQKz2CF9DsFPXPqd1euMPDNzVC6NVOgogsrMtBKyzsY0ypSby', 1, 4, 0);
+INSERT INTO user (user_id, password, enabled, us_employee, us_is_temp, role)
+VALUES (4, '$2a$10$lP26wQKz2CF9DsFPXPqd1euMPDNzVC6NVOgogsrMtBKyzsY0ypSby', 1, 4, 0, 'pracovník');
 INSERT INTO authority (authority_id, auth_user_id, auth_authotity)
 VALUES (5, 4, 'USER');
 
 INSERT INTO employee (employee_id, emp_enabled, emp_workplace_id, emp_first_name, emp_last_name, emp_orion_login,
                       emp_email)
 VALUES (5, 1, 1, "Pracovník", "První", "prvni", "prvni@test.te");
-INSERT INTO user (user_id, password, enabled, us_employee, us_is_temp)
-VALUES (5, '$2a$10$lP26wQKz2CF9DsFPXPqd1euMPDNzVC6NVOgogsrMtBKyzsY0ypSby', 1, 5, 0);
+INSERT INTO user (user_id, password, enabled, us_employee, us_is_temp, role)
+VALUES (5, '$2a$10$lP26wQKz2CF9DsFPXPqd1euMPDNzVC6NVOgogsrMtBKyzsY0ypSby', 1, 5, 0, 'pracovník');
 INSERT INTO authority (authority_id, auth_user_id, auth_authotity)
 VALUES (6, 5, 'USER');
 
 INSERT INTO employee (employee_id, emp_enabled, emp_workplace_id, emp_first_name, emp_last_name, emp_orion_login,
                       emp_email)
 VALUES (6, 1, 1, "Pracovník", "Druhý", "druhy", "druhy@test.te");
-INSERT INTO user (user_id, password, enabled, us_employee, us_is_temp)
-VALUES (6, '$2a$10$lP26wQKz2CF9DsFPXPqd1euMPDNzVC6NVOgogsrMtBKyzsY0ypSby', 1, 6, 0);
+INSERT INTO user (user_id, password, enabled, us_employee, us_is_temp, role)
+VALUES (6, '$2a$10$lP26wQKz2CF9DsFPXPqd1euMPDNzVC6NVOgogsrMtBKyzsY0ypSby', 1, 6, 0, 'pracovník');
 INSERT INTO authority (authority_id, auth_user_id, auth_authotity)
 VALUES (7, 6, 'USER');
-
-UPDATE `piae_v1_db`.`workplace`
-SET `wrk_manager_id` = '1'
-WHERE (`workplace_id` = '1');
 
 INSERT INTO `piae_v1_db`.`superior` (`superior_id`, `sup_enabled`, `sup_superior_id`, `sup_employee_id`)
 VALUES ('1', '1', '4', '5');
 INSERT INTO `piae_v1_db`.`superior` (`superior_id`, `sup_enabled`, `sup_superior_id`, `sup_employee_id`)
-VALUES ('1', '1', '4', '6');
+VALUES ('2', '1', '4', '6');
 
 INSERT INTO `piae_v1_db`.`project` (`project_id`, `pro_enabled`, `pro_name`, `pro_manager_id`, `pro_workplace_id`,
-                                    `pro_active_from`, `pro_active_until`, `pro_description`)
+                                    `pro_date_from`, `pro_date_until`, `pro_description`, `pro_probability`,
+                                    `pro_budget`, `pro_participation`, `pro_total_time`)
 VALUES ('1', '1', 'Testovací projekt', '3', '1', '2010-01-01', '2030-01-01',
-        'testovací projekt pro účely aslespoň nějakých dat nebo tak něco');
+        'testovací projekt pro účely aslespoň nějakých dat nebo tak něco', 1.0, 100, 15, 10);
 
 INSERT INTO `piae_v1_db`.`project_employee` (`project_employee_id`, `pre_enabled`, `pre_project_id`, `pre_employee_id`)
 VALUES ('1', '1', '1', '5');
 INSERT INTO `piae_v1_db`.`project_employee` (`project_employee_id`, `pre_enabled`, `pre_project_id`, `pre_employee_id`)
 VALUES ('2', '1', '1', '6');
 
-INSERT INTO `piae_v1_db`.`assignment` (`assignment_id`, `ass_enabled`, `ass_employee_id`, `ass_project_id`, `ass_active_from`, `ass_active_until`, `ass_scope`, `ass_description`, `ass_active`) VALUES ('1', '1', '5', '1', '2020-01-01', '2025-01-01', '600', 'al1', '1');
-INSERT INTO `piae_v1_db`.`assignment` (`assignment_id`, `ass_enabled`, `ass_employee_id`, `ass_project_id`, `ass_active_from`, `ass_active_until`, `ass_scope`, `ass_description`, `ass_active`) VALUES ('2', '1', '5', '1', '2023-01-01', '2024-01-01', '1000', 'al2', '1');
-INSERT INTO `piae_v1_db`.`assignment` (`assignment_id`, `ass_enabled`, `ass_employee_id`, `ass_project_id`, `ass_active_from`, `ass_active_until`, `ass_scope`, `ass_description`, `ass_active`) VALUES ('3', '1', '6', '1', '2026-01-01', '2027-01-01', '500', 'al3', '1');
-INSERT INTO `piae_v1_db`.`assignment` (`assignment_id`, `ass_enabled`, `ass_employee_id`, `ass_project_id`, `ass_active_from`, `ass_active_until`, `ass_scope`, `ass_description`, `ass_active`) VALUES ('4', '1', '6', '1', '2022-01-01', '2025-01-01', '400', 'al3', '1');
+INSERT INTO `piae_v1_db`.`assignment` (`assignment_id`, `ass_enabled`, `ass_employee_id`, `ass_project_id`,
+                                       `ass_course_id`, `ass_function_id`, `ass_active_from`, `ass_active_until`,
+                                       `ass_scope`, `ass_description`, `ass_active`, `ass_is_time`,
+                                       `ass_recalculation`, `ass_is_certain`)
+VALUES ('1', '1', '5', '1', '1', '1', '2020-01-01', '2025-01-01', '600', 'al1', '1', '1.0', '1.0', '1');
+INSERT INTO `piae_v1_db`.`assignment` (`assignment_id`, `ass_enabled`, `ass_employee_id`, `ass_project_id`,
+                                       `ass_course_id`, `ass_function_id`, `ass_active_from`, `ass_active_until`,
+                                       `ass_scope`, `ass_description`, `ass_active`, `ass_is_time`,
+                                       `ass_recalculation`, `ass_is_certain`)
+VALUES ('2', '1', '5', '1', '1', '1', '2023-01-01', '2024-01-01', '1000', 'al2', '1', '1.0', '1.0', '1');
+INSERT INTO `piae_v1_db`.`assignment` (`assignment_id`, `ass_enabled`, `ass_employee_id`, `ass_project_id`,
+                                       `ass_course_id`, `ass_function_id`, `ass_active_from`, `ass_active_until`,
+                                       `ass_scope`, `ass_description`, `ass_active`, `ass_is_time`,
+                                       `ass_recalculation`, `ass_is_certain`)
+VALUES ('3', '1', '1', '1', '1', '1', '2026-01-01', '2027-01-01', '500', 'al3', '1', '1.0', '1.0', '1');
+INSERT INTO `piae_v1_db`.`assignment` (`assignment_id`, `ass_enabled`, `ass_employee_id`, `ass_project_id`,
+                                       `ass_course_id`, `ass_function_id`, `ass_active_from`, `ass_active_until`,
+                                       `ass_scope`, `ass_description`, `ass_active`, `ass_is_time`,
+                                       `ass_recalculation`, `ass_is_certain`)
+VALUES ('4', '1', '1', '1', '1', '1', '2026-01-01', '2024-03-01', '500', 'al3', '1', '1.0', '1.0', '1');
 
+INSERT INTO `piae_v1_db`.`course` (`course_id`, `crs_enabled`, `crs_name`, `crs_number_of_students`, `crs_term`,
+                                   `crs_lecture_length`, `crs_exercise_length`, `crs_credits`, `crs_date_from`,
+                                   `crs_date_until`, `crs_probability`, `crs_manager_id`, `crs_workplace_id`)
+VALUES ('1', '1', 'KIV/SAR-E', '1', 'L', '3', '2', '6', '2024-03-01', '2024-06-01', '1.0', '1', '1');
+
+INSERT INTO `piae_v1_db`.`course` (`course_id`, `crs_enabled`, `crs_name`, `crs_number_of_students`, `crs_term`,
+                                       `crs_lecture_length`, `crs_exercise_length`, `crs_credits`, `crs_date_from`,
+                                       `crs_date_until`, `crs_probability`, `crs_manager_id`, `crs_workplace_id`)
+VALUES ('2', '1', 'KIV/PIA-E', '1', 'L', '3', '2', '6', '2024-03-01', '2024-06-01', '1.0', '1', '1');
+
+INSERT INTO `piae_v1_db`.`course` (`course_id`, `crs_enabled`, `crs_name`, `crs_number_of_students`, `crs_term`,
+                                   `crs_lecture_length`, `crs_exercise_length`, `crs_credits`, `crs_date_from`,
+                                   `crs_date_until`, `crs_probability`, `crs_manager_id`, `crs_workplace_id`)
+VALUES ('3', '1', 'KIV/PPR', '1', 'L', '3', '2', '5', '2024-03-01', '2024-06-01', '1.0', '1', '1');
+
+INSERT INTO `piae_v1_db`.`course` (`course_id`, `crs_enabled`, `crs_name`, `crs_number_of_students`, `crs_term`,
+                                   `crs_lecture_length`, `crs_exercise_length`, `crs_credits`, `crs_date_from`,
+                                   `crs_date_until`, `crs_probability`, `crs_manager_id`, `crs_workplace_id`)
+VALUES ('4', '1', 'KIV/OS', '1', 'L', '3', '2', '4', '2024-03-01', '2024-06-01', '1.0', '1', '1');
+
+INSERT INTO `piae_v1_db`.`course_allocation` (`course_allocation_id`, `cra_course_id`, `cra_allocation`)
+VALUES ('1', '1', '0.3');
+
+INSERT INTO `piae_v1_db`.`course_allocation` (`course_allocation_id`, `cra_course_id`, `cra_allocation`)
+VALUES ('2', '2', '0.2');
+
+INSERT INTO `piae_v1_db`.`course_allocation` (`course_allocation_id`, `cra_course_id`, `cra_allocation`)
+VALUES ('3', '1', '0.5');
+
+INSERT INTO `piae_v1_db`.`course_employee` (`course_employee_id`, `cre_enabled`, `cre_course_id`, `cre_employee_id`)
+VALUES ('1', '1', '1', '5');
+
+INSERT INTO `piae_v1_db`.`course_employee` (`course_employee_id`, `cre_enabled`, `cre_course_id`, `cre_employee_id`)
+VALUES ('2', '1', '1', '3');
+
+INSERT INTO `piae_v1_db`.`function` (`function_id`, `fnc_default_time`, `fnc_enabled`, `fnc_name`, `fnc_date_from`,
+                                   `fnc_date_until`, `fnc_probability`, `fnc_manager_id`, `fnc_workplace_id`)
+VALUES ('1', '1.0', '1', 'vedoucí', '2024-03-01', '2024-06-01', '1.0', '1', '1');
+
+INSERT INTO `piae_v1_db`.`function` (`function_id`, `fnc_default_time`,  `fnc_enabled`, `fnc_name`, `fnc_date_from`,
+                                   `fnc_date_until`, `fnc_probability`, `fnc_manager_id`, `fnc_workplace_id`)
+VALUES ('2', '1.0', '1', 'Tvoje máma', '2024-03-01', '2024-06-01', '1.0', '1', '1');
+
+INSERT INTO `piae_v1_db`.`function` (`function_id`, `fnc_default_time`,  `fnc_enabled`, `fnc_name`, `fnc_date_from`,
+                                   `fnc_date_until`, `fnc_probability`, `fnc_manager_id`, `fnc_workplace_id`)
+VALUES ('3', '1.0', '1', 'Profesionální flákač', '2024-03-01', '2024-06-01', '1.0', '1', '1');
+
+INSERT INTO `piae_v1_db`.`function_allocation` (`function_allocation_id`, `fca_function_id`, `fca_allocation`)
+VALUES ('1', '1', '0.5');
+
+INSERT INTO `piae_v1_db`.`function_allocation` (`function_allocation_id`, `fca_function_id`, `fca_allocation`)
+VALUES ('2', '2', '0.3');
+
+INSERT INTO `piae_v1_db`.`function_allocation` (`function_allocation_id`, `fca_function_id`, `fca_allocation`)
+VALUES ('3', '1', '0.2');
+
+INSERT INTO `piae_v1_db`.`function_employee` (`function_employee_id`, `fce_enabled`, `fce_function_id`, `fce_employee_id`)
+VALUES ('1', '1', '1', '5');
+
+INSERT INTO `piae_v1_db`.`function_employee` (`function_employee_id`, `fce_enabled`, `fce_function_id`, `fce_employee_id`)
+VALUES ('2', '1', '3', '1');
+
+INSERT INTO `piae_v1_db`.`group` (`group_id`, `grp_name`)
+VALUES ('1', 'Pepíkové');
+
+INSERT INTO `piae_v1_db`.`group` (`group_id`, `grp_name`)
+VALUES ('2', 'Frantové');
+
+INSERT INTO `piae_v1_db`.`group` (`group_id`, `grp_name`)
+VALUES ('3', 'Ajtáci');
+
+INSERT INTO `piae_v1_db`.`group_employee` (`group_employee_id`, `gre_group_id`, `gre_employee_id`, `gre_head_of_group`)
+VALUES ('1', '1', '1', '1');
+
+INSERT INTO `piae_v1_db`.`group_employee` (`group_employee_id`, `gre_group_id`, `gre_employee_id`, `gre_head_of_group`)
+VALUES ('2', '3', '2', '1');
+
+INSERT INTO `piae_v1_db`.`group_employee` (`group_employee_id`, `gre_group_id`, `gre_employee_id`, `gre_head_of_group`)
+VALUES ('3', '1', '3', '2');
+
+INSERT INTO `piae_v1_db`.`part_time` (part_time_id, `pat_role`, `pat_date_from`, `pat_date_until`,
+                                   `pat_time`, `pat_is_certain`, `pat_recalculation`)
+VALUES ('1', 'Role', '2024-03-01', '2024-06-01', '1.0', '1.0', '1.0');
+
+INSERT INTO `piae_v1_db`.`part_time` (part_time_id, `pat_role`, `pat_date_from`, `pat_date_until`,
+                                      `pat_time`, `pat_is_certain`, `pat_recalculation`)
+VALUES ('2', 'Bordelář', '2024-03-01', '2024-06-01', '1.0', '1.0', '1.0');
+
+INSERT INTO `piae_v1_db`.`part_time` (part_time_id, `pat_role`, `pat_date_from`, `pat_date_until`,
+                                      `pat_time`, `pat_is_certain`, `pat_recalculation`)
+VALUES ('3', 'Popelář', '2024-03-01', '2024-06-01', '1.0', '1.0', '1.0');
+
+INSERT INTO `piae_v1_db`.`person` (person_id, `per_contract_from`, `per_contarct_until`, `per_personal_number`)
+VALUES ('1', '2024-03-01', '2024-06-01', 'Numba 1');
+
+INSERT INTO `piae_v1_db`.`person` (person_id, `per_contract_from`, `per_contarct_until`, `per_personal_number`)
+VALUES ('2', '2024-03-01', '2024-06-01', 'Numba 2');
+
+INSERT INTO `piae_v1_db`.`person` (person_id, `per_contract_from`, `per_contarct_until`, `per_personal_number`)
+VALUES ('3', '2024-03-01', '2024-06-01', 'Numba 3');
+
+-- INSERT INTO `piae_v1_db`.`project_allocation` (project_allocation_id, `pra_project_id`, `pra_allocation`)
+-- VALUES ('1', '1', '0.1');
+--
+-- INSERT INTO `piae_vé1_db`.`project_allocation` (project_allocation_id, `pra_project_id`, `pra_allocation`)
+-- VALUES ('2', '1', '0.1');
+--
+-- INSERT INTO `piae_v1_db`.`project_allocation` (project_allocation_id, `pra_project_id`, `pra_allocation`)
+-- VALUES ('3', '2', '0.5');
 

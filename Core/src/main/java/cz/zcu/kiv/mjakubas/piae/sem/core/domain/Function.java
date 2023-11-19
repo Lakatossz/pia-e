@@ -4,20 +4,26 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
 public class Function extends Activity {
 
     private float defaultTime;
+    private Employee functionManager;
+    private Workplace functionWorkplace;
 
     public Function() {
 
     }
 
-    public Function(long id, String name, LocalDate dateFrom,
+    public Function(long id, String name, LocalDate dateFrom, Employee functionManager, Workplace functionWorkplace,
                     LocalDate dateUntil, float probability, float defaultTime) {
         super(id, name, dateFrom, dateUntil, probability);
+        this.functionManager = functionManager;
+        this.functionWorkplace = functionWorkplace;
         this.defaultTime = defaultTime;
     }
 
@@ -46,6 +52,16 @@ public class Function extends Activity {
         return this;
     }
 
+    public Function functionWorkplace(Workplace functionWorkplace) {
+        this.functionWorkplace = functionWorkplace;
+        return this;
+    }
+
+    public Function functionManager(Employee functionManager) {
+        this.functionManager = functionManager;
+        return this;
+    }
+
     public Function defaultTime(float defaultTime) {
         this.defaultTime = defaultTime;
         return this;
@@ -54,6 +70,8 @@ public class Function extends Activity {
     @Override
     public String toString() {
         return "Function{" + super.toString() +
+                ", functionManager=" + functionManager +
+                ", functionWorkplace=" + functionWorkplace +
                 ", defaultTime=" + defaultTime +
                 '}';
     }

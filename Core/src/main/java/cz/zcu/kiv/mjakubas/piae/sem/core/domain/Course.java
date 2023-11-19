@@ -9,22 +9,30 @@ import java.time.LocalDate;
 @Setter
 public class Course extends Activity {
 
+    private boolean enabled;
+    private Employee courseManager;
+    private Workplace courseWorkplace;
     private int numberOfStudents;
     private String term;
     private int lectureLength;
-    private int excerciseLength;
+    private int exerciseLength;
     private int credits;
 
     public Course() {
 
     }
 
-    public Course(long id, String name, LocalDate dateFrom, LocalDate dateUntil, float probability, int numberOfStudents, String term, int lectureLength, int excerciseLength, int credits) {
+    public Course(long id, String name, LocalDate dateFrom, LocalDate dateUntil, float probability,
+                  Employee projectManager, Workplace projectWorkplace, int numberOfStudents,
+                  String term, int lectureLength, int excerciseLength, int credits, boolean enabled) {
         super(id, name, dateFrom, dateUntil, probability);
+        this.enabled = enabled;
+        this.courseManager = projectManager;
+        this.courseWorkplace = projectWorkplace;
         this.numberOfStudents = numberOfStudents;
         this.term = term;
         this.lectureLength = lectureLength;
-        this.excerciseLength = excerciseLength;
+        this.exerciseLength = excerciseLength;
         this.credits = credits;
     }
 
@@ -53,6 +61,21 @@ public class Course extends Activity {
         return this;
     }
 
+    public Course enabled(boolean enabled) {
+        this.enabled = enabled;
+        return this;
+    }
+
+    public Course courseWorkplace(Workplace courseWorkplace) {
+        this.courseWorkplace = courseWorkplace;
+        return this;
+    }
+
+    public Course courseManager(Employee courseManager) {
+        this.courseManager = courseManager;
+        return this;
+    }
+
     public Course numberOfStudents(int numberOfStudents) {
         this.numberOfStudents = numberOfStudents;
         return this;
@@ -63,12 +86,13 @@ public class Course extends Activity {
         return this;
     }
 
-    public void lectureLength(int lectureLength) {
+    public Course lectureLength(int lectureLength) {
         this.lectureLength = lectureLength;
+        return this;
     }
 
-    public Course excerciseLength(int excerciseLength) {
-        this.excerciseLength = excerciseLength;
+    public Course exerciseLength(int exerciseLength) {
+        this.exerciseLength = exerciseLength;
         return this;
     }
 
@@ -81,10 +105,12 @@ public class Course extends Activity {
     @Override
     public String toString() {
         return "Course{" + super.toString() +
+                ", courseManager=" + courseManager +
+                ", courseWorkplace=" + courseWorkplace +
                 ", numberOfStudents=" + numberOfStudents +
                 ", term='" + term + '\'' +
                 ", lectureLength=" + lectureLength +
-                ", excerciseLength=" + excerciseLength +
+                ", exerciseLength=" + exerciseLength +
                 ", credits=" + credits +
                 '}';
     }

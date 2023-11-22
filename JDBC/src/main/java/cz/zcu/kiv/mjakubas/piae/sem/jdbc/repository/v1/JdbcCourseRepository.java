@@ -28,18 +28,22 @@ public class JdbcCourseRepository implements ICourseRepository {
 
     private final IAllocationRepository allocationRepository;
 
+    private static final String IS_ENABLED = "isEnabled";
+
+    private static final String COURSE_ID = "course_id";
+
     @Override
     public Course fetchCourse(long courseId) {
         var sql = """
                 SELECT c.*, w.wrk_abbrevation, w.workplace_id, e.* FROM course c
                 INNER JOIN workplace w ON w.workplace_id=c.crs_workplace_id
                 INNER JOIN employee e ON e.employee_id=c.crs_manager_id
-                WHERE c.crs_enabled=:isEnabled AND c.course_id=:id
+                WHERE c.crs_enabled=:isEnabled AND c.course_id=:course_id
                 """;
 
         var params = new MapSqlParameterSource();
-        params.addValue("id", courseId);
-        params.addValue("isEnabled", true);
+        params.addValue(COURSE_ID, courseId);
+        params.addValue(IS_ENABLED, true);
 
         return jdbcTemplate.query(sql, params, COURSE_MAPPER).get(0);
     }
@@ -55,7 +59,7 @@ public class JdbcCourseRepository implements ICourseRepository {
 
         var params = new MapSqlParameterSource();
         params.addValue("name", name);
-        params.addValue("isEnabled", true);
+        params.addValue(IS_ENABLED, true);
 
         return jdbcTemplate.query(sql, params, COURSE_MAPPER).get(0);
     }
@@ -70,7 +74,7 @@ public class JdbcCourseRepository implements ICourseRepository {
                 """;
 
         var params = new MapSqlParameterSource();
-        params.addValue("isEnabled", true);
+        params.addValue(IS_ENABLED, true);
 
         return jdbcTemplate.query(sql, params, COURSE_MAPPER);
     }
@@ -85,8 +89,8 @@ public class JdbcCourseRepository implements ICourseRepository {
                 """;
 
         var params = new MapSqlParameterSource();
-        params.addValue("isEnabled", true);
-        params.addValue("course_id", courseId);
+        params.addValue(IS_ENABLED, true);
+        params.addValue(COURSE_ID, courseId);
 
         return jdbcTemplate.query(sql, params, EMPLOYEE_MAPPER);
     }
@@ -105,22 +109,7 @@ public class JdbcCourseRepository implements ICourseRepository {
                 
                 """;
 
-        var params = new MapSqlParameterSource();
-        params.addValue("crs_enabled", 1);
-        params.addValue("crs_name", course.getName());
-        params.addValue("crs_number_of_students", course.getNumberOfStudents());
-        params.addValue("crs_term", course.getTerm());
-        params.addValue("crs_lecture_length", course.getLectureLength());
-        params.addValue("crs_exercise_length", course.getExerciseLength());
-        params.addValue("crs_credits", course.getCredits());
-        params.addValue("crs_date_from", course.getDateFrom());
-        params.addValue("crs_date_until", course.getDateUntil());
-        params.addValue("crs_probability", course.getProbability());
-        params.addValue("crs_manager_id", course.getCourseManager());
-        params.addValue("crs_workplace_id", course.getCourseWorkplace());
-
-
-        return jdbcTemplate.update(sql, params) == 1;
+        return jdbcTemplate.update(sql, prepareParams(course)) == 1;
     }
 
     @Override
@@ -134,21 +123,8 @@ public class JdbcCourseRepository implements ICourseRepository {
                 WHERE course_id = :course_id
                 """;
 
-        var params = new MapSqlParameterSource();
-        params.addValue("crs_enabled", 1);
-        params.addValue("crs_name", course.getName());
-        params.addValue("crs_number_of_students", course.getNumberOfStudents());
-        params.addValue("crs_term", course.getTerm());
-        params.addValue("crs_lecture_length", course.getLectureLength());
-        params.addValue("crs_exercise_length", course.getExerciseLength());
-        params.addValue("crs_credits", course.getCredits());
-        params.addValue("crs_date_from", course.getDateFrom());
-        params.addValue("crs_date_until", course.getDateUntil());
-        params.addValue("crs_probability", course.getProbability());
-        params.addValue("crs_manager_id", course.getCourseManager());
-        params.addValue("crs_workplace_id", course.getCourseWorkplace());
-        params.addValue("crs_workplace_id", course.getCourseWorkplace());
-        params.addValue("course_id", courseId);
+        var params = prepareParams(course);
+        params.addValue(COURSE_ID, courseId);
 
         return jdbcTemplate.update(sql, params) == 1;
     }
@@ -163,8 +139,8 @@ public class JdbcCourseRepository implements ICourseRepository {
 
         var params = new MapSqlParameterSource();
         params.addValue("crs_enabled", true);
-        params.addValue("course_id", courseId);
-        params.addValue("isEnabled", true);
+        params.addValue(COURSE_ID, courseId);
+        params.addValue(IS_ENABLED, true);
 
         allocationRepository.fetchAllocationsByCourseId(courseId)
                 .forEach(allocation -> allocationRepository.removeAllocation(allocation.getId()));
@@ -178,12 +154,12 @@ public class JdbcCourseRepository implements ICourseRepository {
                 INSERT INTO course_employee
                 (ass_enabled, ass_course_id, ass_employee_id)
                 VALUES
-                (:ass_enabled, :ass_course_id, :ass_employee_id)
+                (:isEnabled, :course_id, :ass_employee_id)
                 """;
 
         var params = new MapSqlParameterSource();
-        params.addValue("ass_enabled", true);
-        params.addValue("ass_course_id", courseId);
+        params.addValue(IS_ENABLED, true);
+        params.addValue(COURSE_ID, courseId);
         params.addValue("ass_employee_id", employeeId);
 
 
@@ -194,14 +170,14 @@ public class JdbcCourseRepository implements ICourseRepository {
     public boolean removeEmployee(long employeeId, long courseId) {
         var sql = """
                 UPDATE course_employee
-                SET ass_enabled = :pro_enabled
-                WHERE pro_enabled =:isEnabled AND ass.course_id_id = :course_id_id AND ass.employee_id=:employee_id
+                SET ass_enabled = :ass_enabled
+                WHERE pro_enabled =:isEnabled AND ass.course_id = :course_id AND ass.employee_id=:employee_id
                 """;
 
         var params = new MapSqlParameterSource();
         params.addValue("ass_enabled", false);
-        params.addValue("course_id", courseId);
-        params.addValue("isEnabled", true);
+        params.addValue(COURSE_ID, courseId);
+        params.addValue(IS_ENABLED, true);
         params.addValue("employee_id", employeeId);
 
         allocationRepository.fetchAllocationsByCourseId(courseId)
@@ -211,5 +187,24 @@ public class JdbcCourseRepository implements ICourseRepository {
                 });
 
         return jdbcTemplate.update(sql, params) == 1;
+    }
+
+    private MapSqlParameterSource prepareParams(Course course) {
+        var params = new MapSqlParameterSource();
+        params.addValue("crs_enabled", 1);
+        params.addValue("crs_name", course.getName());
+        params.addValue("crs_number_of_students", course.getNumberOfStudents());
+        params.addValue("crs_term", course.getTerm());
+        params.addValue("crs_lecture_length", course.getLectureLength());
+        params.addValue("crs_exercise_length", course.getExerciseLength());
+        params.addValue("crs_credits", course.getCredits());
+        params.addValue("crs_date_from", course.getDateFrom());
+        params.addValue("crs_date_until", course.getDateUntil());
+        params.addValue("crs_probability", course.getProbability());
+        params.addValue("crs_manager_id", course.getCourseManager());
+        params.addValue("crs_workplace_id", course.getCourseWorkplace());
+        params.addValue("crs_workplace_id", course.getCourseWorkplace());
+
+        return params;
     }
 }

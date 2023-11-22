@@ -24,18 +24,26 @@ public class JdbcEmployeeRepository implements IEmployeeRepository {
 
     private final IAllocationRepository allocationRepository;
 
+    private static final String IS_ENABLED = "isEnabled";
+
+    private static final String EMPLOYEE_ID = "employee_id";
+
     @Override
     public Employee fetchEmployee(long employeeId) {
         var sql = """
-                SELECT e.*, w.wrk_abbrevation
+                SELECT e.*,\s
+                       w.wrk_abbrevation,
+                       (SELECT COUNT(*) FROM project_employee pe WHERE pe.pre_employee_id = e.employee_id) AS projects_count,
+                       (SELECT COUNT(*) FROM course_employee ce WHERE ce.cre_employee_id = e.employee_id) AS courses_count,
+                       (SELECT COUNT(*) FROM function_employee fe WHERE fe.fce_employee_id = e.employee_id) AS functions_count
                 FROM employee e
-                INNER JOIN workplace w ON w.workplace_id=e.emp_workplace_id
-                WHERE emp_enabled=:isEnabled AND employee_id=:id
+                INNER JOIN workplace w ON w.workplace_id = e.emp_workplace_id
+                WHERE emp_enabled=:isEnabled AND employee_id=:employee_id;
                 """;
 
         var params = new MapSqlParameterSource();
-        params.addValue("isEnabled", 1);
-        params.addValue("id", employeeId);
+        params.addValue(IS_ENABLED, 1);
+        params.addValue(EMPLOYEE_ID, employeeId);
 
         return jdbcTemplate.query(sql, params, EMPLOYEE_MAPPER).get(0);
     }
@@ -43,14 +51,18 @@ public class JdbcEmployeeRepository implements IEmployeeRepository {
     @Override
     public Employee fetchEmployee(String orionLogin) {
         var sql = """
-                SELECT e.*, w.wrk_abbrevation
+                SELECT e.*,\s
+                       w.wrk_abbrevation,
+                       (SELECT COUNT(*) FROM project_employee pe WHERE pe.pre_employee_id = e.employee_id) AS projects_count,
+                       (SELECT COUNT(*) FROM course_employee ce WHERE ce.cre_employee_id = e.employee_id) AS courses_count,
+                       (SELECT COUNT(*) FROM function_employee fe WHERE fe.fce_employee_id = e.employee_id) AS functions_count
                 FROM employee e
-                INNER JOIN workplace w ON w.workplace_id=e.emp_workplace_id
-                WHERE emp_enabled=:isEnabled AND emp_orion_login=:orionLogin
+                INNER JOIN workplace w ON w.workplace_id = e.emp_workplace_id
+                WHERE emp_enabled=:isEnabled AND emp_orion_login=:orionLogin;
                 """;
 
         var params = new MapSqlParameterSource();
-        params.addValue("isEnabled", 1);
+        params.addValue(IS_ENABLED, 1);
         params.addValue("orionLogin", orionLogin);
 
         return jdbcTemplate.query(sql, params, EMPLOYEE_MAPPER).get(0);
@@ -59,14 +71,18 @@ public class JdbcEmployeeRepository implements IEmployeeRepository {
     @Override
     public List<Employee> fetchEmployees() {
         var sql = """
-                SELECT e.*, w.wrk_abbrevation
+                SELECT e.*,\s
+                       w.wrk_abbrevation,
+                       (SELECT COUNT(*) FROM project_employee pe WHERE pe.pre_employee_id = e.employee_id) AS projects_count,
+                       (SELECT COUNT(*) FROM course_employee ce WHERE ce.cre_employee_id = e.employee_id) AS courses_count,
+                       (SELECT COUNT(*) FROM function_employee fe WHERE fe.fce_employee_id = e.employee_id) AS functions_count
                 FROM employee e
-                INNER JOIN workplace w ON w.workplace_id=e.emp_workplace_id
-                WHERE emp_enabled=:isEnabled
+                INNER JOIN workplace w ON w.workplace_id = e.emp_workplace_id
+                WHERE emp_enabled=:isEnabled;
                 """;
 
         var params = new MapSqlParameterSource();
-        params.addValue("isEnabled", 1);
+        params.addValue(IS_ENABLED, 1);
 
         return jdbcTemplate.query(sql, params, EMPLOYEE_MAPPER);
     }
@@ -74,7 +90,10 @@ public class JdbcEmployeeRepository implements IEmployeeRepository {
     @Override
     public List<Employee> fetchSubordinates(long superiorId) {
         var sql = """
-                SELECT e.*, w.wrk_abbrevation
+                SELECT e.*, w.wrk_abbrevation,
+                    (SELECT COUNT(*) FROM project_employee pe WHERE pe.pre_employee_id = e.employee_id) AS projects_count,
+                    (SELECT COUNT(*) FROM course_employee ce WHERE ce.cre_employee_id = e.employee_id) AS courses_count,
+                    (SELECT COUNT(*) FROM function_employee fe WHERE fe.fce_employee_id = e.employee_id) AS functions_count
                 FROM employee e
                 INNER JOIN superior s ON s.sup_employee_id=e.employee_id
                 INNER JOIN workplace w ON w.workplace_id=e.emp_workplace_id
@@ -82,7 +101,7 @@ public class JdbcEmployeeRepository implements IEmployeeRepository {
                 """;
 
         var params = new MapSqlParameterSource();
-        params.addValue("isEnabled", 1);
+        params.addValue(IS_ENABLED, 1);
         params.addValue("superior_id", superiorId);
 
         return jdbcTemplate.query(sql, params, EMPLOYEE_MAPPER);
@@ -97,15 +116,7 @@ public class JdbcEmployeeRepository implements IEmployeeRepository {
                 (:emp_enabled, :emp_workplace_id, :emp_first_name, :emp_last_name, :emp_orion_login, :emp_email)
                 """;
 
-        var params = new MapSqlParameterSource();
-        params.addValue("emp_enabled", 1);
-        params.addValue("emp_workplace_id", employee.getWorkplace().getId());
-        params.addValue("emp_first_name", employee.getFirstName());
-        params.addValue("emp_last_name", employee.getLastName());
-        params.addValue("emp_orion_login", employee.getOrionLogin());
-        params.addValue("emp_email", employee.getEmailAddress());
-
-        return jdbcTemplate.update(sql, params) == 1;
+        return jdbcTemplate.update(sql, prepareParams(employee)) == 1;
     }
 
     @Override
@@ -117,14 +128,8 @@ public class JdbcEmployeeRepository implements IEmployeeRepository {
                 WHERE emp_enabled=:emp_enabled AND employee_id = :employee_id
                 """;
 
-        var params = new MapSqlParameterSource();
-        params.addValue("emp_enabled", 1);
-        params.addValue("emp_workplace_id", employee.getWorkplace().getId());
-        params.addValue("emp_first_name", employee.getFirstName());
-        params.addValue("emp_last_name", employee.getLastName());
-        params.addValue("emp_orion_login", employee.getOrionLogin());
-        params.addValue("emp_email", employee.getEmailAddress());
-        params.addValue("employee_id", employeeId);
+        var params = prepareParams(employee);
+        params.addValue(EMPLOYEE_ID, employeeId);
 
         return jdbcTemplate.update(sql, params) == 1;
     }
@@ -138,8 +143,8 @@ public class JdbcEmployeeRepository implements IEmployeeRepository {
                 """;
 
         var params = new MapSqlParameterSource();
-        params.addValue("isEnabled", 1);
-        params.addValue("employee_id", employeeId);
+        params.addValue(IS_ENABLED, 1);
+        params.addValue(EMPLOYEE_ID, employeeId);
         params.addValue("remove", true);
 
         var allocations = allocationRepository.fetchEmployeeAllocations(employeeId);
@@ -174,10 +179,22 @@ public class JdbcEmployeeRepository implements IEmployeeRepository {
                 """;
 
         var params = new MapSqlParameterSource();
-        params.addValue("isEnabled", 1);
-        params.addValue("employee_id", subordinateItemId);
+        params.addValue(IS_ENABLED, 1);
+        params.addValue(EMPLOYEE_ID, subordinateItemId);
         params.addValue("remove", true);
 
         return jdbcTemplate.update(sql, params) == 1;
+    }
+
+    private MapSqlParameterSource prepareParams(Employee employee) {
+        var params = new MapSqlParameterSource();
+        params.addValue("emp_enabled", 1);
+        params.addValue("emp_workplace_id", employee.getWorkplace().getId());
+        params.addValue("emp_first_name", employee.getFirstName());
+        params.addValue("emp_last_name", employee.getLastName());
+        params.addValue("emp_orion_login", employee.getOrionLogin());
+        params.addValue("emp_email", employee.getEmailAddress());
+
+        return params;
     }
 }

@@ -34,6 +34,10 @@ public class FunctionV1Controller {
 
     private final AllocationService allocationService;
 
+    private static final String EMPLOYEES = "employees";
+
+    private static final String RESTRICTIONS = "restrictions";
+
     @GetMapping()
     public String getFunctions(Model model) {
         var functions = functionService.getFunctions();
@@ -50,9 +54,9 @@ public class FunctionV1Controller {
         var employees = employeeService.getEmployees();
         var workplaces = workplaceService.getWorkplaces();
 
-        model.addAttribute("employees", employees);
+        model.addAttribute(EMPLOYEES, employees);
         model.addAttribute("workplaces", workplaces);
-        model.addAttribute("restrictions", functions);
+        model.addAttribute(RESTRICTIONS, functions);
 
         return "forms/function/create_function_form";
     }
@@ -69,7 +73,7 @@ public class FunctionV1Controller {
             " or @securityService.isFunctionManager(#id) or @securityService.isWorkplaceManager(#id)")
     @GetMapping("/{id}/edit")
     public String editFunction(Model model, @PathVariable long id,
-                              @RequestParam(required = false) boolean manage) {
+                              @RequestParam(required = false) Boolean manage) {
         Function data = functionService.getFunction(id);
 
         model.addAttribute("functionVO",
@@ -83,11 +87,9 @@ public class FunctionV1Controller {
                         data.getFunctionManager().getId(),
                         data.getFunctionWorkplace().getId()));
 
-        model.addAttribute("employees", employeeService.getEmployees());
+        model.addAttribute(EMPLOYEES, employeeService.getEmployees());
         model.addAttribute("workplaces", workplaceService.getWorkplaces());
-
-        model.addAttribute("restrictions", functionService.getFunctions());
-
+        model.addAttribute(RESTRICTIONS, functionService.getFunctions());
         model.addAttribute("manage", manage);
 
         return "forms/function/edit_function_form";
@@ -97,12 +99,10 @@ public class FunctionV1Controller {
             " or @securityService.isFunctionManager(#id) or @securityService.isWorkplaceManager(#id)")
     @PostMapping("/{id}/edit")
     public String editFunction(Model model, @PathVariable long id, @ModelAttribute FunctionVO functionVO,
-                              BindingResult errors, @RequestParam(required = false) boolean manage) {
-        Function data = functionService.getFunction(id);
-
+                              BindingResult errors, @RequestParam(required = false) Boolean manage) {
         functionService.editFunction(functionVO, id);
 
-        if (manage)
+        if (Boolean.TRUE.equals(manage))
             return String.format("redirect:/f/%s/manage?edit=success", id);
 
         return "redirect:/f?edit=success";
@@ -117,12 +117,10 @@ public class FunctionV1Controller {
     public String addSubordinate(Model model, @PathVariable long id, @ModelAttribute EmployeeVO userVO) {
         model.addAttribute("userVO", new EmployeeVO());
 
-        var function = functionService.getFunction(id);
-
         var restrictions = functionService.getFunctionEmployees(id);
 
-        model.addAttribute("restrictions", restrictions);
-        model.addAttribute("employees", employeeService.getEmployees());
+        model.addAttribute(RESTRICTIONS, restrictions);
+        model.addAttribute(EMPLOYEES, employeeService.getEmployees());
 
         return "forms/function/create_function_employee_form";
     }
@@ -144,7 +142,7 @@ public class FunctionV1Controller {
         var payload = allocationService.getFunctionAllocations(id);
         model.addAttribute("allocations", payload.getAllocations());
         model.addAttribute("function", payload.getAssignmentsFunctions());
-        model.addAttribute("employees", payload.getAllocationsEmployees());
+        model.addAttribute(EMPLOYEES, payload.getAllocationsEmployees());
         return "views/function_management";
     }
 }

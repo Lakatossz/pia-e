@@ -3,8 +3,6 @@ package cz.zcu.kiv.mjakubas.piae.sem.jdbc.mapper;
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Allocation;
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Employee;
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Project;
-import lombok.Getter;
-import lombok.Setter;
 import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;

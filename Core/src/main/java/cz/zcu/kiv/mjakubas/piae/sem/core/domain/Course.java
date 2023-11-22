@@ -4,6 +4,8 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -17,6 +19,7 @@ public class Course extends Activity {
     private int lectureLength;
     private int exerciseLength;
     private int credits;
+    private List<Employee> employees = new ArrayList<>();
 
     public Course() {
 
@@ -24,7 +27,8 @@ public class Course extends Activity {
 
     public Course(long id, String name, LocalDate dateFrom, LocalDate dateUntil, float probability,
                   Employee projectManager, Workplace projectWorkplace, int numberOfStudents,
-                  String term, int lectureLength, int excerciseLength, int credits, boolean enabled) {
+                  String term, int lectureLength, int excerciseLength, int credits,
+                  boolean enabled, List<Employee> employees) {
         super(id, name, dateFrom, dateUntil, probability);
         this.enabled = enabled;
         this.courseManager = projectManager;
@@ -34,6 +38,7 @@ public class Course extends Activity {
         this.lectureLength = lectureLength;
         this.exerciseLength = excerciseLength;
         this.credits = credits;
+        this.employees.addAll(employees);
     }
 
     public Course id(long id) {
@@ -102,6 +107,11 @@ public class Course extends Activity {
         return this;
     }
 
+    public Course employees(List<Employee> employees) {
+        this.employees = employees;
+        return this;
+    }
+
     @Override
     public String toString() {
         return "Course{" + super.toString() +
@@ -112,6 +122,7 @@ public class Course extends Activity {
                 ", lectureLength=" + lectureLength +
                 ", exerciseLength=" + exerciseLength +
                 ", credits=" + credits +
+                ", employees=" + employees +
                 '}';
     }
 }

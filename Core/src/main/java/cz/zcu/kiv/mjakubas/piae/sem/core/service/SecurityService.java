@@ -13,9 +13,7 @@ import cz.zcu.kiv.mjakubas.piae.sem.core.service.v1.WorkplaceService;
 import cz.zcu.kiv.mjakubas.piae.sem.core.vo.EmployeeVO;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
-import org.springframework.boot.autoconfigure.neo4j.Neo4jProperties;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -44,11 +42,10 @@ public class SecurityService {
      * @param orionLogin existing {@link Employee} orion login
      * @param password   plaintext password
      */
-    @Transactional
     public void createUser(@NonNull String orionLogin, @NonNull String password) {
         var employee = employeeService.getEmployee(orionLogin);
-        this.createUserUser(employee.getId(), password);
-        this.createUserRole(employee.getOrionLogin());
+        createUserUser(employee.getId(), password);
+        createUserRole(employee.getOrionLogin());
     }
 
     /**
@@ -58,7 +55,6 @@ public class SecurityService {
      * @param id       user id
      * @param password plaintext password
      */
-    @Transactional
     public void createUserUser(@NonNull long id, @NonNull String password) {
         var pw = passwordEncoder.encode(password);
         if (!userRepository.createNewUser(id, pw)) {
@@ -72,7 +68,6 @@ public class SecurityService {
      *
      * @param orionLogin employee orion login
      */
-    @Transactional
     public void createUserRole(@NonNull String orionLogin) {
         if (!userRepository.addUserRole(orionLogin)) {
             throw new ServiceException();
@@ -121,7 +116,7 @@ public class SecurityService {
     }
 
     /**
-     * Checks if parameter id is current logged user id.
+     * Checks if parameter id is current logged user id and the user is superior.
      *
      * @param id possible user id
      * @return true if yes, no otherwise
@@ -130,7 +125,7 @@ public class SecurityService {
         var auth = SecurityContextHolder.getContext().getAuthentication();
         var employee = employeeService.getEmployee(id);
 
-        return auth.getName().equals(employee.getOrionLogin());
+        return auth.getName().equals(employee.getOrionLogin()) && !employee.getSubordinates().isEmpty();
     }
 
     /**
@@ -229,7 +224,6 @@ public class SecurityService {
     public boolean isWorkplaceManager(int projectId) {
         var auth = SecurityContextHolder.getContext().getAuthentication();
         var employee = employeeService.getEmployee(auth.getName());
-        var project = projectService.getProject(projectId);
         var workplace = workplaceService.getWorkplace(projectId);
 
         return workplace.getManager().getId() == employee.getId();
@@ -243,6 +237,6 @@ public class SecurityService {
     @Transactional
     public void createUserAccount(@NonNull EmployeeVO employeeVO) {
         employeeService.createEmployee(employeeVO);
-        this.createUser(employeeVO.getOrionLogin(), employeeVO.getPassword());
+        createUser(employeeVO.getOrionLogin(), employeeVO.getPassword());
     }
 }

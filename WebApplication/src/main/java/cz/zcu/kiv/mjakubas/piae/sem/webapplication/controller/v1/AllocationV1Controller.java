@@ -25,6 +25,7 @@ public class AllocationV1Controller {
     private final ProjectService projectService;
     private final EmployeeService employeeService;
 
+    private static final String EMPLOYEES = "employees";
 
     @PreAuthorize("@securityService.isProjectManager(#projectId) or @securityService.isWorkplaceManager(#projectId)")
     @GetMapping("/of/{projectId}/manage/for/{employeeId}/add")
@@ -32,7 +33,7 @@ public class AllocationV1Controller {
         var project = projectService.getProject(projectId);
         var employee = employeeService.getEmployee(employeeId);
 
-        model.addAttribute("employees", employeeService.getEmployees());
+        model.addAttribute(EMPLOYEES, employeeService.getEmployees());
 
         model.addAttribute("minDate", project.getDateFrom());
         model.addAttribute("maxDate", project.getDateUntil());
@@ -63,7 +64,7 @@ public class AllocationV1Controller {
         var project = projectService.getProject(allocation.getProject().getId());
         var employee = employeeService.getEmployee(allocation.getWorker().getId());
 
-        model.addAttribute("employees", employeeService.getEmployees());
+        model.addAttribute(EMPLOYEES, employeeService.getEmployees());
 
         model.addAttribute("minDate", project.getDateFrom());
         model.addAttribute("maxDate", project.getDateUntil());
@@ -101,7 +102,7 @@ public class AllocationV1Controller {
             e.getIntervals().addAll(allocationService.processAllocations(allocations));
         }
 
-        model.addAttribute("employees", employees);
+        model.addAttribute(EMPLOYEES, employees);
         return "views/workload";
     }
 
@@ -121,7 +122,7 @@ public class AllocationV1Controller {
         var payload = allocationService.getSubordinatesAllocations(id);
         model.addAttribute("allocations", payload.getAllocations());
         model.addAttribute("projects", payload.getAssignmentsProjects());
-        model.addAttribute("employees", payload.getAllocationsEmployees());
+        model.addAttribute(EMPLOYEES, payload.getAllocationsEmployees());
 
         return "views/allocations/superior_allocations";
     }

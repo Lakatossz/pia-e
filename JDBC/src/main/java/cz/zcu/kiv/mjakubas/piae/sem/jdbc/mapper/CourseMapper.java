@@ -22,7 +22,7 @@ public class CourseMapper implements RowMapper<Course> {
         var probability = rs.getFloat("crs_probability");
         var numberOfStudents = rs.getInt("crs_number_of_students");
         var term = rs.getString("crs_term");
-        var lectureLength = rs.getInt("crs_lecture_legnth");
+        var lectureLength = rs.getInt("crs_lecture_length");
         var exerciseLength = rs.getInt("crs_exercise_length");
         var credits = rs.getInt("crs_credits");
 

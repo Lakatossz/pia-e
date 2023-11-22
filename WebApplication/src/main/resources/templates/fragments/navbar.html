@@ -3,37 +3,36 @@
     <div class="container">
         <!--        <span class="navbar-brand mb-0 h1">Navbar</span>-->
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
-            <span class="navbar-toggler-icon"></span>
+            <span class="navbar-toggler-icon">Neco tady je</span>
         </button>
         <div class="collapse navbar-collapse" id="navbarContent">
             <div class="navbar-nav me-auto mb-2 mb-lg-0">
                 <li class="nav-item">
-                    <a class="nav-link" th:href="@{/}">Index</a>
+                    <a class="nav-link btn-page-head" th:href="@{/}" th:text="#{link.home}"></a>
                 </li>
                 <li class="nav-item" sec:authorize="hasAuthority('SECRETARIAT')">
-                    <a class="nav-link" th:href="@{/w}" th:text="#{link.workplace}"></a>
+                    <a class="nav-link btn-page-head" th:href="@{/w}" th:text="#{link.workplace}"></a>
                 </li>
                 <li class="nav-item" sec:authorize="hasAuthority('SECRETARIAT')">
-                    <a class="nav-link" th:href="@{/e}" th:text="#{link.employee}"></a>
+                    <a class="nav-link btn-page-head" th:href="@{/e}" th:text="#{link.employee}"></a>
                 </li>
                 <li class="nav-item" sec:authorize="hasAuthority('SECRETARIAT')">
-                    <a class="nav-link" th:href="@{/p}" th:text="#{link.project}"></a>
+                    <a class="nav-link btn-page-head" th:href="@{/p}" th:text="#{link.project}"></a>
                 </li>
             </div>
             <div class="navbar-nav d-flex justify-content-end">
                 <li class="nav-item">
-                    <a class="nav-link" th:href="@{/pw/change}" th:text="#{link.change-pw}">Změnit heslo</a>
+                    <a class="nav-link btn-page-head" th:href="@{/pw/change}" th:text="#{link.change-pw}">Změnit heslo</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" th:href="@{/logout}" th:text="#{link.logout}">Odhlásit se</a>
+                    <a class="nav-link btn-page-head" th:href="@{/logout}" th:text="#{link.logout}">Odhlásit se</a>
                 </li>
             </div>
-            <div class="vr me-2"></div>
             <div class="navbar-nav d-flex justify-content-end">
                 <div class="nav-item dropdown">
-                    <a id="language_dropdown" class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown"
+                    <a id="language_dropdown" class="nav-link dropdown-toggle btn-page-head" href="#" data-bs-toggle="dropdown"
                        aria-expanded="false">Language</a>
-                    <ul id="locale_chooser" class="dropdown-menu">
+                    <ul id="locale_chooser" class="dropdown-menu btn-page-head">
                         <tr th:each="sLocale : ${@i18nLanguageService.getSupportedLanguagesLocale()}">
                             <li><a th:id="${sLocale} + _item" th:value="${sLocale}" class="dropdown-item"
                                    th:text="#{'locale.' + ${sLocale}}" th:onclick="changeLocale([[${sLocale}]])"></a>

@@ -29,6 +29,9 @@ public class ProjectV1Controller {
 
     private final AllocationService allocationService;
 
+    private static final String EMPLOYEES = "employees";
+    private static final String RESTRICTIONS = "restrictions";
+
     @GetMapping()
     public String getProjects(Model model) {
         var projects = projectService.getProjects();
@@ -47,21 +50,15 @@ public class ProjectV1Controller {
         var employees = employeeService.getEmployees();
         var workplaces = workplaceService.getWorkplaces();
 
-        model.addAttribute("employees", employees);
+        model.addAttribute(EMPLOYEES, employees);
         model.addAttribute("workplaces", workplaces);
-        model.addAttribute("restrictions", projects);
+        model.addAttribute(RESTRICTIONS, projects);
 
         return "forms/project/create_project_form";
     }
 
     @PostMapping("/create")
     public String createProject(@ModelAttribute ProjectVO projectVO, BindingResult bindingResult, Model model) {
-
-//        /* it is what it is... */
-//        String str = projectVO.getProjectManagerOrionLogin();
-//        String emailAddress = str.substring(str.indexOf("(") + 1, str.indexOf(")"));
-//        String orionLogin = emailAddress.substring(0, emailAddress.indexOf("@"));
-//        projectVO.setProjectManagerOrionLogin(orionLogin);
 
         /* it is what it is... */
         String str = projectVO.getProjectManagerOrionLogin();
@@ -78,7 +75,7 @@ public class ProjectV1Controller {
             " or @securityService.isProjectManager(#id) or @securityService.isWorkplaceManager(#id)")
     @GetMapping("/{id}/edit")
     public String editProject(Model model, @PathVariable long id,
-                              @RequestParam(required = false) boolean manage) {
+                              @RequestParam(required = false) Boolean manage) {
         Project data = projectService.getProject(id);
 
         model.addAttribute("projectVO",
@@ -87,10 +84,10 @@ public class ProjectV1Controller {
                         data.getProjectWorkplace().getId(), data.getDateFrom(),
                         data.getDateUntil(), data.getDescription()));
 
-        model.addAttribute("employees", employeeService.getEmployees());
+        model.addAttribute(EMPLOYEES, employeeService.getEmployees());
         model.addAttribute("workplaces", workplaceService.getWorkplaces());
 
-        model.addAttribute("restrictions", projectService.getProjects());
+        model.addAttribute(RESTRICTIONS, projectService.getProjects());
 
         model.addAttribute("manage", manage);
 
@@ -100,14 +97,7 @@ public class ProjectV1Controller {
     @PreAuthorize("hasAuthority(T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT) or @securityService.isProjectManager(#id) or @securityService.isWorkplaceManager(#id)")
     @PostMapping("/{id}/edit")
     public String editProject(Model model, @PathVariable long id, @ModelAttribute ProjectVO projectVO,
-                              BindingResult errors, @RequestParam(required = false) boolean manage) {
-        Project data = projectService.getProject(id);
-
-//        /* it is what it is... */
-//        String str = projectVO.getProjectManagerOrionLogin();
-//        String emailAddress = str.substring(str.indexOf("(") + 1, str.indexOf(")"));
-//        String orionLogin = emailAddress.substring(0, emailAddress.indexOf("@"));
-//        projectVO.setProjectManagerOrionLogin(orionLogin);
+                              BindingResult errors, @RequestParam(required = false) Boolean manage) {
 
         /* it is what it is... */
         String str = projectVO.getProjectManagerOrionLogin();
@@ -116,14 +106,14 @@ public class ProjectV1Controller {
 
         projectService.editProject(projectVO, id);
 
-        if (manage)
+        if (Boolean.TRUE.equals(manage))
             return String.format("redirect:/p/%s/manage?edit=success", id);
 
         return "redirect:/p?edit=success";
     }
 
     @GetMapping("/{id}/delete")
-    public String editProject(Model model, @PathVariable long id) {
+    public String deleteProject(Model model, @PathVariable long id) {
         return "redirect:/p?delete=success";
     }
 
@@ -133,10 +123,10 @@ public class ProjectV1Controller {
 
         var project = projectService.getProject(id);
 
-        var restrictions = projectService.getProjectEmployees(id);
+        var restrictions = projectService.getProjectEmployees(project.getId());
 
-        model.addAttribute("restrictions", restrictions);
-        model.addAttribute("employees", employeeService.getEmployees());
+        model.addAttribute(RESTRICTIONS, restrictions);
+        model.addAttribute(EMPLOYEES, employeeService.getEmployees());
 
         return "forms/project/create_project_employee_form";
     }
@@ -166,7 +156,7 @@ public class ProjectV1Controller {
         var payload = allocationService.getProjectAllocations(id);
         model.addAttribute("allocations", payload.getAllocations());
         model.addAttribute("projects", payload.getAssignmentsProjects());
-        model.addAttribute("employees", payload.getAllocationsEmployees());
+        model.addAttribute(EMPLOYEES, payload.getAllocationsEmployees());
 
         model.addAttribute("project", project);
         return "views/project_management";

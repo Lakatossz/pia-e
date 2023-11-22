@@ -21,6 +21,9 @@ public class Employee {
     private final Workplace workplace;
     private final LocalDateTime dateCreated;
     private final List<Employee> subordinates = new ArrayList<>();
+    private final long participatingProjects;
+    private final long participatingCourses;
+    private final long participatingFunctions;
 
     private final List<AllocationInterval> intervals = new ArrayList<>();
 }

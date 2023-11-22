@@ -11,3 +11,28 @@
     -moz-border-radius: 0 !important;
     border-radius: 0 !important;
 }
+
+.btn-page-head {
+    border-radius: 4px;
+    margin: 4px;
+    padding: 20px;
+    background-color: #289345;
+    height: 45px;
+}
+
+.btn-page-head:hover {background: #165a3d;}
+
+.btn-page-head:focus {
+    border-radius: 4px;
+    margin: 6px 4px;
+    background-color: #289349;
+    height: 50px;
+}
+
+.dropdown-item-down {
+    background-color: #289345;
+}
+
+.dropdown-item-down:hover {
+    background-color: #165a3d;
+}

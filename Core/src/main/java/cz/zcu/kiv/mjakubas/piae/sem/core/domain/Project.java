@@ -34,7 +34,7 @@ public class Project extends Activity {
         this.budget = budget;
         this.participation = participation;
         this.totalTime = totalTime;
-        employees.addAll(employees);
+        this.employees.addAll(employees);
     }
 
     public Project id(long id) {

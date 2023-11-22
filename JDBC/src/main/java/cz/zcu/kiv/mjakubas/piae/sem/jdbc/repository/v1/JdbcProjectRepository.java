@@ -27,18 +27,22 @@ public class JdbcProjectRepository implements IProjectRepository {
 
     private final IAllocationRepository allocationRepository;
 
+    private static final String IS_ENABLED = "isEnabled";
+
+    private static final String PROJECT_ID = "project_id";
+
     @Override
     public Project fetchProject(long projectId) {
         var sql = """
                 SELECT p.*, w.wrk_abbrevation, w.workplace_id, e.* FROM project p
                 INNER JOIN workplace w ON w.workplace_id=p.pro_workplace_id
                 INNER JOIN employee e ON e.employee_id=p.pro_manager_id
-                WHERE p.pro_enabled=:isEnabled AND p.project_id=:id
+                WHERE p.pro_enabled=:isEnabled AND p.project_id=:project_id
                 """;
 
         var params = new MapSqlParameterSource();
-        params.addValue("id", projectId);
-        params.addValue("isEnabled", true);
+        params.addValue(PROJECT_ID, projectId);
+        params.addValue(IS_ENABLED, true);
 
         return jdbcTemplate.query(sql, params, PROJECT_MAPPER).get(0);
     }
@@ -54,7 +58,7 @@ public class JdbcProjectRepository implements IProjectRepository {
 
         var params = new MapSqlParameterSource();
         params.addValue("name", name);
-        params.addValue("isEnabled", true);
+        params.addValue(IS_ENABLED, true);
 
         return jdbcTemplate.query(sql, params, PROJECT_MAPPER).get(0);
     }
@@ -69,7 +73,7 @@ public class JdbcProjectRepository implements IProjectRepository {
                 """;
 
         var params = new MapSqlParameterSource();
-        params.addValue("isEnabled", true);
+        params.addValue(IS_ENABLED, true);
 
         return jdbcTemplate.query(sql, params, PROJECT_MAPPER);
     }
@@ -84,8 +88,8 @@ public class JdbcProjectRepository implements IProjectRepository {
                 """;
 
         var params = new MapSqlParameterSource();
-        params.addValue("isEnabled", true);
-        params.addValue("project_id", projectId);
+        params.addValue(IS_ENABLED, true);
+        params.addValue(PROJECT_ID, projectId);
 
         return jdbcTemplate.query(sql, params, EMPLOYEE_MAPPER);
     }
@@ -103,21 +107,7 @@ public class JdbcProjectRepository implements IProjectRepository {
                 :pro_budget, :pro_participation, :pro_total_time);
                 """;
 
-        var params = new MapSqlParameterSource();
-        params.addValue("pro_enabled", 1);
-        params.addValue("pro_name", project.getName());
-        params.addValue("pro_manager_id", project.getProjectManager().getId());
-        params.addValue("pro_workplace_id", project.getProjectWorkplace().getId());
-        params.addValue("pro_date_from", project.getDateFrom());
-        params.addValue("pro_date_until", project.getDateUntil());
-        params.addValue("pro_description", project.getDescription());
-        params.addValue("pro_probability", project.getProbability());
-        params.addValue("pro_budget", project.getBudget());
-        params.addValue("pro_participation", project.getParticipation());
-        params.addValue("pro_total_time", project.getTotalTime());
-
-
-        return jdbcTemplate.update(sql, params) == 1;
+        return jdbcTemplate.update(sql, prepareParams(project)) == 1;
     }
 
     @Override
@@ -131,19 +121,8 @@ public class JdbcProjectRepository implements IProjectRepository {
                 WHERE project_id = :project_id
                 """;
 
-        var params = new MapSqlParameterSource();
-        params.addValue("pro_enabled", 1);
-        params.addValue("pro_name", project.getName());
-        params.addValue("pro_manager_id", project.getProjectManager().getId());
-        params.addValue("pro_workplace_id", project.getProjectWorkplace().getId());
-        params.addValue("pro_date_from", project.getDateFrom());
-        params.addValue("pro_date_until", project.getDateUntil());
-        params.addValue("pro_description", project.getDescription());
-        params.addValue("pro_probability", project.getProbability());
-        params.addValue("pro_budget", project.getBudget());
-        params.addValue("pro_participation", project.getParticipation());
-        params.addValue("pro_total_time", project.getTotalTime());
-        params.addValue("project_id", projectId);
+        var params = prepareParams(project);
+        params.addValue(PROJECT_ID, projectId);
 
         return jdbcTemplate.update(sql, params) == 1;
     }
@@ -158,8 +137,8 @@ public class JdbcProjectRepository implements IProjectRepository {
 
         var params = new MapSqlParameterSource();
         params.addValue("pro_enabled", true);
-        params.addValue("project_id", projectId);
-        params.addValue("isEnabled", true);
+        params.addValue(PROJECT_ID, projectId);
+        params.addValue(IS_ENABLED, true);
 
         allocationRepository.fetchAllocationsByProjectId(projectId)
                 .forEach(allocation -> allocationRepository.removeAllocation(allocation.getId()));
@@ -173,12 +152,12 @@ public class JdbcProjectRepository implements IProjectRepository {
                 INSERT INTO project_employee
                 (ass_enabled, ass_project_id, ass_employee_id)
                 VALUES
-                (:ass_enabled, :ass_project_id, :ass_employee_id)
+                (:isEnabled, :project_id, :ass_employee_id)
                 """;
 
         var params = new MapSqlParameterSource();
-        params.addValue("ass_enabled", true);
-        params.addValue("ass_project_id", projectId);
+        params.addValue(IS_ENABLED, true);
+        params.addValue(PROJECT_ID, projectId);
         params.addValue("ass_employee_id", employeeId);
 
 
@@ -195,8 +174,8 @@ public class JdbcProjectRepository implements IProjectRepository {
 
         var params = new MapSqlParameterSource();
         params.addValue("ass_enabled", false);
-        params.addValue("project_id", projectId);
-        params.addValue("isEnabled", true);
+        params.addValue(PROJECT_ID, projectId);
+        params.addValue(IS_ENABLED, true);
         params.addValue("employee_id", employeeId);
 
         allocationRepository.fetchAllocationsByProjectId(projectId)
@@ -206,5 +185,22 @@ public class JdbcProjectRepository implements IProjectRepository {
                 });
 
         return jdbcTemplate.update(sql, params) == 1;
+    }
+
+    private MapSqlParameterSource prepareParams(Project project) {
+        var params = new MapSqlParameterSource();
+        params.addValue("pro_enabled", 1);
+        params.addValue("pro_name", project.getName());
+        params.addValue("pro_manager_id", project.getProjectManager().getId());
+        params.addValue("pro_workplace_id", project.getProjectWorkplace().getId());
+        params.addValue("pro_date_from", project.getDateFrom());
+        params.addValue("pro_date_until", project.getDateUntil());
+        params.addValue("pro_description", project.getDescription());
+        params.addValue("pro_probability", project.getProbability());
+        params.addValue("pro_budget", project.getBudget());
+        params.addValue("pro_participation", project.getParticipation());
+        params.addValue("pro_total_time", project.getTotalTime());
+
+        return params;
     }
 }

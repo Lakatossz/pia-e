@@ -80,7 +80,7 @@ public class ProjectService {
         var myProjects = new ArrayList<Project>();
         for (Project p : projects) {
             for (Workplace myW : myWorkplaces) {
-                if (p.getProjectWorkplace().getId() == myW.getId())
+                if (p.getProjectWorkplace().getId().equals(myW.getId()))
                     myProjects.add(p);
             }
         }
@@ -97,9 +97,8 @@ public class ProjectService {
     @Transactional
     public void createProject(@NonNull ProjectVO projectVO) {
         var data = employeeService.getEmployee(projectVO.getProjectManagerOrionLogin());
-        if (projectVO.getDateUntil() != null) {
-            if (projectVO.getDateFrom().isAfter(projectVO.getDateUntil()))
-                throw new ServiceException();
+        if (projectVO.getDateUntil() != null && (projectVO.getDateFrom().isAfter(projectVO.getDateUntil())))
+                {throw new ServiceException();
         }
 
         Project project = new Project()
@@ -123,15 +122,13 @@ public class ProjectService {
     @Transactional
     public void editProject(@NonNull ProjectVO projectVO, long id) {
         var data = employeeService.getEmployee(projectVO.getProjectManagerOrionLogin());
-        if (projectVO.getDateUntil() != null) {
-            if (projectVO.getDateFrom().isAfter(projectVO.getDateUntil()))
-                throw new ServiceException();
+        if (projectVO.getDateUntil() != null && (projectVO.getDateFrom().isAfter(projectVO.getDateUntil())))
+                {throw new ServiceException();
         }
         var processed = allocationService.processAllocations(allocationService.getProjectAllocations(id).getAllocations());
-        if (processed.size() > 0) {
-            if (processed.get(0).getFrom().isBefore(projectVO.getDateFrom())
-                    || processed.get(processed.size() - 1).getUntil().isAfter(projectVO.getDateUntil()))
-                throw new ServiceException();
+        if (!processed.isEmpty() && (processed.get(0).getFrom().isBefore(projectVO.getDateFrom())
+                    || processed.get(processed.size() - 1).getUntil().isAfter(projectVO.getDateUntil())))
+                {throw new ServiceException();
         }
 
 
@@ -168,6 +165,25 @@ public class ProjectService {
 
         if (!projectRepository.addEmployee(legitId, id))
             throw new ServiceException();
+    }
+
+    /**
+     * Gets all projects of a project employee.
+     *
+     * @param employeeId project employee id
+     * @return list of {@link Project}
+     */
+    public List<Project> getEmployeeProjects(long employeeId) {
+        var projects = projectRepository.fetchProjects();
+        var myProjects = new ArrayList<Project>();
+        projects.forEach(project -> {
+            if (project.getEmployees().stream().filter(employee -> employee.getId() == employeeId).toList().size() == 1)
+                myProjects.add(project);
+        });
+
+        System.out.println("Pocet projektu: " + myProjects.size());
+
+        return myProjects;
     }
 
     /**

@@ -1,10 +1,13 @@
 package cz.zcu.kiv.mjakubas.piae.sem.webapplication.controller.v1;
 
 import cz.zcu.kiv.mjakubas.piae.sem.core.service.SecurityService;
+import cz.zcu.kiv.mjakubas.piae.sem.core.service.v1.AllocationService;
+import cz.zcu.kiv.mjakubas.piae.sem.core.service.v1.CourseService;
 import cz.zcu.kiv.mjakubas.piae.sem.core.service.v1.EmployeeService;
+import cz.zcu.kiv.mjakubas.piae.sem.core.service.v1.FunctionService;
+import cz.zcu.kiv.mjakubas.piae.sem.core.service.v1.ProjectService;
 import cz.zcu.kiv.mjakubas.piae.sem.core.service.v1.WorkplaceService;
 import cz.zcu.kiv.mjakubas.piae.sem.core.vo.EmployeeVO;
-import jakarta.annotation.security.RolesAllowed;
 import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -28,6 +31,20 @@ public class EmployeeV1Controller {
 
     private final SecurityService securityService;
 
+    private final ProjectService projectService;
+
+    private final CourseService courseService;
+
+    private final FunctionService functionService;
+
+    private final AllocationService allocationService;
+
+    private static final String RESTRICITONS = "restrictions";
+
+    private static final String WORKLPACES = "workplaces";
+
+    private static final String USER_VO = "userVO";
+
     @GetMapping()
     public String viewEmployees(Model model) {
         var employees = employeeService.getEmployees();
@@ -43,12 +60,12 @@ public class EmployeeV1Controller {
         var employees = employeeService.getEmployees();
         var workplaces = workplaceService.getWorkplaces();
 
-        model.addAttribute("restrictions", employees);
-        model.addAttribute("workplaces", workplaces);
+        model.addAttribute(RESTRICITONS, employees);
+        model.addAttribute(WORKLPACES, workplaces);
 
         var employeeVO = new EmployeeVO();
         employeeVO.setPassword(RandomStringUtils.random(7, true, false));
-        model.addAttribute("userVO", employeeVO);
+        model.addAttribute(USER_VO, employeeVO);
         return "forms/employee/create_employee_form";
     }
 
@@ -63,13 +80,19 @@ public class EmployeeV1Controller {
         var employee = employeeService.getEmployee(id);
         var employees = employeeService.getEmployees();
         var workplaces = workplaceService.getWorkplaces();
+        var projects = projectService.getEmployeeProjects(id);
+        var courses = courseService.getEmployeesCourses(id);
+        var functions = functionService.getEmployeeFunctions(id);
 
-        model.addAttribute("userVO",
+        model.addAttribute(USER_VO,
                 new EmployeeVO(employee.getFirstName(), employee.getLastName(), employee.getEmailAddress(),
                         employee.getOrionLogin(), employee.getWorkplace().getId(), null));
 
-        model.addAttribute("restrictions", employees);
-        model.addAttribute("workplaces", workplaces);
+        model.addAttribute(RESTRICITONS, employees);
+        model.addAttribute(WORKLPACES, workplaces);
+        model.addAttribute("projects", projects);
+        model.addAttribute("courses", courses);
+        model.addAttribute("functions", functions);
 
         return "forms/employee/detail_employee";
     }
@@ -80,12 +103,12 @@ public class EmployeeV1Controller {
         var employees = employeeService.getEmployees();
         var workplaces = workplaceService.getWorkplaces();
 
-        model.addAttribute("userVO",
+        model.addAttribute(USER_VO,
                 new EmployeeVO(employee.getFirstName(), employee.getLastName(), employee.getEmailAddress(),
                         employee.getOrionLogin(), employee.getWorkplace().getId(), null));
 
-        model.addAttribute("restrictions", employees);
-        model.addAttribute("workplaces", workplaces);
+        model.addAttribute(RESTRICITONS, employees);
+        model.addAttribute(WORKLPACES, workplaces);
 
         return "forms/employee/edit_employee_form";
     }
@@ -107,13 +130,13 @@ public class EmployeeV1Controller {
 
     @GetMapping("/{id}/subordinate/add")
     public String addSubordinate(Model model, @PathVariable long id, @ModelAttribute EmployeeVO userVO) {
-        model.addAttribute("userVO", new EmployeeVO());
+        model.addAttribute(USER_VO, new EmployeeVO());
 
         var employee = employeeService.getEmployee(id);
         var restrictions = employeeService.getSubordinates(employee.getId());
         restrictions.add(employee);
 
-        model.addAttribute("restrictions", restrictions);
+        model.addAttribute(RESTRICITONS, restrictions);
         model.addAttribute("employees", employeeService.getEmployees());
 
         return "forms/employee/create_subordinate_form";

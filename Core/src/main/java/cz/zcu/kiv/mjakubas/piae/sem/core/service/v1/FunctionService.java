@@ -97,9 +97,8 @@ public class FunctionService {
     @Transactional
     public void createFunction(@NonNull FunctionVO functionVO) {
         var data = employeeService.getEmployee(functionVO.getFunctionManager());
-        if (functionVO.getDateUntil() != null) {
-            if (functionVO.getDateFrom().isAfter(functionVO.getDateUntil()))
-                throw new ServiceException();
+        if (functionVO.getDateUntil() != null && (functionVO.getDateFrom().isAfter(functionVO.getDateUntil())))
+                {throw new ServiceException();
         }
 
         Function function = new Function()
@@ -122,15 +121,13 @@ public class FunctionService {
     @Transactional
     public void editFunction(@NonNull FunctionVO functionVO, long id) {
         var data = employeeService.getEmployee(functionVO.getFunctionManager());
-        if (functionVO.getDateUntil() != null) {
-            if (functionVO.getDateFrom().isAfter(functionVO.getDateUntil()))
-                throw new ServiceException();
+        if (functionVO.getDateUntil() != null && (functionVO.getDateFrom().isAfter(functionVO.getDateUntil())))
+                {throw new ServiceException();
         }
         var processed = allocationService.processAllocations(allocationService.getFunctionAllocations(id).getAllocations());
-        if (!processed.isEmpty()) {
-            if (processed.get(0).getFrom().isBefore(functionVO.getDateFrom())
-                    || processed.get(processed.size() - 1).getUntil().isAfter(functionVO.getDateUntil()))
-                throw new ServiceException();
+        if (!processed.isEmpty() && (processed.get(0).getFrom().isBefore(functionVO.getDateFrom())
+                    || processed.get(processed.size() - 1).getUntil().isAfter(functionVO.getDateUntil())))
+                {throw new ServiceException();
         }
 
 
@@ -166,6 +163,25 @@ public class FunctionService {
 
         if (!functionRepository.addEmployee(legitId, id))
             throw new ServiceException();
+    }
+
+    /**
+     * Gets all functions of a function employee.
+     *
+     * @param employeeId function employee id
+     * @return list of {@link Function}
+     */
+    public List<Function> getEmployeeFunctions(long employeeId) {
+        var functions = functionRepository.fetchFunctions();
+        var myFunctions = new ArrayList<Function>();
+        functions.forEach(function -> {
+            if (function.getEmployees().stream().filter(employee -> employee.getId() == employeeId).toList().size() == 1)
+                myFunctions.add(function);
+        });
+
+        System.out.println("Pocet funcki: " + myFunctions.size());
+
+        return myFunctions;
     }
 
     /**

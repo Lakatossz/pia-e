@@ -187,9 +187,10 @@
                     <th scope="col" th:text="#{view.employee.table.fname}"></th>
                     <th scope="col" th:text="#{view.employee.table.lname}"></th>
                     <th scope="col" th:text="#{view.employee.table.wrk-abbreviation}"></th>
-                    <th scope="col" th:text="#{view.employee.table.wrk-project}"></th>
-                    <th scope="col" th:text="#{view.employee.table.wrk-course}"></th>
-                    <th scope="col" th:text="#{view.employee.table.current-time}"></th>
+                    <th scope="col" th:text="#{view.employee.table.wrk-projects}"></th>
+                    <th scope="col" th:text="#{view.employee.table.wrk-courses}"></th>
+                    <th scope="col" th:text="#{view.employee.table.wrk-functions}"></th>
+                    <th scope="col" th:text="#{view.employee.table.total-time}"></th>
                     <th scope="col"></th>
                 </tr>
                 </thead>
@@ -199,8 +200,9 @@
                         <td th:text="${emp.firstName}"></td>
                         <td th:text="${emp.lastName}"></td>
                         <td th:text="${emp.workplace.abbreviation}"></td>
-                        <td th:text="${emp.orionLogin}"></td>
-                        <td th:text="${emp.emailAddress}"></td>
+                        <td th:text="${emp.participatingProjects}"></td>
+                        <td th:text="${emp.participatingCourses}"></td>
+                        <td th:text="${emp.participatingFunctions}"></td>
                         <td th:text="${emp.intervals.size()}"></td>
                         <!--<table class="table content">
                             <thead>

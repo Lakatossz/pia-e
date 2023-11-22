@@ -91,7 +91,7 @@ public class WorkplaceService {
      */
     @Transactional
     public void removeWorkplace(long workplaceId) {
-        return;
+
     }
 
 }

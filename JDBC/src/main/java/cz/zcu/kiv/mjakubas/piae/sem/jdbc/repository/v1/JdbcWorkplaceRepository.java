@@ -25,6 +25,8 @@ public class JdbcWorkplaceRepository implements IWorkplaceRepository {
 
     private static final EmployeeMapper EMPLOYEE_MAPPER = new EmployeeMapper();
 
+    private static final String IS_ENABLED = "isEnabled";
+
     @Override
     public Workplace fetchWorkplace(long workplaceId) {
         var sql = """
@@ -35,7 +37,7 @@ public class JdbcWorkplaceRepository implements IWorkplaceRepository {
 
         var params = new MapSqlParameterSource();
         params.addValue("wrk_id", workplaceId);
-        params.addValue("isEnabled", true);
+        params.addValue(IS_ENABLED, true);
 
         return jdbcTemplate.query(sql, params, WORKPLACE_MAPPER).get(0);
     }
@@ -50,7 +52,7 @@ public class JdbcWorkplaceRepository implements IWorkplaceRepository {
 
         var params = new MapSqlParameterSource();
         params.addValue("wrk_abbrevation", abbrevation);
-        params.addValue("isEnabled", true);
+        params.addValue(IS_ENABLED, true);
 
         return jdbcTemplate.query(sql, params, WORKPLACE_MAPPER).get(0);
     }
@@ -76,7 +78,7 @@ public class JdbcWorkplaceRepository implements IWorkplaceRepository {
                 """;
 
         var params = new MapSqlParameterSource();
-        params.addValue("isEnabled", true);
+        params.addValue(IS_ENABLED, true);
         params.addValue("id", workplaceId);
 
         return jdbcTemplate.query(sql, EMPLOYEE_MAPPER);

@@ -1,9 +1,7 @@
 package cz.zcu.kiv.mjakubas.piae.sem.core.vo;
 
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Project;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
@@ -23,7 +21,7 @@ public class ProjectVO {
     private Long workplaceId;
     private LocalDate dateFrom;
     private LocalDate dateUntil;
-    private String Description;
+    private String description;
 
     public ProjectVO() {
 
@@ -35,7 +33,7 @@ public class ProjectVO {
         this.workplaceId = workplaceId;
         this.dateFrom = dateFrom;
         this.dateUntil = dateUntil;
-        Description = description;
+        this.description = description;
     }
 
     public ProjectVO name(String name) {
@@ -64,7 +62,7 @@ public class ProjectVO {
     }
 
     public ProjectVO description(String description) {
-        Description = description;
+        this.description = description;
         return this;
     }
 
@@ -76,7 +74,7 @@ public class ProjectVO {
                 ", workplaceId=" + workplaceId +
                 ", dateFrom=" + dateFrom +
                 ", dateUntil=" + dateUntil +
-                ", Description='" + Description + '\'' +
+                ", description='" + description + '\'' +
                 '}';
     }
 }

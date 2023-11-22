@@ -17,6 +17,16 @@ public class EmployeeMapper implements RowMapper<Employee> {
         String lastName = rs.getString("emp_last_name");
         String orionLogin = rs.getString("emp_orion_login");
         String email = rs.getString("emp_email");
+        long participatingProjects = 0;
+        long participatingCourses = 0;
+        long participatingFunctions = 0;
+        try {
+            participatingProjects = rs.getLong("projects_count");
+            participatingCourses = rs.getLong("courses_count");
+            participatingFunctions = rs.getLong("projects_count");
+        } catch (Exception e) {
+            System.out.println("Tohle jeste oprav!");
+        }
 
         long workplaceId = rs.getLong("emp_workplace_id");
         Workplace workplace = null;
@@ -35,6 +45,9 @@ public class EmployeeMapper implements RowMapper<Employee> {
                 .orionLogin(orionLogin)
                 .emailAddress(email)
                 .workplace(workplace)
+                .participatingProjects(participatingProjects)
+                .participatingCourses(participatingCourses)
+                .participatingFunctions(participatingFunctions)
                 .build();
     }
 }

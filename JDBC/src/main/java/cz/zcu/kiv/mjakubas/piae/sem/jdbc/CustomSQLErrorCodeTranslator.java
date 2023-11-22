@@ -1,7 +1,6 @@
 package cz.zcu.kiv.mjakubas.piae.sem.jdbc;
 
 import org.springframework.dao.DataAccessException;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.jdbc.support.SQLErrorCodeSQLExceptionTranslator;
 

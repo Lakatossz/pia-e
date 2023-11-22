@@ -14,17 +14,19 @@ public class Function extends Activity {
     private float defaultTime;
     private Employee functionManager;
     private Workplace functionWorkplace;
+    private List<Employee> employees = new ArrayList<>();
 
     public Function() {
 
     }
 
     public Function(long id, String name, LocalDate dateFrom, Employee functionManager, Workplace functionWorkplace,
-                    LocalDate dateUntil, float probability, float defaultTime) {
+                    LocalDate dateUntil, float probability, float defaultTime, List<Employee> employees) {
         super(id, name, dateFrom, dateUntil, probability);
         this.functionManager = functionManager;
         this.functionWorkplace = functionWorkplace;
         this.defaultTime = defaultTime;
+        this.employees.addAll(employees);
     }
 
     public Function id(long id) {
@@ -67,12 +69,18 @@ public class Function extends Activity {
         return this;
     }
 
+    public Function employees(List<Employee> employees) {
+        this.employees = employees;
+        return this;
+    }
+
     @Override
     public String toString() {
         return "Function{" + super.toString() +
                 ", functionManager=" + functionManager +
                 ", functionWorkplace=" + functionWorkplace +
                 ", defaultTime=" + defaultTime +
+                ", employees=" + employees +
                 '}';
     }
 }

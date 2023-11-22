@@ -26,18 +26,23 @@ public class JdbcFunctionRepository implements IFunctionRepository {
     private static final EmployeeMapper EMPLOYEE_MAPPER = new EmployeeMapper();
 
     private final IAllocationRepository allocationRepository;
+
+    private static final String IS_ENABLED = "isEnabled";
+
+    private static final String FUNCTION_ID = "function_id";
+
     @Override
     public Function fetchFunction(long functionId) {
         var sql = """
-                SELECT f.*, w.wrk_abbrevation, w.workplace_id, e.* FROM function f
+                SELECT f.*, w.wrk_abbrevation, w.workplace_id, e.* FROM `function` f
                 INNER JOIN workplace w ON w.workplace_id=f.fnc_workplace_id
                 INNER JOIN employee e ON e.employee_id=f.fnc_manager_id
-                WHERE f.fnc_enabled=:isEnabled AND f.function_id=:id
+                WHERE f.fnc_enabled=:isEnabled AND f.function_id=:function_id
                 """;
 
         var params = new MapSqlParameterSource();
-        params.addValue("id", functionId);
-        params.addValue("isEnabled", true);
+        params.addValue(FUNCTION_ID, functionId);
+        params.addValue(IS_ENABLED, true);
 
         return jdbcTemplate.query(sql, params, FUNCTION_MAPPER).get(0);
     }
@@ -45,7 +50,7 @@ public class JdbcFunctionRepository implements IFunctionRepository {
     @Override
     public Function fetchFunction(String name) {
         var sql = """
-                SELECT f.*, w.wrk_abbrevation, e.* FROM function f
+                SELECT f.*, w.wrk_abbrevation, e.* FROM `function` f
                 INNER JOIN workplace w ON w.workplace_id=f.fnc_workplace_id
                 INNER JOIN employee e ON e.employee_id=f.fnc_manager_id
                 WHERE f.fnc_enabled=:isEnabled AND f.fnc_name=:name
@@ -53,7 +58,7 @@ public class JdbcFunctionRepository implements IFunctionRepository {
 
         var params = new MapSqlParameterSource();
         params.addValue("name", name);
-        params.addValue("isEnabled", true);
+        params.addValue(IS_ENABLED, true);
 
         return jdbcTemplate.query(sql, params, FUNCTION_MAPPER).get(0);
     }
@@ -61,14 +66,14 @@ public class JdbcFunctionRepository implements IFunctionRepository {
     @Override
     public List<Function> fetchFunctions() {
         var sql = """
-                SELECT f.*, w.wrk_abbrevation, w.workplace_id, e.* FROM function f
+                SELECT f.*, w.wrk_abbrevation, e.* FROM `function` f
                 INNER JOIN workplace w ON w.workplace_id=f.fnc_workplace_id
                 INNER JOIN employee e ON e.employee_id=f.fnc_manager_id
                 WHERE f.fnc_enabled=:isEnabled
                 """;
 
         var params = new MapSqlParameterSource();
-        params.addValue("isEnabled", true);
+        params.addValue(IS_ENABLED, true);
 
         return jdbcTemplate.query(sql, params, FUNCTION_MAPPER);
     }
@@ -83,8 +88,8 @@ public class JdbcFunctionRepository implements IFunctionRepository {
                 """;
 
         var params = new MapSqlParameterSource();
-        params.addValue("isEnabled", true);
-        params.addValue("functionId", functionId);
+        params.addValue(IS_ENABLED, true);
+        params.addValue(FUNCTION_ID, functionId);
 
         return jdbcTemplate.query(sql, params, EMPLOYEE_MAPPER);
     }
@@ -92,7 +97,7 @@ public class JdbcFunctionRepository implements IFunctionRepository {
     @Override
     public boolean createFunction(@NonNull Function function) {
         var sql = """
-                INSERT INTO function
+                INSERT INTO `function`
                 (fnc_enabled, fnc_name, fnc_manager_id, fnc_workplace_id,\s
                 fnc_date_from, fnc_date_until, fnc_description, fnc_probability, 
                 fnc_default_time)
@@ -102,40 +107,21 @@ public class JdbcFunctionRepository implements IFunctionRepository {
                 :fnc_default_time);
                 """;
 
-        var params = new MapSqlParameterSource();
-        params.addValue("fnc_enabled", 1);
-        params.addValue("fnc_name", function.getName());
-        params.addValue("fnc_manager_id", function.getFunctionManager().getId());
-        params.addValue("fnc_workplace_id", function.getFunctionWorkplace().getId());
-        params.addValue("fnc_date_from", function.getDateFrom());
-        params.addValue("fnc_date_until", function.getDateUntil());
-        params.addValue("fnc_probability", function.getProbability());
-        params.addValue("fnc_default_time", function.getDefaultTime());
-
-
-        return jdbcTemplate.update(sql, params) == 1;
+        return jdbcTemplate.update(sql, prepareParams(function)) == 1;
     }
 
     @Override
     public boolean updateFunction(@NonNull Function function, long functionId) {
         var sql = """
-                UPDATE function
+                UPDATE `function`
                 SET fnc_enabled = :fnc_enabled, fnc_name = :fnc_name, fnc_manager_id = :fnc_manager_id, 
                 fnc_workplace_id = :fnc_workplace_id, fnc_date_from = :fnc_date_from, fnc_date_until = :fnc_date_until,
                 fnc_description = :fnc_description, fnc_probability = :fnc_probability, fnc_default_time = :fnc_default_time
-                WHERE function_id = :function_id
+                WHERE function_id = :function_id;
                 """;
 
-        var params = new MapSqlParameterSource();
-        params.addValue("fnc_enabled", 1);
-        params.addValue("fnc_name", function.getName());
-        params.addValue("fnc_manager_id", function.getFunctionManager().getId());
-        params.addValue("fnc_workplace_id", function.getFunctionWorkplace().getId());
-        params.addValue("fnc_date_from", function.getDateFrom());
-        params.addValue("fnc_date_until", function.getDateUntil());
-        params.addValue("fnc_probability", function.getProbability());
-        params.addValue("fnc_default_time", function.getDefaultTime());
-
+        var params = prepareParams(function);
+        params.addValue(FUNCTION_ID, function.getId());
 
         return jdbcTemplate.update(sql, params) == 1;
     }
@@ -143,15 +129,15 @@ public class JdbcFunctionRepository implements IFunctionRepository {
     @Override
     public boolean removeFunction(long functionId) {
         var sql = """
-                UPDATE function
+                UPDATE `function`
                 SET fnc_enabled = :fnc_enabled
                 WHERE fnc_enabled =:isEnabled AND function_id = :function_id
                 """;
 
         var params = new MapSqlParameterSource();
         params.addValue("fnc_enabled", true);
-        params.addValue("function_id", functionId);
-        params.addValue("isEnabled", true);
+        params.addValue(FUNCTION_ID, functionId);
+        params.addValue(IS_ENABLED, true);
 
         allocationRepository.fetchAllocationsByFunctionId(functionId)
                 .forEach(allocation -> allocationRepository.removeAllocation(allocation.getId()));
@@ -165,12 +151,12 @@ public class JdbcFunctionRepository implements IFunctionRepository {
                 INSERT INTO function_employee
                 (ass_enabled, ass_function_id, ass_employee_id)
                 VALUES
-                (:ass_enabled, :ass_function_id, :ass_employee_id)
+                (:isEnabled, :function_id, :ass_employee_id)
                 """;
 
         var params = new MapSqlParameterSource();
-        params.addValue("ass_enabled", true);
-        params.addValue("ass_function_id", functionId);
+        params.addValue(IS_ENABLED, true);
+        params.addValue(FUNCTION_ID, functionId);
         params.addValue("ass_employee_id", employeeId);
 
 
@@ -187,8 +173,8 @@ public class JdbcFunctionRepository implements IFunctionRepository {
 
         var params = new MapSqlParameterSource();
         params.addValue("ass_enabled", false);
-        params.addValue("function_id", functionId);
-        params.addValue("isEnabled", true);
+        params.addValue(FUNCTION_ID, functionId);
+        params.addValue(IS_ENABLED, true);
         params.addValue("employee_id", employeeId);
 
         allocationRepository.fetchAllocationsByFunctionId(functionId)
@@ -198,5 +184,19 @@ public class JdbcFunctionRepository implements IFunctionRepository {
                 });
 
         return jdbcTemplate.update(sql, params) == 1;
+    }
+
+    private MapSqlParameterSource prepareParams(Function function) {
+        var params = new MapSqlParameterSource();
+        params.addValue("fnc_enabled", 1);
+        params.addValue("fnc_name", function.getName());
+        params.addValue("fnc_manager_id", function.getFunctionManager().getId());
+        params.addValue("fnc_workplace_id", function.getFunctionWorkplace().getId());
+        params.addValue("fnc_date_from", function.getDateFrom());
+        params.addValue("fnc_date_until", function.getDateUntil());
+        params.addValue("fnc_probability", function.getProbability());
+        params.addValue("fnc_default_time", function.getDefaultTime());
+
+        return params;
     }
 }

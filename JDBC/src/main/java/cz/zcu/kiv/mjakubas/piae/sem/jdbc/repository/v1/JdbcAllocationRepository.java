@@ -26,6 +26,12 @@ public class JdbcAllocationRepository implements IAllocationRepository {
 
     private static final AllocationMapper ALLOCATION_MAPPER = new AllocationMapper();
 
+    private static final String IS_ENABLED = "isEnabled";
+
+    private static final String ACTIVE = "active";
+
+    private static final String ID = "id";
+
     @Override
     public Allocation fetchAllocation(long allocationId) {
         var sql = """
@@ -37,8 +43,8 @@ public class JdbcAllocationRepository implements IAllocationRepository {
                 """;
 
         var params = new MapSqlParameterSource();
-        params.addValue("isEnabled", 1);
-        params.addValue("id", allocationId);
+        params.addValue(IS_ENABLED, 1);
+        params.addValue(ID, allocationId);
 
         return jdbcTemplate.query(sql, params, ALLOCATION_MAPPER).get(0);
     }
@@ -54,8 +60,8 @@ public class JdbcAllocationRepository implements IAllocationRepository {
                 """;
 
         var params = new MapSqlParameterSource();
-        params.addValue("isEnabled", 1);
-        params.addValue("id", employeeId);
+        params.addValue(IS_ENABLED, 1);
+        params.addValue(ID, employeeId);
 
         return jdbcTemplate.query(sql, params, ALLOCATION_MAPPER);
     }
@@ -72,8 +78,8 @@ public class JdbcAllocationRepository implements IAllocationRepository {
                 """;
 
         var params = new MapSqlParameterSource();
-        params.addValue("isEnabled", 1);
-        params.addValue("id", superiorId);
+        params.addValue(IS_ENABLED, 1);
+        params.addValue(ID, superiorId);
 
         return jdbcTemplate.query(sql, params, ALLOCATION_MAPPER);
     }
@@ -86,8 +92,8 @@ public class JdbcAllocationRepository implements IAllocationRepository {
                 """;
 
         var params = new MapSqlParameterSource();
-        params.addValue("isEnabled", 1);
-        params.addValue("id", projectId);
+        params.addValue(IS_ENABLED, 1);
+        params.addValue(ID, projectId);
 
         return jdbcTemplate.query(sql, params, ALLOCATION_MAPPER);
     }
@@ -100,8 +106,8 @@ public class JdbcAllocationRepository implements IAllocationRepository {
                 """;
 
         var params = new MapSqlParameterSource();
-        params.addValue("isEnabled", 1);
-        params.addValue("id", courseId);
+        params.addValue(IS_ENABLED, 1);
+        params.addValue(ID, courseId);
 
         return jdbcTemplate.query(sql, params, ALLOCATION_MAPPER);
     }
@@ -114,8 +120,8 @@ public class JdbcAllocationRepository implements IAllocationRepository {
                 """;
 
         var params = new MapSqlParameterSource();
-        params.addValue("isEnabled", 1);
-        params.addValue("id", functionId);
+        params.addValue(IS_ENABLED, 1);
+        params.addValue(ID, functionId);
 
         return jdbcTemplate.query(sql, params, ALLOCATION_MAPPER);
     }
@@ -132,8 +138,8 @@ public class JdbcAllocationRepository implements IAllocationRepository {
                 """;
 
         var params = new MapSqlParameterSource();
-        params.addValue("isEnabled", 1);
-        params.addValue("id", workplaceId);
+        params.addValue(IS_ENABLED, 1);
+        params.addValue(ID, workplaceId);
 
         return jdbcTemplate.query(sql, params, ALLOCATION_MAPPER);
     }
@@ -147,19 +153,7 @@ public class JdbcAllocationRepository implements IAllocationRepository {
                 (:isEnabled, :eId, :pId, :cId, :fId, :aFrom, :aUntil, :scope, :descr, :active)
                 """;
 
-        var params = new MapSqlParameterSource();
-        params.addValue("isEnabled", 1);
-        params.addValue("eId", allocation.getWorker().getId());
-        params.addValue("pId", allocation.getProject().getId());
-        params.addValue("cId", allocation.getCourse().getId());
-        params.addValue("fId", allocation.getFunction().getId());
-        params.addValue("aFrom", allocation.getDateFrom());
-        params.addValue("aUntil", allocation.getDateUntil());
-        params.addValue("scope", allocation.getAllocationScope());
-        params.addValue("descr", allocation.getDescription());
-        params.addValue("active", 1);
-
-        return jdbcTemplate.update(sql, params) == 1;
+        return jdbcTemplate.update(sql, prepareParams(allocation)) == 1;
     }
 
     @Override
@@ -172,18 +166,8 @@ public class JdbcAllocationRepository implements IAllocationRepository {
                 WHERE assignment_id=:id
                 """;
 
-        var params = new MapSqlParameterSource();
-        params.addValue("isEnabled", 1);
-        params.addValue("eId", allocation.getWorker().getId());
-        params.addValue("pId", allocation.getProject().getId());
-        params.addValue("cId", allocation.getCourse().getId());
-        params.addValue("fId", allocation.getFunction().getId());
-        params.addValue("aFrom", allocation.getDateFrom());
-        params.addValue("aUntil", allocation.getDateUntil());
-        params.addValue("scope", allocation.getAllocationScope());
-        params.addValue("active", allocation.getActive());
-        params.addValue("id", allocationId);
-        params.addValue("descr", allocation.getDescription());
+        var params = prepareParams(allocation);
+        params.addValue(ID, allocationId);
 
         return jdbcTemplate.update(sql, params) == 1;
     }
@@ -198,8 +182,8 @@ public class JdbcAllocationRepository implements IAllocationRepository {
 
         var params = new MapSqlParameterSource();
 
-        params.addValue("active", !disable);
-        params.addValue("id", allocationId);
+        params.addValue(ACTIVE, !disable);
+        params.addValue(ID, allocationId);
 
         return jdbcTemplate.update(sql, params) == 1;
     }
@@ -214,9 +198,25 @@ public class JdbcAllocationRepository implements IAllocationRepository {
 
         var params = new MapSqlParameterSource();
 
-        params.addValue("active", true);
-        params.addValue("id", allocationId);
+        params.addValue(ACTIVE, true);
+        params.addValue(ID, allocationId);
 
         return jdbcTemplate.update(sql, params) == 1;
+    }
+
+    private MapSqlParameterSource prepareParams(Allocation allocation) {
+        var params = new MapSqlParameterSource();
+        params.addValue(IS_ENABLED, 1);
+        params.addValue("eId", allocation.getWorker().getId());
+        params.addValue("pId", allocation.getProject().getId());
+        params.addValue("cId", allocation.getCourse().getId());
+        params.addValue("fId", allocation.getFunction().getId());
+        params.addValue("aFrom", allocation.getDateFrom());
+        params.addValue("aUntil", allocation.getDateUntil());
+        params.addValue("scope", allocation.getAllocationScope());
+        params.addValue(ACTIVE, allocation.getActive());
+        params.addValue("descr", allocation.getDescription());
+
+        return params;
     }
 }

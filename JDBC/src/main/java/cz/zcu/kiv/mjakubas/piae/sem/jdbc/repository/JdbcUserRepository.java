@@ -4,7 +4,6 @@ import cz.zcu.kiv.mjakubas.piae.sem.core.repository.IUserRepository;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import org.springframework.context.annotation.Primary;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;

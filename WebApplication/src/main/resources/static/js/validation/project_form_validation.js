@@ -3,7 +3,7 @@ function ProjectRestrictions(name) {
 }
 
 /**
- * Validats projects integrity
+ * Validates projects integrity
  */
 class ProjectValidation {
 

@@ -97,9 +97,8 @@ public class CourseService {
     @Transactional
     public void createCourse(@NonNull CourseVO courseVO) {
         var data = employeeService.getEmployee(courseVO.getCourseManager());
-        if (courseVO.getDateUntil() != null) {
-            if (courseVO.getDateFrom().isAfter(courseVO.getDateUntil()))
-                throw new ServiceException();
+        if (courseVO.getDateUntil() != null && (courseVO.getDateFrom().isAfter(courseVO.getDateUntil())))
+                {throw new ServiceException();
         }
 
         Course course = new Course()
@@ -122,15 +121,13 @@ public class CourseService {
     @Transactional
     public void editCourse(@NonNull CourseVO courseVO, long id) {
         var data = employeeService.getEmployee(courseVO.getName());
-        if (courseVO.getDateUntil() != null) {
-            if (courseVO.getDateFrom().isAfter(courseVO.getDateUntil()))
-                throw new ServiceException();
+        if (courseVO.getDateUntil() != null && (courseVO.getDateFrom().isAfter(courseVO.getDateUntil())))
+                {throw new ServiceException();
         }
         var processed = allocationService.processAllocations(allocationService.getCourseAllocations(id).getAllocations());
-        if (processed.size() > 0) {
-            if (processed.get(0).getFrom().isBefore(courseVO.getDateFrom())
-                    || processed.get(processed.size() - 1).getUntil().isAfter(courseVO.getDateUntil()))
-                throw new ServiceException();
+        if (!processed.isEmpty() && (processed.get(0).getFrom().isBefore(courseVO.getDateFrom())
+                    || processed.get(processed.size() - 1).getUntil().isAfter(courseVO.getDateUntil())))
+                {throw new ServiceException();
         }
 
 
@@ -166,6 +163,25 @@ public class CourseService {
 
         if (!courseRepository.addEmployee(legitId, id))
             throw new ServiceException();
+    }
+
+    /**
+     * Gets all courses of a course employee.
+     *
+     * @param employeeId course employee id
+     * @return list of {@link Course}
+     */
+    public List<Course> getEmployeesCourses(long employeeId) {
+        var courses = courseRepository.fetchCourses();
+        var myCourses = new ArrayList<Course>();
+        courses.forEach(course -> {
+            if (course.getEmployees().stream().filter(employee -> employee.getId() == employeeId).toList().size() == 1)
+                myCourses.add(course);
+        });
+
+        System.out.println("Pocet predmetu je: " + myCourses.size());
+
+        return myCourses;
     }
 
     /**

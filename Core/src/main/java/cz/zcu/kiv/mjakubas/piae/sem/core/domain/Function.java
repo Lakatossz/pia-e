@@ -1,6 +1,8 @@
 package cz.zcu.kiv.mjakubas.piae.sem.core.domain;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
@@ -9,6 +11,8 @@ import java.util.List;
 
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class Function extends Activity {
 
     private float defaultTime;
@@ -16,39 +20,31 @@ public class Function extends Activity {
     private Workplace functionWorkplace;
     private List<Employee> employees = new ArrayList<>();
 
-    public Function() {
-
-    }
-
-    public Function(long id, String name, LocalDate dateFrom, Employee functionManager, Workplace functionWorkplace,
-                    LocalDate dateUntil, float probability, float defaultTime, List<Employee> employees) {
-        super(id, name, dateFrom, dateUntil, probability);
-        this.functionManager = functionManager;
-        this.functionWorkplace = functionWorkplace;
-        this.defaultTime = defaultTime;
-        this.employees.addAll(employees);
-    }
-
+    @Override
     public Function id(long id) {
         super.id(id);
         return this;
     }
 
+    @Override
     public Function name(String name) {
         super.name(name);
         return this;
     }
 
+    @Override
     public Function dateFrom(LocalDate dateFrom) {
         super.dateFrom(dateFrom);
         return this;
     }
 
+    @Override
     public Function dateUntil(LocalDate dateUntil) {
         super.dateUntil(dateUntil);
         return this;
     }
 
+    @Override
     public Function probability(float probability) {
         super.probability(probability);
         return this;

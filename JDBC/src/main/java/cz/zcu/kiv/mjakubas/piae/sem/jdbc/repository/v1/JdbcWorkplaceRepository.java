@@ -30,7 +30,10 @@ public class JdbcWorkplaceRepository implements IWorkplaceRepository {
     @Override
     public Workplace fetchWorkplace(long workplaceId) {
         var sql = """
-                SELECT w.*, e.* FROM workplace w
+                SELECT w.*, e.*,
+                        (SELECT COUNT(*) FROM project_employee pe WHERE pe.pre_employee_id = e.employee_id) AS projects_count,
+                        (SELECT COUNT(*) FROM course_employee ce WHERE ce.cre_employee_id = e.employee_id) AS courses_count,
+                        (SELECT COUNT(*) FROM function_employee fe WHERE fe.fce_employee_id = e.employee_id) AS functions_count FROM workplace w
                 LEFT JOIN employee e ON e.employee_id=w.wrk_manager_id
                 WHERE wrk_enabled=:isEnabled AND workplace_id=:wrk_id
                 """;
@@ -45,7 +48,10 @@ public class JdbcWorkplaceRepository implements IWorkplaceRepository {
     @Override
     public Workplace fetchWorkplace(String abbrevation) {
         var sql = """
-                SELECT w.*, e.* FROM workplace w
+                SELECT w.*, e.*,
+                        (SELECT COUNT(*) FROM project_employee pe WHERE pe.pre_employee_id = e.employee_id) AS projects_count,
+                        (SELECT COUNT(*) FROM course_employee ce WHERE ce.cre_employee_id = e.employee_id) AS courses_count,
+                        (SELECT COUNT(*) FROM function_employee fe WHERE fe.fce_employee_id = e.employee_id) AS functions_count FROM workplace w
                 LEFT JOIN employee e ON e.employee_id=w.wrk_manager_id
                 WHERE wrk_enabled=:isEnabled AND wrk_abbrevation=:wrk_abbrevation
                 """;
@@ -60,7 +66,10 @@ public class JdbcWorkplaceRepository implements IWorkplaceRepository {
     @Override
     public List<Workplace> fetchWorkplaces() {
         var sql = """
-                SELECT w.*, e.* FROM workplace w
+                SELECT w.*, e.*,
+                        (SELECT COUNT(*) FROM project_employee pe WHERE pe.pre_employee_id = e.employee_id) AS projects_count,
+                        (SELECT COUNT(*) FROM course_employee ce WHERE ce.cre_employee_id = e.employee_id) AS courses_count,
+                        (SELECT COUNT(*) FROM function_employee fe WHERE fe.fce_employee_id = e.employee_id) AS functions_count FROM workplace w
                 LEFT JOIN employee e ON e.employee_id=w.wrk_manager_id
                 WHERE w.wrk_enabled=1
                 """;
@@ -71,7 +80,12 @@ public class JdbcWorkplaceRepository implements IWorkplaceRepository {
     @Override
     public List<Employee> fetchWorkplaceEmployees(long workplaceId) {
         var sql = """
-                SELECT e.*, w.wrk_abbrevation
+                SELECT 
+                        e.*, 
+                        w.wrk_abbrevation,
+                        (SELECT COUNT(*) FROM project_employee pe WHERE pe.pre_employee_id = e.employee_id) AS projects_count,
+                        (SELECT COUNT(*) FROM course_employee ce WHERE ce.cre_employee_id = e.employee_id) AS courses_count,
+                        (SELECT COUNT(*) FROM function_employee fe WHERE fe.fce_employee_id = e.employee_id) AS functions_count
                 FROM employee e
                 INNER JOIN workplace w ON w.workplace_id=e.emp_workplace_id
                 WHERE emp_enabled=:isEnabled AND w.workplace_id=:id

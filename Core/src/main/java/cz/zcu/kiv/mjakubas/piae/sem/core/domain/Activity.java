@@ -1,12 +1,16 @@
 package cz.zcu.kiv.mjakubas.piae.sem.core.domain;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
 
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public abstract class Activity {
 
     private long id;
@@ -15,17 +19,6 @@ public abstract class Activity {
     private LocalDate dateUntil;
     private float probability;
 
-    public Activity() {
-
-    }
-
-    public Activity(long id, String name, LocalDate dateFrom, LocalDate dateUntil, float probability) {
-        this.id = id;
-        this.name = name;
-        this.dateFrom = dateFrom;
-        this.dateUntil = dateUntil;
-        this.probability = probability;
-    }
     public Activity id(long id) {
         this.id = id;
         return this;

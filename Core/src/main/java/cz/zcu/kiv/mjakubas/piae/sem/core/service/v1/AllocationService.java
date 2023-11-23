@@ -43,15 +43,15 @@ public class AllocationService {
     public void createAllocation(AllocationVO allocationVO) {
         int scope = (int) (allocationVO.getAllocationScope() * 40 * 60); // fte to minutes
         var allocationProject = projectRepository.fetchProject(allocationVO.getProjectId());
-        if (allocationVO.getValidFrom().isBefore(allocationProject.getDateFrom()) || allocationVO.getValidUntil().isAfter(allocationProject.getDateUntil()))
+        if (allocationVO.getDateFrom().isBefore(allocationProject.getDateFrom()) || allocationVO.getDateUntil().isAfter(allocationProject.getDateUntil()))
             throw new ServiceException();
 
         Allocation allocation = new Allocation()
                 .worker(Employee.builder().id(allocationVO.getEmployeeId()).build())
                 .project(new Project().id(allocationVO.getProjectId()))
                 .allocationScope(scope)
-                .dateFrom(allocationVO.getValidFrom())
-                .dateUntil(allocationVO.getValidUntil())
+                .dateFrom(allocationVO.getDateFrom())
+                .dateUntil(allocationVO.getDateUntil())
                 .description(allocationVO.getDescription());
 
         var processedAllocations = processAllocations(getEmployeeAllocations(allocationVO.getEmployeeId()));
@@ -78,19 +78,19 @@ public class AllocationService {
     public void updateAllocation(AllocationVO allocationVO, long id) {
         int scope = (int) (allocationVO.getAllocationScope() * 40 * 60); // fte to minutes
         var allocationProject = projectRepository.fetchProject(allocationVO.getProjectId());
-        if (allocationVO.getValidFrom().isBefore(allocationProject.getDateFrom()) || allocationVO.getValidUntil().isAfter(allocationProject.getDateUntil()))
+        if (allocationVO.getDateFrom().isBefore(allocationProject.getDateFrom()) || allocationVO.getDateUntil().isAfter(allocationProject.getDateUntil()))
             throw new ServiceException();
 
         Allocation allocation = new Allocation()
                 .worker(Employee.builder().id(allocationVO.getEmployeeId()).build())
                 .project(new Project().id(allocationVO.getProjectId()))
                 .allocationScope(scope)
-                .dateFrom(allocationVO.getValidFrom())
-                .dateUntil(allocationVO.getValidUntil())
+                .dateFrom(allocationVO.getDateFrom())
+                .dateUntil(allocationVO.getDateUntil())
                 .description(allocationVO.getDescription())
                 .active(allocationVO.getIsActive());
 
-        if (allocationVO.getIsActive()) {
+        if (Boolean.TRUE.equals(allocationVO.getIsActive())) {
             var processedAllocations = processAllocations(getEmployeeAllocations(allocationVO.getEmployeeId()));
             for (AllocationInterval interval : processedAllocations) {
                 if (interval.isFromInterval(allocation)) {
@@ -215,7 +215,7 @@ public class AllocationService {
      * @return statistics
      */
     public List<AllocationInterval> processAllocations(@NonNull List<Allocation> allocations) {
-        if (allocations.size() < 1)
+        if (allocations.isEmpty())
             return new ArrayList<>();
 
         Set<LocalDate> dates = new HashSet<>();
@@ -260,8 +260,13 @@ public class AllocationService {
         for (Allocation a : allocations) {
             var project = mapProjects.get(a.getProject().getId());
 
-            withProject.add(new Allocation(a.getId(), a.getWorker(), project, a.getAllocationScope(),
-                    a.getDateFrom(), a.getDateUntil(), a.getDescription(), a.getActive()));
+            withProject.add(new Allocation()
+                    .id(a.getId())
+                    .worker(a.getWorker())
+                    .project(project)
+                    .allocationScope(a.getAllocationScope())
+                    .dateFrom(a.getDateFrom())
+                    .dateUntil(a.getDateUntil()).description(a.getDescription()).active(a.getActive()));
         }
 
         return withProject;
@@ -282,8 +287,13 @@ public class AllocationService {
         for (Allocation a : allocations) {
             var worker = mapEmployees.get(a.getWorker().getId());
 
-            withEmployee.add(new Allocation(a.getId(), worker, a.getProject(), a.getAllocationScope(),
-                    a.getDateFrom(), a.getDateUntil(), a.getDescription(), a.getActive()));
+            withEmployee.add(new Allocation()
+                    .id(a.getId())
+                    .worker(worker)
+                    .project(a.getProject())
+                    .allocationScope(a.getAllocationScope())
+                    .dateFrom(a.getDateFrom())
+                    .dateUntil(a.getDateUntil()).description(a.getDescription()).active(a.getActive()));
         }
 
         return withEmployee;

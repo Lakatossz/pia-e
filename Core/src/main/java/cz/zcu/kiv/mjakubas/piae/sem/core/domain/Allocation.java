@@ -1,12 +1,16 @@
 package cz.zcu.kiv.mjakubas.piae.sem.core.domain;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
 
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class Allocation {
 
     private long id;
@@ -21,27 +25,6 @@ public class Allocation {
     private Boolean active;
 
     private AssignmentState currentState;
-
-    public Allocation() {
-
-    }
-
-    public Allocation(long id, Employee worker, Project project, int allocationScope,
-                      LocalDate dateFrom, LocalDate dateUntil, String description, Boolean active) {
-        this.id = id;
-        this.worker = worker;
-        this.project = project;
-        this.allocationScope = allocationScope;
-        this.dateFrom = dateFrom;
-        this.dateUntil = dateUntil;
-        this.description = description;
-        if (active == null)
-            this.active = true;
-        else
-            this.active = active;
-
-        this.currentState = calculateState();
-    }
 
     public enum AssignmentState {
         ACTIVE, INACTIVE, PAST, UNREALIZED, UNKNOWN

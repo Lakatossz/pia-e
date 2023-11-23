@@ -22,13 +22,6 @@
 
 .btn-page-head:hover {background: #165a3d;}
 
-.btn-page-head:focus {
-    border-radius: 4px;
-    margin: 6px 4px;
-    background-color: #289349;
-    height: 50px;
-}
-
 .dropdown-item-down {
     background-color: #289345;
 }

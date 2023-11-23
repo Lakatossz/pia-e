@@ -77,8 +77,8 @@ public class AllocationV1Controller {
         allocationVO.setEmployeeId(employee.getId());
         allocationVO.setAllocationScope(allocation.getAllocationScope());
         allocationVO.setDescription(allocation.getDescription());
-        allocationVO.setValidFrom(allocation.getDateFrom());
-        allocationVO.setValidUntil(allocation.getDateUntil());
+        allocationVO.setDateFrom(allocation.getDateFrom());
+        allocationVO.setDateUntil(allocation.getDateUntil());
         model.addAttribute("assignmentVO", allocationVO);
 
         return "forms/allocation/edit_assignment_form";

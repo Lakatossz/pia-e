@@ -5,7 +5,9 @@ import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Course;
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Employee;
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Function;
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Project;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 
@@ -13,6 +15,8 @@ import java.util.List;
 
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class AllocationPayload {
 
     private List<Project> assignmentsProjects;
@@ -24,20 +28,6 @@ public class AllocationPayload {
     private List<Employee> allocationsEmployees;
 
     private List<Allocation> allocations;
-
-    public AllocationPayload() {
-
-    }
-
-    public AllocationPayload(List<Project> assignmentsProjects, List<Course> assignmentsCourses,
-                             List<Function> assignmentsFunctions, List<Employee> allocationsEmployees,
-                             List<Allocation> allocations) {
-        this.assignmentsProjects = assignmentsProjects;
-        this.assignmentsCourses = assignmentsCourses;
-        this.assignmentsFunctions = assignmentsFunctions;
-        this.allocationsEmployees = allocationsEmployees;
-        this.allocations = allocations;
-    }
 
     public AllocationPayload assignmentsProjects(List<Project> assignmentsProjects) {
         this.assignmentsProjects = assignmentsProjects;

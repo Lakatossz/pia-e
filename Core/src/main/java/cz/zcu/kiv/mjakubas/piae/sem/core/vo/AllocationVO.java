@@ -22,8 +22,8 @@ public class AllocationVO {
     private long employeeId;
     private long projectId;
     private float allocationScope;  // in x/FTE
-    private LocalDate validFrom;
-    private LocalDate validUntil;
+    private LocalDate dateFrom;
+    private LocalDate dateUntil;
     private String description;
 
     private Boolean isActive = true;

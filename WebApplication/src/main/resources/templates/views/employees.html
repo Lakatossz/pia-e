@@ -49,120 +49,7 @@
 </head>
 <body class="d-flex flex-column min-vh-100">
 <div th:replace="~{fragments/navbar}">Navbar</div>
-<!--<div class="container-fluid">
-
-    - content -
-    <div class="container">
-        - alerts -
-        <div>
-            <div th:if="(${(param.edit != null)} or ${(param.create != null)} or ${(param.delete != null)} or ${(param.subordinate != null)})"
-                 class="alert alert-success alert-dismissible fade show" role="success">
-                <strong th:if="${(param.edit != null)}" th:text="#{view.employee.alert.edit}"></strong>
-                <strong th:if="${(param.create != null)}" th:text="#{view.employee.alert.create}"></strong>
-                <strong th:if="${(param.subordinate != null)}" th:text="#{view.employee.alert.subordinate}"></strong>
-                <strong th:if="${(param.delete != null)}" th:text="#{not-implemented}"></strong>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        </div>
-        <h1 class="text-center mt-5" th:text="#{view.employee.header}"></h1>
-        <a type="button" class="btn btn-primary common-border-radius"
-           th:href="@{/e/create}" th:text="#{view.employee.create}"></a>
-        <div class="row">
-            <table class="table">
-                <thead>
-                <tr>
-                    <th scope="col">#</th>
-                    <th scope="col" th:text="#{view.employee.table.fname}"></th>
-                    <th scope="col" th:text="#{view.employee.table.lname}"></th>
-                    <th scope="col" th:text="#{view.employee.table.wrk-abbreviation}"></th>
-                    <th scope="col" th:text="#{view.employee.table.orion-login}"></th>
-                    <th scope="col" th:text="#{view.employee.table.email}"></th>
-                    <th scope="col"></th>
-                    <th scope="col"></th>
-                    <th scope="col"></th>
-                    <th scope="col"></th>
-                    <th scope="col"></th>
-                    <th scope="col"></th>
-                    <th scope="col"></th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="emp, iStat : ${employees}">
-                    <th scope="row" th:text="(${iStat.index} + 1)"></th>
-                    <td th:text="${emp.firstName}"></td>
-                    <td th:text="${emp.lastName}"></td>
-                    <td th:text="${emp.workplace.abbreviation}"></td>
-                    <td th:text="${emp.orionLogin}"></td>
-                    <td th:text="${emp.emailAddress}"></td>
-                    <td>
-                        <button type="button" class="btn btn-outline-secondary common-border-radius"
-                                data-bs-toggle="modal"
-                                th:data-bs-target="'#modal_sup_' + ${emp.id}"
-                                th:text="#{view.workplace.table-content.subordinate}"></button>
-                        - Modal -
-                        <div class="modal modal-lg fade" th:id="'modal_sup_' + ${emp.id}" tabindex="-1">
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" th:text="#{view.employee.subordinate.header}"></h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                                aria-label="Close"></button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <a type="button" class="btn btn-primary common-border-radius"
-                                           th:href="@{'/e/' + ${emp.id} + '/subordinate/add'}"
-                                           th:text="#{view.employee.subordinate.add}"></a>
-                                        <table class="table">
-                                            <thead>
-                                            <tr>
-                                                <th scope="col">#</th>
-                                                <th scope="col" th:text="#{view.employee.table.fname}"></th>
-                                                <th scope="col" th:text="#{view.employee.table.lname}"></th>
-                                                <th scope="col" th:text="#{view.employee.table.wrk-abbreviation}"></th>
-                                                <th scope="col" th:text="#{view.employee.table.orion-login}"></th>
-                                                <th scope="col" th:text="#{view.employee.table.email}"></th>
-                                                <th scope="col"></th>
-                                            </tr>
-                                            </thead>
-                                            <tbody>
-                                            <tr th:each="e, iStat : ${emp.subordinates}">
-                                                <th scope="row" th:text="(${iStat.index} + 1)"></th>
-                                                <td th:text="${e.firstName}"></td>
-                                                <td th:text="${e.lastName}"></td>
-                                                <td th:text="${e.workplace.abbreviation}"></td>
-                                                <td th:text="${e.orionLogin}"></td>
-                                                <td th:text="${e.emailAddress}"></td>
-                                                <td><a class="btn btn-secondary w-100 common-border-radius"
-                                                       th:text="#{view.employee.table-content.remove}"
-                                                       th:href="'e/' + ${emp.id} + '/delete'"></a></td>
-                                            </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
-                                                th:text="#{view.employee.subordinate.close}">
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </td>
-                    <td><a class="btn btn-secondary w-100 common-border-radius"
-                           th:text="#{view.employee.table-content.edit}"
-                           th:href="'e/' + ${emp.id} + '/edit'"></a></td>
-                    <td><a class="btn btn-secondary w-100 common-border-radius"
-                           th:text="#{view.employee.table-content.remove}"
-                           th:href="'e/' + ${emp.id} + '/delete'"></a></td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>-->
-
 <div class="container-fluid">
-
     <!-- content -->
     <div class="container">
         <!-- alerts -->
@@ -176,6 +63,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         </div>
+        <!-- table -->
         <h1 class="text-center mt-5" th:text="#{view.employee.header}"></h1>
         <a type="button" class="btn btn-primary common-border-radius"
            th:href="@{/e/create}" th:text="#{view.employee.create}"></a>
@@ -190,40 +78,26 @@
                     <th scope="col" th:text="#{view.employee.table.wrk-projects}"></th>
                     <th scope="col" th:text="#{view.employee.table.wrk-courses}"></th>
                     <th scope="col" th:text="#{view.employee.table.wrk-functions}"></th>
-                    <th scope="col" th:text="#{view.employee.table.total-time}"></th>
+                    <th scope="col" th:text="#{view.employee.table.certain-time}"></th>
+                    <th scope="col" th:text="#{view.employee.table.uncertain-time}"></th>
                     <th scope="col"></th>
                 </tr>
                 </thead>
                 <tbody>
-                    <tr th:each="emp, iStat : ${employees}">
-                        <th scope="row" th:text="(${iStat.index} + 1)"></th>
-                        <td th:text="${emp.firstName}"></td>
-                        <td th:text="${emp.lastName}"></td>
-                        <td th:text="${emp.workplace.abbreviation}"></td>
-                        <td th:text="${emp.participatingProjects}"></td>
-                        <td th:text="${emp.participatingCourses}"></td>
-                        <td th:text="${emp.participatingFunctions}"></td>
-                        <td th:text="${emp.intervals.size()}"></td>
-                        <!--<table class="table content">
-                            <thead>
-                            <tr>
-                                <th scope="col">#</th>
-                                <th scope="col" th:text="#{month.january}"></th>
-                                <th scope="col" th:text="#{month.february}"></th>
-                                <th scope="col" th:text="#{month.march}"></th>
-                                <th scope="col" th:text="#{month.april}"></th>
-                                <th scope="col" th:text="#{month.may}"></th>
-                                <th scope="col" th:text="#{month.june}"></th>
-                                <th scope="col" th:text="#{month.july}"></th>
-                                <th scope="col" th:text="#{month.august}"></th>
-                                <th scope="col" th:text="#{month.september}"></th>
-                                <th scope="col" th:text="#{month.october}"></th>
-                                <th scope="col" th:text="#{month.november}"></th>
-                                <th scope="col" th:text="#{month.december}"></th>
-                                <th scope="col"></th>
-                            </tr>
-                            </thead>
-                        </table>-->
+                <tr th:each="emp, iStat : ${employees}">
+                    <th scope="row" th:text="(${iStat.index} + 1)"></th>
+                    <td th:text="${emp.getFirstName()}"></td>
+                    <td th:text="${emp.getLastName()}"></td>
+                    <td th:text="${emp.getWorkplace().getAbbreviation()}"></td>
+                    <td th:text="${emp.getProjectsAllocations().size()}"></td>
+                    <td th:text="${emp.getCoursesAllocations().size()}"></td>
+                    <td th:text="${emp.getFunctionsAllocations().size()}"></td>
+                    <td th:text="${emp.getCertainTime()}"></td>
+                    <td th:text="${emp.getUncertainTime()}"></td>
+                </tr>
+                    <tr class="data">
+                        <td></td>
+                        <td colspan="3"></td>
                     </tr>
                 </tbody>
             </table>
@@ -231,24 +105,151 @@
     </div>
 </div>
 
+<div class="container-fluid-employee-activity">
+    <!-- projects content -->
+    <div class="container-employee-projects">
+        <h5 class="text-center mt-5" th:text="#{view.employee.table.activity.projects}"></h5>
+        <table class="table employee-activity">
+            <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col" th:text="#{view.employee.table.activity.name}"></th>
+                    <th scope="col" th:text="#{view.employee.table.project.role}"></th>
+                    <th scope="col" th:text="#{view.employee.table.activity.certain}"></th>
+                    <th scope="col" th:text="#{month.january}"></th>
+                    <th scope="col" th:text="#{month.february}"></th>
+                    <th scope="col" th:text="#{month.march}"></th>
+                    <th scope="col" th:text="#{month.april}"></th>
+                    <th scope="col" th:text="#{month.may}"></th>
+                    <th scope="col" th:text="#{month.june}"></th>
+                    <th scope="col" th:text="#{month.july}"></th>
+                    <th scope="col" th:text="#{month.august}"></th>
+                    <th scope="col" th:text="#{month.september}"></th>
+                    <th scope="col" th:text="#{month.october}"></th>
+                    <th scope="col" th:text="#{month.november}"></th>
+                    <th scope="col" th:text="#{month.december}"></th>
+                    <th scope="col"></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="all, iStat : ${employees.get(0).getProjectsAllocations()}">
+                    <th scope="row" th:text="(${iStat.index} + 1)"></th>
+                    <td th:text="${all.getProject().getName()}"></td>
+                    <td th:text="${all.getProject().getName()}"></td>
+                    <td th:text="${all.getProject().getProbability()}"></td>
+                    <td th:text="${all.getProject().getTotalTime()}"></td>
+                    <td th:text="${all.getProject().getTotalTime()}"></td>
+                    <td th:text="${all.getProject().getTotalTime()}"></td>
+                    <td th:text="${all.getProject().getTotalTime()}"></td>
+                    <td th:text="${all.getProject().getTotalTime()}"></td>
+                    <td th:text="${all.getProject().getTotalTime()}"></td>
+                    <td th:text="${all.getProject().getTotalTime()}"></td>
+                    <td th:text="${all.getProject().getTotalTime()}"></td>
+                    <td th:text="${all.getProject().getTotalTime()}"></td>
+                    <td th:text="${all.getProject().getTotalTime()}"></td>
+                    <td th:text="${all.getProject().getTotalTime()}"></td>
+                    <td th:text="${all.getProject().getTotalTime()}"></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <!-- courses content -->
+    <div class="container-employee-courses">
+        <h5 class="text-center mt-5" th:text="#{view.employee.table.activity.courses}"></h5>
+        <table class="table employee-activity">
+            <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col" th:text="#{view.employee.table.activity.name}"></th>
+                    <th scope="col" th:text="#{view.employee.table.course.students}"></th>
+                    <th scope="col" th:text="#{view.employee.table.activity.certain}"></th>
+                    <th scope="col" th:text="#{month.january}"></th>
+                    <th scope="col" th:text="#{month.february}"></th>
+                    <th scope="col" th:text="#{month.march}"></th>
+                    <th scope="col" th:text="#{month.april}"></th>
+                    <th scope="col" th:text="#{month.may}"></th>
+                    <th scope="col" th:text="#{month.june}"></th>
+                    <th scope="col" th:text="#{month.july}"></th>
+                    <th scope="col" th:text="#{month.august}"></th>
+                    <th scope="col" th:text="#{month.september}"></th>
+                    <th scope="col" th:text="#{month.october}"></th>
+                    <th scope="col" th:text="#{month.november}"></th>
+                    <th scope="col" th:text="#{month.december}"></th>
+                    <th scope="col"></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="all, iStat : ${employees.get(0).getCoursesAllocations()}">
+                    <th scope="row" th:text="(${iStat.index} + 1)"></th>
+                    <td th:text="${all.getCourse().getName()}"></td>
+                    <td th:text="${all.getCourse().getName()}"></td>
+                    <td th:text="${all.getCourse().getProbability()}"></td>
+                    <td th:text="${all.getCourse().getTotalTime()}"></td>
+                    <td th:text="${all.getCourse().getTotalTime()}"></td>
+                    <td th:text="${all.getCourse().getTotalTime()}"></td>
+                    <td th:text="${all.getCourse().getTotalTime()}"></td>
+                    <td th:text="${all.getCourse().getTotalTime()}"></td>
+                    <td th:text="${all.getCourse().getTotalTime()}"></td>
+                    <td th:text="${all.getCourse().getTotalTime()}"></td>
+                    <td th:text="${all.getCourse().getTotalTime()}"></td>
+                    <td th:text="${all.getCourse().getTotalTime()}"></td>
+                    <td th:text="${all.getCourse().getTotalTime()}"></td>
+                    <td th:text="${all.getCourse().getTotalTime()}"></td>
+                    <td th:text="${all.getCourse().getTotalTime()}"></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <!-- functions content -->
+    <div class="container-employee-functions">
+        <h5 class="text-center mt-5" th:text="#{view.employee.table.activity.functions}"></h5>
+        <table class="table employee-activity">
+            <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col" th:text="#{view.employee.table.activity.name}"></th>
+                    <th scope="col" th:text="#{view.employee.table.activity.certain}"></th>
+                    <th scope="col" th:text="#{month.january}"></th>
+                    <th scope="col" th:text="#{month.february}"></th>
+                    <th scope="col" th:text="#{month.march}"></th>
+                    <th scope="col" th:text="#{month.april}"></th>
+                    <th scope="col" th:text="#{month.may}"></th>
+                    <th scope="col" th:text="#{month.june}"></th>
+                    <th scope="col" th:text="#{month.july}"></th>
+                    <th scope="col" th:text="#{month.august}"></th>
+                    <th scope="col" th:text="#{month.september}"></th>
+                    <th scope="col" th:text="#{month.october}"></th>
+                    <th scope="col" th:text="#{month.november}"></th>
+                    <th scope="col" th:text="#{month.december}"></th>
+                    <th scope="col"></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="all, iStat : ${employees.get(0).getFunctionsAllocations()}">
+                    <th scope="row" th:text="(${iStat.index} + 1)"></th>
+                    <td th:text="${all.getFunction().getName()}"></td>
+                    <td th:text="${all.getFunction().getProbability()}"></td>
+                    <td th:text="${all.getFunction().getTotalTime()}"></td>
+                    <td th:text="${all.getFunction().getTotalTime()}"></td>
+                    <td th:text="${all.getFunction().getTotalTime()}"></td>
+                    <td th:text="${all.getFunction().getTotalTime()}"></td>
+                    <td th:text="${all.getFunction().getTotalTime()}"></td>
+                    <td th:text="${all.getFunction().getTotalTime()}"></td>
+                    <td th:text="${all.getFunction().getTotalTime()}"></td>
+                    <td th:text="${all.getFunction().getTotalTime()}"></td>
+                    <td th:text="${all.getFunction().getTotalTime()}"></td>
+                    <td th:text="${all.getFunction().getTotalTime()}"></td>
+                    <td th:text="${all.getFunction().getTotalTime()}"></td>
+                    <td th:text="${all.getFunction().getTotalTime()}"></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
 <div th:replace="~{fragments/footer}">Footer</div>
 
 <script>
-    var coll = document.getElementsByClassName("collapsible");
-    var i;
-
-    for (i = 0; i < coll.length; i++) {
-        coll[i].addEventListener("click", function() {
-            this.classList.toggle("active");
-            var content = this.nextElementSibling;
-            if (content.style.display === "block") {
-                content.style.display = "none";
-            } else {
-                content.style.display = "block";
-            }
-        });
-    }
-
     let tr = document.querySelectorAll("table tbody tr");
 
     Array.from(tr).forEach(function(trArray) {
@@ -256,9 +257,26 @@
         let td = document.createElement("td");
         button.innerText = "--V--";
         button.className = "btn collapsible";
+        button.setAttribute('onclick', 'sayHi()');
+        button.addEventListener("click", function() {
+            this.classList.toggle("active");
+            var content = trArray;
+            console.log(tr.length);
+            if (content.style.display === "block") {
+                content.style.display = "none";
+            } else {
+                content.style.display = "block";
+            }
+        });
         td.append(button);
         trArray.append(td);
     });
+
+    function sayHi() {
+        console.log('Hi');
+    }
+
+
 </script>
 
 </body>

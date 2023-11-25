@@ -38,7 +38,7 @@ public class AllocationV1Controller {
         model.addAttribute("minDate", project.getDateFrom());
         model.addAttribute("maxDate", project.getDateUntil());
 
-        var rules = allocationService.getAllocationsRules(projectId, employeeId);
+        var rules = allocationService.getProjectAllocationsRules(projectId, employeeId);
         model.addAttribute("rules", rules);
 
         AllocationVO allocationVO = new AllocationVO();
@@ -69,7 +69,7 @@ public class AllocationV1Controller {
         model.addAttribute("minDate", project.getDateFrom());
         model.addAttribute("maxDate", project.getDateUntil());
 
-        var rules = allocationService.getAllocationsRules(project.getId(), employee.getId());
+        var rules = allocationService.getProjectAllocationsRules(project.getId(), employee.getId());
         model.addAttribute("rules", rules);
 
         AllocationVO allocationVO = new AllocationVO();

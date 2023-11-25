@@ -5,7 +5,6 @@ import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Workplace;
 import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 
 
@@ -19,16 +18,6 @@ public class EmployeeMapper implements RowMapper<Employee> {
         String lastName = rs.getString("emp_last_name");
         String orionLogin = rs.getString("emp_orion_login");
         String email = rs.getString("emp_email");
-//        long participatingProjects = 0;
-//        long participatingCourses = 0;
-//        long participatingFunctions = 0;
-//        try {
-//            participatingProjects = rs.getLong("projects_count");
-//            participatingCourses = rs.getLong("courses_count");
-//            participatingFunctions = rs.getLong("functions_count");
-//        } catch (Exception e) {
-//            System.out.println("Tohle jeste oprav!");
-//        }
 
         long participatingProjects = rs.getLong("projects_count");
         long participatingCourses = rs.getLong("courses_count");
@@ -44,7 +33,7 @@ public class EmployeeMapper implements RowMapper<Employee> {
             workplace = Workplace.builder().id(workplaceId).build();
         }
 
-        return Employee.builder()
+        return new Employee()
                 .id(id)
                 .firstName(firstName)
                 .lastName(lastName)
@@ -53,7 +42,6 @@ public class EmployeeMapper implements RowMapper<Employee> {
                 .workplace(workplace)
                 .participatingProjects(participatingProjects)
                 .participatingCourses(participatingCourses)
-                .participatingFunctions(participatingFunctions)
-                .build();
+                .participatingFunctions(participatingFunctions);
     }
 }

@@ -2,7 +2,11 @@ package cz.zcu.kiv.mjakubas.piae.sem.core.service.v1;
 
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Employee;
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Workplace;
+import cz.zcu.kiv.mjakubas.piae.sem.core.repository.IAllocationRepository;
+import cz.zcu.kiv.mjakubas.piae.sem.core.repository.ICourseRepository;
 import cz.zcu.kiv.mjakubas.piae.sem.core.repository.IEmployeeRepository;
+import cz.zcu.kiv.mjakubas.piae.sem.core.repository.IFunctionRepository;
+import cz.zcu.kiv.mjakubas.piae.sem.core.repository.IProjectRepository;
 import cz.zcu.kiv.mjakubas.piae.sem.core.service.ServiceException;
 import cz.zcu.kiv.mjakubas.piae.sem.core.vo.EmployeeVO;
 import lombok.AllArgsConstructor;
@@ -22,6 +26,10 @@ import java.util.regex.Pattern;
 public class EmployeeService {
 
     private final IEmployeeRepository employeeRepository;
+    private final IAllocationRepository allocationRepository;
+    private final IProjectRepository projectRepository;
+    private final ICourseRepository courseRepository;
+    private final IFunctionRepository functionRepository;
 
     /**
      * Get employee by his orion login. Throws SQL exception if employee doesn't exist.
@@ -40,7 +48,13 @@ public class EmployeeService {
      * @return employee
      */
     public Employee getEmployee(long id) {
-        return employeeRepository.fetchEmployee(id);
+        return employeeRepository.fetchEmployee(id)
+                .projectsAllocations(allocationRepository.fetchEmployeeAllocations(id)
+                        .stream().filter(allocation -> allocation.getProject() != null).toList())
+                .coursesAllocations(allocationRepository.fetchEmployeeAllocations(id)
+                        .stream().filter(allocation -> allocation.getCourse() != null).toList())
+                .functionsAllocations(allocationRepository.fetchEmployeeAllocations(id)
+                        .stream().filter(allocation -> allocation.getFunction() != null).toList());
     }
 
     /**
@@ -49,7 +63,14 @@ public class EmployeeService {
      * @return list of {@link Employee}
      */
     public List<Employee> getEmployees() {
-        return employeeRepository.fetchEmployees();
+        return employeeRepository.fetchEmployees().stream().map(employee ->
+            employee.projectsAllocations(allocationRepository.fetchEmployeeAllocations(employee.getId())
+                    .stream().filter(allocation -> allocation.getProject() != null).toList())
+                    .coursesAllocations(allocationRepository.fetchEmployeeAllocations(employee.getId())
+                            .stream().filter(allocation -> allocation.getCourse() != null).toList())
+                    .functionsAllocations(allocationRepository.fetchEmployeeAllocations(employee.getId())
+                            .stream().filter(allocation -> allocation.getFunction() != null).toList())
+        ).toList();
     }
 
     /**
@@ -74,15 +95,14 @@ public class EmployeeService {
         if (!pattern.matcher(employeeVO.getEmail()).matches())
             throw new ServiceException();
 
-        Employee employee = Employee.builder()
+        Employee employee = new Employee()
                 .firstName(employeeVO.getFirstName())
                 .lastName(employeeVO.getLastName())
                 .orionLogin(employeeVO.getOrionLogin())
                 .emailAddress(employeeVO.getEmail())
                 .workplace(Workplace.builder()
                         .id(employeeVO.getWorkplaceId())
-                        .build())
-                .build();
+                        .build());
 
         if (!employeeRepository.createEmployee(employee))
             throw new ServiceException();
@@ -101,7 +121,7 @@ public class EmployeeService {
         if (!pattern.matcher(email).matches())
             throw new ServiceException();
 
-        Employee employee = Employee.builder()
+        Employee employee = new Employee()
                 .id(id)
                 .firstName(employeeVO.getFirstName())
                 .lastName(employeeVO.getLastName())
@@ -109,8 +129,7 @@ public class EmployeeService {
                 .emailAddress(employeeVO.getEmail())
                 .workplace(Workplace.builder()
                         .id(employeeVO.getWorkplaceId())
-                        .build())
-                .build();
+                        .build());
 
         if (!employeeRepository.updateEmployee(employee, id))
             throw new ServiceException();

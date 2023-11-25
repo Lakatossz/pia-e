@@ -103,7 +103,7 @@ public class CourseService {
 
         Course course = new Course()
                 .name(courseVO.getName())
-                .courseManager(Employee.builder().id(data.getId()).build())
+                .courseManager(new Employee().id(data.getId()))
                 .courseWorkplace(Workplace.builder().id(courseVO.getCourseWorkplace()).build())
                 .dateFrom(courseVO.getDateFrom())
                 .dateUntil(courseVO.getDateUntil() != null ? courseVO.getDateUntil() : LocalDate.of(9999, 9, 9));
@@ -134,7 +134,7 @@ public class CourseService {
         Course course = new Course()
                 .id(id)
                 .name(courseVO.getName())
-                .courseManager(Employee.builder().id(data.getId()).build())
+                .courseManager(new Employee().id(data.getId()))
                 .courseWorkplace(Workplace.builder().id(courseVO.getCourseWorkplace()).build())
                 .dateFrom(courseVO.getDateFrom())
                 .dateUntil(courseVO.getDateUntil() != null ? courseVO.getDateUntil() : LocalDate.of(9999, 9, 9));

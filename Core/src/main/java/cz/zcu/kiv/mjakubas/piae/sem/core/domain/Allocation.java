@@ -18,6 +18,7 @@ public class Allocation {
     private Project project;
     private Course course;
     private Function function;
+    private float time;
     private int allocationScope;
     private LocalDate dateFrom;
     private LocalDate dateUntil;
@@ -69,6 +70,21 @@ public class Allocation {
         return this;
     }
 
+    public Allocation course(Course course) {
+        this.course = course;
+        return this;
+    }
+
+    public Allocation function(Function function) {
+        this.function = function;
+        return this;
+    }
+
+    public Allocation time(float time) {
+        this.time = time;
+        return this;
+    }
+
     public Allocation allocationScope(int allocationScope) {
         this.allocationScope = allocationScope;
         return this;
@@ -109,6 +125,7 @@ public class Allocation {
                 ", worker=" + worker +
                 ", project=" + project +
                 ", allocationScope=" + allocationScope +
+                ", time=" + time +
                 ", dateFrom=" + dateFrom +
                 ", dateUntil=" + dateUntil +
                 ", description='" + description + '\'' +

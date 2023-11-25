@@ -1,7 +1,9 @@
 package cz.zcu.kiv.mjakubas.piae.sem.core.service.v1;
 
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Allocation;
+import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Course;
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Employee;
+import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Function;
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Project;
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.payload.AllocationPayload;
 import cz.zcu.kiv.mjakubas.piae.sem.core.repository.IAllocationRepository;
@@ -47,8 +49,10 @@ public class AllocationService {
             throw new ServiceException();
 
         Allocation allocation = new Allocation()
-                .worker(Employee.builder().id(allocationVO.getEmployeeId()).build())
+                .worker(new Employee().id(allocationVO.getEmployeeId()))
                 .project(new Project().id(allocationVO.getProjectId()))
+                .course(new Course().id(allocationVO.getCourseId()))
+                .function(new Function().id(allocationVO.getFunctionId()))
                 .allocationScope(scope)
                 .dateFrom(allocationVO.getDateFrom())
                 .dateUntil(allocationVO.getDateUntil())
@@ -82,8 +86,10 @@ public class AllocationService {
             throw new ServiceException();
 
         Allocation allocation = new Allocation()
-                .worker(Employee.builder().id(allocationVO.getEmployeeId()).build())
+                .worker(new Employee().id(allocationVO.getEmployeeId()))
                 .project(new Project().id(allocationVO.getProjectId()))
+                .course(new Course().id(allocationVO.getCourseId()))
+                .function(new Function().id(allocationVO.getFunctionId()))
                 .allocationScope(scope)
                 .dateFrom(allocationVO.getDateFrom())
                 .dateUntil(allocationVO.getDateUntil())
@@ -116,10 +122,28 @@ public class AllocationService {
         var assignmentsList = assignmentRepository.fetchEmployeeAllocations(id);
         Set<Project> projects = new HashSet<>();
         for (Allocation allocation : assignmentsList) {
-            projects.add(allocation.getProject());
+            if (allocation.getProject() != null)
+                projects.add(allocation.getProject());
         }
 
-        return new AllocationPayload(projects.stream().toList(), null, null, null, injectProject(assignmentsList));
+        Set<Course> courses = new HashSet<>();
+        for (Allocation allocation : assignmentsList) {
+            if (allocation.getCourse() != null)
+                courses.add(allocation.getCourse());
+        }
+
+        Set<Function> functions = new HashSet<>();
+        for (Allocation allocation : assignmentsList) {
+            if (allocation.getFunction() != null)
+                functions.add(allocation.getFunction());
+        }
+
+        return new AllocationPayload(
+                projects.stream().toList(),
+                courses.stream().toList(),
+                functions.stream().toList(),
+                null,
+                injectActivity(assignmentsList));
     }
 
     /**
@@ -129,7 +153,7 @@ public class AllocationService {
      * @return list of {@link Allocation}
      */
     public List<Allocation> getEmployeeAllocations(long id) {
-        return injectProject(assignmentRepository.fetchEmployeeAllocations(id));
+        return injectActivity(assignmentRepository.fetchEmployeeAllocations(id));
     }
 
     /**
@@ -142,11 +166,29 @@ public class AllocationService {
         var assignmentsList = assignmentRepository.fetchSubordinatesAllocations(superiorId);
         Set<Project> projects = new HashSet<>();
         for (Allocation allocation : assignmentsList) {
-            projects.add(allocation.getProject());
+            if (allocation.getProject() != null)
+                projects.add(allocation.getProject());
+        }
+
+        Set<Course> courses = new HashSet<>();
+        for (Allocation allocation : assignmentsList) {
+            if (allocation.getCourse() != null)
+                courses.add(allocation.getCourse());
+        }
+
+        Set<Function> functions = new HashSet<>();
+        for (Allocation allocation : assignmentsList) {
+            if (allocation.getFunction() != null)
+                functions.add(allocation.getFunction());
         }
         List<Employee> employees = employeeService.getSubordinates(superiorId);
 
-        return new AllocationPayload(projects.stream().toList(), null, null, employees, injectEmployee(injectProject(assignmentsList)));
+        return new AllocationPayload(
+                projects.stream().toList(),
+                courses.stream().toList(),
+                functions.stream().toList(),
+                employees,
+                injectEmployee(injectActivity(assignmentsList)));
     }
 
     /**
@@ -195,11 +237,51 @@ public class AllocationService {
      * @param employeeId employee id
      * @return allocation rule
      */
-    public AllocationRule getAllocationsRules(long projectId, long employeeId) {
+    public AllocationRule getProjectAllocationsRules(long projectId, long employeeId) {
         var project = projectRepository.fetchProject(projectId);
 
         LocalDate minDate = project.getDateFrom();
         LocalDate maxDate = project.getDateUntil();
+
+        var employeeAllocations = assignmentRepository.fetchEmployeeAllocations(employeeId);
+
+        var intervals = processAllocations(employeeAllocations);
+
+        return new AllocationRule(minDate, maxDate, intervals);
+    }
+
+    /**
+     * Gets allocation rule.
+     *
+     * @param courseId  course id
+     * @param employeeId employee id
+     * @return allocation rule
+     */
+    public AllocationRule getCourseAllocationsRules(long courseId, long employeeId) {
+        var course = courseRepository.fetchCourse(courseId);
+
+        LocalDate minDate = course.getDateFrom();
+        LocalDate maxDate = course.getDateUntil();
+
+        var employeeAllocations = assignmentRepository.fetchEmployeeAllocations(employeeId);
+
+        var intervals = processAllocations(employeeAllocations);
+
+        return new AllocationRule(minDate, maxDate, intervals);
+    }
+
+    /**
+     * Gets allocation rule.
+     *
+     * @param functionId  function id
+     * @param employeeId employee id
+     * @return allocation rule
+     */
+    public AllocationRule getFunctionAllocationsRules(long functionId, long employeeId) {
+        var function = functionRepository.fetchFunction(functionId);
+
+        LocalDate minDate = function.getDateFrom();
+        LocalDate maxDate = function.getDateUntil();
 
         var employeeAllocations = assignmentRepository.fetchEmployeeAllocations(employeeId);
 
@@ -229,7 +311,7 @@ public class AllocationService {
 
         List<AllocationInterval> intervals = new ArrayList<>();
         for (int i = 0; i < sortedDates.size() - 1; i++) {
-            var interval = new AllocationInterval(sortedDates.get(i), sortedDates.get(i + 1), new HashMap<>());
+            var interval = new AllocationInterval(sortedDates.get(i), sortedDates.get(i + 1), 0, new HashMap<>());
             intervals.add(interval);
         }
 
@@ -250,17 +332,25 @@ public class AllocationService {
      * @param allocations employee allocations
      * @return list of {@link Allocation} with {@link Employee}
      */
-    private List<Allocation> injectProject(@NonNull List<Allocation> allocations) {
+    private List<Allocation> injectActivity(@NonNull List<Allocation> allocations) {
         var projects = projectRepository.fetchProjects();
         Map<Long, Project> mapProjects = new HashMap<>();
         projects.forEach(project -> mapProjects.putIfAbsent(project.getId(), project));
 
-        List<Allocation> withProject = new ArrayList<>();
+        var courses = courseRepository.fetchCourses();
+        Map<Long, Course> mapCourses = new HashMap<>();
+        courses.forEach(course -> mapCourses.putIfAbsent(course.getId(), course));
+
+        var functions = functionRepository.fetchFunctions();
+        Map<Long, Function> mapFunctions = new HashMap<>();
+        functions.forEach(function -> mapFunctions.putIfAbsent(function.getId(), function));
+
+        List<Allocation> withActivity = new ArrayList<>();
 
         for (Allocation a : allocations) {
             var project = mapProjects.get(a.getProject().getId());
 
-            withProject.add(new Allocation()
+            withActivity.add(new Allocation()
                     .id(a.getId())
                     .worker(a.getWorker())
                     .project(project)
@@ -269,8 +359,33 @@ public class AllocationService {
                     .dateUntil(a.getDateUntil()).description(a.getDescription()).active(a.getActive()));
         }
 
-        return withProject;
+        for (Allocation a : allocations) {
+            var course = mapCourses.get(a.getCourse().getId());
+
+            withActivity.add(new Allocation()
+                    .id(a.getId())
+                    .worker(a.getWorker())
+                    .course(course)
+                    .allocationScope(a.getAllocationScope())
+                    .dateFrom(a.getDateFrom())
+                    .dateUntil(a.getDateUntil()).description(a.getDescription()).active(a.getActive()));
+        }
+
+        for (Allocation a : allocations) {
+            var function = mapFunctions.get(a.getFunction().getId());
+
+            withActivity.add(new Allocation()
+                    .id(a.getId())
+                    .worker(a.getWorker())
+                    .function(function)
+                    .allocationScope(a.getAllocationScope())
+                    .dateFrom(a.getDateFrom())
+                    .dateUntil(a.getDateUntil()).description(a.getDescription()).active(a.getActive()));
+        }
+
+        return withActivity;
     }
+
 
     /**
      * Adds all employees to allocations.
@@ -291,6 +406,8 @@ public class AllocationService {
                     .id(a.getId())
                     .worker(worker)
                     .project(a.getProject())
+                    .course(a.getCourse())
+                    .function(a.getFunction())
                     .allocationScope(a.getAllocationScope())
                     .dateFrom(a.getDateFrom())
                     .dateUntil(a.getDateUntil()).description(a.getDescription()).active(a.getActive()));

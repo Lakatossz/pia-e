@@ -31,7 +31,7 @@ public class AllocationMapper implements RowMapper<Allocation> {
 
         return new Allocation()
                 .id(id)
-                .worker(Employee.builder().id(employeeId).build())
+                .worker(new Employee().id(employeeId))
                 .project(project)
                 .dateFrom(activeFrom)
                 .dateUntil(activeUntil)

@@ -55,15 +55,14 @@ public class UserServiceUnitTests {
 
     @Test
     public void test_create_employee_if_correct() {
-        Employee employee = Employee.builder()
+        Employee employee = new Employee()
                 .firstName("foo")
                 .lastName("foo")
                 .orionLogin("foo")
                 .emailAddress("foo@foo.fo")
                 .workplace(Workplace.builder()
                         .id(1L)
-                        .build())
-                .build();
+                        .build());
         when(employeeRepository.createEmployee(employee)).thenReturn(true);
         Assertions.assertDoesNotThrow(() -> employeeServiceMocked.createEmployee(
                 new EmployeeVO("foo", "foo", "foo@foo.fo", "foo", 1L, "foo")
@@ -88,7 +87,7 @@ public class UserServiceUnitTests {
 
     @Test
     public void test_create_user_if_correct() {
-        when(employeeService.getEmployee("foo")).thenReturn(Employee.builder().id(1L).orionLogin("foo").build());
+        when(employeeService.getEmployee("foo")).thenReturn(new Employee().id(1L).orionLogin("foo"));
         when(userRepository.createNewUser(1L, "foo")).thenReturn(true);
         when(userRepository.addUserRole("foo")).thenReturn(true);
         when(passwordEncoder.encode(any())).thenReturn("foo");
@@ -98,7 +97,7 @@ public class UserServiceUnitTests {
 
     @Test
     public void test_create_user_if_create_new_user_fails() {
-        when(employeeService.getEmployee("foo")).thenReturn(Employee.builder().id(1L).orionLogin("foo").build());
+        when(employeeService.getEmployee("foo")).thenReturn(new Employee().id(1L).orionLogin("foo"));
         when(userRepository.createNewUser(1L, "foo")).thenReturn(false);
         when(userRepository.addUserRole("foo")).thenReturn(true);
         when(passwordEncoder.encode(any())).thenReturn("foo");
@@ -118,7 +117,7 @@ public class UserServiceUnitTests {
 
     @Test
     public void test_update_password_if_correct() {
-        when(employeeService.getEmployee("foo")).thenReturn(Employee.builder().id(1L).build());
+        when(employeeService.getEmployee("foo")).thenReturn(new Employee().id(1L));
         when(userRepository.updatePassword(1L, "foo")).thenReturn(true);
         when(passwordEncoder.encode(any())).thenReturn("foo");
         Assertions.assertDoesNotThrow(() -> securityService.updateUserPassword("foo", "foo"));
@@ -134,7 +133,7 @@ public class UserServiceUnitTests {
 
     @Test
     public void test_update_password_if_update_password_fails() {
-        when(employeeService.getEmployee("foo")).thenReturn(Employee.builder().id(1L).build());
+        when(employeeService.getEmployee("foo")).thenReturn(new Employee().id(1L));
         when(userRepository.updatePassword(1L, "foo")).thenReturn(false);
         when(passwordEncoder.encode(any())).thenReturn("foo");
         Assertions.assertThrows(RuntimeException.class, () -> securityService.updateUserPassword("foo", "foo"));
@@ -161,36 +160,36 @@ public class UserServiceUnitTests {
     @Test
     @WithMockUser("foo")
     public void test_if_current_view_is_user_view() {
-        when(employeeService.getEmployee(1L)).thenReturn(Employee.builder().id(1L).orionLogin("foo").build());
+        when(employeeService.getEmployee(1L)).thenReturn(new Employee().id(1L).orionLogin("foo"));
         Assertions.assertTrue(securityService.isUserView(1L));
     }
 
     @Test
     @WithMockUser("foo")
     public void test_if_current_view_is_not_user_view() {
-        when(employeeService.getEmployee(1L)).thenReturn(Employee.builder().id(1L).orionLogin("notfoo").build());
+        when(employeeService.getEmployee(1L)).thenReturn(new Employee().id(1L).orionLogin("foo"));
         Assertions.assertFalse(securityService.isUserView(1L));
     }
 
     @Test
     @WithMockUser("foo")
     public void test_if_current_view_is_user_superior_view() {
-        when(employeeService.getEmployee(1L)).thenReturn(Employee.builder().id(1L).orionLogin("foo").build());
+        when(employeeService.getEmployee(1L)).thenReturn(new Employee().id(1L).orionLogin("foo"));
         Assertions.assertTrue(securityService.isSuperiorView(1L));
     }
 
     @Test
     @WithMockUser("foo")
     public void test_if_current_view_is_not_user_superior_view() {
-        when(employeeService.getEmployee(1L)).thenReturn(Employee.builder().id(1L).orionLogin("notfoo").build());
+        when(employeeService.getEmployee(1L)).thenReturn(new Employee().id(1L).orionLogin("foo"));
         Assertions.assertFalse(securityService.isSuperiorView(1L));
     }
 
     @Test
     @WithMockUser("foo")
     public void test_if_user_is_project_manager_if_true() {
-        when(employeeService.getEmployee("foo")).thenReturn(Employee.builder().orionLogin("foo").id(1L).build());
-        when(projectService.getProject(1L)).thenReturn(new Project().projectManager(Employee.builder().id(1L).build()));
+        when(employeeService.getEmployee("foo")).thenReturn(new Employee().id(1L).orionLogin("foo"));
+        when(projectService.getProject(1L)).thenReturn(new Project().projectManager(new Employee().id(1L)));
 
         Assertions.assertTrue(securityService.isProjectManager(1L));
     }
@@ -198,8 +197,8 @@ public class UserServiceUnitTests {
     @Test
     @WithMockUser("foo")
     public void test_if_user_is_project_manager_if_false() {
-        when(employeeService.getEmployee("foo")).thenReturn(Employee.builder().orionLogin("foo").id(1L).build());
-        when(projectService.getProject(1L)).thenReturn(new Project().projectManager(Employee.builder().id(2L).build()));
+        when(employeeService.getEmployee("foo")).thenReturn(new Employee().id(1L).orionLogin("foo"));
+        when(projectService.getProject(1L)).thenReturn(new Project().projectManager(new Employee().id(2L)));
 
         Assertions.assertFalse(securityService.isProjectManager(1L));
     }
@@ -207,7 +206,7 @@ public class UserServiceUnitTests {
     @Test
     @WithMockUser("foo")
     public void test_if_user_is_project_manager_if_project_does_not_exist() {
-        when(employeeService.getEmployee("foo")).thenReturn(Employee.builder().orionLogin("foo").id(1L).build());
+        when(employeeService.getEmployee("foo")).thenReturn(new Employee().id(1L).orionLogin("foo"));
         when(projectService.getProject(1L)).thenThrow(RuntimeException.class);
 
         Assertions.assertThrows(RuntimeException.class, () -> securityService.isProjectManager(1L));
@@ -217,10 +216,10 @@ public class UserServiceUnitTests {
     @WithMockUser("foo")
     public void test_if_user_is_at_least_project_manager_if_is() {
         List<Project> projects = new ArrayList<>();
-        projects.add(new Project().id(1L).projectManager(Employee.builder().id(1L).build()));
+        projects.add(new Project().id(1L).projectManager(new Employee().id(1L)));
         when(projectService.getProjects()).thenReturn(projects);
-        when(employeeService.getEmployee("foo")).thenReturn(Employee.builder().orionLogin("foo").id(1L).build());
-        when(projectService.getProject(1L)).thenReturn(new Project().id(1L).projectManager(Employee.builder().id(1L).build()));
+        when(employeeService.getEmployee("foo")).thenReturn(new Employee().id(1L).orionLogin("foo"));
+        when(projectService.getProject(1L)).thenReturn(new Project().id(1L).projectManager(new Employee().id(1)));
 
         Assertions.assertTrue(securityService.isAtLeastProjectManager());
     }
@@ -229,10 +228,10 @@ public class UserServiceUnitTests {
     @WithMockUser("foo")
     public void test_if_user_is_at_least_project_manager_if_is_not() {
         List<Project> projects = new ArrayList<>();
-        projects.add(new Project().id(1L).projectManager(Employee.builder().id(2L).build()));
+        projects.add(new Project().id(1L).projectManager(new Employee().id(2L)));
         when(projectService.getProjects()).thenReturn(projects);
-        when(employeeService.getEmployee("foo")).thenReturn(Employee.builder().orionLogin("foo").id(1L).build());
-        when(projectService.getProject(1L)).thenReturn(new Project().id(1L).projectManager(Employee.builder().id(2L).build()));
+        when(employeeService.getEmployee("foo")).thenReturn(new Employee().id(1L).orionLogin("foo"));
+        when(projectService.getProject(1L)).thenReturn(new Project().id(1L).projectManager(new Employee().id(2L)));
 
         Assertions.assertFalse(securityService.isAtLeastProjectManager());
     }
@@ -240,9 +239,9 @@ public class UserServiceUnitTests {
     @Test
     @WithMockUser("foo")
     public void test_if_user_is_workplace_manager_if_yes() {
-        when(employeeService.getEmployee("foo")).thenReturn(Employee.builder().id(1L).orionLogin("foo").build());
+        when(employeeService.getEmployee("foo")).thenReturn(new Employee().id(1L).orionLogin("foo"));
         when(projectService.getProject(1L)).thenReturn(new Project().projectWorkplace(Workplace.builder().id(1L).build()));
-        when(workplaceService.getWorkplace(1L)).thenReturn(Workplace.builder().manager(Employee.builder().id(1L).build()).build());
+        when(workplaceService.getWorkplace(1L)).thenReturn(Workplace.builder().manager(new Employee().id(1L)).build());
 
         Assertions.assertTrue(securityService.isWorkplaceManager(1));
     }
@@ -250,9 +249,9 @@ public class UserServiceUnitTests {
     @Test
     @WithMockUser("foo")
     public void test_if_user_is_workplace_manager_if_no() {
-        when(employeeService.getEmployee("foo")).thenReturn(Employee.builder().id(1L).orionLogin("foo").build());
+        when(employeeService.getEmployee("foo")).thenReturn(new Employee().id(1L).orionLogin("foo"));
         when(projectService.getProject(1L)).thenReturn(new Project().projectWorkplace(Workplace.builder().id(1L).build()));
-        when(workplaceService.getWorkplace(1L)).thenReturn(Workplace.builder().manager(Employee.builder().id(2L).build()).build());
+        when(workplaceService.getWorkplace(1L)).thenReturn(Workplace.builder().manager(new Employee().id(2L)).build());
 
         Assertions.assertFalse(securityService.isWorkplaceManager(1));
     }
@@ -260,9 +259,9 @@ public class UserServiceUnitTests {
     @Test
     @WithMockUser("foo")
     public void test_if_user_is_workplace_manager_if_project_does_not_exist() {
-        when(employeeService.getEmployee("foo")).thenReturn(Employee.builder().id(1L).orionLogin("foo").build());
+        when(employeeService.getEmployee("foo")).thenReturn(new Employee().id(1L).orionLogin("foo"));
         when(projectService.getProject(1L)).thenThrow(RuntimeException.class);
-        when(workplaceService.getWorkplace(1L)).thenReturn(Workplace.builder().manager(Employee.builder().id(2L).build()).build());
+        when(workplaceService.getWorkplace(1L)).thenReturn(Workplace.builder().manager(new Employee().id(2L)).build());
 
         Assertions.assertThrows(RuntimeException.class, () -> securityService.isWorkplaceManager(1));
     }

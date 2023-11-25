@@ -103,7 +103,7 @@ public class FunctionService {
 
         Function function = new Function()
                 .name(functionVO.getName())
-                .functionManager(Employee.builder().id(data.getId()).build())
+                .functionManager(new Employee().id(data.getId()))
                 .functionWorkplace(Workplace.builder().id(functionVO.getFunctionWorkplace()).build())
                 .dateFrom(functionVO.getDateFrom())
                 .dateUntil(functionVO.getDateUntil() != null ? functionVO.getDateUntil() : LocalDate.of(9999, 9, 9));
@@ -134,7 +134,7 @@ public class FunctionService {
         Function function = new Function()
                 .id(id)
                 .name(functionVO.getName())
-                .functionManager(Employee.builder().id(data.getId()).build())
+                .functionManager(new Employee().id(data.getId()))
                 .functionWorkplace(Workplace.builder().id(functionVO.getFunctionWorkplace()).build())
                 .dateFrom(functionVO.getDateFrom())
                 .dateUntil(functionVO.getDateUntil() != null ? functionVO.getDateUntil() : LocalDate.of(9999, 9, 9));

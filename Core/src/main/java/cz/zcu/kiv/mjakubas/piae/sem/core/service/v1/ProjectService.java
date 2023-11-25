@@ -103,7 +103,7 @@ public class ProjectService {
 
         Project project = new Project()
                 .name(projectVO.getName())
-                .projectManager(Employee.builder().id(data.getId()).build())
+                .projectManager(new Employee().id(data.getId()))
                 .projectWorkplace(Workplace.builder().id(projectVO.getWorkplaceId()).build())
                 .dateFrom(projectVO.getDateFrom())
                 .dateUntil(projectVO.getDateUntil() != null ? projectVO.getDateUntil() : LocalDate.of(9999, 9, 9))
@@ -135,7 +135,7 @@ public class ProjectService {
         Project project = new Project()
                 .id(id)
                 .name(projectVO.getName())
-                .projectManager(Employee.builder().id(data.getId()).build())
+                .projectManager(new Employee().id(data.getId()))
                 .projectWorkplace(Workplace.builder().id(projectVO.getWorkplaceId()).build())
                 .dateFrom(projectVO.getDateFrom())
                 .dateUntil(projectVO.getDateUntil() != null ? projectVO.getDateUntil() : LocalDate.of(9999, 9, 9))

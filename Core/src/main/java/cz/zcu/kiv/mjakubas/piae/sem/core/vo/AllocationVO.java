@@ -21,6 +21,8 @@ public class AllocationVO {
 
     private long employeeId;
     private long projectId;
+    private long courseId;
+    private long functionId;
     private float allocationScope;  // in x/FTE
     private LocalDate dateFrom;
     private LocalDate dateUntil;

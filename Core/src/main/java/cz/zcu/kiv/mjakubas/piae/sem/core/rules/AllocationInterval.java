@@ -4,6 +4,7 @@ import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Allocation;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.time.LocalDate;
 import java.util.HashMap;
@@ -15,6 +16,7 @@ public class AllocationInterval {
 
     private final LocalDate from;
     private final LocalDate until;
+    private final float time;
     private HashMap<Allocation.AssignmentState, Integer> scopes;
 
     public boolean isFromInterval(Allocation allocation) {

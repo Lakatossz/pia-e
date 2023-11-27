@@ -8,6 +8,7 @@ import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Project;
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.payload.AllocationPayload;
 import cz.zcu.kiv.mjakubas.piae.sem.core.repository.IAllocationRepository;
 import cz.zcu.kiv.mjakubas.piae.sem.core.repository.ICourseRepository;
+import cz.zcu.kiv.mjakubas.piae.sem.core.repository.IEmployeeRepository;
 import cz.zcu.kiv.mjakubas.piae.sem.core.repository.IFunctionRepository;
 import cz.zcu.kiv.mjakubas.piae.sem.core.repository.IProjectRepository;
 import cz.zcu.kiv.mjakubas.piae.sem.core.rules.AllocationInterval;
@@ -34,7 +35,7 @@ public class AllocationService {
     private final IProjectRepository projectRepository;
     private final ICourseRepository courseRepository;
     private final IFunctionRepository functionRepository;
-    private final EmployeeService employeeService;
+    private final IEmployeeRepository employeeRepository;
 
     /**
      * Creates new assignment. Throws SQL or Service exceptions if data validity fails.
@@ -181,7 +182,7 @@ public class AllocationService {
             if (allocation.getFunction() != null)
                 functions.add(allocation.getFunction());
         }
-        List<Employee> employees = employeeService.getSubordinates(superiorId);
+        List<Employee> employees = employeeRepository.fetchSubordinates(superiorId);
 
         return new AllocationPayload(
                 projects.stream().toList(),
@@ -394,7 +395,7 @@ public class AllocationService {
      * @return list of {@link Allocation} with {@link Employee}
      */
     private List<Allocation> injectEmployee(@NonNull List<Allocation> allocations) {
-        var employees = employeeService.getEmployees();
+        var employees = employeeRepository.fetchEmployees();
         Map<Long, Employee> mapEmployees = new HashMap<>();
         employees.forEach(employee -> mapEmployees.putIfAbsent(employee.getId(), employee));
 
@@ -404,13 +405,17 @@ public class AllocationService {
 
             withEmployee.add(new Allocation()
                     .id(a.getId())
+                    .dateFrom(a.getDateFrom())
+                    .dateUntil(a.getDateUntil())
                     .worker(worker)
                     .project(a.getProject())
                     .course(a.getCourse())
                     .function(a.getFunction())
                     .allocationScope(a.getAllocationScope())
-                    .dateFrom(a.getDateFrom())
-                    .dateUntil(a.getDateUntil()).description(a.getDescription()).active(a.getActive()));
+                    .description(a.getDescription())
+                    .time(a.getTime())
+                    .isCertain(a.getIsCertain())
+                    .active(a.getActive()));
         }
 
         return withEmployee;

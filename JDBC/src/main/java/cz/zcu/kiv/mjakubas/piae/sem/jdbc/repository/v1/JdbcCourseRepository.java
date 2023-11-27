@@ -35,10 +35,7 @@ public class JdbcCourseRepository implements ICourseRepository {
     @Override
     public Course fetchCourse(long courseId) {
         var sql = """
-                SELECT c.*, w.wrk_abbrevation, w.workplace_id, e.*,
-                        (SELECT COUNT(*) FROM project_employee pe WHERE pe.pre_employee_id = e.employee_id) AS projects_count,
-                        (SELECT COUNT(*) FROM course_employee ce WHERE ce.cre_employee_id = e.employee_id) AS courses_count,
-                        (SELECT COUNT(*) FROM function_employee fe WHERE fe.fce_employee_id = e.employee_id) AS functions_count FROM course c
+                SELECT c.*, w.wrk_abbrevation, w.workplace_id, e.* FROM course c
                 INNER JOIN workplace w ON w.workplace_id=c.crs_workplace_id
                 INNER JOIN employee e ON e.employee_id=c.crs_manager_id
                 WHERE c.crs_enabled=:isEnabled AND c.course_id=:course_id
@@ -54,10 +51,7 @@ public class JdbcCourseRepository implements ICourseRepository {
     @Override
     public Course fetchCourse(String name) {
         var sql = """
-                SELECT c.*, w.wrk_abbrevation, e.*,
-                        (SELECT COUNT(*) FROM project_employee pe WHERE pe.pre_employee_id = e.employee_id) AS projects_count,
-                        (SELECT COUNT(*) FROM course_employee ce WHERE ce.cre_employee_id = e.employee_id) AS courses_count,
-                        (SELECT COUNT(*) FROM function_employee fe WHERE fe.fce_employee_id = e.employee_id) AS functions_count FROM course c
+                SELECT c.*, w.wrk_abbrevation, e.* FROM course c
                 INNER JOIN workplace w ON w.workplace_id=c.crs_workplace_id
                 INNER JOIN employee e ON e.employee_id=c.crs_manager_id
                 WHERE c.crs_enabled=:isEnabled AND c.course_name=:name
@@ -73,10 +67,7 @@ public class JdbcCourseRepository implements ICourseRepository {
     @Override
     public List<Course> fetchCourses() {
         var sql = """
-                SELECT c.*, w.wrk_abbrevation, w.workplace_id, e.*,
-                        (SELECT COUNT(*) FROM project_employee pe WHERE pe.pre_employee_id = e.employee_id) AS projects_count,
-                        (SELECT COUNT(*) FROM course_employee ce WHERE ce.cre_employee_id = e.employee_id) AS courses_count,
-                        (SELECT COUNT(*) FROM function_employee fe WHERE fe.fce_employee_id = e.employee_id) AS functions_count FROM course c
+                SELECT c.*, w.wrk_abbrevation, w.workplace_id, e.* FROM course c
                 INNER JOIN workplace w ON w.workplace_id=c.crs_workplace_id
                 INNER JOIN employee e ON e.employee_id=c.crs_manager_id
                 WHERE c.crs_enabled=:isEnabled
@@ -93,14 +84,11 @@ public class JdbcCourseRepository implements ICourseRepository {
         var sql = """
                 SELECT  
                         e.*, 
-                        w.wrk_abbrevation,
-                        (SELECT COUNT(*) FROM project_employee pe WHERE pe.pre_employee_id = e.employee_id) AS projects_count,
-                        (SELECT COUNT(*) FROM course_employee ce WHERE ce.cre_employee_id = e.employee_id) AS courses_count,
-                        (SELECT COUNT(*) FROM function_employee fe WHERE fe.fce_employee_id = e.employee_id) AS functions_count
+                        w.wrk_abbrevation
                 FROM assignment ce
-                INNER JOIN workplace w ON w.workplace_id=e.emp_workplace_id
                 INNER JOIN employee e ON e.employee_id=ce.ass_employee_id
-                WHERE c.crs_enabled=:isEnabled AND ce.ass.course_id=:course_id
+                INNER JOIN workplace w ON w.workplace_id=e.emp_workplace_id
+                WHERE ce.ass_enabled=:isEnabled AND ce.ass_course_id=:course_id
                 """;
 
         var params = new MapSqlParameterSource();

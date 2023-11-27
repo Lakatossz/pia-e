@@ -7,6 +7,8 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 @Getter
@@ -22,6 +24,7 @@ public class Project extends Activity {
     private Integer participation;
     private Integer totalTime;
     private List<Employee> employees = new ArrayList<>();
+    private List<Float> yearAllocation = new ArrayList<>(Collections.nCopies(12, (float) 0));
 
     @Override
     public Project id(long id) {
@@ -88,6 +91,11 @@ public class Project extends Activity {
         return this;
     }
 
+    public Project yearAllocation(List<Float> yearAllocation) {
+        this.yearAllocation.addAll(yearAllocation);
+        return this;
+    }
+
     @Override
     public String toString() {
         return "Project{" + super.toString() +
@@ -98,6 +106,7 @@ public class Project extends Activity {
                 ", participation=" + participation +
                 ", totalTime=" + totalTime + '\'' +
                 ", employees=" + employees +
+                ", yearAllocation=" + yearAllocation +
                 '}';
     }
 }

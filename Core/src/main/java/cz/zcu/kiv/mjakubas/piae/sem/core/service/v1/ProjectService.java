@@ -1,9 +1,12 @@
 package cz.zcu.kiv.mjakubas.piae.sem.core.service.v1;
 
+import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Allocation;
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Employee;
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Project;
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Workplace;
+import cz.zcu.kiv.mjakubas.piae.sem.core.repository.IEmployeeRepository;
 import cz.zcu.kiv.mjakubas.piae.sem.core.repository.IProjectRepository;
+import cz.zcu.kiv.mjakubas.piae.sem.core.repository.IWorkplaceRepository;
 import cz.zcu.kiv.mjakubas.piae.sem.core.service.ServiceException;
 import cz.zcu.kiv.mjakubas.piae.sem.core.vo.EmployeeVO;
 import cz.zcu.kiv.mjakubas.piae.sem.core.vo.ProjectVO;
@@ -14,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
@@ -26,8 +30,8 @@ import java.util.List;
 public class ProjectService {
 
     private final IProjectRepository projectRepository;
-    private final EmployeeService employeeService;
-    private final WorkplaceService workplaceService;
+    private final IEmployeeRepository employeeRepository;
+    private final IWorkplaceRepository workplaceRepository;
 
     private final AllocationService allocationService;
 
@@ -39,7 +43,11 @@ public class ProjectService {
      * @return project
      */
     public Project getProject(long id) {
-        return projectRepository.fetchProject(id);
+        Project project = projectRepository.fetchProject(id);
+        List<Allocation> allocations = allocationService.getProjectAllocations(id).getAllocations();
+        if (!allocations.isEmpty())
+            project.setYearAllocation(prepareAllocations(allocations));
+        return project;
     }
 
     /**
@@ -48,6 +56,12 @@ public class ProjectService {
      * @return list of {@link Project}
      */
     public List<Project> getProjects() {
+        List<Project> projects = projectRepository.fetchProjects();
+        projects.forEach(project -> {
+                List<Allocation> allocations = allocationService.getProjectAllocations(project.getId()).getAllocations();
+                if (!allocations.isEmpty())
+                    project.setYearAllocation(prepareAllocations(allocations));
+        });
         return projectRepository.fetchProjects();
     }
 
@@ -58,7 +72,12 @@ public class ProjectService {
      * @return list of project {@link Employee}
      */
     public List<Employee> getProjectEmployees(long id) {
-        return projectRepository.fetchProjectEmployees(id);
+        List<Employee> employees = projectRepository.fetchProjectEmployees(id);
+        employees.forEach(employee -> {
+            employee.setUncertainTime((float) 0.0);
+            employee.setCertainTime((float) 0.0);
+        });
+        return employees;
     }
 
     /**
@@ -68,7 +87,7 @@ public class ProjectService {
      * @return list of workplace {@link Project}
      */
     public List<Project> getWorkplaceManagerProjects(long id) {
-        var workplaces = workplaceService.getWorkplaces();
+        var workplaces = workplaceRepository.fetchWorkplaces();
         var myWorkplaces = new ArrayList<Workplace>();
 
         for (Workplace w : workplaces) {
@@ -96,18 +115,22 @@ public class ProjectService {
      */
     @Transactional
     public void createProject(@NonNull ProjectVO projectVO) {
-        var data = employeeService.getEmployee(projectVO.getProjectManagerOrionLogin());
+        var manager = employeeRepository.fetchEmployee(projectVO.getProjectManagerId());
         if (projectVO.getDateUntil() != null && (projectVO.getDateFrom().isAfter(projectVO.getDateUntil())))
                 {throw new ServiceException();
         }
 
         Project project = new Project()
                 .name(projectVO.getName())
-                .projectManager(new Employee().id(data.getId()))
-                .projectWorkplace(Workplace.builder().id(projectVO.getWorkplaceId()).build())
                 .dateFrom(projectVO.getDateFrom())
                 .dateUntil(projectVO.getDateUntil() != null ? projectVO.getDateUntil() : LocalDate.of(9999, 9, 9))
-                .description(projectVO.getDescription());
+                .probability(projectVO.getProbability())
+                .projectManager(manager)
+                .projectWorkplace(Workplace.builder().id(projectVO.getWorkplaceId()).build())
+                .description(projectVO.getDescription())
+                .budget(projectVO.getBudget())
+                .participation(projectVO.getParticipation())
+                .totalTime(projectVO.getTotalTime());
 
         if (!projectRepository.createProject(project))
             throw new ServiceException();
@@ -121,7 +144,7 @@ public class ProjectService {
      */
     @Transactional
     public void editProject(@NonNull ProjectVO projectVO, long id) {
-        var data = employeeService.getEmployee(projectVO.getProjectManagerOrionLogin());
+        var manager = employeeRepository.fetchEmployee(projectVO.getProjectManagerId());
         if (projectVO.getDateUntil() != null && (projectVO.getDateFrom().isAfter(projectVO.getDateUntil())))
                 {throw new ServiceException();
         }
@@ -135,11 +158,15 @@ public class ProjectService {
         Project project = new Project()
                 .id(id)
                 .name(projectVO.getName())
-                .projectManager(new Employee().id(data.getId()))
-                .projectWorkplace(Workplace.builder().id(projectVO.getWorkplaceId()).build())
                 .dateFrom(projectVO.getDateFrom())
                 .dateUntil(projectVO.getDateUntil() != null ? projectVO.getDateUntil() : LocalDate.of(9999, 9, 9))
-                .description(projectVO.getDescription());
+                .probability(projectVO.getProbability())
+                .projectManager(manager)
+                .projectWorkplace(Workplace.builder().id(projectVO.getWorkplaceId()).build())
+                .description(projectVO.getDescription())
+                .budget(projectVO.getBudget())
+                .participation(projectVO.getParticipation())
+                .totalTime(projectVO.getTotalTime());
 
         if (!projectRepository.updateProject(project, id))
             throw new ServiceException();
@@ -153,7 +180,7 @@ public class ProjectService {
      */
     @Transactional
     public void assignEmployee(@NonNull EmployeeVO userVO, long id) {
-        var legitId = employeeService.getEmployee(userVO.getOrionLogin()).getId();
+        var legitId = employeeRepository.fetchEmployee(userVO.getOrionLogin()).getId();
 
         var employees = projectRepository.fetchProjectEmployees(id);
         var check = new HashSet<Long>();
@@ -177,6 +204,8 @@ public class ProjectService {
         var projects = projectRepository.fetchProjects();
         var myProjects = new ArrayList<Project>();
         projects.forEach(project -> {
+            project.setYearAllocation(
+                    prepareAllocations(allocationService.getProjectAllocations(project.getId()).getAllocations()));
             if (project.getEmployees().stream().filter(employee -> employee.getId() == employeeId).toList().size() == 1)
                 myProjects.add(project);
         });
@@ -196,9 +225,54 @@ public class ProjectService {
         var projects = projectRepository.fetchProjects();
         var myProjects = new ArrayList<Project>();
         projects.forEach(project -> {
+            project.setYearAllocation(
+                    prepareAllocations(allocationService.getProjectAllocations(project.getId()).getAllocations()));
             if (project.getProjectManager().getId() == employeeId)
                 myProjects.add(project);
         });
         return myProjects;
+    }
+
+    /**
+     * Prepares allocations times for using.
+     * @param allocations allocations
+     * @return list of allocations
+     */
+    private List<Float> prepareAllocations(List<Allocation> allocations) {
+        List<Float> yearAllocations = new ArrayList<>(Collections.nCopies(12, (float) 0));
+
+        List<Allocation> thisYearsAllocations = new ArrayList<>();
+        allocations.forEach(allocation -> {
+            if (isThisYearAllocation(allocation))
+                thisYearsAllocations.add(allocation);
+        });
+
+        int allocationsIndex = 0;
+
+        Allocation allocation = thisYearsAllocations.get(allocationsIndex);
+
+//        Here I will go through every month of the year and add to list 0 or time for project.
+        for (int i = 1; i < 13; i++) {
+            if ((allocation.getDateFrom().getMonthValue() <= i
+                    && allocation.getDateUntil().getMonthValue() >= i)
+                || (i == 1 && isThisYearAllocation(allocation)
+                    && allocation.getDateFrom().getYear() < LocalDate.now().getYear())
+                || (i == 12 && isThisYearAllocation(allocation)
+                    && allocation.getDateUntil().getYear() > LocalDate.now().getYear())) {
+                yearAllocations.set(i - 1, allocation.getTime());
+            }
+            else {
+                if (allocation.getDateUntil().getMonthValue() == i)
+                    allocation = thisYearsAllocations.get(allocationsIndex++);
+                else
+                    yearAllocations.set(i - 1, (float) 0);
+            }
+        }
+        return yearAllocations;
+    }
+
+    private boolean isThisYearAllocation(Allocation allocation) {
+        return allocation.getDateFrom().getYear() == LocalDate.now().getYear()
+                || allocation.getDateUntil().getYear() == LocalDate.now().getYear();
     }
 }

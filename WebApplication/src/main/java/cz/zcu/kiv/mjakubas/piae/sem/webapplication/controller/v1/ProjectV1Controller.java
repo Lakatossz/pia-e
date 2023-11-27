@@ -59,12 +59,7 @@ public class ProjectV1Controller {
 
     @PostMapping("/create")
     public String createProject(@ModelAttribute ProjectVO projectVO, BindingResult bindingResult, Model model) {
-
-        /* it is what it is... */
-        String str = projectVO.getProjectManagerOrionLogin();
-        String orion = str.substring(str.indexOf("(") + 1, str.indexOf(")"));
-        projectVO.setProjectManagerOrionLogin(orion);
-
+        projectVO.setProjectManagerId(projectVO.getProjectManagerId());
 
         projectService.createProject(projectVO);
 
@@ -79,10 +74,16 @@ public class ProjectV1Controller {
         Project data = projectService.getProject(id);
 
         model.addAttribute("projectVO",
-                new ProjectVO(data.getName(),
-                        data.getProjectManager().getFirstName() + " " + data.getProjectManager().getLastName() + " (" + data.getProjectManager().getOrionLogin() + ")",
-                        data.getProjectWorkplace().getId(), data.getDateFrom(),
-                        data.getDateUntil(), data.getDescription()));
+                new ProjectVO()
+                        .name(data.getName())
+                        .projectManagerId(data.getProjectManager().getId())
+                        .workplaceId(data.getProjectWorkplace().getId())
+                        .dateFrom(data.getDateFrom())
+                        .dateUntil(data.getDateUntil())
+                        .description(data.getDescription())
+                        .budget(data.getBudget())
+                        .participation(data.getParticipation())
+                        .totalTime(data.getTotalTime()));
 
         model.addAttribute(EMPLOYEES, employeeService.getEmployees());
         model.addAttribute("workplaces", workplaceService.getWorkplaces());
@@ -98,11 +99,7 @@ public class ProjectV1Controller {
     @PostMapping("/{id}/edit")
     public String editProject(Model model, @PathVariable long id, @ModelAttribute ProjectVO projectVO,
                               BindingResult errors, @RequestParam(required = false) Boolean manage) {
-
-        /* it is what it is... */
-        String str = projectVO.getProjectManagerOrionLogin();
-        String orion = str.substring(str.indexOf("(") + 1, str.indexOf(")"));
-        projectVO.setProjectManagerOrionLogin(orion);
+        projectVO.setProjectManagerId(projectVO.getProjectManagerId());
 
         projectService.editProject(projectVO, id);
 

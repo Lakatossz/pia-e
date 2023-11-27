@@ -17,23 +17,33 @@ import java.time.LocalDate;
 public class ProjectVO {
 
     private String name;
-    private String projectManagerOrionLogin;
-    private Long workplaceId;
     private LocalDate dateFrom;
     private LocalDate dateUntil;
+    private float probability;
+    private Long projectManagerId;
+    private Long workplaceId;
     private String description;
+    private Integer budget;
+    private Integer participation;
+    private Integer totalTime;
 
     public ProjectVO() {
 
     }
 
-    public ProjectVO(String name, String projectManagerOrionLogin, Long workplaceId, LocalDate dateFrom, LocalDate dateUntil, String description) {
+    public ProjectVO(String name, Long projectManagerId, Long workplaceId, float probability,
+                     LocalDate dateFrom, LocalDate dateUntil, String description,
+                     Integer budget, Integer participation, Integer totalTime) {
         this.name = name;
-        this.projectManagerOrionLogin = projectManagerOrionLogin;
-        this.workplaceId = workplaceId;
         this.dateFrom = dateFrom;
         this.dateUntil = dateUntil;
+        this.probability = probability;
+        this.projectManagerId = projectManagerId;
+        this.workplaceId = workplaceId;
         this.description = description;
+        this.budget = budget;
+        this.participation = participation;
+        this.totalTime = totalTime;
     }
 
     public ProjectVO name(String name) {
@@ -41,8 +51,8 @@ public class ProjectVO {
         return this;
     }
 
-    public ProjectVO projectManagerOrionLogin(String projectManagerOrionLogin) {
-        this.projectManagerOrionLogin = projectManagerOrionLogin;
+    public ProjectVO projectManagerId(Long projectManagerId) {
+        this.projectManagerId = projectManagerId;
         return this;
     }
 
@@ -61,8 +71,28 @@ public class ProjectVO {
         return this;
     }
 
+    public ProjectVO probability(long probability) {
+        this.probability = probability;
+        return this;
+    }
+
     public ProjectVO description(String description) {
         this.description = description;
+        return this;
+    }
+
+    public ProjectVO budget(Integer budget) {
+        this.budget = budget;
+        return this;
+    }
+
+    public ProjectVO participation(Integer participation) {
+        this.participation = participation;
+        return this;
+    }
+
+    public ProjectVO totalTime(Integer totalTime) {
+        this.totalTime = totalTime;
         return this;
     }
 
@@ -70,10 +100,10 @@ public class ProjectVO {
     public String toString() {
         return "ProjectVO{" +
                 "name='" + name + '\'' +
-                ", projectManagerOrionLogin='" + projectManagerOrionLogin + '\'' +
-                ", workplaceId=" + workplaceId +
                 ", dateFrom=" + dateFrom +
                 ", dateUntil=" + dateUntil +
+                ", projectManagerId='" + projectManagerId + '\'' +
+                ", workplaceId=" + workplaceId +
                 ", description='" + description + '\'' +
                 '}';
     }

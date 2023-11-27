@@ -134,7 +134,7 @@ CREATE TABLE IF NOT EXISTS `piae_v1_db`.`assignment`
                               `ass_active_until` date NOT NULL,
                               `ass_scope` int NOT NULL,
                               `ass_description` varchar(2000) CHARACTER SET utf8mb3 COLLATE utf8mb3_czech_ci NOT NULL,
-                              `ass_is_time` float DEFAULT NULL,
+                              `ass_time` float DEFAULT NULL,
                               `ass_recalculation` float NOT NULL DEFAULT '1',
                               `ass_is_certain` tinyint(1) NOT NULL DEFAULT '1',
                               PRIMARY KEY (`assignment_id`),
@@ -235,20 +235,6 @@ CREATE TABLE IF NOT EXISTS `piae_v1_db`.`course`
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_czech_ci;
 
 -- -----------------------------------------------------
--- Table piae_v1_db.course_allocation definition
--- -----------------------------------------------------
-
-CREATE TABLE IF NOT EXISTS `piae_v1_db`.`course_allocation`
-(
-                                     `course_allocation_id` int NOT NULL AUTO_INCREMENT,
-                                     `cra_course_id` int NOT NULL,
-                                     `cra_allocation` float NOT NULL,
-                                     PRIMARY KEY (`course_allocation_id`),
-                                     KEY `fk_cra_course_id_idx` (`cra_course_id`),
-                                     CONSTRAINT `fk_cra_course_id` FOREIGN KEY (`cra_course_id`) REFERENCES `course` (`course_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_czech_ci;
-
--- -----------------------------------------------------
 -- Table piae_v1_db.`function` definition
 -- -----------------------------------------------------
 
@@ -265,20 +251,6 @@ CREATE TABLE IF NOT EXISTS `piae_v1_db`.`function`
                             `fnc_probability` float NOT NULL,
                             PRIMARY KEY (`function_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_czech_ci;
-
--- -----------------------------------------------------
--- Table piae_v1_db.function_allocation definition
--- -----------------------------------------------------
-
-CREATE TABLE IF NOT EXISTS `piae_v1_db`.`function_allocation`
-(
-                                       `function_allocation_id` int NOT NULL AUTO_INCREMENT,
-                                       `fca_function_id` int NOT NULL,
-                                       `fca_allocation` float NOT NULL,
-                                       PRIMARY KEY (`function_allocation_id`),
-                                       KEY `fk_fca_function_id_idx` (`fca_function_id`),
-                                       CONSTRAINT `fk_fca_function_id` FOREIGN KEY (`fca_function_id`) REFERENCES `function` (`function_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_czech_ci;
 
 -- -----------------------------------------------------
 -- Table piae_v1_db.`group` definition
@@ -333,19 +305,6 @@ CREATE TABLE IF NOT EXISTS `piae_v1_db`.`person` (
                           `per_personal_number` varchar(50) COLLATE utf8mb3_czech_ci DEFAULT NULL,
                           PRIMARY KEY (`person_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_czech_ci;
-
--- -----------------------------------------------------
--- Table piae_v1_db.project_allocation definition
--- -----------------------------------------------------
-
-CREATE TABLE IF NOT EXISTS `piae_v1_db`.`project_allocation` (
-                                      `project_allocation_id` int NOT NULL AUTO_INCREMENT,
-                                      `pra_project_id` int NOT NULL,
-                                      `pra_allocation` float NOT NULL,
-                                      PRIMARY KEY (`project_allocation_id`),
-                                      KEY `fk_pra_project_id_idx` (`pra_project_id`),
-                                      CONSTRAINT `fk_pra_project_id` FOREIGN KEY (`pra_project_id`) REFERENCES `project` (`project_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_czech_ci;
 
 CREATE TABLE IF NOT EXISTS `piae_v1_db`.`course_employee` (
                                     `course_employee_id` int NOT NULL AUTO_INCREMENT,
@@ -485,15 +444,6 @@ INSERT INTO `piae_v1_db`.`course` (`course_id`, `crs_enabled`, `crs_name`, `crs_
                                    `crs_date_until`, `crs_probability`, `crs_manager_id`, `crs_workplace_id`)
 VALUES ('4', '1', 'KIV/OS', '1', 'L', '3', '2', '4', '2024-03-01', '2024-06-01', '1.0', '1', '1');
 
-INSERT INTO `piae_v1_db`.`course_allocation` (`course_allocation_id`, `cra_course_id`, `cra_allocation`)
-VALUES ('1', '1', '0.3');
-
-INSERT INTO `piae_v1_db`.`course_allocation` (`course_allocation_id`, `cra_course_id`, `cra_allocation`)
-VALUES ('2', '2', '0.2');
-
-INSERT INTO `piae_v1_db`.`course_allocation` (`course_allocation_id`, `cra_course_id`, `cra_allocation`)
-VALUES ('3', '1', '0.5');
-
 INSERT INTO `piae_v1_db`.`course_employee` (`course_employee_id`, `cre_enabled`, `cre_course_id`, `cre_employee_id`)
 VALUES ('1', '1', '1', '5');
 
@@ -511,15 +461,6 @@ VALUES ('2', '1.0', '1', 'Tvoje máma', '2024-03-01', '2024-06-01', '1.0', '1', 
 INSERT INTO `piae_v1_db`.`function` (`function_id`, `fnc_default_time`,  `fnc_enabled`, `fnc_name`, `fnc_date_from`,
                                    `fnc_date_until`, `fnc_probability`, `fnc_manager_id`, `fnc_workplace_id`)
 VALUES ('3', '1.0', '1', 'Profesionální flákač', '2024-03-01', '2024-06-01', '1.0', '1', '1');
-
-INSERT INTO `piae_v1_db`.`function_allocation` (`function_allocation_id`, `fca_function_id`, `fca_allocation`)
-VALUES ('1', '1', '0.5');
-
-INSERT INTO `piae_v1_db`.`function_allocation` (`function_allocation_id`, `fca_function_id`, `fca_allocation`)
-VALUES ('2', '2', '0.3');
-
-INSERT INTO `piae_v1_db`.`function_allocation` (`function_allocation_id`, `fca_function_id`, `fca_allocation`)
-VALUES ('3', '1', '0.2');
 
 INSERT INTO `piae_v1_db`.`function_employee` (`function_employee_id`, `fce_enabled`, `fce_function_id`, `fce_employee_id`)
 VALUES ('1', '1', '1', '5');
@@ -565,13 +506,4 @@ VALUES ('2', '2024-03-01', '2024-06-01', 'Numba 2');
 
 INSERT INTO `piae_v1_db`.`person` (person_id, `per_contract_from`, `per_contarct_until`, `per_personal_number`)
 VALUES ('3', '2024-03-01', '2024-06-01', 'Numba 3');
-
--- INSERT INTO `piae_v1_db`.`project_allocation` (project_allocation_id, `pra_project_id`, `pra_allocation`)
--- VALUES ('1', '1', '0.1');
---
--- INSERT INTO `piae_vé1_db`.`project_allocation` (project_allocation_id, `pra_project_id`, `pra_allocation`)
--- VALUES ('2', '1', '0.1');
---
--- INSERT INTO `piae_v1_db`.`project_allocation` (project_allocation_id, `pra_project_id`, `pra_allocation`)
--- VALUES ('3', '2', '0.5');
 

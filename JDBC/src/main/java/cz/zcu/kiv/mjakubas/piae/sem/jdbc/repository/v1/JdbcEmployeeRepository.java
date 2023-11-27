@@ -31,12 +31,7 @@ public class JdbcEmployeeRepository implements IEmployeeRepository {
     @Override
     public Employee fetchEmployee(long employeeId) {
         var sql = """
-                SELECT e.*,\s
-                       w.wrk_abbrevation,
-                       (SELECT COUNT(*) FROM project_employee pe WHERE pe.pre_employee_id = e.employee_id) AS projects_count,
-                       (SELECT COUNT(*) FROM course_employee ce WHERE ce.cre_employee_id = e.employee_id) AS courses_count,
-                       (SELECT COUNT(*) FROM function_employee fe WHERE fe.fce_employee_id = e.employee_id) AS functions_count
-                FROM employee e
+                SELECT e.*, w.wrk_abbrevation FROM employee e
                 INNER JOIN workplace w ON w.workplace_id = e.emp_workplace_id
                 WHERE emp_enabled=:isEnabled AND employee_id=:employee_id;
                 """;
@@ -51,12 +46,7 @@ public class JdbcEmployeeRepository implements IEmployeeRepository {
     @Override
     public Employee fetchEmployee(String orionLogin) {
         var sql = """
-                SELECT e.*,\s
-                       w.wrk_abbrevation,
-                       (SELECT COUNT(*) FROM project_employee pe WHERE pe.pre_employee_id = e.employee_id) AS projects_count,
-                       (SELECT COUNT(*) FROM course_employee ce WHERE ce.cre_employee_id = e.employee_id) AS courses_count,
-                       (SELECT COUNT(*) FROM function_employee fe WHERE fe.fce_employee_id = e.employee_id) AS functions_count
-                FROM employee e
+                SELECT e.*, w.wrk_abbrevation FROM employee e
                 INNER JOIN workplace w ON w.workplace_id = e.emp_workplace_id
                 WHERE emp_enabled=:isEnabled AND emp_orion_login=:orionLogin;
                 """;
@@ -71,11 +61,7 @@ public class JdbcEmployeeRepository implements IEmployeeRepository {
     @Override
     public List<Employee> fetchEmployees() {
         var sql = """
-                SELECT e.*,\s
-                       w.wrk_abbrevation,
-                       (SELECT COUNT(*) FROM project_employee pe WHERE pe.pre_employee_id = e.employee_id) AS projects_count,
-                       (SELECT COUNT(*) FROM course_employee ce WHERE ce.cre_employee_id = e.employee_id) AS courses_count,
-                       (SELECT COUNT(*) FROM function_employee fe WHERE fe.fce_employee_id = e.employee_id) AS functions_count
+                SELECT e.*, w.wrk_abbrevation
                 FROM employee e
                 INNER JOIN workplace w ON w.workplace_id = e.emp_workplace_id
                 WHERE emp_enabled=:isEnabled;
@@ -90,11 +76,7 @@ public class JdbcEmployeeRepository implements IEmployeeRepository {
     @Override
     public List<Employee> fetchSubordinates(long superiorId) {
         var sql = """
-                SELECT e.*, w.wrk_abbrevation,
-                    (SELECT COUNT(*) FROM project_employee pe WHERE pe.pre_employee_id = e.employee_id) AS projects_count,
-                    (SELECT COUNT(*) FROM course_employee ce WHERE ce.cre_employee_id = e.employee_id) AS courses_count,
-                    (SELECT COUNT(*) FROM function_employee fe WHERE fe.fce_employee_id = e.employee_id) AS functions_count
-                FROM employee e
+                SELECT e.*, w.wrk_abbrevation FROM employee e
                 INNER JOIN superior s ON s.sup_employee_id=e.employee_id
                 INNER JOIN workplace w ON w.workplace_id=e.emp_workplace_id
                 WHERE sup_enabled=:isEnabled AND s.sup_superior_id=:superior_id;

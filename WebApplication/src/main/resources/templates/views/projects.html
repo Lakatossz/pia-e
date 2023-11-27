@@ -58,7 +58,7 @@
                 <tr th:each="pro, iStat : ${projects}">
                     <th scope="row" th:text="(${iStat.index} + 1)"></th>
                     <td th:text="${pro.name}"></td>
-                    <td th:text="${pro.projectManager.firstName} + ' ' + ${pro.projectManager.lastName} + ' (' + ${pro.projectManager.orionLogin} + ')'"></td>
+                    <td th:text="${pro.getProjectManager().getFirstName()} + ' ' + ${pro.getProjectManager().getLastName()} + ' (' + ${pro.getProjectManager().getOrionLogin()} + ')'"></td>
                     <td th:text="${pro.projectWorkplace.abbreviation}"></td>
                     <td th:text="${pro.dateFrom}"></td>
                     <td th:text="${pro.dateUntil}"></td>

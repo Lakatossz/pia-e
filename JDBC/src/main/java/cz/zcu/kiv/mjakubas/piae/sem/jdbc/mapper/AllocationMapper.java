@@ -1,7 +1,9 @@
 package cz.zcu.kiv.mjakubas.piae.sem.jdbc.mapper;
 
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Allocation;
+import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Course;
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Employee;
+import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Function;
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Project;
 import org.springframework.jdbc.core.RowMapper;
 
@@ -15,28 +17,32 @@ public class AllocationMapper implements RowMapper<Allocation> {
         var id = rs.getLong("assignment_id");
         var employeeId = rs.getLong("ass_employee_id");
         var projectId = rs.getLong("ass_project_id");
+        var courseId = rs.getLong("ass_course_id");
+        var functionId = rs.getLong("ass_function_id");
         LocalDate activeFrom = rs.getObject("ass_active_from", LocalDate.class);
         LocalDate activeUntil = rs.getObject("ass_active_until", LocalDate.class);
         var scope = rs.getInt("ass_scope");
         var description = rs.getString("ass_description");
         var active = rs.getBoolean("ass_active");
+        var time = rs.getFloat("ass_time");
+        var isCertain = rs.getLong("ass_is_certain");
 
-        Project project = null;
-        try {
-            var name = rs.getString("pro_name");
-            project = new Project().id(projectId).name(name);
-        } catch (Exception e) {
-            project = new Project().id(projectId);
-        }
+        Project project = new Project().id(projectId);
+        Course course = new Course().id(courseId);
+        Function function = new Function().id(functionId);
 
         return new Allocation()
                 .id(id)
                 .worker(new Employee().id(employeeId))
                 .project(project)
+                .course(course)
+                .function(function)
                 .dateFrom(activeFrom)
                 .dateUntil(activeUntil)
                 .allocationScope(scope)
                 .description(description)
+                .time(time)
+                .isCertain(isCertain)
                 .active(active);
     }
 }

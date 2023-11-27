@@ -1,9 +1,12 @@
 package cz.zcu.kiv.mjakubas.piae.sem.core.service.v1;
 
+import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Allocation;
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Course;
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Employee;
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Workplace;
 import cz.zcu.kiv.mjakubas.piae.sem.core.repository.ICourseRepository;
+import cz.zcu.kiv.mjakubas.piae.sem.core.repository.IEmployeeRepository;
+import cz.zcu.kiv.mjakubas.piae.sem.core.repository.IWorkplaceRepository;
 import cz.zcu.kiv.mjakubas.piae.sem.core.service.ServiceException;
 import cz.zcu.kiv.mjakubas.piae.sem.core.vo.EmployeeVO;
 import cz.zcu.kiv.mjakubas.piae.sem.core.vo.CourseVO;
@@ -14,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -27,8 +31,8 @@ import java.util.Objects;
 public class CourseService {
 
     private final ICourseRepository courseRepository;
-    private final EmployeeService employeeService;
-    private final WorkplaceService workplaceService;
+    private final IEmployeeRepository employeeRepository;
+    private final IWorkplaceRepository workplaceRepository;
 
     private final AllocationService allocationService;
 
@@ -39,7 +43,12 @@ public class CourseService {
      * @return course
      */
     public Course getCourse(long id) {
-        return courseRepository.fetchCourse(id);
+        Course course = courseRepository.fetchCourse(id);
+        List<Allocation> allocations = allocationService.getCourseAllocations(id).getAllocations();
+        if(!allocations.isEmpty())
+            course.setYearAllocation(prepareAllocations(allocations));
+
+        return course;
     }
 
     /**
@@ -48,6 +57,12 @@ public class CourseService {
      * @return list of {@link Course}
      */
     public List<Course> getCourses() {
+        List<Course> courses = courseRepository.fetchCourses();
+        courses.forEach(course -> {
+            List<Allocation> allocations = allocationService.getCourseAllocations(course.getId()).getAllocations();
+            if(!allocations.isEmpty())
+                course.setYearAllocation(prepareAllocations(allocations));
+        });
         return courseRepository.fetchCourses();
     }
 
@@ -58,7 +73,12 @@ public class CourseService {
      * @return list of course {@link Employee}
      */
     public List<Employee> getCourseEmployees(long id) {
-        return courseRepository.fetchCourseEmployees(id);
+        List<Employee> employees = courseRepository.fetchCourseEmployees(id);
+        employees.forEach(employee -> {
+            employee.setUncertainTime((float) 0.0);
+            employee.setCertainTime((float) 0.0);
+        });
+        return employees;
     }
 
     /**
@@ -68,7 +88,7 @@ public class CourseService {
      * @return list of workplace {@link Course}
      */
     public List<Course> getWorkplaceManagerCourses(long id) {
-        var workplaces = workplaceService.getWorkplaces();
+        var workplaces = workplaceRepository.fetchWorkplaces();
         var myWorkplaces = new ArrayList<Workplace>();
 
         for (Workplace w : workplaces) {
@@ -96,17 +116,24 @@ public class CourseService {
      */
     @Transactional
     public void createCourse(@NonNull CourseVO courseVO) {
-        var data = employeeService.getEmployee(courseVO.getCourseManager());
+        var manager = employeeRepository.fetchEmployee(courseVO.getCourseManager());
         if (courseVO.getDateUntil() != null && (courseVO.getDateFrom().isAfter(courseVO.getDateUntil())))
                 {throw new ServiceException();
         }
 
         Course course = new Course()
                 .name(courseVO.getName())
-                .courseManager(new Employee().id(data.getId()))
-                .courseWorkplace(Workplace.builder().id(courseVO.getCourseWorkplace()).build())
                 .dateFrom(courseVO.getDateFrom())
-                .dateUntil(courseVO.getDateUntil() != null ? courseVO.getDateUntil() : LocalDate.of(9999, 9, 9));
+                .dateUntil(courseVO.getDateUntil() != null ?
+                        courseVO.getDateUntil() : LocalDate.of(9999, 9, 9))
+                .probability(courseVO.getProbability())
+                .courseManager(manager)
+                .courseWorkplace(
+                        Workplace.builder().id(courseVO.getCourseWorkplace()).build()).term(courseVO.getTerm())
+                .numberOfStudents(courseVO.getNumberOfStudents())
+                .lectureLength(courseVO.getLectureLength())
+                .exerciseLength(courseVO.getExerciseLength())
+                .credits(courseVO.getCredits());
 
         if (!courseRepository.createCourse(course))
             throw new ServiceException();
@@ -120,7 +147,7 @@ public class CourseService {
      */
     @Transactional
     public void editCourse(@NonNull CourseVO courseVO, long id) {
-        var data = employeeService.getEmployee(courseVO.getName());
+        var data = employeeRepository.fetchEmployee(courseVO.getName());
         if (courseVO.getDateUntil() != null && (courseVO.getDateFrom().isAfter(courseVO.getDateUntil())))
                 {throw new ServiceException();
         }
@@ -134,10 +161,17 @@ public class CourseService {
         Course course = new Course()
                 .id(id)
                 .name(courseVO.getName())
-                .courseManager(new Employee().id(data.getId()))
-                .courseWorkplace(Workplace.builder().id(courseVO.getCourseWorkplace()).build())
                 .dateFrom(courseVO.getDateFrom())
-                .dateUntil(courseVO.getDateUntil() != null ? courseVO.getDateUntil() : LocalDate.of(9999, 9, 9));
+                .dateUntil(courseVO.getDateUntil() != null ?
+                        courseVO.getDateUntil() : LocalDate.of(9999, 9, 9))
+                .probability(courseVO.getProbability())
+                .courseManager(data)
+                .courseWorkplace(Workplace.builder().id(courseVO.getCourseWorkplace()).build())
+                .numberOfStudents(courseVO.getNumberOfStudents())
+                .term(courseVO.getTerm())
+                .lectureLength(courseVO.getLectureLength())
+                .exerciseLength(courseVO.getExerciseLength())
+                .credits(courseVO.getCredits());
 
         if (!courseRepository.updateCourse(course, id))
             throw new ServiceException();
@@ -151,7 +185,7 @@ public class CourseService {
      */
     @Transactional
     public void assignEmployee(@NonNull EmployeeVO userVO, long id) {
-        var legitId = employeeService.getEmployee(userVO.getOrionLogin()).getId();
+        var legitId = employeeRepository.fetchEmployee(userVO.getOrionLogin()).getId();
 
         var employees = courseRepository.fetchCourseEmployees(id);
         var check = new HashSet<Long>();
@@ -175,6 +209,8 @@ public class CourseService {
         var courses = courseRepository.fetchCourses();
         var myCourses = new ArrayList<Course>();
         courses.forEach(course -> {
+            course.setYearAllocation(
+                    prepareAllocations(allocationService.getCourseAllocations(course.getId()).getAllocations()));
             if (course.getEmployees().stream().filter(employee -> employee.getId() == employeeId).toList().size() == 1)
                 myCourses.add(course);
         });
@@ -194,9 +230,50 @@ public class CourseService {
         var courses = courseRepository.fetchCourses();
         var myCourses = new ArrayList<Course>();
         courses.forEach(course -> {
+            course.setYearAllocation(
+                    prepareAllocations(allocationService.getCourseAllocations(course.getId()).getAllocations()));
             if (course.getCourseManager().getId() == employeeId)
                 myCourses.add(course);
         });
         return myCourses;
+    }
+
+    /**
+     * Prepares allocations times for using.
+     * @param allocations allocations
+     * @return list of allocations
+     */
+    private List<Float> prepareAllocations(List<Allocation> allocations) {
+        List<Float> yearAllocations = new ArrayList<>(Collections.nCopies(12, (float) 0));
+
+        List<Allocation> thisYearsAllocations = new ArrayList<>();
+        allocations.forEach(allocation -> {
+            if (isThisYearAllocation(allocation))
+                thisYearsAllocations.add(allocation);
+        });
+
+        int allocationsIndex = 0;
+
+        Allocation allocation = thisYearsAllocations.get(allocationsIndex);
+
+//        Here I will go through every month of the year and add to list 0 or time for project.
+        for (int i = 1; i < 13; i++) {
+            if ((allocation.getDateFrom().getMonthValue() <= i && allocation.getDateUntil().getMonthValue() >= i)
+                    || (isThisYearAllocation(allocation) && allocation.getDateFrom().getYear() == i)
+                    || (isThisYearAllocation(allocation) && allocation.getDateUntil().getYear() == i))
+                yearAllocations.set(i - 1, allocation.getTime());
+            else {
+                if (allocation.getDateUntil().getMonthValue() == i)
+                    allocation = thisYearsAllocations.get(allocationsIndex++);
+                else
+                    yearAllocations.set(i - 1, (float) 0);
+            }
+        }
+        return yearAllocations;
+    }
+
+    private boolean isThisYearAllocation(Allocation allocation) {
+        return allocation.getDateFrom().getYear() <= LocalDate.now().getYear()
+                && allocation.getDateUntil().getYear() >= LocalDate.now().getYear();
     }
 }

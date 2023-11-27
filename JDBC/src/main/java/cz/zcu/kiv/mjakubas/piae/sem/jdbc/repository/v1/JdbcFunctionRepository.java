@@ -34,10 +34,7 @@ public class JdbcFunctionRepository implements IFunctionRepository {
     @Override
     public Function fetchFunction(long functionId) {
         var sql = """
-                SELECT f.*, w.wrk_abbrevation, w.workplace_id, e.*,
-                        (SELECT COUNT(*) FROM project_employee pe WHERE pe.pre_employee_id = e.employee_id) AS projects_count,
-                        (SELECT COUNT(*) FROM course_employee ce WHERE ce.cre_employee_id = e.employee_id) AS courses_count,
-                        (SELECT COUNT(*) FROM function_employee fe WHERE fe.fce_employee_id = e.employee_id) AS functions_count FROM `function` f
+                SELECT f.*, w.wrk_abbrevation, w.workplace_id, e.* FROM `function` f
                 INNER JOIN workplace w ON w.workplace_id=f.fnc_workplace_id
                 INNER JOIN employee e ON e.employee_id=f.fnc_manager_id
                 WHERE f.fnc_enabled=:isEnabled AND f.function_id=:function_id
@@ -53,10 +50,7 @@ public class JdbcFunctionRepository implements IFunctionRepository {
     @Override
     public Function fetchFunction(String name) {
         var sql = """
-                SELECT f.*, w.wrk_abbrevation, e.*,
-                        (SELECT COUNT(*) FROM project_employee pe WHERE pe.pre_employee_id = e.employee_id) AS projects_count,
-                        (SELECT COUNT(*) FROM course_employee ce WHERE ce.cre_employee_id = e.employee_id) AS courses_count,
-                        (SELECT COUNT(*) FROM function_employee fe WHERE fe.fce_employee_id = e.employee_id) AS functions_count FROM `function` f
+                SELECT f.*, w.wrk_abbrevation, e.* FROM `function` f
                 INNER JOIN workplace w ON w.workplace_id=f.fnc_workplace_id
                 INNER JOIN employee e ON e.employee_id=f.fnc_manager_id
                 WHERE f.fnc_enabled=:isEnabled AND f.fnc_name=:name
@@ -72,10 +66,7 @@ public class JdbcFunctionRepository implements IFunctionRepository {
     @Override
     public List<Function> fetchFunctions() {
         var sql = """
-                SELECT f.*, w.wrk_abbrevation, e.*,
-                        (SELECT COUNT(*) FROM project_employee pe WHERE pe.pre_employee_id = e.employee_id) AS projects_count,
-                        (SELECT COUNT(*) FROM course_employee ce WHERE ce.cre_employee_id = e.employee_id) AS courses_count,
-                        (SELECT COUNT(*) FROM function_employee fe WHERE fe.fce_employee_id = e.employee_id) AS functions_count FROM `function` f
+                SELECT f.*, w.wrk_abbrevation, e.* FROM `function` f
                 INNER JOIN workplace w ON w.workplace_id=f.fnc_workplace_id
                 INNER JOIN employee e ON e.employee_id=f.fnc_manager_id
                 WHERE f.fnc_enabled=:isEnabled
@@ -92,10 +83,7 @@ public class JdbcFunctionRepository implements IFunctionRepository {
         var sql = """
                 SELECT 
                         e.*, 
-                        w.wrk_abbrevation,
-                        (SELECT COUNT(*) FROM project_employee pe WHERE pe.pre_employee_id = e.employee_id) AS projects_count,
-                        (SELECT COUNT(*) FROM course_employee ce WHERE ce.cre_employee_id = e.employee_id) AS courses_count,
-                        (SELECT COUNT(*) FROM function_employee fe WHERE fe.fce_employee_id = e.employee_id) AS functions_count 
+                        w.wrk_abbrevation
                 FROM assignment fe
                 INNER JOIN employee e ON e.employee_id=fe.ass_employee_id
                 INNER JOIN workplace w ON w.workplace_id=e.emp_workplace_id

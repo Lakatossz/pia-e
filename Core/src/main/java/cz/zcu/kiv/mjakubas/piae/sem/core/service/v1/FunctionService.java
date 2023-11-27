@@ -1,9 +1,12 @@
 package cz.zcu.kiv.mjakubas.piae.sem.core.service.v1;
 
+import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Allocation;
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Employee;
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Function;
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Workplace;
+import cz.zcu.kiv.mjakubas.piae.sem.core.repository.IEmployeeRepository;
 import cz.zcu.kiv.mjakubas.piae.sem.core.repository.IFunctionRepository;
+import cz.zcu.kiv.mjakubas.piae.sem.core.repository.IWorkplaceRepository;
 import cz.zcu.kiv.mjakubas.piae.sem.core.service.ServiceException;
 import cz.zcu.kiv.mjakubas.piae.sem.core.vo.EmployeeVO;
 import cz.zcu.kiv.mjakubas.piae.sem.core.vo.FunctionVO;
@@ -14,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -27,8 +31,8 @@ import java.util.Objects;
 public class FunctionService {
 
     private final IFunctionRepository functionRepository;
-    private final EmployeeService employeeService;
-    private final WorkplaceService workplaceService;
+    private final IEmployeeRepository employeeRepository;
+    private final IWorkplaceRepository workplaceRepository;
 
     private final AllocationService allocationService;
 
@@ -39,7 +43,11 @@ public class FunctionService {
      * @return function
      */
     public Function getFunction(long id) {
-        return functionRepository.fetchFunction(id);
+        Function function = functionRepository.fetchFunction(id);
+        List<Allocation> allocations = allocationService.getProjectAllocations(id).getAllocations();
+        if (!allocations.isEmpty())
+            function.setYearAllocation(prepareAllocations(allocations));
+        return function;
     }
 
     /**
@@ -48,7 +56,13 @@ public class FunctionService {
      * @return list of {@link Function}
      */
     public List<Function> getFunctions() {
-        return functionRepository.fetchFunctions();
+        List<Function> functions = functionRepository.fetchFunctions();
+        functions.forEach(function -> {
+            List<Allocation> allocations = allocationService.getFunctionAllocations(function.getId()).getAllocations();
+            if (!allocations.isEmpty())
+                function.setYearAllocation(prepareAllocations(allocations));
+        });
+        return functions;
     }
 
     /**
@@ -58,7 +72,12 @@ public class FunctionService {
      * @return list of function {@link Employee}
      */
     public List<Employee> getFunctionEmployees(long id) {
-        return functionRepository.fetchFunctionEmployees(id);
+        List<Employee> employees = functionRepository.fetchFunctionEmployees(id);
+        employees.forEach(employee -> {
+            employee.setUncertainTime((float) 0.0);
+            employee.setCertainTime((float) 0.0);
+        });
+        return employees;
     }
 
     /**
@@ -68,7 +87,7 @@ public class FunctionService {
      * @return list of workplace {@link Function}
      */
     public List<Function> getWorkplaceManagerFunctions(long id) {
-        var workplaces = workplaceService.getWorkplaces();
+        var workplaces = workplaceRepository.fetchWorkplaces();
         var myWorkplaces = new ArrayList<Workplace>();
 
         for (Workplace w : workplaces) {
@@ -96,17 +115,19 @@ public class FunctionService {
      */
     @Transactional
     public void createFunction(@NonNull FunctionVO functionVO) {
-        var data = employeeService.getEmployee(functionVO.getFunctionManager());
+        var manager = employeeRepository.fetchEmployee(functionVO.getFunctionManager());
         if (functionVO.getDateUntil() != null && (functionVO.getDateFrom().isAfter(functionVO.getDateUntil())))
                 {throw new ServiceException();
         }
 
         Function function = new Function()
                 .name(functionVO.getName())
-                .functionManager(new Employee().id(data.getId()))
-                .functionWorkplace(Workplace.builder().id(functionVO.getFunctionWorkplace()).build())
                 .dateFrom(functionVO.getDateFrom())
-                .dateUntil(functionVO.getDateUntil() != null ? functionVO.getDateUntil() : LocalDate.of(9999, 9, 9));
+                .dateUntil(functionVO.getDateUntil() != null ? functionVO.getDateUntil() : LocalDate.of(9999, 9, 9))
+                .probability(functionVO.getProbability())
+                .functionManager(manager)
+                .functionWorkplace(Workplace.builder().id(functionVO.getFunctionWorkplace()).build())
+                .defaultTime(functionVO.getDefaultTime());
 
         if (!functionRepository.createFunction(function))
             throw new ServiceException();
@@ -120,7 +141,7 @@ public class FunctionService {
      */
     @Transactional
     public void editFunction(@NonNull FunctionVO functionVO, long id) {
-        var data = employeeService.getEmployee(functionVO.getFunctionManager());
+        var manager = employeeRepository.fetchEmployee(functionVO.getFunctionManager());
         if (functionVO.getDateUntil() != null && (functionVO.getDateFrom().isAfter(functionVO.getDateUntil())))
                 {throw new ServiceException();
         }
@@ -130,14 +151,15 @@ public class FunctionService {
                 {throw new ServiceException();
         }
 
-
         Function function = new Function()
                 .id(id)
                 .name(functionVO.getName())
-                .functionManager(new Employee().id(data.getId()))
-                .functionWorkplace(Workplace.builder().id(functionVO.getFunctionWorkplace()).build())
                 .dateFrom(functionVO.getDateFrom())
-                .dateUntil(functionVO.getDateUntil() != null ? functionVO.getDateUntil() : LocalDate.of(9999, 9, 9));
+                .dateUntil(functionVO.getDateUntil() != null ? functionVO.getDateUntil() : LocalDate.of(9999, 9, 9))
+                .probability(functionVO.getProbability())
+                .functionManager(manager)
+                .functionWorkplace(Workplace.builder().id(functionVO.getFunctionWorkplace()).build())
+                .defaultTime(functionVO.getDefaultTime());
 
         if (!functionRepository.updateFunction(function, id))
             throw new ServiceException();
@@ -151,7 +173,7 @@ public class FunctionService {
      */
     @Transactional
     public void assignEmployee(@NonNull EmployeeVO userVO, long id) {
-        var legitId = employeeService.getEmployee(userVO.getOrionLogin()).getId();
+        var legitId = employeeRepository.fetchEmployee(userVO.getOrionLogin()).getId();
 
         var employees = functionRepository.fetchFunctionEmployees(id);
         var check = new HashSet<Long>();
@@ -175,6 +197,8 @@ public class FunctionService {
         var functions = functionRepository.fetchFunctions();
         var myFunctions = new ArrayList<Function>();
         functions.forEach(function -> {
+            function.setYearAllocation(
+                    prepareAllocations(allocationService.getFunctionAllocations(function.getId()).getAllocations()));
             if (function.getEmployees().stream().filter(employee -> employee.getId() == employeeId).toList().size() == 1)
                 myFunctions.add(function);
         });
@@ -194,9 +218,53 @@ public class FunctionService {
         var functions = functionRepository.fetchFunctions();
         var myFunctions = new ArrayList<Function>();
         functions.forEach(function -> {
+            function.setYearAllocation(
+                    prepareAllocations(allocationService.getFunctionAllocations(function.getId()).getAllocations()));
             if (function.getFunctionManager().getId() == employeeId)
                 myFunctions.add(function);
         });
         return myFunctions;
+    }
+
+    /**
+     * Prepares allocations times for using.
+     * @param allocations allocations
+     * @return list of allocations
+     */
+    private List<Float> prepareAllocations(List<Allocation> allocations) {
+        List<Float> yearAllocations = new ArrayList<>(Collections.nCopies(12, (float) 0));
+
+        List<Allocation> thisYearsAllocations = new ArrayList<>();
+        allocations.forEach(allocation -> {
+            if (isThisYearAllocation(allocation))
+                thisYearsAllocations.add(allocation);
+        });
+
+        int allocationsIndex = 0;
+
+        Allocation allocation = thisYearsAllocations.get(allocationsIndex);
+
+//        Here I will go through every month of the year and add to list 0 or time for project.
+        for (int i = 1; i < 13; i++) {
+            if ((allocation.getDateFrom().getMonthValue() <= i
+                    && allocation.getDateUntil().getMonthValue() >= i)
+                    || (i == 1 && isThisYearAllocation(allocation)
+                    && allocation.getDateFrom().getYear() < LocalDate.now().getYear())
+                    || (i == 12 && isThisYearAllocation(allocation)
+                    && allocation.getDateUntil().getYear() > LocalDate.now().getYear()))
+                yearAllocations.set(i - 1, allocation.getTime());
+            else {
+                if (allocation.getDateUntil().getMonthValue() == i)
+                    allocation = thisYearsAllocations.get(allocationsIndex++);
+                else
+                    yearAllocations.set(i - 1, (float) 0);
+            }
+        }
+        return yearAllocations;
+    }
+
+    private boolean isThisYearAllocation(Allocation allocation) {
+        return allocation.getDateFrom().getYear() == LocalDate.now().getYear()
+                || allocation.getDateUntil().getYear() == LocalDate.now().getYear();
     }
 }

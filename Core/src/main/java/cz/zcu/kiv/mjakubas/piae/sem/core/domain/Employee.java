@@ -3,7 +3,6 @@ package cz.zcu.kiv.mjakubas.piae.sem.core.domain;
 import cz.zcu.kiv.mjakubas.piae.sem.core.rules.AllocationInterval;
 import lombok.*;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,9 +27,6 @@ public class Employee {
     private List<Allocation> projectsAllocations = new ArrayList<>();
     private List<Allocation> coursesAllocations = new ArrayList<>();
     private List<Allocation> functionsAllocations = new ArrayList<>();
-    private long participatingProjects;
-    private long participatingCourses;
-    private long participatingFunctions;
     private List<AllocationInterval> intervals = new ArrayList<>();
 
     public Employee id(long id) {
@@ -95,21 +91,6 @@ public class Employee {
 
     public Employee functionsAllocations(List<Allocation> functionsAllocations) {
         this.functionsAllocations.addAll(functionsAllocations);
-        return this;
-    }
-
-    public Employee participatingProjects(long participatingProjects) {
-        this.participatingProjects = participatingProjects;
-        return this;
-    }
-
-    public Employee participatingCourses(long participatingCourses) {
-        this.participatingCourses = participatingCourses;
-        return this;
-    }
-
-    public Employee participatingFunctions(long participatingFunctions) {
-        this.participatingFunctions = participatingFunctions;
         return this;
     }
 

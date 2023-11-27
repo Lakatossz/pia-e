@@ -1,12 +1,10 @@
 package cz.zcu.kiv.mjakubas.piae.sem.core.service.v1;
 
+import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Allocation;
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Employee;
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Workplace;
 import cz.zcu.kiv.mjakubas.piae.sem.core.repository.IAllocationRepository;
-import cz.zcu.kiv.mjakubas.piae.sem.core.repository.ICourseRepository;
 import cz.zcu.kiv.mjakubas.piae.sem.core.repository.IEmployeeRepository;
-import cz.zcu.kiv.mjakubas.piae.sem.core.repository.IFunctionRepository;
-import cz.zcu.kiv.mjakubas.piae.sem.core.repository.IProjectRepository;
 import cz.zcu.kiv.mjakubas.piae.sem.core.service.ServiceException;
 import cz.zcu.kiv.mjakubas.piae.sem.core.vo.EmployeeVO;
 import lombok.AllArgsConstructor;
@@ -27,9 +25,9 @@ public class EmployeeService {
 
     private final IEmployeeRepository employeeRepository;
     private final IAllocationRepository allocationRepository;
-    private final IProjectRepository projectRepository;
-    private final ICourseRepository courseRepository;
-    private final IFunctionRepository functionRepository;
+    private final ProjectService projectService;
+    private final CourseService courseService;
+    private final FunctionService functionService;
 
     /**
      * Get employee by his orion login. Throws SQL exception if employee doesn't exist.
@@ -48,13 +46,11 @@ public class EmployeeService {
      * @return employee
      */
     public Employee getEmployee(long id) {
-        return employeeRepository.fetchEmployee(id)
-                .projectsAllocations(allocationRepository.fetchEmployeeAllocations(id)
-                        .stream().filter(allocation -> allocation.getProject() != null).toList())
-                .coursesAllocations(allocationRepository.fetchEmployeeAllocations(id)
-                        .stream().filter(allocation -> allocation.getCourse() != null).toList())
-                .functionsAllocations(allocationRepository.fetchEmployeeAllocations(id)
-                        .stream().filter(allocation -> allocation.getFunction() != null).toList());
+        Employee employee = employeeRepository.fetchEmployee(id);
+        setAllocations(employee);
+        employee.setCertainTime(sumTime(employee));
+        employee.setUncertainTime(sumTime(employee));
+        return employee;
     }
 
     /**
@@ -63,14 +59,15 @@ public class EmployeeService {
      * @return list of {@link Employee}
      */
     public List<Employee> getEmployees() {
-        return employeeRepository.fetchEmployees().stream().map(employee ->
-            employee.projectsAllocations(allocationRepository.fetchEmployeeAllocations(employee.getId())
-                    .stream().filter(allocation -> allocation.getProject() != null).toList())
-                    .coursesAllocations(allocationRepository.fetchEmployeeAllocations(employee.getId())
-                            .stream().filter(allocation -> allocation.getCourse() != null).toList())
-                    .functionsAllocations(allocationRepository.fetchEmployeeAllocations(employee.getId())
-                            .stream().filter(allocation -> allocation.getFunction() != null).toList())
-        ).toList();
+        List<Employee> employees = employeeRepository.fetchEmployees();
+
+        employees.forEach(employee -> {
+            setAllocations(employee);
+            employee.setCertainTime(sumTime(employee));
+            employee.setUncertainTime(sumTime(employee));
+        });
+
+        return employees;
     }
 
     /**
@@ -159,5 +156,40 @@ public class EmployeeService {
 
         if (!employeeRepository.addSubordinate(id, legitId))
             throw new ServiceException();
+    }
+
+    private void setAllocations(Employee employee) {
+        List<Allocation> projectAllocations = allocationRepository.fetchEmployeeAllocations(
+                employee.getId()).stream().filter(allocation -> allocation.getProject().getId() != 0
+                && allocation.getCourse().getId() == 0 && allocation.getFunction().getId() == 0).toList();
+        projectAllocations.forEach(allocation -> {
+            if (allocation.getProject() != null && allocation.getProject().getId() != 0) {
+                allocation.setProject(projectService.getProject(allocation.getProject().getId()));
+            }
+        });
+        employee.setProjectsAllocations(projectAllocations);
+
+        List<Allocation> courseAllocations = allocationRepository.fetchEmployeeAllocations(
+                employee.getId()).stream().filter(allocation -> allocation.getCourse().getId() != 0
+                && allocation.getProject().getId() == 0 && allocation.getFunction().getId() == 0).toList();
+        courseAllocations.forEach(allocation -> {
+            if (allocation.getCourse() != null && allocation.getCourse().getId() != 0)
+                allocation.setCourse(courseService.getCourse(allocation.getCourse().getId()));
+        });
+        employee.setCoursesAllocations(courseAllocations);
+
+        List<Allocation> functionAllocations = allocationRepository.fetchEmployeeAllocations(
+                employee.getId()).stream().filter(allocation -> allocation.getFunction().getId() != 0
+                && allocation.getProject().getId() == 0 && allocation.getCourse().getId() == 0).toList();
+        functionAllocations.forEach(allocation -> {
+            if (allocation.getFunction() != null && allocation.getFunction().getId() != 0)
+                allocation.setFunction(functionService.getFunction(allocation.getFunction().getId()));
+        });
+        employee.setFunctionsAllocations(functionAllocations);
+    }
+
+    private float sumTime(Employee employee) {
+
+        return 1.0F;
     }
 }

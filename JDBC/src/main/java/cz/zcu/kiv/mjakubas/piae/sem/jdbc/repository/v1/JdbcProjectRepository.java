@@ -34,10 +34,7 @@ public class JdbcProjectRepository implements IProjectRepository {
     @Override
     public Project fetchProject(long projectId) {
         var sql = """
-                SELECT p.*, w.wrk_abbrevation, w.workplace_id, e.*,
-                        (SELECT COUNT(*) FROM project_employee pe WHERE pe.pre_employee_id = e.employee_id) AS projects_count,
-                        (SELECT COUNT(*) FROM course_employee ce WHERE ce.cre_employee_id = e.employee_id) AS courses_count,
-                        (SELECT COUNT(*) FROM function_employee fe WHERE fe.fce_employee_id = e.employee_id) AS functions_count FROM project p
+                SELECT p.*, w.wrk_abbrevation, w.workplace_id, e.* FROM project p
                 INNER JOIN workplace w ON w.workplace_id=p.pro_workplace_id
                 INNER JOIN employee e ON e.employee_id=p.pro_manager_id
                 WHERE p.pro_enabled=:isEnabled AND p.project_id=:project_id
@@ -53,10 +50,7 @@ public class JdbcProjectRepository implements IProjectRepository {
     @Override
     public Project fetchProject(String name) {
         var sql = """
-                SELECT p.*, w.wrk_abbrevation, e.*,
-                        (SELECT COUNT(*) FROM project_employee pe WHERE pe.pre_employee_id = e.employee_id) AS projects_count,
-                        (SELECT COUNT(*) FROM course_employee ce WHERE ce.cre_employee_id = e.employee_id) AS courses_count,
-                        (SELECT COUNT(*) FROM function_employee fe WHERE fe.fce_employee_id = e.employee_id) AS functions_count FROM project p
+                SELECT p.*, w.wrk_abbrevation, e.* FROM project p
                 INNER JOIN workplace w ON w.workplace_id=p.pro_workplace_id
                 INNER JOIN employee e ON e.employee_id=p.pro_manager_id
                 WHERE p.pro_enabled=:isEnabled AND p.pro_name=:name
@@ -72,10 +66,7 @@ public class JdbcProjectRepository implements IProjectRepository {
     @Override
     public List<Project> fetchProjects() {
         var sql = """
-                SELECT p.*, w.wrk_abbrevation, e.*,
-                        (SELECT COUNT(*) FROM project_employee pe WHERE pe.pre_employee_id = e.employee_id) AS projects_count,
-                        (SELECT COUNT(*) FROM course_employee ce WHERE ce.cre_employee_id = e.employee_id) AS courses_count,
-                        (SELECT COUNT(*) FROM function_employee fe WHERE fe.fce_employee_id = e.employee_id) AS functions_count FROM project p
+                SELECT p.*, w.wrk_abbrevation, e.* FROM project p
                 INNER JOIN workplace w ON w.workplace_id=p.pro_workplace_id
                 INNER JOIN employee e ON e.employee_id=p.pro_manager_id
                 WHERE p.pro_enabled=:isEnabled
@@ -92,10 +83,7 @@ public class JdbcProjectRepository implements IProjectRepository {
         var sql = """
                 SELECT 
                         e.*, 
-                        w.wrk_abbrevation,
-                        (SELECT COUNT(*) FROM project_employee pe WHERE pe.pre_employee_id = e.employee_id) AS projects_count,
-                        (SELECT COUNT(*) FROM course_employee ce WHERE ce.cre_employee_id = e.employee_id) AS courses_count,
-                        (SELECT COUNT(*) FROM function_employee fe WHERE fe.fce_employee_id = e.employee_id) AS functions_count
+                        w.wrk_abbrevation
                 FROM assignment pe
                 INNER JOIN employee e ON e.employee_id=pe.ass_employee_id
                 INNER JOIN workplace w ON w.workplace_id=e.emp_workplace_id

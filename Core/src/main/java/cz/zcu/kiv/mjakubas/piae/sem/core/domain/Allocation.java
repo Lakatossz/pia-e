@@ -6,6 +6,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -19,6 +21,7 @@ public class Allocation {
     private Course course;
     private Function function;
     private float time;
+    private float isCertain;
     private int allocationScope;
     private LocalDate dateFrom;
     private LocalDate dateUntil;
@@ -85,6 +88,11 @@ public class Allocation {
         return this;
     }
 
+    public Allocation isCertain(float isCertain) {
+        this.isCertain = isCertain;
+        return this;
+    }
+
     public Allocation allocationScope(int allocationScope) {
         this.allocationScope = allocationScope;
         return this;
@@ -126,6 +134,7 @@ public class Allocation {
                 ", project=" + project +
                 ", allocationScope=" + allocationScope +
                 ", time=" + time +
+                ", isCertain=" + isCertain +
                 ", dateFrom=" + dateFrom +
                 ", dateUntil=" + dateUntil +
                 ", description='" + description + '\'' +

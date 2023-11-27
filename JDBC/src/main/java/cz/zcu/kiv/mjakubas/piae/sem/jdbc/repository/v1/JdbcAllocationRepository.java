@@ -35,10 +35,7 @@ public class JdbcAllocationRepository implements IAllocationRepository {
     @Override
     public Allocation fetchAllocation(long allocationId) {
         var sql = """
-                SELECT a.*, p.pro_name, c.crs_name, f.fnc_name FROM assignment a
-                INNER JOIN project p ON p.project_id=a.ass_project_id
-                INNER JOIN course c ON c.course_id=a.ass_course_id
-                INNER JOIN `function` f ON f.function_id=a.ass_function_id
+                SELECT a.* FROM assignment a
                 WHERE a.ass_enabled=:isEnabled AND a.assignment_id=:id
                 """;
 
@@ -52,10 +49,7 @@ public class JdbcAllocationRepository implements IAllocationRepository {
     @Override
     public List<Allocation> fetchEmployeeAllocations(long employeeId) {
         var sql = """
-                SELECT a.*, p.pro_name, c.crs_name, f.fnc_name FROM assignment a
-                INNER JOIN project p ON p.project_id=a.ass_project_id
-                INNER JOIN course c ON c.course_id=a.ass_course_id
-                INNER JOIN `function` f ON f.function_id=a.ass_function_id
+                SELECT a.* FROM assignment a
                 WHERE a.ass_enabled=:isEnabled AND a.ass_employee_id=:id
                 """;
 
@@ -69,10 +63,7 @@ public class JdbcAllocationRepository implements IAllocationRepository {
     @Override
     public List<Allocation> fetchSubordinatesAllocations(long superiorId) {
         var sql = """
-                SELECT a.*, p.pro_name, c.crs_name, f.fnc_name FROM assignment a
-                INNER JOIN project p ON p.project_id=a.ass_project_id
-                INNER JOIN course c ON c.course_id=a.ass_course_id
-                INNER JOIN `function` f ON f.function_id=a.ass_function_id
+                SELECT a.* FROM assignment a
                 INNER JOIN superior s ON s.sup_employee_id=a.ass_employee_id
                 WHERE a.ass_enabled=:isEnabled AND s.sup_superior_id=:id
                 """;
@@ -127,13 +118,11 @@ public class JdbcAllocationRepository implements IAllocationRepository {
     }
 
     @Override
-    public List<Allocation> fetchWorkplaceAllocations(long workplaceId) {
+    public List<Allocation> fetchWorkplaceAllocations(long workplaceId) { /* TODO */
         var sql = """
                 SELECT a.* FROM workplace w
                 INNER JOIN project p ON p.pro_workplace_id=w.workplace_id
                 INNER JOIN assignment a ON a.ass_project_id=p.project_id
-                INNER JOIN course c ON c.course_id=a.ass_course_id
-                INNER JOIN `function` f ON f.function_id=a.ass_function_id
                 WHERE a.ass_enabled=:isEnabled AND w.workplace_id=:id
                 """;
 

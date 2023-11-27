@@ -7,6 +7,7 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Getter
@@ -19,6 +20,7 @@ public class Function extends Activity {
     private Employee functionManager;
     private Workplace functionWorkplace;
     private List<Employee> employees = new ArrayList<>();
+    private List<Float> yearAllocation = new ArrayList<>(Collections.nCopies(12, (float) 0));
 
     @Override
     public Function id(long id) {
@@ -70,6 +72,11 @@ public class Function extends Activity {
         return this;
     }
 
+    public Function yearAllocation(List<Float> yearAllocation) {
+        this.yearAllocation.addAll(yearAllocation);
+        return this;
+    }
+
     @Override
     public String toString() {
         return "Function{" + super.toString() +
@@ -77,6 +84,7 @@ public class Function extends Activity {
                 ", functionWorkplace=" + functionWorkplace +
                 ", defaultTime=" + defaultTime +
                 ", employees=" + employees +
+                ", yearAllocation=" + yearAllocation +
                 '}';
     }
 }

@@ -19,6 +19,10 @@ public class ProjectMapper implements RowMapper<Project> {
         var dateFrom = rs.getObject("pro_date_from", LocalDate.class);
         var dateUntil = rs.getObject("pro_date_until", LocalDate.class);
         var description = rs.getString("pro_description");
+        var budget = rs.getInt("pro_budget");
+        var participation = rs.getInt("pro_participation");
+        var probability = rs.getFloat("pro_probability");
+        var totalTime = rs.getInt("pro_total_time");
 
         var abbrevation = rs.getString("wrk_abbrevation");
         Long wrkId = null;
@@ -36,6 +40,10 @@ public class ProjectMapper implements RowMapper<Project> {
                 .dateFrom(dateFrom)
                 .dateUntil(dateUntil)
                 .description(description)
+                .budget(budget)
+                .participation(participation)
+                .probability(probability)
+                .totalTime(totalTime)
                 .projectWorkplace(Workplace.builder().id(wrkId).abbreviation(abbrevation).build())
                 .projectManager(manager);
     }

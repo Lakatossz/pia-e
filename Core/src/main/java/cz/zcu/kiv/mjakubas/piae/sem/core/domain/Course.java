@@ -7,6 +7,7 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Getter
@@ -15,6 +16,7 @@ import java.util.List;
 @NoArgsConstructor
 public class Course extends Activity {
 
+//    Values saved directly in DB table.
     private boolean enabled;
     private Employee courseManager;
     private Workplace courseWorkplace;
@@ -23,7 +25,9 @@ public class Course extends Activity {
     private int lectureLength;
     private int exerciseLength;
     private int credits;
+//    Values joined from different table.
     private List<Employee> employees = new ArrayList<>();
+    private List<Float> yearAllocation = new ArrayList<>(Collections.nCopies(12, (float) 0));
 
     @Override
     public Course id(long id) {
@@ -101,6 +105,11 @@ public class Course extends Activity {
         return this;
     }
 
+    public Course yearAllocation(List<Float> yearAllocation) {
+        this.yearAllocation.addAll(yearAllocation);
+        return this;
+    }
+
     @Override
     public String toString() {
         return "Course{" + super.toString() +
@@ -112,6 +121,7 @@ public class Course extends Activity {
                 ", exerciseLength=" + exerciseLength +
                 ", credits=" + credits +
                 ", employees=" + employees +
+                ", yearAllocation=" + yearAllocation +
                 '}';
     }
 }

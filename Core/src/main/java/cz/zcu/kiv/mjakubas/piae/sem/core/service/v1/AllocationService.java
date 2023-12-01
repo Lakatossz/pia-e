@@ -54,6 +54,7 @@ public class AllocationService {
                 .project(new Project().id(allocationVO.getProjectId()))
                 .course(new Course().id(allocationVO.getCourseId()))
                 .function(new Function().id(allocationVO.getFunctionId()))
+                .role(allocationVO.getRole())
                 .allocationScope(scope)
                 .dateFrom(allocationVO.getDateFrom())
                 .dateUntil(allocationVO.getDateUntil())
@@ -91,6 +92,7 @@ public class AllocationService {
                 .project(new Project().id(allocationVO.getProjectId()))
                 .course(new Course().id(allocationVO.getCourseId()))
                 .function(new Function().id(allocationVO.getFunctionId()))
+                .role(allocationVO.getRole())
                 .allocationScope(scope)
                 .dateFrom(allocationVO.getDateFrom())
                 .dateUntil(allocationVO.getDateUntil())
@@ -357,6 +359,7 @@ public class AllocationService {
                     .project(project)
                     .allocationScope(a.getAllocationScope())
                     .dateFrom(a.getDateFrom())
+                    .role(a.getRole())
                     .dateUntil(a.getDateUntil()).description(a.getDescription()).active(a.getActive()));
         }
 
@@ -369,6 +372,7 @@ public class AllocationService {
                     .course(course)
                     .allocationScope(a.getAllocationScope())
                     .dateFrom(a.getDateFrom())
+                    .role(a.getRole())
                     .dateUntil(a.getDateUntil()).description(a.getDescription()).active(a.getActive()));
         }
 
@@ -379,6 +383,7 @@ public class AllocationService {
                     .id(a.getId())
                     .worker(a.getWorker())
                     .function(function)
+                    .role(a.getRole())
                     .allocationScope(a.getAllocationScope())
                     .dateFrom(a.getDateFrom())
                     .dateUntil(a.getDateUntil()).description(a.getDescription()).active(a.getActive()));
@@ -411,6 +416,7 @@ public class AllocationService {
                     .project(a.getProject())
                     .course(a.getCourse())
                     .function(a.getFunction())
+                    .role(a.getRole())
                     .allocationScope(a.getAllocationScope())
                     .description(a.getDescription())
                     .time(a.getTime())

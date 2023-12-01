@@ -15,9 +15,11 @@ public abstract class Activity {
 
     private long id;
     private String name;
+    private String shortcut;
     private LocalDate dateFrom;
     private LocalDate dateUntil;
     private float probability;
+    private String description;
 
     public Activity id(long id) {
         this.id = id;
@@ -26,6 +28,11 @@ public abstract class Activity {
 
     public Activity name(String name) {
         this.name = name;
+        return this;
+    }
+
+    public Activity shortcut(String shortcut) {
+        this.shortcut = shortcut;
         return this;
     }
 
@@ -44,12 +51,19 @@ public abstract class Activity {
         return this;
     }
 
+    public Activity description(String description) {
+        this.description = description;
+        return this;
+    }
+
     @Override
     public String toString() {
         return "id=" + id +
                 ", name='" + name + '\'' +
+                ", shortcut='" + shortcut + '\'' +
                 ", dateFrom=" + dateFrom +
                 ", dateUntil=" + dateUntil +
-                ", probability=" + probability;
+                ", probability=" + probability +
+                ", description=" + description;
     }
 }

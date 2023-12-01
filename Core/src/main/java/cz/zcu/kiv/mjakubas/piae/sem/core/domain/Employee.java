@@ -23,6 +23,7 @@ public class Employee {
     private LocalDateTime dateCreated;
     private float certainTime;
     private float uncertainTime;
+    private String description;
     private List<Employee> subordinates = new ArrayList<>();
     private List<Allocation> projectsAllocations = new ArrayList<>();
     private List<Allocation> coursesAllocations = new ArrayList<>();
@@ -76,6 +77,11 @@ public class Employee {
 
     public Employee uncertainTime(long uncertainTime) {
         this.uncertainTime = uncertainTime;
+        return this;
+    }
+
+    public Employee description(String description) {
+        this.description = description;
         return this;
     }
 

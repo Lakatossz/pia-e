@@ -77,13 +77,17 @@ public class ProjectV1Controller {
                 new ProjectVO()
                         .name(data.getName())
                         .projectManagerId(data.getProjectManager().getId())
+                        .projectManagerName(data.getProjectManager().getLastName())
                         .workplaceId(data.getProjectWorkplace().getId())
                         .dateFrom(data.getDateFrom())
                         .dateUntil(data.getDateUntil())
                         .description(data.getDescription())
                         .budget(data.getBudget())
+                        .budgetParticipation(data.getBudgetParticipation())
                         .participation(data.getParticipation())
-                        .totalTime(data.getTotalTime()));
+                        .totalTime(data.getTotalTime())
+                        .agency(data.getAgency())
+                        .grantTitle(data.getGrantTitle()));
 
         model.addAttribute(EMPLOYEES, employeeService.getEmployees());
         model.addAttribute("workplaces", workplaceService.getWorkplaces());
@@ -107,6 +111,39 @@ public class ProjectV1Controller {
             return String.format("redirect:/p/%s/manage?edit=success", id);
 
         return "redirect:/p?edit=success";
+    }
+
+    @PreAuthorize("hasAuthority(T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT)" +
+            " or @securityService.isProjectManager(#id) or @securityService.isWorkplaceManager(#id)")
+    @GetMapping("/{id}/detail")
+    public String detailProject(Model model, @PathVariable long id,
+                               @RequestParam(required = false) Boolean manage) {
+        Project data = projectService.getProject(id);
+        var allocations = allocationService.getProjectAllocations(id).getAllocations();
+
+        model.addAttribute("allocations", allocations);
+        model.addAttribute("project",
+                new ProjectVO()
+                        .name(data.getName())
+                        .projectManagerId(data.getProjectManager().getId())
+                        .projectManagerName(data.getProjectManager().getLastName())
+                        .workplaceId(data.getProjectWorkplace().getId())
+                        .dateFrom(data.getDateFrom())
+                        .dateUntil(data.getDateUntil())
+                        .description(data.getDescription())
+                        .budget(data.getBudget())
+                        .budgetParticipation(data.getBudgetParticipation())
+                        .participation(data.getParticipation())
+                        .totalTime(data.getTotalTime())
+                        .agency(data.getAgency())
+                        .grantTitle(data.getGrantTitle()));
+
+        model.addAttribute(EMPLOYEES, employeeService.getEmployees());
+        model.addAttribute("workplaces", workplaceService.getWorkplaces());
+        model.addAttribute(RESTRICTIONS, projectService.getProjects());
+        model.addAttribute("manage", manage);
+
+        return "details/project_detail";
     }
 
     @GetMapping("/{id}/delete")

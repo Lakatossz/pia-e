@@ -87,7 +87,7 @@ public class JdbcFunctionRepository implements IFunctionRepository {
                 FROM assignment fe
                 INNER JOIN employee e ON e.employee_id=fe.ass_employee_id
                 INNER JOIN workplace w ON w.workplace_id=e.emp_workplace_id
-                WHERE fe.ass_enabled=:isEnabled AND fe.ass_function_id=:functionId
+                WHERE fe.ass_enabled=:isEnabled AND fe.ass_function_id=:function_id
                 """;
 
         var params = new MapSqlParameterSource();

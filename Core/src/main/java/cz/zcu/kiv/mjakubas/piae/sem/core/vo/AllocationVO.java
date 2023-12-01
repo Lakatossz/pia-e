@@ -27,6 +27,7 @@ public class AllocationVO {
     private LocalDate dateFrom;
     private LocalDate dateUntil;
     private String description;
+    private String role;
 
     private Boolean isActive = true;
 }

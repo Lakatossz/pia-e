@@ -19,6 +19,8 @@ public class FunctionMapper implements RowMapper<Function> {
         var dateFrom = rs.getObject("fnc_date_from", LocalDate.class);
         var dateUntil = rs.getObject("fnc_date_until", LocalDate.class);
         var probability = rs.getFloat("fnc_probability");
+        var shortcut = rs.getString("fnc_shortcut");
+        var description = rs.getString("fnc_description");
 
         var abbrevation = rs.getString("wrk_abbrevation");
         Long wrkId = null;
@@ -33,11 +35,13 @@ public class FunctionMapper implements RowMapper<Function> {
         return new Function()
                 .id(prId)
                 .name(name)
+                .shortcut(shortcut)
                 .defaultTime(defaultTime)
                 .dateFrom(dateFrom)
                 .dateUntil(dateUntil)
                 .probability(probability)
                 .functionWorkplace(Workplace.builder().id(wrkId).abbreviation(abbrevation).build())
-                .functionManager(manager);
+                .functionManager(manager)
+                .description(description);
     }
 }

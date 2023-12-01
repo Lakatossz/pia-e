@@ -26,6 +26,7 @@ public class AllocationMapper implements RowMapper<Allocation> {
         var active = rs.getBoolean("ass_active");
         var time = rs.getFloat("ass_time");
         var isCertain = rs.getLong("ass_is_certain");
+        var role = rs.getString("ass_role");
 
         Project project = new Project().id(projectId);
         Course course = new Course().id(courseId);
@@ -43,6 +44,7 @@ public class AllocationMapper implements RowMapper<Allocation> {
                 .description(description)
                 .time(time)
                 .isCertain(isCertain)
+                .role(role)
                 .active(active);
     }
 }

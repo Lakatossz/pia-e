@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" lang="">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="#{view.course_detail.title} + ' ' + ${course.getName()}"></title>
+
+    <link rel="stylesheet" th:href="@{/css/color.css}">
+    <link rel="stylesheet" th:href="@{/css/common.css}">
+
+    <!-- bootstrap -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+    <!-- bootstrap -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4"
+            crossorigin="anonymous"></script>
+    <!-- jquery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+</head>
+<body>
+<div th:replace="~{fragments/navbar}">Navbar</div>
+
+<div class="container-fluid">
+    <!-- content -->
+    <div class="container">
+        <!-- alerts -->
+        <div>
+            <div th:if="(${(param.edit != null)} or ${(param.create != null)} or ${(param.delete != null)} or ${(param.subordinate != null)})"
+                 class="alert alert-success alert-dismissible fade show" role="success">
+                <strong th:if="${(param.edit != null)}" th:text="#{view.course.alert.edit}"></strong>
+                <strong th:if="${(param.create != null)}" th:text="#{view.course.alert.create}"></strong>
+                <strong th:if="${(param.delete != null)}" th:text="#{not-implemented}"></strong>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        </div>
+
+        <h1 class="text-center mt-5" th:text="#{view.course_detail.header} + ' ' + ${course.getName()}"></h1>
+
+        <div>
+            <label for="shortcut" th:text="#{view.course_detail.shortcut}"/>
+            <input type="text" id="shortcut" name="shortcut" th:value="${course.getShortcut()}">
+        </div>
+        <div>
+            <label for="name" th:text="#{view.course_detail.name}"/>
+            <input type="text" id="name" name="name" th:value="${course.getName()}">
+        </div>
+    <div>
+            <label for="guarantor" th:text="#{view.course_detail.guarantor}"/>
+            <input type="text" id="guarantor" name="guarantor" th:value="${course.getCourseManagerName()}">
+        </div>
+        <div>
+            <h4 th:text="#{view.course_detail.scope}"/>
+            <div>
+                <label for="lecture" th:text="#{view.course_detail.lecture}"/>
+                <input type="text" id="lecture" name="lecture" th:value="${course.getLectureLength()}">
+            </div>
+            <div>
+                <label for="exercise" th:text="#{view.course_detail.exercise}"/>
+                <input type="text" id="exercise" name="exercise" th:value="${course.getLectureLength()}">
+            </div>
+        </div>
+        <div>
+            <label for="introduced" th:text="#{view.course_detail.introduced}"/>
+            <input type="text" id="introduced" name="introduced" th:value="${course.getIntroduced()}">
+        </div>
+        <div>
+            <label for="year" th:text="#{view.course_detail.year}"/>
+            <input type="text" id="year" name="year" th:value="${course.getName()}">
+        </div>
+        <div>
+            <label for="students" th:text="#{view.course_detail.students}"/>
+            <input type="text" id="students" name="students" th:value="${course.getNumberOfStudents()}">
+        </div>
+        <div>
+            <h4 th:text="#{view.course_detail.sa_required}"/>
+            <div>
+                <label for="lecture_sa" th:text="#{view.course_detail.lecture}"/>
+                <input type="text" id="lecture_sa" name="lecture_sa" th:value="${course.getLectureRequired()}">
+            </div>
+            <div>
+                <label for="exercise_sa" th:text="#{view.course_detail.exercise}"/>
+                <input type="text" id="exercise_sa" name="exercise_sa" th:value="${course.getExerciseRequired()}">
+            </div>
+        </div>
+    </div>
+    <div class="table">
+        <table class="table">
+            <thead>
+            <tr>
+                <th scope="col" th:text="#{view.course_detail.table.name}"></th>
+                <th scope="col" th:text="#{view.course_detail.table.role}"></th>
+                <th scope="col" th:text="#{view.course_detail.table.hours_weekly}"></th>
+                <th scope="col" th:text="#{view.course_detail.table.probability}"></th>
+                <th scope="col" th:text="#{view.course_detail.table.description}"></th>
+                <th scope="col"></th>
+            </tr>
+            </thead>
+            <tbody>
+            <th:block th:each="all, iStat: ${allocations}">
+                <!-- Employee-->
+                <tr>
+                    <td th:text="${all.getWorker().getLastName()}"></td>
+                    <td th:text="${all.getRole()}"></td>
+                    <td th:text="${all.getScopeInFTE()}"></td>
+                    <td th:text="${all.getIsCertain()}"></td>
+                    <td th:text="${all.getDescription()}"></td>
+                </tr>
+            </th:block>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div th:replace="~{fragments/footer}">Footer</div>
+</body>
+</html>

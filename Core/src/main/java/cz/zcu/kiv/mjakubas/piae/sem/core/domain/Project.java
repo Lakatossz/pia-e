@@ -7,7 +7,6 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -19,10 +18,13 @@ public class Project extends Activity {
 
     private Employee projectManager;
     private Workplace projectWorkplace;
-    private String description;
     private Integer budget;
+    private Integer budgetParticipation;
     private Integer participation;
     private Integer totalTime;
+    private LocalDate introduced;
+    private String agency;
+    private String grantTitle;
     private List<Employee> employees = new ArrayList<>();
     private List<Float> yearAllocation = new ArrayList<>(Collections.nCopies(12, (float) 0));
 
@@ -35,6 +37,12 @@ public class Project extends Activity {
     @Override
     public Project name(String name) {
         super.name(name);
+        return this;
+    }
+
+    @Override
+    public Project shortcut(String shortcut) {
+        super.shortcut(shortcut);
         return this;
     }
 
@@ -66,13 +74,19 @@ public class Project extends Activity {
         return this;
     }
 
+    @Override
     public Project description(String description) {
-        this.description = description;
+        super.description(description);
         return this;
     }
 
     public Project budget(Integer budget) {
         this.budget = budget;
+        return this;
+    }
+
+    public Project budgetParticipation(Integer budgetParticipation) {
+        this.budgetParticipation = budgetParticipation;
         return this;
     }
 
@@ -83,6 +97,21 @@ public class Project extends Activity {
 
     public Project totalTime(Integer totalTime) {
         this.totalTime = totalTime;
+        return this;
+    }
+
+    public Project introduced(LocalDate introduced) {
+        this.introduced = introduced;
+        return this;
+    }
+
+    public Project agency(String agency) {
+        this.agency = agency;
+        return this;
+    }
+
+    public Project grantTitle(String grantTitle) {
+        this.grantTitle = grantTitle;
         return this;
     }
 
@@ -101,10 +130,13 @@ public class Project extends Activity {
         return "Project{" + super.toString() +
                 ", projectManager=" + projectManager +
                 ", projectWorkplace=" + projectWorkplace +
-                ", description='" + description +
                 ", budget=" + budget +
+                ", budgetParticipation=" + budgetParticipation +
                 ", participation=" + participation +
                 ", totalTime=" + totalTime + '\'' +
+                ", introduced=" + introduced +
+                ", agency=" + agency +
+                ", grantTitle=" + grantTitle +
                 ", employees=" + employees +
                 ", yearAllocation=" + yearAllocation +
                 '}';

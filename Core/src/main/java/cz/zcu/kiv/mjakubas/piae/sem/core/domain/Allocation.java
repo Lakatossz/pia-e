@@ -27,6 +27,7 @@ public class Allocation {
     private LocalDate dateUntil;
     private String description;
     private Boolean active;
+    private String role;
 
     private AssignmentState currentState;
 
@@ -113,6 +114,11 @@ public class Allocation {
         return this;
     }
 
+    public Allocation role(String role) {
+        this.role = role;
+        return this;
+    }
+
     public Allocation active(Boolean active) {
         if (active == null)
             this.active = true;
@@ -139,6 +145,7 @@ public class Allocation {
                 ", dateUntil=" + dateUntil +
                 ", description='" + description + '\'' +
                 ", active=" + active +
+                ", role=" + role +
                 ", currentState=" + currentState +
                 '}';
     }

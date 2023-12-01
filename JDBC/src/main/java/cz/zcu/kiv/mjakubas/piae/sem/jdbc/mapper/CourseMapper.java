@@ -25,6 +25,8 @@ public class CourseMapper implements RowMapper<Course> {
         var lectureLength = rs.getInt("crs_lecture_length");
         var exerciseLength = rs.getInt("crs_exercise_length");
         var credits = rs.getInt("crs_credits");
+        var shortcut = rs.getString("crs_shortcut");
+        var description = rs.getString("crs_description");
 
         var abbrevation = rs.getString("wrk_abbrevation");
         Long wrkId = null;
@@ -39,6 +41,7 @@ public class CourseMapper implements RowMapper<Course> {
         return new Course()
                 .id(crId)
                 .name(name)
+                .shortcut(shortcut)
                 .courseManager(manager)
                 .courseWorkplace(Workplace.builder().id(wrkId).abbreviation(abbrevation).build())
                 .dateFrom(dateFrom)
@@ -48,6 +51,7 @@ public class CourseMapper implements RowMapper<Course> {
                 .term(term)
                 .lectureLength(lectureLength)
                 .exerciseLength(exerciseLength)
+                .description(description)
                 .credits(credits);
     }
 }

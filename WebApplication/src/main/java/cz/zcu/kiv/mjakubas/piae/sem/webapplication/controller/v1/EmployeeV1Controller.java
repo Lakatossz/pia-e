@@ -1,6 +1,5 @@
 package cz.zcu.kiv.mjakubas.piae.sem.webapplication.controller.v1;
 
-import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Employee;
 import cz.zcu.kiv.mjakubas.piae.sem.core.service.SecurityService;
 import cz.zcu.kiv.mjakubas.piae.sem.core.service.v1.AllocationService;
 import cz.zcu.kiv.mjakubas.piae.sem.core.service.v1.CourseService;

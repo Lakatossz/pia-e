@@ -20,6 +20,67 @@
 </head>
 <body>
 <div th:replace="~{fragments/navbar}">Navbar</div>
+
+<div class="container-fluid">
+    <!-- content -->
+    <div class="container">
+        <!-- alerts -->
+        <div>
+            <div th:if="(${(param.edit != null)} or ${(param.create != null)} or ${(param.delete != null)} or ${(param.subordinate != null)})"
+                 class="alert alert-success alert-dismissible fade show" role="success">
+                <strong th:if="${(param.edit != null)}" th:text="#{view.course.alert.edit}"></strong>
+                <strong th:if="${(param.create != null)}" th:text="#{view.course.alert.create}"></strong>
+                <strong th:if="${(param.delete != null)}" th:text="#{not-implemented}"></strong>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        </div>
+        <!-- table -->
+        <h1 class="text-center mt-5" th:text="#{view.course.header}"></h1>
+        <a type="button" class="btn btn-primary common-border-radius"
+           th:href="@{/c/create}" th:text="#{view.course.create}"></a>
+        <div class="row">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col" th:text="#{view.course.table.shortcut}"></th>
+                    <th scope="col" th:text="#{view.course.table.students}"></th>
+                    <th scope="col" th:text="#{view.course.table.ra}"></th>
+                    <th scope="col" th:text="#{view.course.table.lecturer}"></th>
+                    <th scope="col" th:text="#{view.course.table.role}"></th>
+                    <th scope="col" th:text="#{view.course.table.lecture_hours}"></th>
+                    <th scope="col" th:text="#{view.course.table.exercise_hours}"></th>
+                    <th scope="col" th:text="#{view.course.table.others}"></th>
+                    <th scope="col" th:text="#{view.course.table.certain}"></th>
+                    <th scope="col"></th>
+                </tr>
+                </thead>
+                <tbody>
+                <th:block th:each="crs, iStat: ${courses}">
+                    <!-- Employee-->
+                    <tr>
+                        <th scope="row" th:text="(${iStat.index } + 1)"></th>
+                        <td th:text="${crs.getName()}"></td>
+                        <td th:text="${crs.getNumberOfStudents()}"></td>
+                        <td th:text="${crs.getCredits()}"></td>
+<!--                        <th:block th:each="emp : ${crs.getEmployees()}">-->
+<!--                            <tr>-->
+<!--                                <td th:text="${emp.getFirstName()}"></td>-->
+<!--                                <td th:text="${emp.getFirstName()}"></td>-->
+<!--                                <td th:text="${crs.getLectureLength()}"></td>-->
+<!--                                <td th:text="${crs.getExerciseLength()}"></td>-->
+<!--                                <td th:text="${crs.getProbability()}"></td>-->
+<!--                                <td th:text="${crs.getProbability()}"></td>-->
+<!--                            </tr>-->
+<!--                        </th:block>-->
+                    </tr>
+                </th:block>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
 <div th:replace="~{fragments/footer}">Footer</div>
 </body>
 </html>

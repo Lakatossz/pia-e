@@ -25,9 +25,13 @@ public class Course extends Activity {
     private int lectureLength;
     private int exerciseLength;
     private int credits;
-//    Values joined from different table.
+    private LocalDate introduced;
+    private int lectureRequired;
+    private int exerciseRequired;
+//    Values joined from different tables.
     private List<Employee> employees = new ArrayList<>();
     private List<Float> yearAllocation = new ArrayList<>(Collections.nCopies(12, (float) 0));
+    private List<Allocation> courseAllocations = new ArrayList<>();
 
     @Override
     public Course id(long id) {
@@ -38,6 +42,12 @@ public class Course extends Activity {
     @Override
     public Course name(String name) {
         super.name(name);
+        return this;
+    }
+
+    @Override
+    public Course shortcut(String shortcut) {
+        super.shortcut(shortcut);
         return this;
     }
 
@@ -56,6 +66,12 @@ public class Course extends Activity {
     @Override
     public Course probability(float probability) {
         super.probability(probability);
+        return this;
+    }
+
+    @Override
+    public Course description(String description) {
+        super.description(description);
         return this;
     }
 
@@ -100,6 +116,21 @@ public class Course extends Activity {
         return this;
     }
 
+    public Course introduced(LocalDate introduced) {
+        this.introduced = introduced;
+        return this;
+    }
+
+    public Course lectureRequired(int lectureRequired) {
+        this.lectureRequired = lectureRequired;
+        return this;
+    }
+
+    public Course exerciseRequired(int exerciseRequired) {
+        this.exerciseRequired = exerciseRequired;
+        return this;
+    }
+
     public Course employees(List<Employee> employees) {
         this.employees = employees;
         return this;
@@ -107,6 +138,11 @@ public class Course extends Activity {
 
     public Course yearAllocation(List<Float> yearAllocation) {
         this.yearAllocation.addAll(yearAllocation);
+        return this;
+    }
+
+    public Course courseAllocations(List<Allocation> courseAllocations) {
+        this.courseAllocations.addAll(courseAllocations);
         return this;
     }
 
@@ -120,8 +156,12 @@ public class Course extends Activity {
                 ", lectureLength=" + lectureLength +
                 ", exerciseLength=" + exerciseLength +
                 ", credits=" + credits +
+                ", introduced=" + introduced +
+                ", lectureRequired=" + lectureRequired +
+                ", exerciseRequired=" + exerciseRequired +
                 ", employees=" + employees +
                 ", yearAllocation=" + yearAllocation +
+                ", courseAllocations=" + courseAllocations +
                 '}';
     }
 }

@@ -1,6 +1,7 @@
 package cz.zcu.kiv.mjakubas.piae.sem.webapplication.controller.v1;
 
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Course;
+import cz.zcu.kiv.mjakubas.piae.sem.core.domain.payload.AllocationPayload;
 import cz.zcu.kiv.mjakubas.piae.sem.core.service.v1.AllocationService;
 import cz.zcu.kiv.mjakubas.piae.sem.core.service.v1.CourseService;
 import cz.zcu.kiv.mjakubas.piae.sem.core.service.v1.EmployeeService;
@@ -18,6 +19,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import java.util.ArrayList;
 
 /**
  * Contains all sites for working with courses.
@@ -77,10 +80,15 @@ public class CourseV1Controller {
         model.addAttribute("courseVO",
                 new CourseVO()
                         .name(data.getName())
-                        .courseManager(data.getCourseManager().getId())
+                        .shortcut(data.getShortcut())
+                        .courseManagerId(data.getCourseManager().getId())
+                        .courseManagerName(data.getCourseManager().getLastName())
                         .courseWorkplace(data.getCourseWorkplace().getId())
                         .dateFrom(data.getDateFrom())
-                        .dateUntil(data.getDateUntil()));
+                        .dateUntil(data.getDateUntil())
+                        .introduced(data.getIntroduced())
+                        .lectureRequired(data.getLectureRequired())
+                        .exerciseRequired(data.getExerciseRequired()));
 
         model.addAttribute(EMPLOYEES, employeeService.getEmployees());
         model.addAttribute("workplaces", workplaceService.getWorkplaces());
@@ -105,6 +113,36 @@ public class CourseV1Controller {
     @GetMapping("/{id}/delete")
     public String editCourse(Model model, @PathVariable long id) {
         return "redirect:/c?delete=success";
+    }
+
+    @PreAuthorize("hasAuthority(T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT)" +
+            " or @securityService.isCourseManager(#id) or @securityService.isWorkplaceManager(#id)")
+    @GetMapping("/{id}/detail")
+    public String detailCourse(Model model, @PathVariable long id,
+                               @RequestParam(required = false) Boolean manage) {
+        Course data = courseService.getCourse(id);
+        var allocations = allocationService.getCourseAllocations(id).getAllocations();
+
+        model.addAttribute("allocations", allocations);
+        model.addAttribute("course",
+                new CourseVO()
+                        .name(data.getName())
+                        .shortcut(data.getShortcut())
+                        .courseManagerId(data.getCourseManager().getId())
+                        .courseManagerName(data.getCourseManager().getLastName())
+                        .courseWorkplace(data.getCourseWorkplace().getId())
+                        .dateFrom(data.getDateFrom())
+                        .dateUntil(data.getDateUntil())
+                        .introduced(data.getIntroduced())
+                        .lectureRequired(data.getLectureRequired())
+                        .exerciseRequired(data.getExerciseRequired()));
+
+        model.addAttribute(EMPLOYEES, employeeService.getEmployees());
+        model.addAttribute("workplaces", workplaceService.getWorkplaces());
+        model.addAttribute(RESTRICTIONS, courseService.getCourses());
+        model.addAttribute("manage", manage);
+
+        return "details/course_detail";
     }
 
     @GetMapping("/{id}/employee/add")

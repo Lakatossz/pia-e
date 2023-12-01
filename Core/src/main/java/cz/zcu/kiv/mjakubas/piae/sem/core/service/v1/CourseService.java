@@ -45,8 +45,10 @@ public class CourseService {
     public Course getCourse(long id) {
         Course course = courseRepository.fetchCourse(id);
         List<Allocation> allocations = allocationService.getCourseAllocations(id).getAllocations();
-        if(!allocations.isEmpty())
+        if(!allocations.isEmpty()) {
             course.setYearAllocation(prepareAllocations(allocations));
+            course.setCourseAllocations(allocations);
+        }
 
         return course;
     }
@@ -60,8 +62,10 @@ public class CourseService {
         List<Course> courses = courseRepository.fetchCourses();
         courses.forEach(course -> {
             List<Allocation> allocations = allocationService.getCourseAllocations(course.getId()).getAllocations();
-            if(!allocations.isEmpty())
+            if(!allocations.isEmpty()) {
                 course.setYearAllocation(prepareAllocations(allocations));
+                course.setCourseAllocations(allocations);
+            }
         });
         return courseRepository.fetchCourses();
     }
@@ -116,7 +120,7 @@ public class CourseService {
      */
     @Transactional
     public void createCourse(@NonNull CourseVO courseVO) {
-        var manager = employeeRepository.fetchEmployee(courseVO.getCourseManager());
+        var manager = employeeRepository.fetchEmployee(courseVO.getCourseManagerId());
         if (courseVO.getDateUntil() != null && (courseVO.getDateFrom().isAfter(courseVO.getDateUntil())))
                 {throw new ServiceException();
         }

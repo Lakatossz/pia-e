@@ -16,13 +16,17 @@ public class ProjectMapper implements RowMapper<Project> {
     public Project mapRow(ResultSet rs, int rowNum) throws SQLException {
         var prId = rs.getLong("project_id");
         var name = rs.getString("pro_name");
+        var shortcut = rs.getString("pro_shortcut");
         var dateFrom = rs.getObject("pro_date_from", LocalDate.class);
         var dateUntil = rs.getObject("pro_date_until", LocalDate.class);
         var description = rs.getString("pro_description");
         var budget = rs.getInt("pro_budget");
+        var budgetParticipation = rs.getInt("pro_budget_participation");
         var participation = rs.getInt("pro_participation");
         var probability = rs.getFloat("pro_probability");
         var totalTime = rs.getInt("pro_total_time");
+        var agency = rs.getString("pro_agency");
+        var grantTitle = rs.getString("pro_grant_title");
 
         var abbrevation = rs.getString("wrk_abbrevation");
         Long wrkId = null;
@@ -37,13 +41,17 @@ public class ProjectMapper implements RowMapper<Project> {
         return new Project()
                 .id(prId)
                 .name(name)
+                .shortcut(shortcut)
                 .dateFrom(dateFrom)
                 .dateUntil(dateUntil)
                 .description(description)
                 .budget(budget)
+                .budgetParticipation(budgetParticipation)
                 .participation(participation)
                 .probability(probability)
                 .totalTime(totalTime)
+                .agency(agency)
+                .grantTitle(grantTitle)
                 .projectWorkplace(Workplace.builder().id(wrkId).abbreviation(abbrevation).build())
                 .projectManager(manager);
     }

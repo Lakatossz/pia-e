@@ -35,6 +35,12 @@ public class Function extends Activity {
     }
 
     @Override
+    public Function shortcut(String shortcut) {
+        super.shortcut(shortcut);
+        return this;
+    }
+
+    @Override
     public Function dateFrom(LocalDate dateFrom) {
         super.dateFrom(dateFrom);
         return this;
@@ -49,6 +55,12 @@ public class Function extends Activity {
     @Override
     public Function probability(float probability) {
         super.probability(probability);
+        return this;
+    }
+
+    @Override
+    public Function description(String description) {
+        super.description(description);
         return this;
     }
 

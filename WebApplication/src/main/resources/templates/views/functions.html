@@ -44,34 +44,28 @@
                 <thead>
                 <tr>
                     <th scope="col">#</th>
-                    <th scope="col" th:text="#{view.course.table.shortcut}"></th>
-                    <th scope="col" th:text="#{view.course.table.students}"></th>
-                    <th scope="col" th:text="#{view.course.table.ra}"></th>
-                    <th scope="col" th:text="#{view.course.table.lecturer}"></th>
-                    <th scope="col" th:text="#{view.course.table.role}"></th>
-                    <th scope="col" th:text="#{view.course.table.lecture_hours}"></th>
-                    <th scope="col" th:text="#{view.course.table.exercise_hours}"></th>
-                    <th scope="col" th:text="#{view.course.table.others}"></th>
-                    <th scope="col" th:text="#{view.course.table.certain}"></th>
+                    <th scope="col" th:text="#{view.function.table.name}"></th>
+                    <th scope="col" th:text="#{view.function.table.supervisor}"></th>
+                    <th scope="col" th:text="#{view.function.table.from}"></th>
+                    <th scope="col" th:text="#{view.function.table.until}"></th>
+                    <th scope="col" th:text="#{view.function.table.current-time}"></th>
+                    <th scope="col" th:text="#{view.function.table.certain}"></th>
+                    <th scope="col" th:text="#{view.function.table.description}"></th>
                     <th scope="col"></th>
                 </tr>
                 </thead>
                 <tbody>
-                <th:block th:each="crs, iStat: ${courses}">
+                <th:block th:each="fnc, iStat: ${functions}">
                     <!-- Employee-->
                     <tr>
                         <th scope="row" th:text="(${iStat.index } + 1)"></th>
-                        <td th:text="${crs.getName()}"></td>
-                        <td th:text="${crs.getNumberOfStudents()}"></td>
-                        <td th:text="${crs.getCredits()}"></td>
-                        <th:block th:each="emp : ${crs.getEmployees()}">
+                        <td th:text="${fnc.getName()}"></td>
+                        <td th:text="${fnc.getFunctionManager().getLastName()}"></td>
+                        <td th:text="${fnc.getDateFrom()}"></td>
+                        <th:block th:each="emp : ${fnc.}">
                             <tr>
-                                <td th:text="${emp.getLastName()}"></td>
+                                <td th:text="${emp.get}"></td>
                                 <td th:text="${emp.getFirstName()}"></td>
-                                <td th:text="${crs.getLectureLength()}"></td>
-                                <td th:text="${crs.getExerciseLength()}"></td>
-                                <td th:text="${crs.getProbability()}"></td>
-                                <td th:text="${crs.getProbability()}"></td>
                             </tr>
                         </th:block>
                     </tr>

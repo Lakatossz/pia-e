@@ -115,7 +115,7 @@ public class FunctionService {
      */
     @Transactional
     public void createFunction(@NonNull FunctionVO functionVO) {
-        var manager = employeeRepository.fetchEmployee(functionVO.getFunctionManager());
+        var manager = employeeRepository.fetchEmployee(functionVO.getFunctionManagerId());
         if (functionVO.getDateUntil() != null && (functionVO.getDateFrom().isAfter(functionVO.getDateUntil())))
                 {throw new ServiceException();
         }
@@ -141,7 +141,7 @@ public class FunctionService {
      */
     @Transactional
     public void editFunction(@NonNull FunctionVO functionVO, long id) {
-        var manager = employeeRepository.fetchEmployee(functionVO.getFunctionManager());
+        var manager = employeeRepository.fetchEmployee(functionVO.getFunctionManagerId());
         if (functionVO.getDateUntil() != null && (functionVO.getDateFrom().isAfter(functionVO.getDateUntil())))
                 {throw new ServiceException();
         }

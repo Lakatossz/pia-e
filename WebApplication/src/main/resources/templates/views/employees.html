@@ -1,34 +1,6 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" lang="">
 
-<style>
-    /* Style the button that is used to open and close the collapsible content */
-    .collapsible {
-        background-color: #eee;
-        color: #444;
-        cursor: pointer;
-        padding: 18px;
-        width: 100%;
-        border: none;
-        text-align: left;
-        outline: none;
-        font-size: 15px;
-    }
-
-    /* Add a background color to the button if it is clicked on (add the .active class with JS), and when you move the mouse over it (hover) */
-    .active, .collapsible:hover {
-        background-color: #ccc;
-    }
-
-    /* Style the collapsible content. Note: hidden by default */
-    .content {
-        padding: 0 18px;
-        display: none;
-        overflow: hidden;
-        background-color: #f1f1f1;
-    }
-</style>
-
 <head>
     <meta charset="UTF-8">
     <title th:text="#{view.employee.title}"></title>
@@ -47,13 +19,13 @@
     <!-- jquery -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 </head>
-<body class="d-flex flex-column min-vh-100">
+<body class="">
 <div th:replace="~{fragments/navbar}">Navbar</div>
-<div class="container-fluid">
+<div class="">
     <!-- content -->
-    <div class="container">
+    <div>
         <!-- alerts -->
-        <div>
+        <div  class="row">
             <div th:if="(${(param.edit != null)} or ${(param.create != null)} or ${(param.delete != null)} or ${(param.subordinate != null)})"
                  class="alert alert-success alert-dismissible fade show" role="success">
                 <strong th:if="${(param.edit != null)}" th:text="#{view.employee.alert.edit}"></strong>
@@ -65,15 +37,15 @@
         </div>
         <!-- table -->
         <h1 class="text-center mt-5" th:text="#{view.employee.header}"></h1>
-        <a type="button" class="btn btn-primary common-border-radius"
-           th:href="@{/e/create}" th:text="#{view.employee.create}"></a>
-        <div class="row">
-            <table class="table">
+<!--        <a type="button" class="btn btn-primary common-border-radius"-->
+<!--           th:href="@{/e/create}" th:text="#{view.employee.create}"></a>-->
+        <div class="row my-container">
+            <table class="my-table">
                 <thead>
-                <tr>
+                <tr class="employee-row-header">
                     <th scope="col">#</th>
-                    <th scope="col" th:text="#{view.employee.table.fname}"></th>
-                    <th scope="col" th:text="#{view.employee.table.lname}"></th>
+                    <th scope="col" th:text="#{view.employee.table.fname}" style="width: 100px"></th>
+                    <th scope="col" th:text="#{view.employee.table.lname}" style="width: 100px"></th>
                     <th scope="col" th:text="#{view.employee.table.wrk-abbreviation}"></th>
                     <th scope="col" th:text="#{view.employee.table.wrk-projects}"></th>
                     <th scope="col" th:text="#{view.employee.table.wrk-courses}"></th>
@@ -86,7 +58,7 @@
                 <tbody>
                     <th:block th:each="emp, iStat: ${employees}">
                         <!-- Employee-->
-                        <tr>
+                        <tr class="employee-row-value">
                             <th scope="row" th:text="(${iStat.index } + 1)"></th>
                             <td th:text="${emp.getFirstName()}"></td>
                             <td th:text="${emp.getLastName()}"></td>
@@ -98,9 +70,11 @@
                             <td th:text="${emp.getUncertainTime()}"></td>
                         </tr>
                         <!-- Projects header -->
-                        <tr><th scope="col" th:text="#{view.employee.table.activity.projects}"></th></tr>
+                        <tr class="project-row-title">
+                            <th scope="col" th:text="#{view.employee.table.activity.projects}"></th>
+                        </tr>
                         <!-- Project labels -->
-                        <tr>
+                        <tr class="project-row-header">
                             <th scope="col">#</th>
                             <th scope="col" th:text="#{view.employee.table.activity.name}"></th>
                             <th scope="col" th:text="#{view.employee.table.project.role}"></th>
@@ -121,7 +95,7 @@
                         </tr>
                         <!-- Projects values -->
                         <th:block th:each="all, allStat: ${emp.getProjectsAllocations()}">
-                            <tr>
+                            <tr class="project-row-value">
                                 <th scope="row" th:text="(${allStat.index } + 1)"></th>
                                 <td th:text="${all.getProject().getName()}"></td>
                                 <td th:text="${all.getProject().getName()}"></td>
@@ -132,9 +106,11 @@
                             </tr>
                         </th:block>
                         <!-- Courses header -->
-                        <tr><th scope="col" th:text="#{view.employee.table.activity.courses}"></th></tr>
+                        <tr class="course-row-title">
+                            <th scope="col" th:text="#{view.employee.table.activity.courses}"></th>
+                        </tr>
                         <!-- Course labels -->
-                        <tr>
+                        <tr class="course-row-header">
                             <th scope="col">#</th>
                             <th scope="col" th:text="#{view.employee.table.activity.name}"></th>
                             <th scope="col" th:text="#{view.employee.table.course.students}"></th>
@@ -155,7 +131,7 @@
                         </tr>
                         <!-- Courses values -->
                         <th:block th:each="all, allStat: ${emp.getCoursesAllocations()}">
-                            <tr>
+                            <tr class="course-row-value">
                                 <th scope="row" th:text="(${allStat.index } + 1)"></th>
                                 <td th:text="${all.getCourse().getName()}"></td>
                                 <td th:text="${all.getCourse().getName()}"></td>
@@ -166,9 +142,11 @@
                             </tr>
                         </th:block>
                         <!-- Functions header -->
-                        <tr><th scope="col" th:text="#{view.employee.table.activity.functions}"></th></tr>
+                        <tr class="function-row-title">
+                            <th scope="col" th:text="#{view.employee.table.activity.functions}"></th>
+                        </tr>
                         <!-- Function labels -->
-                        <tr>
+                        <tr class="function-row-header">
                             <th scope="col">#</th>
                             <th scope="col" th:text="#{view.employee.table.activity.name}"></th>
                             <th scope="col" th:text="#{view.employee.table.project.role}"></th>
@@ -189,7 +167,7 @@
                         </tr>
                         <!-- Functions values -->
                         <th:block th:each="all, allStat: ${emp.getFunctionsAllocations()}">
-                            <tr>
+                            <tr class="function-row-value">
                                 <th scope="row" th:text="(${allStat.index } + 1)"></th>
                                 <td th:text="${all.getFunction().getName()}"></td>
                                 <td th:text="${all.getFunction().getName()}"></td>
@@ -202,31 +180,92 @@
                     </th:block>
                 </tbody>
             </table>
+            <div th:replace="~{fragments/footer}">Footer</div>
         </div>
     </div>
 </div>
 
-<div th:replace="~{fragments/footer}">Footer</div>
-
 <script>
-    let tr = document.querySelectorAll("table tbody tr");
+    let employeeTr = document.querySelectorAll(".employee-row-value");
 
-    Array.from(tr).forEach(function(trArray) {
+    Array.from(employeeTr).forEach(function(trArray) {
         let button = document.createElement("button");
         let td = document.createElement("td");
-        button.innerText = "--V--";
-        button.className = "btn collapsible";
+        button.className = "btn collapsible btn-dropdown";
         button.setAttribute('onclick', 'sayHi()');
-        button.addEventListener("click", function() {
-            this.classList.toggle("active");
-            var content = trArray;
-            console.log(tr.length);
-            if (content.style.display === "block") {
-                content.style.display = "none";
-            } else {
-                content.style.display = "block";
-            }
-        });
+        // button.addEventListener("click", function() {
+        //     this.classList.toggle("active");
+        //     var content = trArray;
+        //     console.log(tr.length);
+        //     if (content.style.display === "block") {
+        //         content.style.display = "none";
+        //     } else {
+        //         content.style.display = "block";
+        //     }
+        // });
+        td.append(button);
+        trArray.append(td);
+    });
+
+    let projectTr = document.querySelectorAll(".project-row-value");
+
+    Array.from(projectTr).forEach(function(trArray) {
+        let button = document.createElement("button");
+        let td = document.createElement("td");
+        button.className = "btn collapsible btn-edit";
+        button.setAttribute('onclick', 'sayHi()');
+        // button.addEventListener("click", function() {
+        //     this.classList.toggle("active");
+        //     var content = trArray;
+        //     console.log(tr.length);
+        //     if (content.style.display === "block") {
+        //         content.style.display = "none";
+        //     } else {
+        //         content.style.display = "block";
+        //     }
+        // });
+        td.append(button);
+        trArray.append(td);
+    });
+
+    let courseTr = document.querySelectorAll(".course-row-value");
+
+    Array.from(courseTr).forEach(function(trArray) {
+        let button = document.createElement("button");
+        let td = document.createElement("td");
+        button.className = "btn collapsible btn-edit";
+        button.setAttribute('onclick', 'sayHi()');
+        // button.addEventListener("click", function() {
+        //     this.classList.toggle("active");
+        //     var content = trArray;
+        //     console.log(tr.length);
+        //     if (content.style.display === "block") {
+        //         content.style.display = "none";
+        //     } else {
+        //         content.style.display = "block";
+        //     }
+        // });
+        td.append(button);
+        trArray.append(td);
+    });
+
+    let functionTr = document.querySelectorAll(".function-row-value");
+
+    Array.from(functionTr).forEach(function(trArray) {
+        let button = document.createElement("button");
+        let td = document.createElement("td");
+        button.className = "btn collapsible btn-edit";
+        button.setAttribute('onclick', 'sayHi()');
+        // button.addEventListener("click", function() {
+        //     this.classList.toggle("active");
+        //     var content = trArray;
+        //     console.log(tr.length);
+        //     if (content.style.display === "block") {
+        //         content.style.display = "none";
+        //     } else {
+        //         content.style.display = "block";
+        //     }
+        // });
         td.append(button);
         trArray.append(td);
     });

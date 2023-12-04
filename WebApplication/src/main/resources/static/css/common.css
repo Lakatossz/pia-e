@@ -29,3 +29,90 @@
 .dropdown-item-down:hover {
     background-color: #165a3d;
 }
+
+.btn-dropdown {
+    background-image: url(../img/caret-down-solid.svg);
+    background-repeat: no-repeat;
+    background-position: center;
+    padding: 12px;
+}
+
+.btn-detail {
+    background-image: url(../img/eye-solid.svg);
+    background-repeat: no-repeat;
+    background-position: center;
+    padding: 12px;
+}
+
+.btn-edit {
+    background-image: url(../img/pen-solid.svg);
+    background-repeat: no-repeat;
+    background-position: center;
+    padding: 12px;
+}
+
+table, body {
+    margin-top: 0px;
+    padding-top: 0px;
+    text-align: start;
+    border-collapse: collapse;
+}
+
+table {
+    overflow: hidden;
+}
+
+.my-container {
+    position: absolute;
+    top: 30%;
+    bottom: 10%;
+    left: 10%;
+    right: 10%;
+    width: 80%;
+}
+
+.employee-row-title {
+    width: 100%;
+}
+
+.employee-row-header {
+}
+
+.employee-row-value {
+}
+
+.project-row-title {
+
+}
+
+.project-row-header {
+
+}
+
+.project-row-value {
+
+}
+
+.course-row-title {
+
+}
+
+.course-row-header {
+
+}
+
+.course-row-value {
+
+}
+
+.function-row-title {
+
+}
+
+.function-row-header {
+
+}
+
+.function-row-value {
+
+}

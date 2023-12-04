@@ -82,7 +82,7 @@ public class JdbcCourseRepository implements ICourseRepository {
     @Override
     public List<Employee> fetchCourseEmployees(long courseId) {
         var sql = """
-                SELECT  
+                SELECT
                         e.*, 
                         w.wrk_abbrevation
                 FROM assignment ce

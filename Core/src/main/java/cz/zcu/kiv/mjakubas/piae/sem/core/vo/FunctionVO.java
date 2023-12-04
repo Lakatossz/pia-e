@@ -11,27 +11,31 @@ public class FunctionVO {
 
     private long id;
     private String name;
+    private String shortcut;
     private LocalDate dateFrom;
     private LocalDate dateUntil;
     private float probability;
     private float defaultTime;
-    private Long functionManager;
+    private Long functionManagerId;
+    private String functionManagerName;
     private Long functionWorkplace;
 
     public FunctionVO() {
 
     }
 
-    public FunctionVO(long id, String name, LocalDate dateFrom,
+    public FunctionVO(long id, String name, String shortcut, LocalDate dateFrom,
                     LocalDate dateUntil, float probability, float defaultTime,
-                      Long functionManager, Long functionWorkplace) {
+                      Long functionManagerId, String functionManagerName, Long functionWorkplace) {
         this.id = id;
         this.name = name;
+        this.shortcut = shortcut;
         this.dateFrom = dateFrom;
         this.dateUntil = dateUntil;
         this.probability = probability;
         this.defaultTime = defaultTime;
-        this.functionManager = functionManager;
+        this.functionManagerId = functionManagerId;
+        this.functionManagerName = functionManagerName;
         this.functionWorkplace = functionWorkplace;
     }
 
@@ -42,6 +46,11 @@ public class FunctionVO {
 
     public FunctionVO name(String name) {
         this.name = name;
+        return this;
+    }
+
+    public FunctionVO shortcut(String shortcut) {
+        this.shortcut = shortcut;
         return this;
     }
 
@@ -65,8 +74,13 @@ public class FunctionVO {
         return this;
     }
 
-    public FunctionVO functionManager(Long functionManager) {
-        this.functionManager = functionManager;
+    public FunctionVO functionManagerId(Long functionManagerId) {
+        this.functionManagerId = functionManagerId;
+        return this;
+    }
+
+    public FunctionVO functionManagerName(String functionManagerName) {
+        this.functionManagerName = functionManagerName;
         return this;
     }
 
@@ -80,11 +94,13 @@ public class FunctionVO {
         return "FunctionVO{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
+                ", shortcut='" + shortcut + '\'' +
                 ", dateFrom=" + dateFrom +
                 ", dateUntil=" + dateUntil +
                 ", probability=" + probability +
                 ", defaultTime=" + defaultTime +
-                ", functionManager=" + functionManager +
+                ", functionManagerId=" + functionManagerId +
+                ", functionManagerName=" + functionManagerName +
                 ", functionWorkplace=" + functionWorkplace +
                 '}';
     }

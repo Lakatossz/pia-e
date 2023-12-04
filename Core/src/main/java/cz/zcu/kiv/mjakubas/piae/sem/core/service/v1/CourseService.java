@@ -65,9 +65,10 @@ public class CourseService {
             if(!allocations.isEmpty()) {
                 course.setYearAllocation(prepareAllocations(allocations));
                 course.setCourseAllocations(allocations);
+                course.setEmployees(courseRepository.fetchCourseEmployees(course.getId()));
             }
         });
-        return courseRepository.fetchCourses();
+        return courses;
     }
 
     /**

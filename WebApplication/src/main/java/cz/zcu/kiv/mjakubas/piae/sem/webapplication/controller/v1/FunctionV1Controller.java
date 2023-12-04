@@ -1,10 +1,12 @@
 package cz.zcu.kiv.mjakubas.piae.sem.webapplication.controller.v1;
 
+import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Course;
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Function;
 import cz.zcu.kiv.mjakubas.piae.sem.core.service.v1.AllocationService;
 import cz.zcu.kiv.mjakubas.piae.sem.core.service.v1.EmployeeService;
 import cz.zcu.kiv.mjakubas.piae.sem.core.service.v1.FunctionService;
 import cz.zcu.kiv.mjakubas.piae.sem.core.service.v1.WorkplaceService;
+import cz.zcu.kiv.mjakubas.piae.sem.core.vo.CourseVO;
 import cz.zcu.kiv.mjakubas.piae.sem.core.vo.EmployeeVO;
 import cz.zcu.kiv.mjakubas.piae.sem.core.vo.FunctionVO;
 import lombok.AllArgsConstructor;
@@ -80,11 +82,13 @@ public class FunctionV1Controller {
                 new FunctionVO(
                         data.getId(),
                         data.getName(),
+                        data.getShortcut(),
                         data.getDateFrom(),
                         data.getDateUntil(),
                         data.getProbability(),
                         data.getDefaultTime(),
                         data.getFunctionManager().getId(),
+                        data.getFunctionManager().getLastName(),
                         data.getFunctionWorkplace().getId()));
 
         model.addAttribute(EMPLOYEES, employeeService.getEmployees());
@@ -112,6 +116,36 @@ public class FunctionV1Controller {
     public String editFunction(Model model, @PathVariable long id) {
         return "redirect:/f?delete=success";
     }
+
+    @PreAuthorize("hasAuthority(T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT)" +
+            " or @securityService.isFunctionManager(#id) or @securityService.isWorkplaceManager(#id)")
+    @GetMapping("/{id}/detail")
+    public String detailFunction(Model model, @PathVariable long id,
+                               @RequestParam(required = false) Boolean manage) {
+        Function data = functionService.getFunction(id);
+        var allocations = allocationService.getFunctionAllocations(id).getAllocations();
+
+        model.addAttribute("allocations", allocations);
+        model.addAttribute("function",
+                new FunctionVO()
+                        .name(data.getName())
+                        .shortcut(data.getShortcut())
+                        .functionManagerId(data.getFunctionManager().getId())
+                        .functionManagerName(data.getFunctionManager().getLastName())
+                        .functionManagerId(data.getFunctionWorkplace().getId())
+                        .probability(data.getProbability())
+                        .defaultTime(data.getDefaultTime())
+                        .dateFrom(data.getDateFrom())
+                        .dateUntil(data.getDateUntil()));
+
+        model.addAttribute(EMPLOYEES, employeeService.getEmployees());
+        model.addAttribute("workplaces", workplaceService.getWorkplaces());
+        model.addAttribute(RESTRICTIONS, functionService.getFunctions());
+        model.addAttribute("manage", manage);
+
+        return "details/function_detail";
+    }
+
 
     @GetMapping("/{id}/employee/add")
     public String addSubordinate(Model model, @PathVariable long id, @ModelAttribute EmployeeVO userVO) {

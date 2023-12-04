@@ -1,6 +1,8 @@
 package cz.zcu.kiv.mjakubas.piae.sem.webapplication.controller.v1;
 
+import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Allocation;
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Course;
+import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Employee;
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.payload.AllocationPayload;
 import cz.zcu.kiv.mjakubas.piae.sem.core.service.v1.AllocationService;
 import cz.zcu.kiv.mjakubas.piae.sem.core.service.v1.CourseService;
@@ -21,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Contains all sites for working with courses.
@@ -43,8 +46,24 @@ public class CourseV1Controller {
     @GetMapping()
     public String getCourses(Model model) {
         var courses = courseService.getCourses();
+        List<Allocation> firstAllocations = new ArrayList<>();
+        courses.forEach(course -> {
+            List<Allocation> allocationsWithoutFirst = course.getCourseAllocations();
+            if (!allocationsWithoutFirst.isEmpty()) {
+                allocationsWithoutFirst.remove(0);
+                List<Allocation> temp = allocationService.getCourseAllocations(course.getId()).getAllocations();
+                if (!temp.isEmpty()) {
+                    Allocation allocation = temp.get(0);
+                    firstAllocations.add(allocation);
+                } else
+                    firstAllocations.add(new Allocation());
+            } else
+                firstAllocations.add(new Allocation());
+            course.setCourseAllocations(allocationsWithoutFirst);
+        });
 
         model.addAttribute("courses", courses);
+        model.addAttribute("firstAllocations", firstAllocations);
         return "views/courses";
     }
 

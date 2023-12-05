@@ -55,20 +55,29 @@
                 </tr>
                 </thead>
                 <tbody>
-                <th:block th:each="fnc, iStat: ${functions}">
+                <th:block th:each="fnc, iStat : ${functions}">
                     <!-- Employee-->
-                    <tr>
-                        <th scope="row" th:text="(${iStat.index } + 1)"></th>
-                        <td th:text="${fnc.getName()}"></td>
-                        <td th:text="${fnc.getFunctionManager().getLastName()}"></td>
-                        <td th:text="${fnc.getDateFrom()}"></td>
-                        <th:block th:each="emp : ${fnc.}">
+                    <th:block th:if="${firstAllocations.get(iStat.index).getTime >= 0}">
+                        <tr>
+                            <th th:rowspan="${fnc.getFunctionAllocations().size() + 1}" scope="row" th:text="(${iStat.index} + 1)"></th>
+                            <td th:rowspan="${fnc.getFunctionAllocations().size() + 1}" th:text="${fnc.getName()}"></td>
+                            <td th:rowspan="${fnc.getFunctionAllocations().size() + 1}" th:text="${fnc.getFunctionManager().getLastName()}"></td>
+                            <td th:text="${firstAllocations.get(iStat.index).getDateFrom()}"></td>
+                            <td th:text="${firstAllocations.get(iStat.index).getDateUntil()}"></td>
+                            <td th:text="${firstAllocations.get(iStat.index).getTime()}"></td>
+                            <td th:text="${firstAllocations.get(iStat.index).getIsCertain()}"></td>
+                            <td th:text="${firstAllocations.get(iStat.index).getDescription()}"></td>
+                        </tr>
+                        <th:block th:each="all : ${fnc.getFunctionAllocations()}">
                             <tr>
-                                <td th:text="${emp.get}"></td>
-                                <td th:text="${emp.getFirstName()}"></td>
+                                <td th:text="${all.getDateFrom()}"></td>
+                                <td th:text="${all.getDateUntil()}"></td>
+                                <td th:text="${all.getTime()}"></td>
+                                <td th:text="${all.getIsCertain()}"></td>
+                                <td th:text="${all.getDescription()}"></td>
                             </tr>
                         </th:block>
-                    </tr>
+                    </th:block>
                 </th:block>
                 </tbody>
             </table>

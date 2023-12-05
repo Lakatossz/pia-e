@@ -37,15 +37,15 @@
         </div>
         <!-- table -->
         <h1 class="text-center mt-5" th:text="#{view.employee.header}"></h1>
-<!--        <a type="button" class="btn btn-primary common-border-radius"-->
-<!--           th:href="@{/e/create}" th:text="#{view.employee.create}"></a>-->
+        <a type="button" class="btn btn-primary common-border-radius"
+           th:href="@{/e/create}" th:text="#{view.employee.create}"></a>
         <div class="row my-container">
             <table class="my-table">
                 <thead>
                 <tr class="employee-row-header">
                     <th scope="col">#</th>
-                    <th scope="col" th:text="#{view.employee.table.fname}" style="width: 100px"></th>
-                    <th scope="col" th:text="#{view.employee.table.lname}" style="width: 100px"></th>
+                    <th scope="col" th:text="#{view.employee.table.fname}"></th>
+                    <th scope="col" th:text="#{view.employee.table.lname}"></th>
                     <th scope="col" th:text="#{view.employee.table.wrk-abbreviation}"></th>
                     <th scope="col" th:text="#{view.employee.table.wrk-projects}"></th>
                     <th scope="col" th:text="#{view.employee.table.wrk-courses}"></th>
@@ -56,128 +56,186 @@
                 </tr>
                 </thead>
                 <tbody>
-                    <th:block th:each="emp, iStat: ${employees}">
-                        <!-- Employee-->
-                        <tr class="employee-row-value">
-                            <th scope="row" th:text="(${iStat.index } + 1)"></th>
-                            <td th:text="${emp.getFirstName()}"></td>
-                            <td th:text="${emp.getLastName()}"></td>
-                            <td th:text="${emp.getWorkplace().getAbbreviation()}"></td>
-                            <td th:text="${emp.getProjectsAllocations().size()}"></td>
-                            <td th:text="${emp.getCoursesAllocations().size()}"></td>
-                            <td th:text="${emp.getFunctionsAllocations().size()}"></td>
-                            <td th:text="${emp.getCertainTime()}"></td>
-                            <td th:text="${emp.getUncertainTime()}"></td>
-                        </tr>
-                        <!-- Projects header -->
-                        <tr class="project-row-title">
-                            <th scope="col" th:text="#{view.employee.table.activity.projects}"></th>
-                        </tr>
-                        <!-- Project labels -->
-                        <tr class="project-row-header">
-                            <th scope="col">#</th>
-                            <th scope="col" th:text="#{view.employee.table.activity.name}"></th>
-                            <th scope="col" th:text="#{view.employee.table.project.role}"></th>
-                            <th scope="col" th:text="#{view.employee.table.activity.certain}"></th>
-                            <th scope="col" th:text="#{month.january}"></th>
-                            <th scope="col" th:text="#{month.february}"></th>
-                            <th scope="col" th:text="#{month.march}"></th>
-                            <th scope="col" th:text="#{month.april}"></th>
-                            <th scope="col" th:text="#{month.may}"></th>
-                            <th scope="col" th:text="#{month.june}"></th>
-                            <th scope="col" th:text="#{month.july}"></th>
-                            <th scope="col" th:text="#{month.august}"></th>
-                            <th scope="col" th:text="#{month.september}"></th>
-                            <th scope="col" th:text="#{month.october}"></th>
-                            <th scope="col" th:text="#{month.november}"></th>
-                            <th scope="col" th:text="#{month.december}"></th>
-                            <th scope="col"></th>
-                        </tr>
-                        <!-- Projects values -->
-                        <th:block th:each="all, allStat: ${emp.getProjectsAllocations()}">
-                            <tr class="project-row-value">
-                                <th scope="row" th:text="(${allStat.index } + 1)"></th>
-                                <td th:text="${all.getProject().getName()}"></td>
-                                <td th:text="${all.getProject().getName()}"></td>
-                                <td th:text="${all.getProject().getProbability()}"></td>
-                                <th:block th:each="perMonth : ${all.getProject().getYearAllocation()}">
-                                    <td th:text="${perMonth}"></td>
+                <th:block th:each="emp, iStat: ${employees}">
+                    <!-- Employee-->
+                    <tr class="employee-row-value" th:id="${iStat.index}">
+                        <th scope="row" th:text="(${iStat.index } + 1)"></th>
+                        <td contenteditable='true' th:text="${emp.getFirstName()}"></td>
+                        <td th:text="${emp.getLastName()}"></td>
+                        <td th:text="${emp.getWorkplace().getAbbreviation()}"></td>
+                        <td th:text="${emp.getProjectsAllocations().size()}"></td>
+                        <td th:text="${emp.getCoursesAllocations().size()}"></td>
+                        <td th:text="${emp.getFunctionsAllocations().size()}"></td>
+                        <td th:text="${emp.getCertainTime()}"></td>
+                        <td th:text="${emp.getUncertainTime()}"></td>
+                    </tr>
+                    <tr>
+                        <td colspan="18">
+                            <table class="my-collapse">
+                                <thead>
+                                <!-- Projects header -->
+                                <tr class="project-row-title">
+                                    <td th:text="#{view.employee.table.activity.projects}"></td>
+                                </tr>
+                                <!-- Project labels -->
+                                <tr class="project-row-header">
+                                    <td>#</td>
+                                    <td class="project-cell" style="width: 250px" th:text="#{view.employee.table.activity.name}"></td>
+                                    <td class="project-cell" th:text="#{view.employee.table.project.role}"></td>
+                                    <td class="project-cell" th:text="#{view.employee.table.activity.certain}"></td>
+                                    <td class="project-cell" th:text="#{month.january}"></td>
+                                    <td class="project-cell" th:text="#{month.february}"></td>
+                                    <td class="project-cell" th:text="#{month.march}"></td>
+                                    <td class="project-cell" th:text="#{month.april}"></td>
+                                    <td class="project-cell" th:text="#{month.may}"></td>
+                                    <td class="project-cell" th:text="#{month.june}"></td>
+                                    <td class="project-cell" th:text="#{month.july}"></td>
+                                    <td class="project-cell" th:text="#{month.august}"></td>
+                                    <td class="project-cell" th:text="#{month.september}"></td>
+                                    <td class="project-cell" th:text="#{month.october}"></td>
+                                    <td class="project-cell" th:text="#{month.november}"></td>
+                                    <td class="project-cell" th:text="#{month.december}"></td>
+                                    <td class="project-cell"></td>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <!-- Projects values -->
+                                <th:block th:each="all, allStat: ${emp.getProjectsAllocations()}">
+                                    <form th:method="POST" th:action="@{'/a/' + ${all.getId() + '/edit?mana'}}" th:object="${all}" novalidate>
+                                        <th:block>
+                                            <tr class="project-row-value">
+                                                <th scope="row" th:text="(${allStat.index } + 1)"></th>
+                                                <td class="project-cell" th:text="${all.getProject().getName()}"></td>
+                                                <td class="project-cell" th:text="${all.getProject().getName()}"></td>
+                                                <td class="project-cell" th:text="${all.getProject().getProbability()}"></td>
+                                                <td class="project-cell project-input">
+                                                    <label><input class="project-input" th:type="text" th:value="${all.getProject().getProbability()}"/></label>
+                                                </td>
+                                                <th:block th:each="perMonth : ${all.getProject().getYearAllocation()}">
+                                                    <td class="project-cell">
+                                                        <label><input class="project-input" th:type="text" th:value="${perMonth}"/></label>
+                                                    </td>
+                                                </th:block>
+                                                <td>
+                                                    <button class="btn collapsible btn-edit" th:onclick="'editProject('+${all.getId()}+')'"></button>
+                                                </td>
+                                            </tr>
+                                        </th:block>
+                                    </form>
                                 </th:block>
-                            </tr>
-                        </th:block>
-                        <!-- Courses header -->
-                        <tr class="course-row-title">
-                            <th scope="col" th:text="#{view.employee.table.activity.courses}"></th>
-                        </tr>
-                        <!-- Course labels -->
-                        <tr class="course-row-header">
-                            <th scope="col">#</th>
-                            <th scope="col" th:text="#{view.employee.table.activity.name}"></th>
-                            <th scope="col" th:text="#{view.employee.table.course.students}"></th>
-                            <th scope="col" th:text="#{view.employee.table.activity.certain}"></th>
-                            <th scope="col" th:text="#{month.january}"></th>
-                            <th scope="col" th:text="#{month.february}"></th>
-                            <th scope="col" th:text="#{month.march}"></th>
-                            <th scope="col" th:text="#{month.april}"></th>
-                            <th scope="col" th:text="#{month.may}"></th>
-                            <th scope="col" th:text="#{month.june}"></th>
-                            <th scope="col" th:text="#{month.july}"></th>
-                            <th scope="col" th:text="#{month.august}"></th>
-                            <th scope="col" th:text="#{month.september}"></th>
-                            <th scope="col" th:text="#{month.october}"></th>
-                            <th scope="col" th:text="#{month.november}"></th>
-                            <th scope="col" th:text="#{month.december}"></th>
-                            <th scope="col"></th>
-                        </tr>
-                        <!-- Courses values -->
-                        <th:block th:each="all, allStat: ${emp.getCoursesAllocations()}">
-                            <tr class="course-row-value">
-                                <th scope="row" th:text="(${allStat.index } + 1)"></th>
-                                <td th:text="${all.getCourse().getName()}"></td>
-                                <td th:text="${all.getCourse().getName()}"></td>
-                                <td th:text="${all.getCourse().getProbability()}"></td>
-                                <th:block th:each="perMonth : ${all.getCourse().getYearAllocation()}">
-                                    <td th:text="${perMonth}"></td>
+                                </tbody>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="18">
+                            <table class="my-collapse">
+                                <thead>
+                                <!-- Courses header -->
+                                <tr class="course-row-title">
+                                    <td th:text="#{view.employee.table.activity.courses}"></td>
+                                </tr>
+                                <!-- Course labels -->
+                                <tr class="course-row-header">
+                                    <td class="course-cell">#</td>
+                                    <td class="course-cell" th:text="#{view.employee.table.activity.name}"></td>
+                                    <td class="course-cell" th:text="#{view.employee.table.course.students}"></td>
+                                    <td class="course-cell" th:text="#{view.employee.table.activity.certain}"></td>
+                                    <td class="course-cell" th:text="#{month.january}"></td>
+                                    <td class="course-cell" th:text="#{month.february}"></td>
+                                    <td class="course-cell" th:text="#{month.march}"></td>
+                                    <td class="course-cell" th:text="#{month.april}"></td>
+                                    <td class="course-cell" th:text="#{month.may}"></td>
+                                    <td class="course-cell" th:text="#{month.june}"></td>
+                                    <td class="course-cell" th:text="#{month.july}"></td>
+                                    <td class="course-cell" th:text="#{month.august}"></td>
+                                    <td class="course-cell" th:text="#{month.september}"></td>
+                                    <td class="course-cell" th:text="#{month.october}"></td>
+                                    <td class="course-cell" th:text="#{month.november}"></td>
+                                    <td class="course-cell" th:text="#{month.december}"></td>
+                                    <td class="course-cell"></td>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <!-- Courses values -->
+                                <th:block th:each="all, allStat: ${emp.getCoursesAllocations()}">
+                                    <form th:method="POST" th:action="@{'/a/' + ${all.getId() + '/edit?mana'}}" th:object="${all}" novalidate>
+                                        <th:block>
+                                            <tr class="course-row-value">
+                                                <th scope="row" th:text="(${allStat.index } + 1)"></th>
+                                                <td th:text="${all.getCourse().getName()}"></td>
+                                                <td th:text="${all.getCourse().getName()}"></td>
+                                                <td class="course-cell">
+                                                    <label><input class="project-input" th:type="text" th:value="${all.getCourse().getProbability()}"/></label>
+                                                </td>
+                                                <th:block th:each="perMonth : ${all.getCourse().getYearAllocation()}">
+                                                    <td class="course-cell">
+                                                        <label><input class="project-input" th:type="text" th:value="${perMonth}"/></label>
+                                                    </td>
+                                                </th:block>
+                                            </tr>
+                                        </th:block>
+                                    </form>
                                 </th:block>
-                            </tr>
-                        </th:block>
-                        <!-- Functions header -->
-                        <tr class="function-row-title">
-                            <th scope="col" th:text="#{view.employee.table.activity.functions}"></th>
-                        </tr>
-                        <!-- Function labels -->
-                        <tr class="function-row-header">
-                            <th scope="col">#</th>
-                            <th scope="col" th:text="#{view.employee.table.activity.name}"></th>
-                            <th scope="col" th:text="#{view.employee.table.project.role}"></th>
-                            <th scope="col" th:text="#{view.employee.table.activity.certain}"></th>
-                            <th scope="col" th:text="#{month.january}"></th>
-                            <th scope="col" th:text="#{month.february}"></th>
-                            <th scope="col" th:text="#{month.march}"></th>
-                            <th scope="col" th:text="#{month.april}"></th>
-                            <th scope="col" th:text="#{month.may}"></th>
-                            <th scope="col" th:text="#{month.june}"></th>
-                            <th scope="col" th:text="#{month.july}"></th>
-                            <th scope="col" th:text="#{month.august}"></th>
-                            <th scope="col" th:text="#{month.september}"></th>
-                            <th scope="col" th:text="#{month.october}"></th>
-                            <th scope="col" th:text="#{month.november}"></th>
-                            <th scope="col" th:text="#{month.december}"></th>
-                            <th scope="col"></th>
-                        </tr>
-                        <!-- Functions values -->
-                        <th:block th:each="all, allStat: ${emp.getFunctionsAllocations()}">
-                            <tr class="function-row-value">
-                                <th scope="row" th:text="(${allStat.index } + 1)"></th>
-                                <td th:text="${all.getFunction().getName()}"></td>
-                                <td th:text="${all.getFunction().getName()}"></td>
-                                <td th:text="${all.getFunction().getProbability()}"></td>
-                                <th:block th:each="perMonth : ${all.getFunction().getYearAllocation()}">
-                                    <td th:text="${perMonth}"></td>
+                                </tbody>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="18">
+                            <table class="my-collapse">
+                                <thead>
+                                <!-- Functions header -->
+                                <tr class="function-row-title">
+                                    <td th:text="#{view.employee.table.activity.functions}"></td>
+                                </tr>
+                                <!-- Function labels -->
+                                <tr class="function-row-header">
+                                    <td class="function-cell">#</td>
+                                    <td class="function-cell" th:text="#{view.employee.table.activity.name}"></td>
+                                    <td class="function-cell" th:text="#{view.employee.table.project.role}"></td>
+                                    <td class="function-cell" th:text="#{view.employee.table.activity.certain}"></td>
+                                    <td class="function-cell" th:text="#{month.january}"></td>
+                                    <td class="function-cell" th:text="#{month.february}"></td>
+                                    <td class="function-cell" th:text="#{month.march}"></td>
+                                    <td class="function-cell" th:text="#{month.april}"></td>
+                                    <td class="function-cell" th:text="#{month.may}"></td>
+                                    <td class="function-cell" th:text="#{month.june}"></td>
+                                    <td class="function-cell" th:text="#{month.july}"></td>
+                                    <td class="function-cell" th:text="#{month.august}"></td>
+                                    <td class="function-cell" th:text="#{month.september}"></td>
+                                    <td class="function-cell" th:text="#{month.october}"></td>
+                                    <td class="function-cell" th:text="#{month.november}"></td>
+                                    <td class="function-cell" th:text="#{month.december}"></td>
+                                    <td class="function-cell"></td>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <!-- Functions values -->
+                                <th:block th:each="all, allStat: ${emp.getFunctionsAllocations()}">
+                                    <form th:method="POST" th:action="@{'/a/' + ${all.getId() + '/edit?mana'}}" th:object="${all}" novalidate>
+                                        <th:block>
+                                            <tr class="function-row-value" id="allStat">
+                                                <th scope="row" th:text="(${allStat.index } + 1)"></th>
+                                                <td th:text="${all.getFunction().getName()}"></td>
+                                                <td th:text="${all.getFunction().getName()}"></td>
+                                                <td class="function-cell">
+                                                    <label><input class="function-input" th:type="text" th:value="${all.getFunction().getProbability()}"/></label>
+                                                </td>
+                                                <th:block th:each="perMonth : ${all.getFunction().getYearAllocation()}">
+                                                    <td class="function-cell">
+                                                        <label><input class="function-input" th:type="text" th:value="${perMonth}"/></label>
+                                                    </td>
+                                                </th:block>
+                                            </tr>
+                                        </th:block>
+                                    </form>
                                 </th:block>
-                            </tr>
-                        </th:block>
-                    </th:block>
+                                </tbody>
+                            </table>
+                        </td>
+                    </tr>
+                </th:block>
                 </tbody>
             </table>
             <div th:replace="~{fragments/footer}">Footer</div>
@@ -192,41 +250,47 @@
         let button = document.createElement("button");
         let td = document.createElement("td");
         button.className = "btn collapsible btn-dropdown";
-        button.setAttribute('onclick', 'sayHi()');
-        // button.addEventListener("click", function() {
-        //     this.classList.toggle("active");
-        //     var content = trArray;
-        //     console.log(tr.length);
-        //     if (content.style.display === "block") {
-        //         content.style.display = "none";
-        //     } else {
-        //         content.style.display = "block";
-        //     }
-        // });
+        button.addEventListener("click", function(evt) {
+            let collapse = document.getElementsByClassName("my-collapse");
+            let i = trArray.id * 3, ii = trArray.id * 3 + 3;
+            for (; i < ii; i++) {
+                console.log('index: ' + i);
+                if (collapse[i].style.display === "none") {
+                    collapse[i].style.display = "block";
+                } else {
+                    collapse[i].style.display = "none";
+                }
+            }
+        });
         td.append(button);
         trArray.append(td);
     });
 
-    let projectTr = document.querySelectorAll(".project-row-value");
+    let projectTr = document.querySelectorAll("table .project-row-value");
 
     Array.from(projectTr).forEach(function(trArray) {
         let button = document.createElement("button");
         let td = document.createElement("td");
         button.className = "btn collapsible btn-edit";
-        button.setAttribute('onclick', 'sayHi()');
-        // button.addEventListener("click", function() {
-        //     this.classList.toggle("active");
-        //     var content = trArray;
-        //     console.log(tr.length);
-        //     if (content.style.display === "block") {
-        //         content.style.display = "none";
-        //     } else {
-        //         content.style.display = "block";
-        //     }
-        // });
+        button.setAttribute('th:onclick', 'editProject(\'' + '+ ${all.getId()}+' + '\')');
+        // th:onclick="'editProject('+${all.getId()}+')'"
+        button.addEventListener("click", function(ev) {
+            // this.classList.toggle("active");
+            // var content = trArray;
+            console.log(ev.target.id);
+            // if (content.style.display === "block") {
+            //     content.style.display = "none";
+            // } else {
+            //     content.style.display = "block";
+            // }
+        });
         td.append(button);
         trArray.append(td);
     });
+
+    function editProject(projectId) {
+
+    }
 
     let courseTr = document.querySelectorAll(".course-row-value");
 

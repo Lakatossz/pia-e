@@ -56,17 +56,18 @@
                 <tbody>
                     <th:block th:each="crs, crsStats: ${courses}">
                         <!-- Employee-->
-                        <tr>
-                            <td th:rowspan="${crs.getEmployees().size() + 1}" th:text="${crs.getName()}"></td>
-                            <td th:rowspan="${crs.getEmployees().size() + 1}" th:text="${crs.getNumberOfStudents()}"></td>
-                            <td th:rowspan="${crs.getEmployees().size() + 1}" th:text="${crs.getCredits()}"></td>
-                            <td th:text="${firstAllocations.get(crsStats.index).getWorker().getLastName()}"></td>
-                            <td th:text="${firstAllocations.get(crsStats.index).getRole()}"></td>
-                            <td th:text="${firstAllocations.get(crsStats.index).getTime()}"></td>
-                            <td th:text="${firstAllocations.get(crsStats.index).getTime()}"></td>
-                            <td th:text="${firstAllocations.get(crsStats.index).getIsCertain()}"></td>
-                            <td th:text="${firstAllocations.get(crsStats.index).getIsCertain()}"></td>
-                        </tr>
+                        <th:block th:if="${firstAllocations.get(crsStats.index).getTime() >= 0}">
+                            <tr>
+                                <td th:rowspan="${crs.getCourseAllocations().size() + 1}" th:text="${crs.getName()}"></td>
+                                <td th:rowspan="${crs.getCourseAllocations().size() + 1}" th:text="${crs.getNumberOfStudents()}"></td>
+                                <td th:rowspan="${crs.getCourseAllocations().size() + 1}" th:text="${crs.getCredits()}"></td>
+                                <td th:text="${firstAllocations.get(crsStats.index).getWorker().getLastName()}"></td>
+                                <td th:text="${firstAllocations.get(crsStats.index).getRole()}"></td>
+                                <td th:text="${firstAllocations.get(crsStats.index).getTime()}"></td>
+                                <td th:text="${firstAllocations.get(crsStats.index).getTime()}"></td>
+                                <td th:text="${firstAllocations.get(crsStats.index).getIsCertain()}"></td>
+                                <td th:text="${firstAllocations.get(crsStats.index).getIsCertain()}"></td>
+                            </tr>
                             <th:block th:each="all : ${crs.getCourseAllocations()}">
                                 <tr>
                                     <td th:text="${all.getWorker().getLastName()}"></td>
@@ -77,6 +78,7 @@
                                     <td th:text="${all.getIsCertain()}"></td>
                                 </tr>
                             </th:block>
+                        </th:block>
                     </th:block>
                 </tbody>
             </table>

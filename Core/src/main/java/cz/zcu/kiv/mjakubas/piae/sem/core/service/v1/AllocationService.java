@@ -87,6 +87,14 @@ public class AllocationService {
         if (allocationVO.getDateFrom().isBefore(allocationProject.getDateFrom()) || allocationVO.getDateUntil().isAfter(allocationProject.getDateUntil()))
             throw new ServiceException();
 
+        var allocationCourse = courseRepository.fetchCourse(allocationVO.getCourseId());
+        if (allocationVO.getDateFrom().isBefore(allocationCourse.getDateFrom()) || allocationVO.getDateUntil().isAfter(allocationCourse.getDateUntil()))
+            throw new ServiceException();
+
+        var allocationFunction = functionRepository.fetchFunction(allocationVO.getFunctionId());
+        if (allocationVO.getDateFrom().isBefore(allocationFunction.getDateFrom()) || allocationVO.getDateUntil().isAfter(allocationFunction.getDateUntil()))
+            throw new ServiceException();
+
         Allocation allocation = new Allocation()
                 .worker(new Employee().id(allocationVO.getEmployeeId()))
                 .project(new Project().id(allocationVO.getProjectId()))
@@ -227,7 +235,7 @@ public class AllocationService {
      * @return payload
      */
     public AllocationPayload getFunctionAllocations(long id) {
-        var allocationList = injectEmployee(assignmentRepository.fetchAllocationsByProjectId(id));
+        var allocationList = injectEmployee(assignmentRepository.fetchAllocationsByFunctionId(id));
         List<Employee> employees = functionRepository.fetchFunctionEmployees(id);
 
         return new AllocationPayload(null, null, null, employees, allocationList);

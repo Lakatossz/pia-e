@@ -44,9 +44,11 @@ public class FunctionService {
      */
     public Function getFunction(long id) {
         Function function = functionRepository.fetchFunction(id);
-        List<Allocation> allocations = allocationService.getProjectAllocations(id).getAllocations();
-        if (!allocations.isEmpty())
+        List<Allocation> allocations = allocationService.getFunctionAllocations(id).getAllocations();
+        if (!allocations.isEmpty()) {
             function.setYearAllocation(prepareAllocations(allocations));
+            function.setFunctionAllocations(allocations);
+        }
         return function;
     }
 
@@ -59,8 +61,10 @@ public class FunctionService {
         List<Function> functions = functionRepository.fetchFunctions();
         functions.forEach(function -> {
             List<Allocation> allocations = allocationService.getFunctionAllocations(function.getId()).getAllocations();
-            if (!allocations.isEmpty())
+            if (!allocations.isEmpty()) {
                 function.setYearAllocation(prepareAllocations(allocations));
+                function.setFunctionAllocations(allocations);
+            }
         });
         return functions;
     }
@@ -203,7 +207,7 @@ public class FunctionService {
                 myFunctions.add(function);
         });
 
-        System.out.println("Pocet funcki: " + myFunctions.size());
+        System.out.println("Pocet funkci: " + myFunctions.size());
 
         return myFunctions;
     }
@@ -244,7 +248,7 @@ public class FunctionService {
 
         Allocation allocation = thisYearsAllocations.get(allocationsIndex);
 
-//        Here I will go through every month of the year and add to list 0 or time for project.
+//        Here I will go through every month of the year and add to list 0 or time for function.
         for (int i = 1; i < 13; i++) {
             if ((allocation.getDateFrom().getMonthValue() <= i
                     && allocation.getDateUntil().getMonthValue() >= i)

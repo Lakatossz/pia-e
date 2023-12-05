@@ -21,6 +21,7 @@ public class Function extends Activity {
     private Workplace functionWorkplace;
     private List<Employee> employees = new ArrayList<>();
     private List<Float> yearAllocation = new ArrayList<>(Collections.nCopies(12, (float) 0));
+    private List<Allocation> functionAllocations = new ArrayList<>();
 
     @Override
     public Function id(long id) {
@@ -89,6 +90,11 @@ public class Function extends Activity {
         return this;
     }
 
+    public Function functionAllocations(List<Allocation> functionAllocations) {
+        this.functionAllocations.addAll(functionAllocations);
+        return this;
+    }
+
     @Override
     public String toString() {
         return "Function{" + super.toString() +
@@ -97,6 +103,7 @@ public class Function extends Activity {
                 ", defaultTime=" + defaultTime +
                 ", employees=" + employees +
                 ", yearAllocation=" + yearAllocation +
+                ", functionAllocations=" + functionAllocations +
                 '}';
     }
 }

@@ -1,5 +1,6 @@
 package cz.zcu.kiv.mjakubas.piae.sem.webapplication.controller.v1;
 
+import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Allocation;
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Course;
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Function;
 import cz.zcu.kiv.mjakubas.piae.sem.core.service.v1.AllocationService;
@@ -20,6 +21,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Contains all sites for working with functions.
@@ -43,8 +47,24 @@ public class FunctionV1Controller {
     @GetMapping()
     public String getFunctions(Model model) {
         var functions = functionService.getFunctions();
+        List<Allocation> firstAllocations = new ArrayList<>();
+        functions.forEach(function -> {
+            List<Allocation> allocationsWithoutFirst = function.getFunctionAllocations();
+            if (!allocationsWithoutFirst.isEmpty()) {
+                allocationsWithoutFirst.remove(0);
+                List<Allocation> temp = allocationService.getFunctionAllocations(function.getId()).getAllocations();
+                if (!temp.isEmpty()) {
+                    Allocation allocation = temp.get(0);
+                    firstAllocations.add(allocation);
+                } else
+                    firstAllocations.add(new Allocation().time(-1));
+            } else
+                firstAllocations.add(new Allocation().time(-1));
+            function.setFunctionAllocations(allocationsWithoutFirst);
+        });
 
         model.addAttribute("functions", functions);
+        model.addAttribute("firstAllocations", firstAllocations);
         return "views/functions";
     }
 

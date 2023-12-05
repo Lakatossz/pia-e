@@ -56,9 +56,9 @@ public class CourseV1Controller {
                     Allocation allocation = temp.get(0);
                     firstAllocations.add(allocation);
                 } else
-                    firstAllocations.add(new Allocation());
+                    firstAllocations.add(new Allocation().time(-1));
             } else
-                firstAllocations.add(new Allocation());
+                firstAllocations.add(new Allocation().time(-1));
             course.setCourseAllocations(allocationsWithoutFirst);
         });
 

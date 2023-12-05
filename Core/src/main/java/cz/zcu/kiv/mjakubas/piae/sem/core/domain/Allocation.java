@@ -20,7 +20,7 @@ public class Allocation {
     private Project project;
     private Course course;
     private Function function;
-    private float time;
+    private float time; /* TODO - pro zobrazeni nevalidni alokace pouzivam time = -1 */
     private float isCertain;
     private int allocationScope;
     private LocalDate dateFrom;

@@ -62,9 +62,17 @@ table {
     overflow: hidden;
 }
 
+.my-collapse {
+    display: none;
+}
+
+.hidden {
+    display: none;
+}
+
 .my-container {
     position: absolute;
-    top: 30%;
+    top: 40%;
     bottom: 10%;
     left: 10%;
     right: 10%;
@@ -97,12 +105,28 @@ table {
 
 }
 
+.project-cell {
+    padding:10px;
+}
+
+.project-input {
+    width: 40px;
+}
+
 .course-row-header {
 
 }
 
 .course-row-value {
 
+}
+
+.course-cell {
+    padding:10px;
+}
+
+.course-input {
+    width: 40px;
 }
 
 .function-row-title {
@@ -115,4 +139,12 @@ table {
 
 .function-row-value {
 
+}
+
+.function-cell {
+    padding:10px;
+}
+
+.function-input {
+    width: 40px;
 }

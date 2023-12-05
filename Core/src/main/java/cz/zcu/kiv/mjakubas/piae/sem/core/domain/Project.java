@@ -27,6 +27,7 @@ public class Project extends Activity {
     private String grantTitle;
     private List<Employee> employees = new ArrayList<>();
     private List<Float> yearAllocation = new ArrayList<>(Collections.nCopies(12, (float) 0));
+    private List<Allocation> projectAllocations = new ArrayList<>();
 
     @Override
     public Project id(long id) {
@@ -125,6 +126,12 @@ public class Project extends Activity {
         return this;
     }
 
+    public Project projectAllocations(List<Allocation> projectAllocations) {
+        this.projectAllocations.addAll(projectAllocations);
+        return this;
+    }
+
+
     @Override
     public String toString() {
         return "Project{" + super.toString() +
@@ -139,6 +146,7 @@ public class Project extends Activity {
                 ", grantTitle=" + grantTitle +
                 ", employees=" + employees +
                 ", yearAllocation=" + yearAllocation +
+                ", projectAllocations=" + projectAllocations +
                 '}';
     }
 }

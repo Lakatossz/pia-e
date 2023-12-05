@@ -45,8 +45,10 @@ public class ProjectService {
     public Project getProject(long id) {
         Project project = projectRepository.fetchProject(id);
         List<Allocation> allocations = allocationService.getProjectAllocations(id).getAllocations();
-        if (!allocations.isEmpty())
+        if (!allocations.isEmpty()) {
             project.setYearAllocation(prepareAllocations(allocations));
+            project.setProjectAllocations(allocations);
+        }
         return project;
     }
 
@@ -59,8 +61,10 @@ public class ProjectService {
         List<Project> projects = projectRepository.fetchProjects();
         projects.forEach(project -> {
                 List<Allocation> allocations = allocationService.getProjectAllocations(project.getId()).getAllocations();
-                if (!allocations.isEmpty())
+                if (!allocations.isEmpty()) {
                     project.setYearAllocation(prepareAllocations(allocations));
+                    project.setProjectAllocations(allocations);
+                }
         });
         return projectRepository.fetchProjects();
     }
@@ -204,13 +208,14 @@ public class ProjectService {
         var projects = projectRepository.fetchProjects();
         var myProjects = new ArrayList<Project>();
         projects.forEach(project -> {
+            System.out.println(project.getEmployees().size());
             project.setYearAllocation(
                     prepareAllocations(allocationService.getProjectAllocations(project.getId()).getAllocations()));
             if (project.getEmployees().stream().filter(employee -> employee.getId() == employeeId).toList().size() == 1)
                 myProjects.add(project);
+            project.setProjectAllocations(allocationService.getProjectAllocations(project.getId())
+                    .getAllocations().stream().filter(allocation -> allocation.getWorker().getId() == employeeId).toList());
         });
-
-        System.out.println("Pocet projektu: " + myProjects.size());
 
         return myProjects;
     }

@@ -89,14 +89,14 @@ public class EmployeeService {
     public void createEmployee(EmployeeVO employeeVO) {
         String email = "^(.+)@(.+)$";
         Pattern pattern = Pattern.compile(email);
-        if (!pattern.matcher(employeeVO.getEmail()).matches())
+        if (!pattern.matcher(employeeVO.getEmailAddress()).matches())
             throw new ServiceException();
 
         Employee employee = new Employee()
                 .firstName(employeeVO.getFirstName())
                 .lastName(employeeVO.getLastName())
                 .orionLogin(employeeVO.getOrionLogin())
-                .emailAddress(employeeVO.getEmail())
+                .emailAddress(employeeVO.getEmailAddress())
                 .workplace(Workplace.builder()
                         .id(employeeVO.getWorkplaceId())
                         .build());
@@ -123,7 +123,7 @@ public class EmployeeService {
                 .firstName(employeeVO.getFirstName())
                 .lastName(employeeVO.getLastName())
                 .orionLogin(employeeVO.getOrionLogin())
-                .emailAddress(employeeVO.getEmail())
+                .emailAddress(employeeVO.getEmailAddress())
                 .workplace(Workplace.builder()
                         .id(employeeVO.getWorkplaceId())
                         .build());

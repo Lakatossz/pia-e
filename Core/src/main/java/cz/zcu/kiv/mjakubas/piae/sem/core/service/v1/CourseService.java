@@ -220,8 +220,6 @@ public class CourseService {
                 myCourses.add(course);
         });
 
-        System.out.println("Pocet predmetu je: " + myCourses.size());
-
         return myCourses;
     }
 
@@ -259,22 +257,25 @@ public class CourseService {
 
         int allocationsIndex = 0;
 
-        Allocation allocation = thisYearsAllocations.get(allocationsIndex);
+        if (!thisYearsAllocations.isEmpty()) {
+            Allocation allocation = thisYearsAllocations.get(allocationsIndex);
 
 //        Here I will go through every month of the year and add to list 0 or time for project.
-        for (int i = 1; i < 13; i++) {
-            if ((allocation.getDateFrom().getMonthValue() <= i && allocation.getDateUntil().getMonthValue() >= i)
-                    || (isThisYearAllocation(allocation) && allocation.getDateFrom().getYear() == i)
-                    || (isThisYearAllocation(allocation) && allocation.getDateUntil().getYear() == i))
-                yearAllocations.set(i - 1, allocation.getTime());
-            else {
-                if (allocation.getDateUntil().getMonthValue() == i)
-                    allocation = thisYearsAllocations.get(allocationsIndex++);
-                else
-                    yearAllocations.set(i - 1, (float) 0);
+            for (int i = 1; i < 13; i++) {
+                if ((allocation.getDateFrom().getMonthValue() <= i && allocation.getDateUntil().getMonthValue() >= i)
+                        || (isThisYearAllocation(allocation) && allocation.getDateFrom().getYear() == i)
+                        || (isThisYearAllocation(allocation) && allocation.getDateUntil().getYear() == i))
+                    yearAllocations.set(i - 1, allocation.getTime());
+                else {
+                    if (allocation.getDateUntil().getMonthValue() == i)
+                        allocation = thisYearsAllocations.get(allocationsIndex++);
+                    else
+                        yearAllocations.set(i - 1, (float) 0);
+                }
             }
-        }
-        return yearAllocations;
+            return yearAllocations;
+        } else
+            return new ArrayList<>();
     }
 
     private boolean isThisYearAllocation(Allocation allocation) {

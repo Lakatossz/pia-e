@@ -43,7 +43,7 @@
             <table class="my-table">
                 <thead>
                 <tr class="employee-row-header">
-                    <th scope="col">#</th>
+                    <th scope="col"></th>
                     <th scope="col" th:text="#{view.employee.table.fname}"></th>
                     <th scope="col" th:text="#{view.employee.table.lname}"></th>
                     <th scope="col" th:text="#{view.employee.table.wrk-abbreviation}"></th>
@@ -59,8 +59,10 @@
                 <th:block th:each="emp, iStat: ${employees}">
                     <!-- Employee-->
                     <tr class="employee-row-value" th:id="${iStat.index}">
-                        <th scope="row" th:text="(${iStat.index } + 1)"></th>
-                        <td contenteditable='true' th:text="${emp.getFirstName()}"></td>
+                        <td>
+                            <a type="button" class="btn collapsible btn-detail" th:href="@{/e/{EMP_ID}/detail(EMP_ID=${emp.getId()})}"></a>
+                        </td>
+                        <td th:text="${emp.getFirstName()}"></td>
                         <td th:text="${emp.getLastName()}"></td>
                         <td th:text="${emp.getWorkplace().getAbbreviation()}"></td>
                         <td th:text="${emp.getProjectsAllocations().size()}"></td>
@@ -79,7 +81,7 @@
                                 </tr>
                                 <!-- Project labels -->
                                 <tr class="project-row-header">
-                                    <td>#</td>
+                                    <td></td>
                                     <td class="project-cell" style="width: 250px" th:text="#{view.employee.table.activity.name}"></td>
                                     <td class="project-cell" th:text="#{view.employee.table.project.role}"></td>
                                     <td class="project-cell" th:text="#{view.employee.table.activity.certain}"></td>
@@ -137,7 +139,7 @@
                                 </tr>
                                 <!-- Course labels -->
                                 <tr class="course-row-header">
-                                    <td class="course-cell">#</td>
+                                    <td class="course-cell"></td>
                                     <td class="course-cell" th:text="#{view.employee.table.activity.name}"></td>
                                     <td class="course-cell" th:text="#{view.employee.table.course.students}"></td>
                                     <td class="course-cell" th:text="#{view.employee.table.activity.certain}"></td>
@@ -162,7 +164,7 @@
                                     <form th:method="POST" th:action="@{'/a/' + ${all.getId() + '/edit?mana'}}" th:object="${all}" novalidate>
                                         <th:block>
                                             <tr class="course-row-value">
-                                                <th scope="row" th:text="(${allStat.index } + 1)"></th>
+                                                <td></td>
                                                 <td th:text="${all.getCourse().getName()}"></td>
                                                 <td th:text="${all.getCourse().getName()}"></td>
                                                 <td class="course-cell">
@@ -191,7 +193,7 @@
                                 </tr>
                                 <!-- Function labels -->
                                 <tr class="function-row-header">
-                                    <td class="function-cell">#</td>
+                                    <td class="function-cell"></td>
                                     <td class="function-cell" th:text="#{view.employee.table.activity.name}"></td>
                                     <td class="function-cell" th:text="#{view.employee.table.project.role}"></td>
                                     <td class="function-cell" th:text="#{view.employee.table.activity.certain}"></td>
@@ -216,7 +218,7 @@
                                     <form th:method="POST" th:action="@{'/a/' + ${all.getId() + '/edit?mana'}}" th:object="${all}" novalidate>
                                         <th:block>
                                             <tr class="function-row-value" id="allStat">
-                                                <th scope="row" th:text="(${allStat.index } + 1)"></th>
+                                                <td></td>
                                                 <td th:text="${all.getFunction().getName()}"></td>
                                                 <td th:text="${all.getFunction().getName()}"></td>
                                                 <td class="function-cell">
@@ -336,6 +338,11 @@
 
     function sayHi() {
         console.log('Hi');
+    }
+
+    function detailEmployee(employeeId) {
+        window.location.replace(window.location.href + '/' + employeeId +  '/detail');
+        // console.log(window.location.href + '/' + employeeId +  '/detail');
     }
 
 

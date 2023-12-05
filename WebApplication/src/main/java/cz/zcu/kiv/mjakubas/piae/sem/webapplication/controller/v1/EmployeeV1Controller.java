@@ -84,9 +84,11 @@ public class EmployeeV1Controller {
         var courses = courseService.getEmployeesCourses(id);
         var functions = functionService.getEmployeeFunctions(id);
 
-        model.addAttribute(USER_VO,
-                new EmployeeVO(employee.getFirstName(), employee.getLastName(), employee.getEmailAddress(),
-                        employee.getOrionLogin(), employee.getWorkplace().getId(), null));
+        model.addAttribute("employee",
+                new EmployeeVO(employee.getId(), employee.getFirstName(), employee.getLastName(),
+                        employee.getOrionLogin(), employee.getEmailAddress(), employee.getWorkplace().getId(),
+                        null, employee.getDateCreated(), employee.getCertainTime(), employee.getUncertainTime(),
+                        employee.getDescription()));
 
         model.addAttribute(RESTRICITONS, employees);
         model.addAttribute(WORKLPACES, workplaces);
@@ -94,7 +96,7 @@ public class EmployeeV1Controller {
         model.addAttribute("courses", courses);
         model.addAttribute("functions", functions);
 
-        return "forms/employee/detail_employee";
+        return "details/employee_detail";
     }
 
     @GetMapping("/{id}/edit")
@@ -104,8 +106,10 @@ public class EmployeeV1Controller {
         var workplaces = workplaceService.getWorkplaces();
 
         model.addAttribute(USER_VO,
-                new EmployeeVO(employee.getFirstName(), employee.getLastName(), employee.getEmailAddress(),
-                        employee.getOrionLogin(), employee.getWorkplace().getId(), null));
+                new EmployeeVO(employee.getId(), employee.getFirstName(), employee.getLastName(),
+                        employee.getOrionLogin(), employee.getEmailAddress(), employee.getWorkplace().getId(),
+                        null, employee.getDateCreated(), employee.getCertainTime(), employee.getUncertainTime(),
+                        employee.getDescription()));
 
         model.addAttribute(RESTRICITONS, employees);
         model.addAttribute(WORKLPACES, workplaces);

@@ -168,6 +168,36 @@ public class AllocationService {
     }
 
     /**
+     * Gets all employee projects allocations. Throws SQL exception if employee doesn't exist.
+     *
+     * @param id employee id
+     * @return list of {@link Allocation}
+     */
+    public List<Allocation> getEmployeeProjectsAllocations(long id) {
+        return injectProjectActivity(assignmentRepository.fetchEmployeeAllocations(id));
+    }
+
+    /**
+     * Gets all employee courses allocations. Throws SQL exception if employee doesn't exist.
+     *
+     * @param id employee id
+     * @return list of {@link Allocation}
+     */
+    public List<Allocation> getEmployeeCoursesAllocations(long id) {
+        return injectCourseActivity(assignmentRepository.fetchEmployeeAllocations(id));
+    }
+
+    /**
+     * Gets all employee functions allocations. Throws SQL exception if employee doesn't exist.
+     *
+     * @param id employee id
+     * @return list of {@link Allocation}
+     */
+    public List<Allocation> getEmployeeFunctionsAllocations(long id) {
+        return injectFunctionActivity(assignmentRepository.fetchEmployeeAllocations(id));
+    }
+
+    /**
      * Gets all subordinates allocations. Throws SQL exception if superior doesn't exist.
      *
      * @param superiorId superior id.
@@ -383,6 +413,93 @@ public class AllocationService {
                     .role(a.getRole())
                     .dateUntil(a.getDateUntil()).description(a.getDescription()).active(a.getActive()));
         }
+
+        for (Allocation a : allocations) {
+            var function = mapFunctions.get(a.getFunction().getId());
+
+            withActivity.add(new Allocation()
+                    .id(a.getId())
+                    .worker(a.getWorker())
+                    .function(function)
+                    .role(a.getRole())
+                    .allocationScope(a.getAllocationScope())
+                    .dateFrom(a.getDateFrom())
+                    .dateUntil(a.getDateUntil()).description(a.getDescription()).active(a.getActive()));
+        }
+
+        return withActivity;
+    }
+
+    /**
+     * Filter all non-project allocations.
+     *
+     * @param allocations employee allocations
+     * @return list of {@link Allocation} with {@link Employee}
+     */
+    private List<Allocation> injectProjectActivity(@NonNull List<Allocation> allocations) {
+        var projects = projectRepository.fetchProjects();
+        Map<Long, Project> mapProjects = new HashMap<>();
+        projects.forEach(project -> mapProjects.putIfAbsent(project.getId(), project));
+
+        List<Allocation> withActivity = new ArrayList<>();
+
+        for (Allocation a : allocations) {
+            var project = mapProjects.get(a.getProject().getId());
+
+            withActivity.add(new Allocation()
+                    .id(a.getId())
+                    .worker(a.getWorker())
+                    .project(project)
+                    .allocationScope(a.getAllocationScope())
+                    .dateFrom(a.getDateFrom())
+                    .role(a.getRole())
+                    .dateUntil(a.getDateUntil()).description(a.getDescription()).active(a.getActive()));
+        }
+
+        return withActivity;
+    }
+
+    /**
+     * Filter all non-course allocations.
+     *
+     * @param allocations employee allocations
+     * @return list of {@link Allocation} with {@link Employee}
+     */
+    private List<Allocation> injectCourseActivity(@NonNull List<Allocation> allocations) {
+        var courses = courseRepository.fetchCourses();
+        Map<Long, Course> mapCourses = new HashMap<>();
+        courses.forEach(course -> mapCourses.putIfAbsent(course.getId(), course));
+
+        List<Allocation> withActivity = new ArrayList<>();
+
+        for (Allocation a : allocations) {
+            var course = mapCourses.get(a.getCourse().getId());
+
+            withActivity.add(new Allocation()
+                    .id(a.getId())
+                    .worker(a.getWorker())
+                    .course(course)
+                    .allocationScope(a.getAllocationScope())
+                    .dateFrom(a.getDateFrom())
+                    .role(a.getRole())
+                    .dateUntil(a.getDateUntil()).description(a.getDescription()).active(a.getActive()));
+        }
+
+        return withActivity;
+    }
+
+    /**
+     * Filter all non-function allocations.
+     *
+     * @param allocations employee allocations
+     * @return list of {@link Allocation} with {@link Employee}
+     */
+    private List<Allocation> injectFunctionActivity(@NonNull List<Allocation> allocations) {
+        var functions = functionRepository.fetchFunctions();
+        Map<Long, Function> mapFunctions = new HashMap<>();
+        functions.forEach(function -> mapFunctions.putIfAbsent(function.getId(), function));
+
+        List<Allocation> withActivity = new ArrayList<>();
 
         for (Allocation a : allocations) {
             var function = mapFunctions.get(a.getFunction().getId());

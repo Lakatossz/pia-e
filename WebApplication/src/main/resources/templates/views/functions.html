@@ -43,7 +43,7 @@
             <table class="table">
                 <thead>
                 <tr>
-                    <th scope="col">#</th>
+                    <th scope="col"></th>
                     <th scope="col" th:text="#{view.function.table.name}"></th>
                     <th scope="col" th:text="#{view.function.table.supervisor}"></th>
                     <th scope="col" th:text="#{view.function.table.from}"></th>
@@ -59,7 +59,9 @@
                     <!-- Employee-->
                     <th:block th:if="${firstAllocations.get(iStat.index).getTime >= 0}">
                         <tr>
-                            <th th:rowspan="${fnc.getFunctionAllocations().size() + 1}" scope="row" th:text="(${iStat.index} + 1)"></th>
+                            <td class="function-cell" th:rowspan="${fnc.getFunctionAllocations().size() + 1}">
+                                <a type="button" class="btn collapsible btn-detail" th:href="@{/f/{FNC_ID}/detail(FNC_ID=${fnc.getId()})}"></a>
+                            </td>
                             <td th:rowspan="${fnc.getFunctionAllocations().size() + 1}" th:text="${fnc.getName()}"></td>
                             <td th:rowspan="${fnc.getFunctionAllocations().size() + 1}" th:text="${fnc.getFunctionManager().getLastName()}"></td>
                             <td th:text="${firstAllocations.get(iStat.index).getDateFrom()}"></td>
@@ -67,14 +69,20 @@
                             <td th:text="${firstAllocations.get(iStat.index).getTime()}"></td>
                             <td th:text="${firstAllocations.get(iStat.index).getIsCertain()}"></td>
                             <td th:text="${firstAllocations.get(iStat.index).getDescription()}"></td>
+                            <td class="function-cell">
+                                <button class="btn collapsible btn-edit" th:onclick="'editFunction('+${firstAllocations.get(iStat.index).getId()}+')'"></button>
+                            </td>
                         </tr>
-                        <th:block th:each="all : ${fnc.getFunctionAllocations()}">
+                        <th:block th:each="all, allStats : ${fnc.getFunctionAllocations()}">
                             <tr>
                                 <td th:text="${all.getDateFrom()}"></td>
                                 <td th:text="${all.getDateUntil()}"></td>
                                 <td th:text="${all.getTime()}"></td>
                                 <td th:text="${all.getIsCertain()}"></td>
                                 <td th:text="${all.getDescription()}"></td>
+                                <td class="function-cell">
+                                    <button class="btn collapsible btn-edit" th:onclick="'editFunction('+${all.getId()}+')'"></button>
+                                </td>
                             </tr>
                         </th:block>
                     </th:block>
@@ -87,4 +95,14 @@
 
 <div th:replace="~{fragments/footer}">Footer</div>
 </body>
+<script>
+    function editFunction(allocationId) {
+        console.log('edit: ' + allocationId);
+    }
+
+    function detailFunction(allocationId) {
+        window.location.replace(window.location.href + '/' + allocationId +  '/detail');
+    }
+
+</script>
 </html>

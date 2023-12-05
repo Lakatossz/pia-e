@@ -48,6 +48,7 @@ public class CourseService {
         if(!allocations.isEmpty()) {
             course.setYearAllocation(prepareAllocations(allocations));
             course.setCourseAllocations(allocations);
+            course.setEmployees(courseRepository.fetchCourseEmployees(course.getId()));
         }
 
         return course;
@@ -214,10 +215,13 @@ public class CourseService {
         var courses = courseRepository.fetchCourses();
         var myCourses = new ArrayList<Course>();
         courses.forEach(course -> {
+            course.setEmployees(courseRepository.fetchCourseEmployees(course.getId()));
             course.setYearAllocation(
                     prepareAllocations(allocationService.getCourseAllocations(course.getId()).getAllocations()));
             if (course.getEmployees().stream().filter(employee -> employee.getId() == employeeId).toList().size() == 1)
                 myCourses.add(course);
+            course.setCourseAllocations(allocationService.getCourseAllocations(course.getId()).getAllocations()
+                    .stream().filter(allocation -> allocation.getWorker().getId() == employeeId).toList());
         });
 
         return myCourses;
@@ -239,6 +243,31 @@ public class CourseService {
                 myCourses.add(course);
         });
         return myCourses;
+    }
+
+    public List<Allocation> prepareForTable(List<Course> courses) {
+        List<Allocation> firstAllocations = new ArrayList<>();
+        courses.forEach(course -> {
+            switch(course.getCourseAllocations().size()) {
+                case 0: {
+                    firstAllocations.add(new Allocation().time(-1));
+                    course.setCourseAllocations(new ArrayList<>());
+                    break;
+                }
+                case 1: {
+                    firstAllocations.add(course.getCourseAllocations().get(0));
+                    course.setCourseAllocations(new ArrayList<>());
+                    break;
+                }
+                default: {
+                    firstAllocations.add(course.getCourseAllocations().remove(0));
+                    course.setCourseAllocations(course.getCourseAllocations());
+                    break;
+                }
+            }
+        });
+
+        return firstAllocations;
     }
 
     /**

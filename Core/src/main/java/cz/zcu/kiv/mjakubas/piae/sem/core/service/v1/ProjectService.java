@@ -48,6 +48,7 @@ public class ProjectService {
         if (!allocations.isEmpty()) {
             project.setYearAllocation(prepareAllocations(allocations));
             project.setProjectAllocations(allocations);
+            project.setEmployees(projectRepository.fetchProjectEmployees(id));
         }
         return project;
     }
@@ -64,6 +65,7 @@ public class ProjectService {
                 if (!allocations.isEmpty()) {
                     project.setYearAllocation(prepareAllocations(allocations));
                     project.setProjectAllocations(allocations);
+                    project.setEmployees(projectRepository.fetchProjectEmployees(project.getId()));
                 }
         });
         return projectRepository.fetchProjects();
@@ -208,14 +210,16 @@ public class ProjectService {
         var projects = projectRepository.fetchProjects();
         var myProjects = new ArrayList<Project>();
         projects.forEach(project -> {
-            System.out.println(project.getEmployees().size());
+            project.setEmployees(projectRepository.fetchProjectEmployees(project.getId()));
             project.setYearAllocation(
                     prepareAllocations(allocationService.getProjectAllocations(project.getId()).getAllocations()));
             if (project.getEmployees().stream().filter(employee -> employee.getId() == employeeId).toList().size() == 1)
                 myProjects.add(project);
-            project.setProjectAllocations(allocationService.getProjectAllocations(project.getId())
-                    .getAllocations().stream().filter(allocation -> allocation.getWorker().getId() == employeeId).toList());
+            project.setProjectAllocations(allocationService.getProjectAllocations(project.getId()).getAllocations()
+                    .stream().filter(allocation -> allocation.getWorker().getId() == employeeId).toList());
         });
+
+        System.out.println(myProjects.size());
 
         return myProjects;
     }
@@ -236,6 +240,31 @@ public class ProjectService {
                 myProjects.add(project);
         });
         return myProjects;
+    }
+
+    public List<Allocation> prepareForTable(List<Project> projects) {
+        List<Allocation> firstAllocations = new ArrayList<>();
+        projects.forEach(project -> {
+            switch(project.getProjectAllocations().size()) {
+                case 0: {
+                    firstAllocations.add(new Allocation().time(-1));
+                    project.setProjectAllocations(new ArrayList<>());
+                    break;
+                }
+                case 1: {
+                    firstAllocations.add(project.getProjectAllocations().get(0));
+                    project.setProjectAllocations(new ArrayList<>());
+                    break;
+                }
+                default: {
+                    firstAllocations.add(project.getProjectAllocations().remove(0));
+                    project.setProjectAllocations(project.getProjectAllocations());
+                    break;
+                }
+            }
+        });
+
+        return firstAllocations;
     }
 
     /**

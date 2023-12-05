@@ -1,5 +1,6 @@
 package cz.zcu.kiv.mjakubas.piae.sem.webapplication.controller.v1;
 
+import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Allocation;
 import cz.zcu.kiv.mjakubas.piae.sem.core.service.SecurityService;
 import cz.zcu.kiv.mjakubas.piae.sem.core.service.v1.AllocationService;
 import cz.zcu.kiv.mjakubas.piae.sem.core.service.v1.CourseService;
@@ -15,6 +16,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * Contains all sites for working with employees.
@@ -81,8 +84,12 @@ public class EmployeeV1Controller {
         var employees = employeeService.getEmployees();
         var workplaces = workplaceService.getWorkplaces();
         var projects = projectService.getEmployeeProjects(id);
+        List<Allocation> firstProjectsAllocations = projectService.prepareForTable(projects);
         var courses = courseService.getEmployeesCourses(id);
+        List<Allocation> firstCoursesAllocations = courseService.prepareForTable(courses);
+
         var functions = functionService.getEmployeeFunctions(id);
+        List<Allocation> firstFunctionsAllocations = functionService.prepareForTable(functions);
 
         model.addAttribute("employee",
                 new EmployeeVO(employee.getId(), employee.getFirstName(), employee.getLastName(),
@@ -93,8 +100,11 @@ public class EmployeeV1Controller {
         model.addAttribute(RESTRICITONS, employees);
         model.addAttribute(WORKLPACES, workplaces);
         model.addAttribute("projects", projects);
+        model.addAttribute("firstProjectsAllocations", firstProjectsAllocations);
         model.addAttribute("courses", courses);
+        model.addAttribute("firstCoursesAllocations", firstCoursesAllocations);
         model.addAttribute("functions", functions);
+        model.addAttribute("firstFunctionsAllocations", firstFunctionsAllocations);
 
         return "details/employee_detail";
     }

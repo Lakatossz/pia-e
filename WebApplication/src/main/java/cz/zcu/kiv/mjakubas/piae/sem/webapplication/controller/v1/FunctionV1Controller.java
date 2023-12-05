@@ -47,21 +47,7 @@ public class FunctionV1Controller {
     @GetMapping()
     public String getFunctions(Model model) {
         var functions = functionService.getFunctions();
-        List<Allocation> firstAllocations = new ArrayList<>();
-        functions.forEach(function -> {
-            List<Allocation> allocationsWithoutFirst = function.getFunctionAllocations();
-            if (!allocationsWithoutFirst.isEmpty()) {
-                allocationsWithoutFirst.remove(0);
-                List<Allocation> temp = allocationService.getFunctionAllocations(function.getId()).getAllocations();
-                if (!temp.isEmpty()) {
-                    Allocation allocation = temp.get(0);
-                    firstAllocations.add(allocation);
-                } else
-                    firstAllocations.add(new Allocation().time(-1));
-            } else
-                firstAllocations.add(new Allocation().time(-1));
-            function.setFunctionAllocations(allocationsWithoutFirst);
-        });
+        List<Allocation> firstAllocations = functionService.prepareForTable(functions);
 
         model.addAttribute("functions", functions);
         model.addAttribute("firstAllocations", firstAllocations);

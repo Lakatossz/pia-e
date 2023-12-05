@@ -83,15 +83,14 @@
         <table class="table">
             <thead>
             <tr>
-                <th scope="col" th:text="#{view.course.table.shortcut}"></th>
-                <th scope="col" th:text="#{view.course.table.students}"></th>
-                <th scope="col" th:text="#{view.course.table.ra}"></th>
-                <th scope="col" th:text="#{view.course.table.lecturer}"></th>
-                <th scope="col" th:text="#{view.course.table.role}"></th>
-                <th scope="col" th:text="#{view.course.table.lecture_hours}"></th>
-                <th scope="col" th:text="#{view.course.table.exercise_hours}"></th>
-                <th scope="col" th:text="#{view.course.table.others}"></th>
-                <th scope="col" th:text="${projects.size()}"></th>
+                <th scope="col" th:text="#{view.employee_detail.activity.projects_table.name}"></th>
+                <th scope="col" th:text="#{view.employee_detail.activity.projects_table.supervisor}"></th>
+                <th scope="col" th:text="#{view.employee_detail.activity.projects_table.role}"></th>
+                <th scope="col" th:text="#{view.employee_detail.activity.projects_table.from}"></th>
+                <th scope="col" th:text="#{view.employee_detail.activity.projects_table.until}"></th>
+                <th scope="col" th:text="#{view.employee_detail.activity.projects_table.current-time}"></th>
+                <th scope="col" th:text="#{view.employee_detail.activity.projects_table.certain}"></th>
+                <th scope="col" th:text="#{view.employee_detail.activity.projects_table.description}"></th>
                 <td></td>
             </tr>
             </thead>
@@ -99,17 +98,18 @@
             <th:block th:each="pro, proStats: ${projects}">
                 <!-- Project-->
                 <tr>
-                    <td class="course-cell" th:text="${pro.getName()}"></td>
-                    <td class="course-cell" th:text="${pro.getProjectManager().getLastName()}"></td>
-<!--                    <td class="course-cell" th:text="${firstAllocations.get(crsStats.index).getWorker().getLastName()}"></td>-->
-<!--                    <td class="course-cell" th:text="${firstAllocations.get(crsStats.index).getRole()}"></td>-->
-<!--                    <td class="course-cell" th:text="${firstAllocations.get(crsStats.index).getTime()}"></td>-->
-<!--                    <td class="course-cell" th:text="${firstAllocations.get(crsStats.index).getTime()}"></td>-->
-<!--                    <td class="course-cell" th:text="${firstAllocations.get(crsStats.index).getIsCertain()}"></td>-->
-<!--                    <td class="course-cell" th:text="${firstAllocations.get(crsStats.index).getIsCertain()}"></td>-->
-                    <td class="course-cell">
-                        <button class="btn collapsible btn-edit" th:onclick="'editAllocation('+${firstAllocations.get(crsStats.index).getId()}+')'"></button>
-                    </td>
+                    <td class="course-cell" th:rowspan="${pro.getProjectAllocations().size() + 1}" th:text="${pro.getName()}"></td>
+                    <td class="course-cell" th:rowspan="${pro.getProjectAllocations().size() + 1}" th:text="${pro.getProjectManager().getLastName()}"></td>
+                    <td class="course-cell" th:text="${firstProjectsAllocations.get(proStats.index).getWorker().getLastName()}"></td>
+                    <td class="course-cell" th:text="${firstProjectsAllocations.get(proStats.index).getRole()}"></td>
+                    <td class="course-cell" th:text="${firstProjectsAllocations.get(proStats.index).getDateFrom()}"></td>
+                    <td class="course-cell" th:text="${firstProjectsAllocations.get(proStats.index).getDateUntil()}"></td>
+                    <td class="course-cell" th:text="${firstProjectsAllocations.get(proStats.index).getTime()}"></td>
+                    <td class="course-cell" th:text="${firstProjectsAllocations.get(proStats.index).getIsCertain()}"></td>
+                    <td class="course-cell" th:text="${firstProjectsAllocations.get(proStats.index).getDescription()}"></td>
+<!--                    <td class="course-cell">-->
+<!--                        <button class="btn collapsible btn-edit" th:onclick="'editAllocation('+${firstAllocations.get(crsStats.index).getId()}+')'"></button>-->
+<!--                    </td>-->
                 </tr>
                 <th:block th:each="all, allStat : ${pro.getProjectAllocations()}">
                     <tr>
@@ -118,10 +118,10 @@
                         <td class="course-cell" th:text="${all.getDateUntil()}"></td>
                         <td class="course-cell" th:text="${all.getTime()}"></td>
                         <td class="course-cell" th:text="${all.getIsCertain()}"></td>
-                        <td class="course-cell" th:text="${all.getDescription()()}"></td>
-                        <td class="course-cell">
-                            <button class="btn collapsible btn-edit" th:onclick="'editAllocation('+${all.getId()}+')'"></button>
-                        </td>
+                        <td class="course-cell" th:text="${all.getDescription()}"></td>
+<!--                        <td class="course-cell">-->
+<!--                            <button class="btn collapsible btn-edit" th:onclick="'editAllocation('+${all.getId()}+')'"></button>-->
+<!--                        </td>-->
                     </tr>
                 </th:block>
             </th:block>
@@ -133,47 +133,42 @@
         <table class="table">
             <thead>
             <tr>
-<!--                <td></td>-->
-                <th scope="col" th:text="#{view.course.table.shortcut}"></th>
-                <th scope="col" th:text="#{view.course.table.students}"></th>
-                <th scope="col" th:text="#{view.course.table.ra}"></th>
-                <th scope="col" th:text="#{view.course.table.lecturer}"></th>
-                <th scope="col" th:text="#{view.course.table.role}"></th>
-                <th scope="col" th:text="#{view.course.table.lecture_hours}"></th>
-                <th scope="col" th:text="#{view.course.table.exercise_hours}"></th>
-                <th scope="col" th:text="#{view.course.table.others}"></th>
-                <th scope="col" th:text="#{view.course.table.certain}"></th>
+                <th scope="col" th:text="#{view.employee_detail.activity.course_table.name}"></th>
+                <th scope="col" th:text="#{view.employee_detail.activity.course_table.supervisor}"></th>
+                <th scope="col" th:text="#{view.employee_detail.activity.course_table.role}"></th>
+                <th scope="col" th:text="#{view.employee_detail.activity.course_table.from}"></th>
+                <th scope="col" th:text="#{view.employee_detail.activity.course_table.until}"></th>
+                <th scope="col" th:text="#{view.employee_detail.activity.course_table.current-time}"></th>
+                <th scope="col" th:text="#{view.employee_detail.activity.course_table.certain}"></th>
+                <th scope="col" th:text="#{view.employee_detail.activity.course_table.description}"></th>
                 <td></td>
             </tr>
             </thead>
             <tbody>
-            <th:block th:each="crs, crsStats: ${coursesAllocations}">
+            <th:block th:each="crs, crsStats: ${courses}">
                 <!-- Employee-->
                 <tr>
-<!--                    <td class="course-cell" th:rowspan="${crs.getCourseAllocations().size() + 1}">-->
-<!--                        <a type="button" class="btn collapsible btn-detail" th:href="@{/c/{CRS_ID}/detail(CRS_ID=${crs.getId()})}"></a>-->
+                    <td class="course-cell" th:rowspan="${crs.getCourseAllocations().size() + 1}" th:text="${crs.getName()}"></td>
+                    <td class="course-cell" th:rowspan="${crs.getCourseAllocations().size() + 1}" th:text="${crs.getCourseManager().getLastName()}"></td>
+                    <td class="course-cell" th:text="${firstCoursesAllocations.get(crsStats.index).getRole()}"></td>
+                    <td class="course-cell" th:text="${firstCoursesAllocations.get(crsStats.index).getDateFrom()}"></td>
+                    <td class="course-cell" th:text="${firstCoursesAllocations.get(crsStats.index).getDateUntil()}"></td>
+                    <td class="course-cell" th:text="${firstCoursesAllocations.get(crsStats.index).getTime()}"></td>
+                    <td class="course-cell" th:text="${firstCoursesAllocations.get(crsStats.index).getIsCertain()}"></td>
+                    <td class="course-cell" th:text="${firstCoursesAllocations.get(crsStats.index).getDescription()}"></td>
+<!--                    <td class="course-cell">-->
+<!--                        <button class="btn collapsible btn-edit" th:onclick="'editAllocation('+${firstAllocations.get(crsStats.index).getId()}+')'"></button>-->
 <!--                    </td>-->
-                    <td class="course-cell" th:rowspan="${crs.getC().size() + 1}" th:text="${crs.getName()}"></td>
-                    <td class="course-cell" th:rowspan="${crs.getCourseAllocations().size() + 1}" th:text="${crs.getNumberOfStudents()}"></td>
-                    <td class="course-cell" th:rowspan="${crs.getCourseAllocations().size() + 1}" th:text="${crs.getCredits()}"></td>
-                    <td class="course-cell" th:text="${firstAllocations.get(crsStats.index).getWorker().getLastName()}"></td>
-                    <td class="course-cell" th:text="${firstAllocations.get(crsStats.index).getRole()}"></td>
-                    <td class="course-cell" th:text="${firstAllocations.get(crsStats.index).getTime()}"></td>
-                    <td class="course-cell" th:text="${firstAllocations.get(crsStats.index).getTime()}"></td>
-                    <td class="course-cell" th:text="${firstAllocations.get(crsStats.index).getIsCertain()}"></td>
-                    <td class="course-cell" th:text="${firstAllocations.get(crsStats.index).getIsCertain()}"></td>
-                    <td class="course-cell">
-                        <button class="btn collapsible btn-edit" th:onclick="'editAllocation('+${firstAllocations.get(crsStats.index).getId()}+')'"></button>
-                    </td>
                 </tr>
                 <th:block th:each="all : ${crs.getCourseAllocations()}">
                     <tr>
-                        <td class="course-cell" th:text="${all.getWorker().getLastName()}"></td>
+<!--                        <td class="course-cell" th:text="${all.getWorker().getLastName()}"></td>-->
                         <td class="course-cell" th:text="${all.getRole()}"></td>
-                        <td class="course-cell" th:text="${all.getTime()}"></td>
+                        <td class="course-cell" th:text="${all.getDateFrom()}"></td>
+                        <td class="course-cell" th:text="${all.getDateUntil()}"></td>
                         <td class="course-cell" th:text="${all.getTime()}"></td>
                         <td class="course-cell" th:text="${all.getIsCertain()}"></td>
-                        <td class="course-cell" th:text="${all.getIsCertain()}"></td>
+                        <td class="course-cell" th:text="${all.getDescription()}"></td>
                         <td class="course-cell">
                             <button class="btn collapsible btn-edit" th:onclick="'editAllocation('+${all.getId()}+')'"></button>
                         </td>
@@ -188,38 +183,41 @@
         <table class="table">
             <thead>
             <tr>
-                <th scope="col"></th>
-                <th scope="col" th:text="#{view.function.table.name}"></th>
-                <th scope="col" th:text="#{view.function.table.supervisor}"></th>
-                <th scope="col" th:text="#{view.function.table.from}"></th>
-                <th scope="col" th:text="#{view.function.table.until}"></th>
-                <th scope="col" th:text="#{view.function.table.current-time}"></th>
-                <th scope="col" th:text="#{view.function.table.certain}"></th>
-                <th scope="col" th:text="#{view.function.table.description}"></th>
-                <th scope="col"></th>
+                <th scope="col" th:text="#{view.employee_detail.activity.functions_table.name}"></th>
+                <th scope="col" th:text="#{view.employee_detail.activity.functions_table.supervisor}"></th>
+                <th scope="col" th:text="#{view.employee_detail.activity.functions_table.role}"></th>
+                <th scope="col" th:text="#{view.employee_detail.activity.functions_table.from}"></th>
+                <th scope="col" th:text="#{view.employee_detail.activity.functions_table.until}"></th>
+                <th scope="col" th:text="#{view.employee_detail.activity.functions_table.current-time}"></th>
+                <th scope="col" th:text="#{view.employee_detail.activity.functions_table.certain}"></th>
+                <th scope="col" th:text="#{view.employee_detail.activity.functions_table.description}"></th>
+                <td></td>
             </tr>
             </thead>
             <tbody>
             <th:block th:each="fnc, iStat : ${functions}">
                 <!-- Employee-->
-                <th:block th:if="${firstAllocations.get(iStat.index).getTime >= 0}">
+                <th:block th:if="${firstFunctionsAllocations.get(iStat.index).getTime >= 0}">
                     <tr>
-                        <td class="function-cell" th:rowspan="${fnc.getFunctionAllocations().size() + 1}">
-                            <a type="button" class="btn collapsible btn-detail" th:href="@{/f/{FNC_ID}/detail(FNC_ID=${fnc.getId()})}"></a>
-                        </td>
+<!--                        <td class="function-cell" th:rowspan="${fnc.getFunctionAllocations().size() + 1}">-->
+<!--                            <a type="button" class="btn collapsible btn-detail" th:href="@{/f/{FNC_ID}/detail(FNC_ID=${fnc.getId()})}"></a>-->
+<!--                        </td>-->
                         <td th:rowspan="${fnc.getFunctionAllocations().size() + 1}" th:text="${fnc.getName()}"></td>
                         <td th:rowspan="${fnc.getFunctionAllocations().size() + 1}" th:text="${fnc.getFunctionManager().getLastName()}"></td>
-                        <td th:text="${firstAllocations.get(iStat.index).getDateFrom()}"></td>
-                        <td th:text="${firstAllocations.get(iStat.index).getDateUntil()}"></td>
-                        <td th:text="${firstAllocations.get(iStat.index).getTime()}"></td>
-                        <td th:text="${firstAllocations.get(iStat.index).getIsCertain()}"></td>
-                        <td th:text="${firstAllocations.get(iStat.index).getDescription()}"></td>
-                        <td class="function-cell">
-                            <button class="btn collapsible btn-edit" th:onclick="'editFunction('+${firstAllocations.get(iStat.index).getId()}+')'"></button>
-                        </td>
+                        <td th:text="${firstFunctionsAllocations.get(iStat.index).getWorker().getLastName()}"></td>
+                        <td th:text="${firstFunctionsAllocations.get(iStat.index).getRole()}"></td>
+                        <td th:text="${firstFunctionsAllocations.get(iStat.index).getDateFrom()}"></td>
+                        <td th:text="${firstFunctionsAllocations.get(iStat.index).getDateUntil()}"></td>
+                        <td th:text="${firstFunctionsAllocations.get(iStat.index).getTime()}"></td>
+                        <td th:text="${firstFunctionsAllocations.get(iStat.index).getIsCertain()}"></td>
+                        <td th:text="${firstFunctionsAllocations.get(iStat.index).getDescription()}"></td>
+<!--                        <td class="function-cell">-->
+<!--                            <button class="btn collapsible btn-edit" th:onclick="'editFunction('+${firstAllocations.get(iStat.index).getId()}+')'"></button>-->
+<!--                        </td>-->
                     </tr>
                     <th:block th:each="all, allStats : ${fnc.getFunctionAllocations()}">
                         <tr>
+                            <td th:text="${all.getRole()}"></td>
                             <td th:text="${all.getDateFrom()}"></td>
                             <td th:text="${all.getDateUntil()}"></td>
                             <td th:text="${all.getTime()}"></td>

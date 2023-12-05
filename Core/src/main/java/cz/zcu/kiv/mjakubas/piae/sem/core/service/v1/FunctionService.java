@@ -48,6 +48,7 @@ public class FunctionService {
         if (!allocations.isEmpty()) {
             function.setYearAllocation(prepareAllocations(allocations));
             function.setFunctionAllocations(allocations);
+            function.setEmployees(functionRepository.fetchFunctionEmployees(id));
         }
         return function;
     }
@@ -64,6 +65,7 @@ public class FunctionService {
             if (!allocations.isEmpty()) {
                 function.setYearAllocation(prepareAllocations(allocations));
                 function.setFunctionAllocations(allocations);
+                function.setEmployees(functionRepository.fetchFunctionEmployees(function.getId()));
             }
         });
         return functions;
@@ -201,10 +203,13 @@ public class FunctionService {
         var functions = functionRepository.fetchFunctions();
         var myFunctions = new ArrayList<Function>();
         functions.forEach(function -> {
+            function.setEmployees(functionRepository.fetchFunctionEmployees(function.getId()));
             function.setYearAllocation(
                     prepareAllocations(allocationService.getFunctionAllocations(function.getId()).getAllocations()));
             if (function.getEmployees().stream().filter(employee -> employee.getId() == employeeId).toList().size() == 1)
                 myFunctions.add(function);
+            function.setFunctionAllocations(allocationService.getFunctionAllocations(function.getId()).getAllocations()
+                    .stream().filter(allocation -> allocation.getWorker().getId() == employeeId).toList());
         });
 
         return myFunctions;
@@ -226,6 +231,31 @@ public class FunctionService {
                 myFunctions.add(function);
         });
         return myFunctions;
+    }
+
+    public List<Allocation> prepareForTable(List<Function> functions) {
+        List<Allocation> firstAllocations = new ArrayList<>();
+        functions.forEach(function -> {
+            switch(function.getFunctionAllocations().size()) {
+                case 0: {
+                    firstAllocations.add(new Allocation().time(-1));
+                    function.setFunctionAllocations(new ArrayList<>());
+                    break;
+                }
+                case 1: {
+                    firstAllocations.add(function.getFunctionAllocations().get(0));
+                    function.setFunctionAllocations(new ArrayList<>());
+                    break;
+                }
+                default: {
+                    firstAllocations.add(function.getFunctionAllocations().remove(0));
+                    function.setFunctionAllocations(function.getFunctionAllocations());
+                    break;
+                }
+            }
+        });
+
+        return firstAllocations;
     }
 
     /**

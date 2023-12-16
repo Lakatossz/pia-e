@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="#{index.title}"></title>
+
+    <link rel="stylesheet" th:href="@{/css/color.css}">
+    <link rel="stylesheet" th:href="@{/css/common.css}">
+
+    <!-- bootstrap -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+    <!-- bootstrap -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4"
+            crossorigin="anonymous"></script>
+    <!-- jquery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+</head>
+<body class="d-flex flex-column min-vh-100">
+<div th:replace="~{fragments/navbar}">Navbar</div>
+<div class="container-fluid">
+    <!-- content -->
+    <div class="container">
+        <a th:href="'a/of/employee/' + ${me.id}" class="btn btn-primary" th:text="#{index.my-allocations}"></a>
+        <a th:href="'a/of/superior/' + ${me.id}" class="btn btn-primary" th:text="#{index.my-sub-allocations}"></a>
+        <tr th:each="p : ${myProjects}">
+            <a th:href="'p/' + ${p.id} + '/manage'" class="btn btn-primary"
+               th:text="'Projekt: ' + ${p.name}"></a>
+        </tr>
+        <tr th:each="p : ${workplaceProjects}">
+            <a th:href="'p/' + ${p.id} + '/manage'" class="btn btn-primary"
+               th:text="'Projekt: ' + ${p.name}"></a>
+        </tr>
+        <a th:href="'a/workload'" class="btn btn-primary" th:text="#{index.workload}"
+           th:if="${myProjects.size() > 0}"></a>
+
+        <!-- table -->
+        <h1 class="text-center mt-5" th:text="#{view.main.header}"></h1>
+        <!--        <a type="button" class="btn btn-primary common-border-radius"-->
+        <!--           th:href="@{/e/create}" th:text="#{view.employee.create}"></a>-->
+        <div class="row my-container">
+            <table class="my-table">
+                <thead>
+                <tr class="employee-row-header">
+                    <th scope="col"></th>
+                    <th scope="col" th:text="#{view.main.table.fname}"></th>
+                    <th scope="col" th:text="#{view.main.table.lname}"></th>
+                    <th scope="col" th:text="#{view.main.table.wrk-abbreviation}"></th>
+                    <th scope="col" th:text="#{view.main.table.wrk-projects}"></th>
+                    <th scope="col" th:text="#{view.main.table.wrk-courses}"></th>
+                    <th scope="col" th:text="#{view.main.table.wrk-functions}"></th>
+                    <th scope="col" th:text="#{view.main.table.certain-time}"></th>
+                    <th scope="col" th:text="#{view.main.table.uncertain-time}"></th>
+                    <th scope="col"></th>
+                </tr>
+                </thead>
+                <tbody>
+                <th:block th:each="emp, iStat: ${employees}">
+                    <!-- Employee-->
+                    <tr class="employee-row-value" th:id="${iStat.index}">
+                        <td>
+                            <a type="button" class="btn collapsible btn-detail" th:href="@{/e/{EMP_ID}/detail(EMP_ID=${emp.getId()})}"></a>
+                        </td>
+                        <td th:text="${emp.getFirstName()}"></td>
+                        <td th:text="${emp.getLastName()}"></td>
+                        <td th:text="${emp.getWorkplace().getAbbreviation()}"></td>
+                        <td th:text="${emp.getProjectsAllocations().size()}"></td>
+                        <td th:text="${emp.getCoursesAllocations().size()}"></td>
+                        <td th:text="${emp.getFunctionsAllocations().size()}"></td>
+                        <td th:text="${emp.getCertainTime()}"></td>
+                        <td th:text="${emp.getUncertainTime()}"></td>
+                    </tr>
+                    <tr>
+                        <th:block>
+                            <th colspan="10" th:class="my-collapse">
+                                <div th:if="${emp.getProjectsAllocations().size()} > 0">
+                                    <table>
+                                        <thead>
+                                        <!-- Projects header -->
+                                        <tr class="project-row-title">
+                                            <th th:text="#{view.main.table.activity.projects}"></th>
+                                        </tr>
+                                        <!-- Project labels -->
+                                        <tr class="project-row-header">
+                                            <th class="project-cell" th:text="#{view.main.table.activity.name}"></th>
+                                            <th class="project-cell" th:text="#{view.main.table.activity.certain}"></th>
+                                            <th class="project-cell" th:text="#{month.january}"></th>
+                                            <th class="project-cell" th:text="#{month.february}"></th>
+                                            <th class="project-cell" th:text="#{month.march}"></th>
+                                            <th class="project-cell" th:text="#{month.april}"></th>
+                                            <th class="project-cell" th:text="#{month.may}"></th>
+                                            <th class="project-cell" th:text="#{month.june}"></th>
+                                            <th class="project-cell" th:text="#{month.july}"></th>
+                                            <th class="project-cell" th:text="#{month.august}"></th>
+                                            <th class="project-cell" th:text="#{month.september}"></th>
+                                            <th class="project-cell" th:text="#{month.october}"></th>
+                                            <th class="project-cell" th:text="#{month.november}"></th>
+                                            <th class="project-cell" th:text="#{month.december}"></th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <!-- Projects values -->
+                                        <th:block th:each="all, allStat: ${emp.getProjectsAllocations()}">
+                                            <form th:method="POST" th:action="@{'/a/' + ${all.getId() + '/edit?mana'}}" th:object="${all}" novalidate>
+                                                <th:block>
+                                                    <tr class="project-row-value">
+                                                        <td class="project-cell" th:text="${all.getProject().getName()}"></td>
+                                                        <td class="project-cell" th:text="${all.getProject().getProbability()}"></td>
+                                                        <th:block th:each="perMonth : ${all.getProject().getYearAllocation()}">
+                                                            <td class="project-cell" th:text="${perMonth}"></td>
+                                                        </th:block>
+                                                    </tr>
+                                                </th:block>
+                                            </form>
+                                        </th:block>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </th>
+                        </th:block>
+                    </tr>
+                    <tr>
+                        <th:block>
+                            <th colspan="10" th:class="my-collapse">
+                                <div th:if="${emp.getCoursesAllocations().size()} > 0">
+                                    <table>
+                                        <thead>
+                                        <!-- Courses header -->
+                                        <tr class="course-row-title">
+                                            <td th:text="#{view.main.table.activity.courses}"></td>
+                                        </tr>
+                                        <!-- Course labels -->
+                                        <tr class="course-row-header">
+                                            <td class="course-cell" th:text="#{view.main.table.activity.name}"></td>
+                                            <td class="course-cell" th:text="#{view.main.table.activity.certain}"></td>
+                                            <td class="course-cell" th:text="#{month.january}"></td>
+                                            <td class="course-cell" th:text="#{month.february}"></td>
+                                            <td class="course-cell" th:text="#{month.march}"></td>
+                                            <td class="course-cell" th:text="#{month.april}"></td>
+                                            <td class="course-cell" th:text="#{month.may}"></td>
+                                            <td class="course-cell" th:text="#{month.june}"></td>
+                                            <td class="course-cell" th:text="#{month.july}"></td>
+                                            <td class="course-cell" th:text="#{month.august}"></td>
+                                            <td class="course-cell" th:text="#{month.september}"></td>
+                                            <td class="course-cell" th:text="#{month.october}"></td>
+                                            <td class="course-cell" th:text="#{month.november}"></td>
+                                            <td class="course-cell" th:text="#{month.december}"></td>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <!-- Courses values -->
+                                        <th:block th:each="all, allStat: ${emp.getCoursesAllocations()}">
+                                            <form th:method="POST" th:action="@{'/a/' + ${all.getId() + '/edit?mana'}}" th:object="${all}" novalidate>
+                                                <th:block>
+                                                    <tr class="course-row-value">
+                                                        <td th:text="${all.getCourse().getShortcut()}"></td>
+                                                        <td class="course-cell" th:text="${all.getCourse().getProbability()}"></td>
+                                                        <th:block th:each="perMonth : ${all.getCourse().getYearAllocation()}">
+                                                            <td class="course-cell" th:text="${perMonth}"></td>
+                                                        </th:block>
+                                                    </tr>
+                                                </th:block>
+                                            </form>
+                                        </th:block>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </th>
+                        </th:block>
+                    </tr>
+                    <tr>
+                        <th:block>
+                            <th colspan="10" th:class="my-collapse">
+                                <div th:if="${emp.getFunctionsAllocations().size()} > 0">
+                                    <table>
+                                        <thead>
+                                        <!-- Functions header -->
+                                        <tr class="function-row-title">
+                                            <td th:text="#{view.main.table.activity.functions}"></td>
+                                        </tr>
+                                        <!-- Function labels -->
+                                        <tr class="function-row-header">
+                                            <td class="function-cell" th:text="#{view.main.table.activity.name}"></td>
+                                            <td class="function-cell" th:text="#{view.main.table.activity.certain}"></td>
+                                            <td class="function-cell" th:text="#{month.january}"></td>
+                                            <td class="function-cell" th:text="#{month.february}"></td>
+                                            <td class="function-cell" th:text="#{month.march}"></td>
+                                            <td class="function-cell" th:text="#{month.april}"></td>
+                                            <td class="function-cell" th:text="#{month.may}"></td>
+                                            <td class="function-cell" th:text="#{month.june}"></td>
+                                            <td class="function-cell" th:text="#{month.july}"></td>
+                                            <td class="function-cell" th:text="#{month.august}"></td>
+                                            <td class="function-cell" th:text="#{month.september}"></td>
+                                            <td class="function-cell" th:text="#{month.october}"></td>
+                                            <td class="function-cell" th:text="#{month.november}"></td>
+                                            <td class="function-cell" th:text="#{month.december}"></td>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <!-- Functions values -->
+                                        <th:block th:each="all, allStat: ${emp.getFunctionsAllocations()}">
+                                            <form th:method="POST" th:action="@{'/a/' + ${all.getId() + '/edit?mana'}}" th:object="${all}" novalidate>
+                                                <th:block>
+                                                    <tr class="function-row-value" id="allStat">
+                                                        <td></td>
+                                                        <td th:text="${all.getFunction().getName()}"></td>
+                                                        <td class="function-cell" th:text="${all.getFunction().getProbability()}"></td>
+                                                        <th:block th:each="perMonth : ${all.getFunction().getYearAllocation()}">
+                                                            <td class="function-cell" th:text="${perMonth}"></td>
+                                                        </th:block>
+                                                    </tr>
+                                                </th:block>
+                                            </form>
+                                        </th:block>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </th>
+                        </th:block>
+                    </tr>
+                </th:block>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<div th:replace="~{fragments/footer}">Footer</div>
+</body>
+
+<script>
+    let employeeTr = document.querySelectorAll(".employee-row-value");
+
+    Array.from(employeeTr).forEach(function(trArray) {
+        let button = document.createElement("button");
+        let td = document.createElement("td");
+        button.className = "btn collapsible btn-dropdown";
+        button.addEventListener("click", function(evt) {
+            let collapse = document.getElementsByClassName("my-collapse");
+            let i = trArray.id * 3, ii = trArray.id * 3 + 3;
+            for (; i < ii; i++) {
+                if (collapse[i].style.visibility === "visible") {
+                    collapse[i].style.visibility = "collapse";
+                } else {
+                    collapse[i].style.visibility = "visible";
+                }
+            }
+        });
+        td.append(button);
+        trArray.append(td);
+    });
+
+
+</script>
+</html>

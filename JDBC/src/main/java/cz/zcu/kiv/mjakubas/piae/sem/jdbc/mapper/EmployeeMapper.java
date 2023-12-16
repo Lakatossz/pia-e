@@ -6,6 +6,8 @@ import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 
 public class EmployeeMapper implements RowMapper<Employee> {
@@ -18,6 +20,7 @@ public class EmployeeMapper implements RowMapper<Employee> {
         String lastName = rs.getString("emp_last_name");
         String orionLogin = rs.getString("emp_orion_login");
         String email = rs.getString("emp_email");
+        String description = rs.getString("emp_description");
 
         long workplaceId = rs.getLong("emp_workplace_id");
         Workplace workplace = null;
@@ -35,6 +38,8 @@ public class EmployeeMapper implements RowMapper<Employee> {
                 .lastName(lastName)
                 .orionLogin(orionLogin)
                 .emailAddress(email)
-                .workplace(workplace);
+                .workplace(workplace)
+                .dateCreated(LocalDate.now())
+                .description(description);
     }
 }

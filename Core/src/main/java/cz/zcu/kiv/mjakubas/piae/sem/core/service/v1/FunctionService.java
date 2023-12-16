@@ -19,6 +19,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
@@ -208,8 +209,8 @@ public class FunctionService {
                     prepareAllocations(allocationService.getFunctionAllocations(function.getId()).getAllocations()));
             if (function.getEmployees().stream().filter(employee -> employee.getId() == employeeId).toList().size() == 1)
                 myFunctions.add(function);
-            function.setFunctionAllocations(allocationService.getFunctionAllocations(function.getId()).getAllocations()
-                    .stream().filter(allocation -> allocation.getWorker().getId() == employeeId).toList());
+            function.setFunctionAllocations(new LinkedList<>(allocationService.getFunctionAllocations(function.getId()).getAllocations()
+                    .stream().filter(allocation -> allocation.getWorker().getId() == employeeId).toList()));
         });
 
         return myFunctions;
@@ -233,7 +234,7 @@ public class FunctionService {
         return myFunctions;
     }
 
-    public List<Allocation> prepareForTable(List<Function> functions) {
+    public List<Allocation> prepareFirst(List<Function> functions) {
         List<Allocation> firstAllocations = new ArrayList<>();
         functions.forEach(function -> {
             switch(function.getFunctionAllocations().size()) {

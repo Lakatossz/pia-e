@@ -52,6 +52,7 @@
 }
 
 table, body {
+    background-color: #ecfaff;
     margin-top: 0px;
     padding-top: 0px;
     text-align: start;
@@ -62,21 +63,23 @@ table {
     overflow: hidden;
 }
 
-.my-collapse {
-    display: none;
+.employees-body {
+    background-color: #ecfaff;
 }
 
-.hidden {
-    display: none;
+.my-collapse {
+    background-color: #ecfaff;
+    visibility: collapse;
 }
 
 .my-container {
+    background-color: #ecfaff;
     position: absolute;
-    top: 40%;
-    bottom: 10%;
-    left: 10%;
-    right: 10%;
-    width: 80%;
+    /*top: 40%;*/
+    /*bottom: 10%;*/
+    left: 5%;
+    right: 5%;
+    /*width: 80%;*/
 }
 
 .employee-row-title {
@@ -90,7 +93,7 @@ table {
 }
 
 .project-row-title {
-
+    text-align: center;
 }
 
 .project-row-header {
@@ -150,5 +153,55 @@ table {
 }
 
 .allocation-cell {
+
+}
+
+/* Employee detail */
+
+.employee-detail-div {
+    margin-bottom: 10px;
+    border: solid 1px #0062FF;
+    border-radius: 8px;
+}
+
+.employee-detail-label {
+    text-transform: uppercase;
+    display: inline-block;
+    width: 150px;
+    text-align: right;
+    padding-right: 10px;
+    padding-bottom: 10px;
+}
+
+.employee-detail-input {
+    width: 200px;
+    border-radius: 4px;
+}
+
+.employee-detail-btn {
+    width: 100px;
+    background-color: #f5fbff;
+    align-content: end;
+    border: #0062FF solid 1px;
+    border-radius: 8px;
+}
+
+.employee-detail-btn:hover {
+    width: 100px;
+    background-color: #ffffff;
+    align-content: end;
+    border: #0062FF solid 1px;
+    border-radius: 8px;
+}
+
+.employee-cell {
+    padding:10px;
+}
+
+.employee-activity-name-first {
+
+}
+
+.employee-activity-name {
 
 }

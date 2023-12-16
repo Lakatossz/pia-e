@@ -44,6 +44,11 @@ public class CourseV1Controller {
     private static final String RESTRICTIONS = "restrictions";
 
     @GetMapping()
+    @PreAuthorize("hasAnyAuthority(" +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).COURSE_SCHEDULER, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).COURSE_SUPERVISOR, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN)")
     public String getCourses(Model model) {
         var courses = courseService.getCourses();
         List<Allocation> firstAllocations = courseService.prepareForTable(courses);
@@ -54,6 +59,11 @@ public class CourseV1Controller {
     }
 
     @GetMapping("/create")
+    @PreAuthorize("hasAnyAuthority(" +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).COURSE_SCHEDULER, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).COURSE_SUPERVISOR, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN)")
     public String createCourse(Model model) {
         model.addAttribute("courseVO", new CourseVO());
 
@@ -69,15 +79,24 @@ public class CourseV1Controller {
     }
 
     @PostMapping("/create")
+    @PreAuthorize("hasAnyAuthority(" +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).COURSE_SCHEDULER, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).COURSE_SUPERVISOR, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN)")
     public String createCourse(@ModelAttribute CourseVO courseVO, BindingResult bindingResult, Model model) {
         courseService.createCourse(courseVO);
 
         return "redirect:/c?create=success";
     }
 
-    @PreAuthorize("hasAuthority(T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT)" +
-            " or @securityService.isCourseManager(#id) or @securityService.isWorkplaceManager(#id)")
     @GetMapping("/{id}/edit")
+    @PreAuthorize("hasAnyAuthority(" +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).COURSE_SCHEDULER, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).COURSE_SUPERVISOR, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN) " +
+            " or @securityService.isCourseManager(#id) or @securityService.isWorkplaceManager(#id)")
     public String editCourse(Model model, @PathVariable long id,
                               @RequestParam(required = false) Boolean manage) {
         Course data = courseService.getCourse(id);
@@ -103,8 +122,13 @@ public class CourseV1Controller {
         return "forms/course/edit_course_form";
     }
 
-    @PreAuthorize("hasAuthority(T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT) or @securityService.isProjectManager(#id) or @securityService.isWorkplaceManager(#id)")
     @PostMapping("/{id}/edit")
+    @PreAuthorize("hasAnyAuthority(" +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).COURSE_SCHEDULER, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).COURSE_SUPERVISOR, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN) " +
+            " or @securityService.isCourseManager(#id) or @securityService.isWorkplaceManager(#id)")
     public String editCourse(Model model, @PathVariable long id, @ModelAttribute CourseVO courseVO,
                               BindingResult errors, @RequestParam(required = false) Boolean manage) {
         courseService.editCourse(courseVO, id);
@@ -116,13 +140,23 @@ public class CourseV1Controller {
     }
 
     @GetMapping("/{id}/delete")
+    @PreAuthorize("hasAnyAuthority(" +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).COURSE_SCHEDULER, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).COURSE_SUPERVISOR, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN) " +
+            " or @securityService.isCourseManager(#id) or @securityService.isWorkplaceManager(#id)")
     public String editCourse(Model model, @PathVariable long id) {
         return "redirect:/c?delete=success";
     }
 
-    @PreAuthorize("hasAuthority(T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT)" +
-            " or @securityService.isCourseManager(#id) or @securityService.isWorkplaceManager(#id)")
     @GetMapping("/{id}/detail")
+    @PreAuthorize("hasAnyAuthority(" +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).COURSE_SCHEDULER, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).COURSE_SUPERVISOR, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN) " +
+            " or @securityService.isCourseManager(#id) or @securityService.isWorkplaceManager(#id)")
     public String detailCourse(Model model, @PathVariable long id,
                                @RequestParam(required = false) Boolean manage) {
         Course data = courseService.getCourse(id);
@@ -151,6 +185,11 @@ public class CourseV1Controller {
     }
 
     @GetMapping("/{id}/employee/add")
+    @PreAuthorize("hasAnyAuthority(" +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).COURSE_SCHEDULER, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).COURSE_SUPERVISOR, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN)")
     public String addSubordinate(Model model, @PathVariable long id, @ModelAttribute EmployeeVO userVO) {
         var restrictions = courseService.getCourseEmployees(id);
 
@@ -162,6 +201,11 @@ public class CourseV1Controller {
     }
 
     @PostMapping("/{id}/employee/add")
+    @PreAuthorize("hasAnyAuthority(" +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).COURSE_SCHEDULER, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).COURSE_SUPERVISOR, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN)")
     public String addSubordinate(Model model, @PathVariable long id, @ModelAttribute EmployeeVO userVO,
                                  BindingResult errors) {
         model.addAttribute("userVO", userVO);
@@ -172,8 +216,13 @@ public class CourseV1Controller {
         return "redirect:/c?addemployee=success";
     }
 
-    @PreAuthorize("@securityService.isCourseManager(#id) or @securityService.isWorkplaceManager(#id)")
     @GetMapping("/{id}/manage")
+    @PreAuthorize("hasAnyAuthority(" +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).COURSE_SCHEDULER, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).COURSE_SUPERVISOR, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN) " +
+            " or @securityService.isCourseManager(#id) or @securityService.isWorkplaceManager(#id)")
     public String manageCourse(Model model, @PathVariable long id) {
         var payload = allocationService.getCourseAllocations(id);
         model.addAttribute("allocations", payload.getAllocations());

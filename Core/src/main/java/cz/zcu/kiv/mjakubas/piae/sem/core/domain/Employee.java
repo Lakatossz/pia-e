@@ -3,8 +3,8 @@ package cz.zcu.kiv.mjakubas.piae.sem.core.domain;
 import cz.zcu.kiv.mjakubas.piae.sem.core.rules.AllocationInterval;
 import lombok.*;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
+import java.time.LocalDate;
+import java.util.LinkedList;
 import java.util.List;
 
 @Data
@@ -20,15 +20,16 @@ public class Employee {
     private String orionLogin;
     private String emailAddress;
     private Workplace workplace;
-    private LocalDateTime dateCreated;
+    private LocalDate dateCreated;
     private float certainTime;
     private float uncertainTime;
     private String description;
-    private List<Employee> subordinates = new ArrayList<>();
-    private List<Allocation> projectsAllocations = new ArrayList<>();
-    private List<Allocation> coursesAllocations = new ArrayList<>();
-    private List<Allocation> functionsAllocations = new ArrayList<>();
-    private List<AllocationInterval> intervals = new ArrayList<>();
+    private List<Employee> subordinates = new LinkedList<>();
+    private List<Allocation> projectsAllocations = new LinkedList<>();
+    private List<Allocation> coursesAllocations = new LinkedList<>();
+    private List<Allocation> functionsAllocations = new LinkedList<>();
+    private List<Allocation> allocations = new LinkedList<>();
+    private List<AllocationInterval> intervals = new LinkedList<>();
 
     public Employee id(long id) {
         this.id = id;
@@ -60,7 +61,7 @@ public class Employee {
         return this;
     }
 
-    public Employee dateCreated(LocalDateTime dateCreated) {
+    public Employee dateCreated(LocalDate dateCreated) {
         this.dateCreated = dateCreated;
         return this;
     }
@@ -97,6 +98,11 @@ public class Employee {
 
     public Employee functionsAllocations(List<Allocation> functionsAllocations) {
         this.functionsAllocations.addAll(functionsAllocations);
+        return this;
+    }
+
+    public Employee allocations(List<Allocation> allocations) {
+        this.allocations.addAll(allocations);
         return this;
     }
 

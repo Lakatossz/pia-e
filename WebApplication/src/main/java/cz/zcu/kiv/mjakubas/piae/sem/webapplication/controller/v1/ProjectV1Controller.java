@@ -33,6 +33,10 @@ public class ProjectV1Controller {
     private static final String RESTRICTIONS = "restrictions";
 
     @GetMapping()
+    @PreAuthorize("hasAnyAuthority(" +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).PROJECT_ADMIN, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN)")
     public String getProjects(Model model) {
         var projects = projectService.getProjects();
         projects.forEach(project ->
@@ -43,6 +47,10 @@ public class ProjectV1Controller {
     }
 
     @GetMapping("/create")
+    @PreAuthorize("hasAnyAuthority(" +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).PROJECT_ADMIN, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN)")
     public String createProject(Model model) {
         model.addAttribute("projectVO", new ProjectVO());
 
@@ -58,6 +66,10 @@ public class ProjectV1Controller {
     }
 
     @PostMapping("/create")
+    @PreAuthorize("hasAnyAuthority(" +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).PROJECT_ADMIN, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN)")
     public String createProject(@ModelAttribute ProjectVO projectVO, BindingResult bindingResult, Model model) {
         projectVO.setProjectManagerId(projectVO.getProjectManagerId());
 
@@ -66,7 +78,10 @@ public class ProjectV1Controller {
         return "redirect:/p?create=success";
     }
 
-    @PreAuthorize("hasAuthority(T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT)" +
+    @PreAuthorize("hasAnyAuthority(" +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).PROJECT_ADMIN, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN) " +
             " or @securityService.isProjectManager(#id) or @securityService.isWorkplaceManager(#id)")
     @GetMapping("/{id}/edit")
     public String editProject(Model model, @PathVariable long id,
@@ -99,7 +114,11 @@ public class ProjectV1Controller {
         return "forms/project/edit_project_form";
     }
 
-    @PreAuthorize("hasAuthority(T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT) or @securityService.isProjectManager(#id) or @securityService.isWorkplaceManager(#id)")
+    @PreAuthorize("hasAnyAuthority(" +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).PROJECT_ADMIN, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN) " +
+            " or @securityService.isProjectManager(#id) or @securityService.isWorkplaceManager(#id)")
     @PostMapping("/{id}/edit")
     public String editProject(Model model, @PathVariable long id, @ModelAttribute ProjectVO projectVO,
                               BindingResult errors, @RequestParam(required = false) Boolean manage) {
@@ -113,7 +132,10 @@ public class ProjectV1Controller {
         return "redirect:/p?edit=success";
     }
 
-    @PreAuthorize("hasAuthority(T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT)" +
+    @PreAuthorize("hasAnyAuthority(" +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).PROJECT_ADMIN, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN) " +
             " or @securityService.isProjectManager(#id) or @securityService.isWorkplaceManager(#id)")
     @GetMapping("/{id}/detail")
     public String detailProject(Model model, @PathVariable long id,
@@ -147,11 +169,20 @@ public class ProjectV1Controller {
     }
 
     @GetMapping("/{id}/delete")
+    @PreAuthorize("hasAnyAuthority(" +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).PROJECT_ADMIN, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN) " +
+            " or @securityService.isProjectManager(#id) or @securityService.isWorkplaceManager(#id)")
     public String deleteProject(Model model, @PathVariable long id) {
         return "redirect:/p?delete=success";
     }
 
     @GetMapping("/{id}/employee/add")
+    @PreAuthorize("hasAnyAuthority(" +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).PROJECT_ADMIN, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN)")
     public String addSubordinate(Model model, @PathVariable long id, @ModelAttribute EmployeeVO userVO) {
         model.addAttribute("userVO", new EmployeeVO());
 
@@ -166,6 +197,10 @@ public class ProjectV1Controller {
     }
 
     @PostMapping("/{id}/employee/add")
+    @PreAuthorize("hasAnyAuthority(" +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).PROJECT_ADMIN, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN)")
     public String addSubordinate(Model model, @PathVariable long id, @ModelAttribute EmployeeVO userVO,
                                  BindingResult errors) {
         model.addAttribute("userVO", userVO);
@@ -181,7 +216,11 @@ public class ProjectV1Controller {
         return "redirect:/p?addemployee=success";
     }
 
-    @PreAuthorize("@securityService.isProjectManager(#id) or @securityService.isWorkplaceManager(#id)")
+    @PreAuthorize("hasAnyAuthority(" +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).PROJECT_ADMIN, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN) " +
+            " or @securityService.isProjectManager(#id) or @securityService.isWorkplaceManager(#id)")
     @GetMapping("/{id}/manage")
     public String manageProject(Model model, @PathVariable long id) {
         var project = projectService.getProject(id);

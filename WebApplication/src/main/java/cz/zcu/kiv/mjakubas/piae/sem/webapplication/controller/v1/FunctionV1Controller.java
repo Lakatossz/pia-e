@@ -1,13 +1,11 @@
 package cz.zcu.kiv.mjakubas.piae.sem.webapplication.controller.v1;
 
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Allocation;
-import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Course;
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Function;
 import cz.zcu.kiv.mjakubas.piae.sem.core.service.v1.AllocationService;
 import cz.zcu.kiv.mjakubas.piae.sem.core.service.v1.EmployeeService;
 import cz.zcu.kiv.mjakubas.piae.sem.core.service.v1.FunctionService;
 import cz.zcu.kiv.mjakubas.piae.sem.core.service.v1.WorkplaceService;
-import cz.zcu.kiv.mjakubas.piae.sem.core.vo.CourseVO;
 import cz.zcu.kiv.mjakubas.piae.sem.core.vo.EmployeeVO;
 import cz.zcu.kiv.mjakubas.piae.sem.core.vo.FunctionVO;
 import lombok.AllArgsConstructor;
@@ -22,7 +20,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -45,9 +42,13 @@ public class FunctionV1Controller {
     private static final String RESTRICTIONS = "restrictions";
 
     @GetMapping()
+    @PreAuthorize("hasAnyAuthority(" +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).FUNCTION_ADMIN, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN)")
     public String getFunctions(Model model) {
         var functions = functionService.getFunctions();
-        List<Allocation> firstAllocations = functionService.prepareForTable(functions);
+        List<Allocation> firstAllocations = functionService.prepareFirst(functions);
 
         model.addAttribute("functions", functions);
         model.addAttribute("firstAllocations", firstAllocations);
@@ -55,6 +56,10 @@ public class FunctionV1Controller {
     }
 
     @GetMapping("/create")
+    @PreAuthorize("hasAnyAuthority(" +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).FUNCTION_ADMIN, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN)")
     public String createFunction(Model model) {
         model.addAttribute("functionVO", new FunctionVO());
 
@@ -70,6 +75,10 @@ public class FunctionV1Controller {
     }
 
     @PostMapping("/create")
+    @PreAuthorize("hasAnyAuthority(" +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).FUNCTION_ADMIN, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN)")
     public String createFunction(@ModelAttribute FunctionVO functionVO, BindingResult bindingResult, Model model) {
 
         functionService.createFunction(functionVO);
@@ -77,9 +86,12 @@ public class FunctionV1Controller {
         return "redirect:/f?create=success";
     }
 
-    @PreAuthorize("hasAuthority(T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT)" +
-            " or @securityService.isFunctionManager(#id) or @securityService.isWorkplaceManager(#id)")
     @GetMapping("/{id}/edit")
+    @PreAuthorize("hasAnyAuthority(" +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).FUNCTION_ADMIN, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN) " +
+            " or @securityService.isFunctionManager(#id) or @securityService.isWorkplaceManager(#id)")
     public String editFunction(Model model, @PathVariable long id,
                               @RequestParam(required = false) Boolean manage) {
         Function data = functionService.getFunction(id);
@@ -105,9 +117,12 @@ public class FunctionV1Controller {
         return "forms/function/edit_function_form";
     }
 
-    @PreAuthorize("hasAuthority(T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT)" +
-            " or @securityService.isFunctionManager(#id) or @securityService.isWorkplaceManager(#id)")
     @PostMapping("/{id}/edit")
+    @PreAuthorize("hasAnyAuthority(" +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).FUNCTION_ADMIN, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN) " +
+            " or @securityService.isFunctionManager(#id) or @securityService.isWorkplaceManager(#id)")
     public String editFunction(Model model, @PathVariable long id, @ModelAttribute FunctionVO functionVO,
                               BindingResult errors, @RequestParam(required = false) Boolean manage) {
         functionService.editFunction(functionVO, id);
@@ -119,13 +134,21 @@ public class FunctionV1Controller {
     }
 
     @GetMapping("/{id}/delete")
+    @PreAuthorize("hasAnyAuthority(" +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).FUNCTION_ADMIN, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN) " +
+            " or @securityService.isFunctionManager(#id) or @securityService.isWorkplaceManager(#id)")
     public String editFunction(Model model, @PathVariable long id) {
         return "redirect:/f?delete=success";
     }
 
-    @PreAuthorize("hasAuthority(T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT)" +
-            " or @securityService.isFunctionManager(#id) or @securityService.isWorkplaceManager(#id)")
     @GetMapping("/{id}/detail")
+    @PreAuthorize("hasAnyAuthority(" +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).FUNCTION_ADMIN, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN) " +
+            " or @securityService.isFunctionManager(#id) or @securityService.isWorkplaceManager(#id)")
     public String detailFunction(Model model, @PathVariable long id,
                                @RequestParam(required = false) Boolean manage) {
         Function data = functionService.getFunction(id);
@@ -154,6 +177,10 @@ public class FunctionV1Controller {
 
 
     @GetMapping("/{id}/employee/add")
+    @PreAuthorize("hasAnyAuthority(" +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).FUNCTION_ADMIN, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN)")
     public String addSubordinate(Model model, @PathVariable long id, @ModelAttribute EmployeeVO userVO) {
         model.addAttribute("userVO", new EmployeeVO());
 
@@ -166,6 +193,10 @@ public class FunctionV1Controller {
     }
 
     @PostMapping("/{id}/employee/add")
+    @PreAuthorize("hasAnyAuthority(" +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).FUNCTION_ADMIN, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN)")
     public String addSubordinate(Model model, @PathVariable long id, @ModelAttribute EmployeeVO userVO,
                                  BindingResult errors) {
         model.addAttribute("userVO", userVO);
@@ -176,7 +207,11 @@ public class FunctionV1Controller {
         return "redirect:/f?add_employee=success";
     }
 
-    @PreAuthorize("@securityService.isFunctionManager(#id) or @securityService.isWorkplaceManager(#id)")
+    @PreAuthorize("hasAnyAuthority(" +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).FUNCTION_ADMIN, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN) " +
+            " or @securityService.isFunctionManager(#id) or @securityService.isWorkplaceManager(#id)")
     @GetMapping("/{id}/manage")
     public String manageFunction(Model model, @PathVariable long id) {
         var payload = allocationService.getFunctionAllocations(id);

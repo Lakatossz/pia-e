@@ -2,6 +2,7 @@ package cz.zcu.kiv.mjakubas.piae.sem.core.service.v1;
 
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Allocation;
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Employee;
+import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Function;
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Workplace;
 import cz.zcu.kiv.mjakubas.piae.sem.core.repository.IAllocationRepository;
 import cz.zcu.kiv.mjakubas.piae.sem.core.repository.IEmployeeRepository;
@@ -12,6 +13,7 @@ import lombok.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -158,10 +160,61 @@ public class EmployeeService {
             throw new ServiceException();
     }
 
+    public List<Allocation> prepareFirst(List<Employee> employees) {
+        List<Allocation> firstAllocations = new LinkedList<>();
+        employees.forEach(employee -> {
+            if (!employee.getProjectsAllocations().isEmpty()) {
+                setProjectFirst(employee, firstAllocations);
+            } else if (!employee.getCoursesAllocations().isEmpty()) {
+                setCourseFirst(employee, firstAllocations);
+            } else if (!employee.getFunctionsAllocations().isEmpty()) {
+                setFunctionFirst(employee, firstAllocations);
+            } else {
+                firstAllocations.add(new Allocation().time(-1));
+                employee.allocations(new LinkedList<>());
+            }
+        });
+
+        return firstAllocations;
+    }
+
+    private void setProjectFirst(Employee employee, List<Allocation> firstAllocations) {
+        if (employee.getProjectsAllocations().size() == 1) {
+            firstAllocations.add(employee.getProjectsAllocations().remove(0));
+            employee.allocations(new LinkedList<>());
+        } else {
+            firstAllocations.add(employee.getProjectsAllocations().remove(0));
+            employee.allocations(employee.getProjectsAllocations());
+            employee.allocations(employee.getCoursesAllocations());
+            employee.allocations(employee.getFunctionsAllocations());
+        }
+    }
+
+    private void setCourseFirst(Employee employee, List<Allocation> firstAllocations) {
+        if (employee.getCoursesAllocations().size() == 1) {
+            firstAllocations.add(employee.getCoursesAllocations().remove(0));
+            employee.allocations(new LinkedList<>());
+        } else {
+            firstAllocations.add(employee.getCoursesAllocations().remove(0));
+            employee.allocations(employee.getCoursesAllocations());
+            employee.allocations(employee.getFunctionsAllocations());
+        }
+    }
+
+    private void setFunctionFirst(Employee employee, List<Allocation> firstAllocations) {
+        if (employee.getFunctionsAllocations().size() == 1) {
+            firstAllocations.add(employee.getFunctionsAllocations().remove(0));
+            employee.allocations(new LinkedList<>());
+        } else {
+            firstAllocations.add(employee.getFunctionsAllocations().remove(0));
+            employee.allocations(employee.getFunctionsAllocations());
+        }
+    }
+
     private void setAllocations(Employee employee) {
-        List<Allocation> projectAllocations = allocationRepository.fetchEmployeeAllocations(
+        List<Allocation> projectAllocations = new LinkedList<>(allocationRepository.fetchEmployeeAllocations(
                 employee.getId()).stream().filter(allocation -> allocation.getProject().getId() != 0
-                && allocation.getCourse().getId() == 0 && allocation.getFunction().getId() == 0).toList();
+                && allocation.getCourse().getId() == 0 && allocation.getFunction().getId() == 0).toList());
         projectAllocations.forEach(allocation -> {
             if (allocation.getProject() != null && allocation.getProject().getId() != 0) {
                 allocation.setProject(projectService.getProject(allocation.getProject().getId()));
@@ -169,18 +222,18 @@ public class EmployeeService {
         });
         employee.setProjectsAllocations(projectAllocations);
 
-        List<Allocation> courseAllocations = allocationRepository.fetchEmployeeAllocations(
+        List<Allocation> courseAllocations = new LinkedList<>(allocationRepository.fetchEmployeeAllocations(
                 employee.getId()).stream().filter(allocation -> allocation.getCourse().getId() != 0
-                && allocation.getProject().getId() == 0 && allocation.getFunction().getId() == 0).toList();
+                && allocation.getProject().getId() == 0 && allocation.getFunction().getId() == 0).toList());
         courseAllocations.forEach(allocation -> {
             if (allocation.getCourse() != null && allocation.getCourse().getId() != 0)
                 allocation.setCourse(courseService.getCourse(allocation.getCourse().getId()));
         });
         employee.setCoursesAllocations(courseAllocations);
 
-        List<Allocation> functionAllocations = allocationRepository.fetchEmployeeAllocations(
+        List<Allocation> functionAllocations = new LinkedList<>(allocationRepository.fetchEmployeeAllocations(
                 employee.getId()).stream().filter(allocation -> allocation.getFunction().getId() != 0
-                && allocation.getProject().getId() == 0 && allocation.getCourse().getId() == 0).toList();
+                && allocation.getProject().getId() == 0 && allocation.getCourse().getId() == 0).toList());
         functionAllocations.forEach(allocation -> {
             if (allocation.getFunction() != null && allocation.getFunction().getId() != 0)
                 allocation.setFunction(functionService.getFunction(allocation.getFunction().getId()));

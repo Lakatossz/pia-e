@@ -34,9 +34,15 @@ public class IndexController {
         var myProjects = projectService.getManagerProjects(me.getId());
         var managerProjects = projectService.getWorkplaceManagerProjects(me.getId());
 
+        var employees = employeeService.getEmployees();
+        employees.forEach(employee ->
+                employee.getSubordinates().addAll(employeeService.getSubordinates(employee.getId())));
+
+        model.addAttribute("employees", employees);
+
         model.addAttribute("me", me);
         model.addAttribute("myProjects", myProjects);
         model.addAttribute("workplaceProjects", managerProjects);
-        return "index";
+        return "main";
     }
 }

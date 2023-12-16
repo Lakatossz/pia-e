@@ -23,12 +23,18 @@ public class WorkplaceV1Controller {
     private final EmployeeService employeeService;
 
     @GetMapping()
+    @PreAuthorize("hasAnyAuthority(" +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN)")
     public String viewWorkplaces(Model model) {
         model.addAttribute("workplaces", workplaceService.getWorkplaces());
         return "views/workplaces";
     }
 
     @GetMapping("/create")
+    @PreAuthorize("hasAnyAuthority(" +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN)")
     public String createWorkplace(Model model) {
         var data = workplaceService.getWorkplaces();
         model.addAttribute("restrictions", data);
@@ -38,6 +44,9 @@ public class WorkplaceV1Controller {
     }
 
     @PostMapping("/create")
+    @PreAuthorize("hasAnyAuthority(" +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN)")
     public String createWorkplace(Model model, @ModelAttribute WorkplaceVO workplaceVO, BindingResult errors) {
 
         workplaceService.createWorkplace(workplaceVO);
@@ -45,6 +54,9 @@ public class WorkplaceV1Controller {
     }
 
     @GetMapping("/{id}/delete")
+    @PreAuthorize("hasAnyAuthority(" +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN)")
     public String deleteWorkplace(Model model, @PathVariable long id) {
 
         workplaceService.removeWorkplace(id);
@@ -52,6 +64,9 @@ public class WorkplaceV1Controller {
     }
 
     @GetMapping("/{id}/edit")
+    @PreAuthorize("hasAnyAuthority(" +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN)")
     public String editWorkplace(Model model, @PathVariable long id) {
         var workplace = workplaceService.getWorkplace(id);
         model.addAttribute("restrictions", workplace);
@@ -69,6 +84,9 @@ public class WorkplaceV1Controller {
     }
 
     @PostMapping("/{id}/edit")
+    @PreAuthorize("hasAnyAuthority(" +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN)")
     public String editWorkplace(Model model, @PathVariable long id, @ModelAttribute WorkplaceVO workplaceVO,
                                 BindingResult errors) {
 

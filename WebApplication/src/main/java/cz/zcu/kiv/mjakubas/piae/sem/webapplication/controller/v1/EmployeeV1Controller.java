@@ -25,7 +25,9 @@ import java.util.List;
 @Controller
 @RequestMapping("/e")
 @AllArgsConstructor
-@PreAuthorize("hasAuthority(T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT)")
+@PreAuthorize("hasAnyAuthority(" +
+        "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT, " +
+        "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN)")
 public class EmployeeV1Controller {
 
     private final EmployeeService employeeService;
@@ -49,16 +51,31 @@ public class EmployeeV1Controller {
     private static final String USER_VO = "userVO";
 
     @GetMapping()
+    @PreAuthorize("hasAnyAuthority(" +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).PROJECT_ADMIN, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).PROJECT_GUARANTOR, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).COURSE_SCHEDULER, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).COURSE_SUPERVISOR, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).FUNCTION_ADMIN, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).FUNCTION_GUARANTOR, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN)")
     public String viewEmployees(Model model) {
         var employees = employeeService.getEmployees();
         employees.forEach(employee ->
                 employee.getSubordinates().addAll(employeeService.getSubordinates(employee.getId())));
 
+        List<Allocation> firstAllocations = employeeService.prepareFirst(employees);
+
         model.addAttribute("employees", employees);
+        model.addAttribute("firstAllocations", firstAllocations);
         return "views/employees";
     }
 
     @GetMapping("/create")
+    @PreAuthorize("hasAnyAuthority(" +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN)")
     public String createEmployee(Model model) {
         var employees = employeeService.getEmployees();
         var workplaces = workplaceService.getWorkplaces();
@@ -73,12 +90,24 @@ public class EmployeeV1Controller {
     }
 
     @PostMapping("/create")
+    @PreAuthorize("hasAnyAuthority(" +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN)")
     public String createEmployee(@ModelAttribute EmployeeVO employeeVO, BindingResult errors, Model model) {
         securityService.createUserAccount(employeeVO);
         return "redirect:/e?create=success";
     }
 
     @GetMapping("/{id}/detail")
+    @PreAuthorize("hasAnyAuthority(" +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).PROJECT_ADMIN, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).PROJECT_GUARANTOR, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).COURSE_SCHEDULER, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).COURSE_SUPERVISOR, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).FUNCTION_ADMIN, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).FUNCTION_GUARANTOR, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN)")
     public String detailEmployee(Model model, @PathVariable long id) {
         var employee = employeeService.getEmployee(id);
         var employees = employeeService.getEmployees();
@@ -89,7 +118,7 @@ public class EmployeeV1Controller {
         List<Allocation> firstCoursesAllocations = courseService.prepareForTable(courses);
 
         var functions = functionService.getEmployeeFunctions(id);
-        List<Allocation> firstFunctionsAllocations = functionService.prepareForTable(functions);
+        List<Allocation> firstFunctionsAllocations = functionService.prepareFirst(functions);
 
         model.addAttribute("employee",
                 new EmployeeVO(employee.getId(), employee.getFirstName(), employee.getLastName(),
@@ -109,6 +138,15 @@ public class EmployeeV1Controller {
         return "details/employee_detail";
     }
 
+    @PreAuthorize("hasAnyAuthority(" +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).PROJECT_ADMIN, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).PROJECT_GUARANTOR, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).COURSE_SCHEDULER, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).COURSE_SUPERVISOR, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).FUNCTION_ADMIN, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).FUNCTION_GUARANTOR, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN)")
     @GetMapping("/{id}/edit")
     public String editEmployee(Model model, @PathVariable long id) {
         var employee = employeeService.getEmployee(id);
@@ -127,6 +165,15 @@ public class EmployeeV1Controller {
         return "forms/employee/edit_employee_form";
     }
 
+    @PreAuthorize("hasAnyAuthority(" +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).PROJECT_ADMIN, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).PROJECT_GUARANTOR, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).COURSE_SCHEDULER, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).COURSE_SUPERVISOR, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).FUNCTION_ADMIN, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).FUNCTION_GUARANTOR, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN)")
     @PostMapping("/{id}/edit")
     public String editEmployee(@ModelAttribute EmployeeVO userVO, BindingResult errors, Model model,
                                @PathVariable long id) {
@@ -135,6 +182,12 @@ public class EmployeeV1Controller {
         return "redirect:/e?edit=success";
     }
 
+    @PreAuthorize("hasAnyAuthority(" +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).PROJECT_ADMIN, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).COURSE_SUPERVISOR, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).FUNCTION_ADMIN, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN)")
     @GetMapping("/{id}/delete")
     public String deleteEmployee(Model model, @PathVariable long id) {
 
@@ -142,6 +195,15 @@ public class EmployeeV1Controller {
         return "redirect:/e?delete=success";
     }
 
+    @PreAuthorize("hasAnyAuthority(" +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).PROJECT_ADMIN, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).PROJECT_GUARANTOR, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).COURSE_SCHEDULER, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).COURSE_SUPERVISOR, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).FUNCTION_ADMIN, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).FUNCTION_GUARANTOR, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN)")
     @GetMapping("/{id}/subordinate/add")
     public String addSubordinate(Model model, @PathVariable long id, @ModelAttribute EmployeeVO userVO) {
         model.addAttribute(USER_VO, new EmployeeVO());
@@ -156,6 +218,15 @@ public class EmployeeV1Controller {
         return "forms/employee/create_subordinate_form";
     }
 
+    @PreAuthorize("hasAnyAuthority(" +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).PROJECT_ADMIN, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).PROJECT_GUARANTOR, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).COURSE_SCHEDULER, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).COURSE_SUPERVISOR, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).FUNCTION_ADMIN, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).FUNCTION_GUARANTOR, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN)")
     @PostMapping("/{id}/subordinate/add")
     public String addSubordinate(Model model, @PathVariable long id, @ModelAttribute EmployeeVO userVO,
                                  BindingResult errors) {

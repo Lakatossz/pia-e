@@ -19,6 +19,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -215,11 +216,9 @@ public class ProjectService {
                     prepareAllocations(allocationService.getProjectAllocations(project.getId()).getAllocations()));
             if (project.getEmployees().stream().filter(employee -> employee.getId() == employeeId).toList().size() == 1)
                 myProjects.add(project);
-            project.setProjectAllocations(allocationService.getProjectAllocations(project.getId()).getAllocations()
-                    .stream().filter(allocation -> allocation.getWorker().getId() == employeeId).toList());
+            project.setProjectAllocations(new LinkedList<>(allocationService.getProjectAllocations(project.getId()).getAllocations()
+                    .stream().filter(allocation -> allocation.getWorker().getId() == employeeId).toList()));
         });
-
-        System.out.println(myProjects.size());
 
         return myProjects;
     }

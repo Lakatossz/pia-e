@@ -21,7 +21,7 @@
 <body>
 <div th:replace="~{fragments/navbar}">Navbar</div>
 
-<div class="container-fluid">
+<div class="container-fluid employees-body">
     <!-- content -->
     <div class="container">
         <!-- alerts -->
@@ -40,43 +40,43 @@
         <form   method="post"
                 th:action="@{'/e/' + ${id} + '/edit'}"
                 th:object="${employee}" th:method="POST" novalidate>
-            <div>
-                <label for="first_name" th:text="#{view.employee_detail.first_name}"/>
-                <input type="text" id="first_name" name="first_name" th:value="${employee.getFirstName()}">
+            <div class="employee-detail-div">
+                <label class="employee-detail-label" for="first_name" th:text="#{view.employee_detail.first_name}"/>
+                <input class="employee-detail-input" type="text" id="first_name" name="first_name" th:value="${employee.getFirstName()}">
             </div>
-            <div>
-                <label for="last_name" th:text="#{view.employee_detail.last_name}"/>
-                <input type="text" id="last_name" name="last_name" th:value="${employee.getLastName()}">
+            <div class="employee-detail-div">
+                <label class="employee-detail-label" for="last_name" th:text="#{view.employee_detail.last_name}"/>
+                <input class="employee-detail-input" type="text" id="last_name" name="last_name" th:value="${employee.getLastName()}">
             </div>
-            <div>
-                <label for="orion_login" th:text="#{view.employee_detail.orion_login}"/>
-                <input type="text" id="orion_login" name="orion_login" th:value="${employee.getOrionLogin()}">
+            <div class="employee-detail-div">
+                <label class="employee-detail-label" for="orion_login" th:text="#{view.employee_detail.orion_login}"/>
+                <input class="employee-detail-input" type="text" id="orion_login" name="orion_login" th:value="${employee.getOrionLogin()}">
             </div>
-            <div>
-                <label for="email" th:text="#{view.employee_detail.email}"/>
-                <input type="text" id="email" name="email" th:value="${employee.getEmailAddress()}">
+            <div class="employee-detail-div">
+                <label class="employee-detail-label" for="email" th:text="#{view.employee_detail.email}"/>
+                <input class="employee-detail-input" type="text" id="email" name="email" th:value="${employee.getEmailAddress()}">
             </div>
-            <div>
-                <label for="workplace" th:text="#{view.employee_detail.workplace}"/>
-                <input type="text" id="workplace" name="workplace" th:value="${employee.getWorkplaceId()}">
+            <div class="employee-detail-div">
+                <label class="employee-detail-label" for="workplace" th:text="#{view.employee_detail.workplace}"/>
+                <input class="employee-detail-input" type="text" id="workplace" name="workplace" th:value="${employee.getWorkplaceId()}">
             </div>
-            <div>
-                <label for="introduced" th:text="#{view.employee_detail.introduced}"/>
-                <input type="text" id="introduced" name="introduced" th:value="${employee.getDateCreated()}">
+            <div class="employee-detail-div">
+                <label class="employee-detail-label" for="introduced" th:text="#{view.employee_detail.introduced}"/>
+                <input class="employee-detail-input" type="date" id="introduced" name="introduced" th:value="${employee.getDateCreated()}">
             </div>
-            <div>
-                <label for="description" th:text="#{view.employee_detail.description}"/>
-                <input type="text" id="description" name="description" th:value="${employee.getDescription()}">
+            <div class="employee-detail-div">
+                <label class="employee-detail-label" for="description" th:text="#{view.employee_detail.description}"/>
+                <input class="employee-detail-input" type="text" id="description" name="description" th:value="${employee.getDescription()}">
             </div>
-            <div class="col">
-                <input id="form-submit" class="btn" type="submit"
+            <div class="employee-detail-div">
+                <input id="form-submit" class="employee-detail-btn" type="submit"
                        th:value="#{view.employee_detail.submit}">
             </div>
         </form>
     </div>
 </div>
 
-<div>
+<div class="employees-body">
     <h2 class="text-center mt-5" th:text="#{view.employee_detail.activity.header}"></h2>
 
     <div class="row">

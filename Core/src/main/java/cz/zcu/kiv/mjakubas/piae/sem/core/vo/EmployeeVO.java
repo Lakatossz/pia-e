@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
@@ -27,7 +28,7 @@ public class EmployeeVO {
     private String emailAddress;
     private Long workplaceId;
     private String password;
-    private LocalDateTime dateCreated;
+    private LocalDate dateCreated;
     private float certainTime;
     private float uncertainTime;
     private String description;

@@ -150,9 +150,9 @@ public class AllocationService {
         }
 
         return new AllocationPayload(
-                projects.stream().toList(),
-                courses.stream().toList(),
-                functions.stream().toList(),
+                new LinkedList<>(projects.stream().toList()),
+                new LinkedList<>(courses.stream().toList()),
+                new LinkedList<>(functions.stream().toList()),
                 null,
                 injectActivity(assignmentsList));
     }
@@ -225,9 +225,9 @@ public class AllocationService {
         List<Employee> employees = employeeRepository.fetchSubordinates(superiorId);
 
         return new AllocationPayload(
-                projects.stream().toList(),
-                courses.stream().toList(),
-                functions.stream().toList(),
+                new LinkedList<>(projects.stream().toList()),
+                new LinkedList<>(courses.stream().toList()),
+                new LinkedList<>(functions.stream().toList()),
                 employees,
                 injectEmployee(injectActivity(assignmentsList)));
     }
@@ -339,7 +339,7 @@ public class AllocationService {
      */
     public List<AllocationInterval> processAllocations(@NonNull List<Allocation> allocations) {
         if (allocations.isEmpty())
-            return new ArrayList<>();
+            return new LinkedList<>();
 
         Set<LocalDate> dates = new HashSet<>();
         allocations.forEach(allocation -> {
@@ -347,10 +347,10 @@ public class AllocationService {
             dates.add(allocation.getDateUntil());
         });
 
-        List<LocalDate> sortedDates = new ArrayList<>(dates.stream().toList());
+        List<LocalDate> sortedDates = new LinkedList<>(dates.stream().toList());
         Collections.sort(sortedDates);
 
-        List<AllocationInterval> intervals = new ArrayList<>();
+        List<AllocationInterval> intervals = new LinkedList<>();
         for (int i = 0; i < sortedDates.size() - 1; i++) {
             var interval = new AllocationInterval(sortedDates.get(i), sortedDates.get(i + 1), 0, new HashMap<>());
             intervals.add(interval);
@@ -386,7 +386,7 @@ public class AllocationService {
         Map<Long, Function> mapFunctions = new HashMap<>();
         functions.forEach(function -> mapFunctions.putIfAbsent(function.getId(), function));
 
-        List<Allocation> withActivity = new ArrayList<>();
+        List<Allocation> withActivity = new LinkedList<>();
 
         for (Allocation a : allocations) {
             var project = mapProjects.get(a.getProject().getId());
@@ -441,7 +441,7 @@ public class AllocationService {
         Map<Long, Project> mapProjects = new HashMap<>();
         projects.forEach(project -> mapProjects.putIfAbsent(project.getId(), project));
 
-        List<Allocation> withActivity = new ArrayList<>();
+        List<Allocation> withActivity = new LinkedList<>();
 
         for (Allocation a : allocations) {
             var project = mapProjects.get(a.getProject().getId());
@@ -470,7 +470,7 @@ public class AllocationService {
         Map<Long, Course> mapCourses = new HashMap<>();
         courses.forEach(course -> mapCourses.putIfAbsent(course.getId(), course));
 
-        List<Allocation> withActivity = new ArrayList<>();
+        List<Allocation> withActivity = new LinkedList<>();
 
         for (Allocation a : allocations) {
             var course = mapCourses.get(a.getCourse().getId());
@@ -499,7 +499,7 @@ public class AllocationService {
         Map<Long, Function> mapFunctions = new HashMap<>();
         functions.forEach(function -> mapFunctions.putIfAbsent(function.getId(), function));
 
-        List<Allocation> withActivity = new ArrayList<>();
+        List<Allocation> withActivity = new LinkedList<>();
 
         for (Allocation a : allocations) {
             var function = mapFunctions.get(a.getFunction().getId());

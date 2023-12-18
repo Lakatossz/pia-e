@@ -15,9 +15,10 @@ import lombok.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -95,7 +96,7 @@ public class FunctionService {
      */
     public List<Function> getWorkplaceManagerFunctions(long id) {
         var workplaces = workplaceRepository.fetchWorkplaces();
-        var myWorkplaces = new ArrayList<Workplace>();
+        var myWorkplaces = new LinkedList<Workplace>();
 
         for (Workplace w : workplaces) {
             if (w.getManager().getId() == id)
@@ -103,7 +104,7 @@ public class FunctionService {
         }
 
         var functions = functionRepository.fetchFunctions();
-        var myFunctions = new ArrayList<Function>();
+        var myFunctions = new LinkedList<Function>();
         for (Function f : functions) {
             for (Workplace myW : myWorkplaces) {
                 if (Objects.equals(f.getFunctionWorkplace().getId(), myW.getId()))
@@ -123,14 +124,15 @@ public class FunctionService {
     @Transactional
     public void createFunction(@NonNull FunctionVO functionVO) {
         var manager = employeeRepository.fetchEmployee(functionVO.getFunctionManagerId());
-        if (functionVO.getDateUntil() != null && (functionVO.getDateFrom().isAfter(functionVO.getDateUntil())))
+        if (functionVO.getDateUntil() != null && (functionVO.getDateFrom().after(functionVO.getDateUntil())))
                 {throw new ServiceException();
         }
 
         Function function = new Function()
                 .name(functionVO.getName())
                 .dateFrom(functionVO.getDateFrom())
-                .dateUntil(functionVO.getDateUntil() != null ? functionVO.getDateUntil() : LocalDate.of(9999, 9, 9))
+                .dateUntil(functionVO.getDateUntil() != null ? functionVO.getDateUntil() : Date.from(
+                        Instant.from(LocalDate.of(9999, 9, 9))))
                 .probability(functionVO.getProbability())
                 .functionManager(manager)
                 .functionWorkplace(Workplace.builder().id(functionVO.getFunctionWorkplace()).build())
@@ -149,24 +151,25 @@ public class FunctionService {
     @Transactional
     public void editFunction(@NonNull FunctionVO functionVO, long id) {
         var manager = employeeRepository.fetchEmployee(functionVO.getFunctionManagerId());
-        if (functionVO.getDateUntil() != null && (functionVO.getDateFrom().isAfter(functionVO.getDateUntil())))
+        if (functionVO.getDateUntil() != null && (functionVO.getDateFrom().after(functionVO.getDateUntil())))
                 {throw new ServiceException();
         }
         var processed = allocationService.processAllocations(allocationService.getFunctionAllocations(id).getAllocations());
-        if (!processed.isEmpty() && (processed.get(0).getFrom().isBefore(functionVO.getDateFrom())
-                    || processed.get(processed.size() - 1).getUntil().isAfter(functionVO.getDateUntil())))
-                {throw new ServiceException();
-        }
+        if (!processed.isEmpty() && (processed.get(0).getFrom().before(functionVO.getDateFrom())
+                    || processed.get(processed.size() - 1).getUntil().after(functionVO.getDateUntil())))
+                    throw new ServiceException();
 
         Function function = new Function()
                 .id(id)
                 .name(functionVO.getName())
                 .dateFrom(functionVO.getDateFrom())
-                .dateUntil(functionVO.getDateUntil() != null ? functionVO.getDateUntil() : LocalDate.of(9999, 9, 9))
+                .dateUntil(functionVO.getDateUntil() != null ? functionVO.getDateUntil() : Date.from(
+                        Instant.from(LocalDate.of(9999, 9, 9))))
                 .probability(functionVO.getProbability())
                 .functionManager(manager)
                 .functionWorkplace(Workplace.builder().id(functionVO.getFunctionWorkplace()).build())
-                .defaultTime(functionVO.getDefaultTime());
+                .defaultTime(functionVO.getDefaultTime())
+                .description(functionVO.getDescription());
 
         if (!functionRepository.updateFunction(function, id))
             throw new ServiceException();
@@ -202,7 +205,7 @@ public class FunctionService {
      */
     public List<Function> getEmployeeFunctions(long employeeId) {
         var functions = functionRepository.fetchFunctions();
-        var myFunctions = new ArrayList<Function>();
+        var myFunctions = new LinkedList<Function>();
         functions.forEach(function -> {
             function.setEmployees(functionRepository.fetchFunctionEmployees(function.getId()));
             function.setYearAllocation(
@@ -224,7 +227,7 @@ public class FunctionService {
      */
     public List<Function> getManagerFunctions(long employeeId) {
         var functions = functionRepository.fetchFunctions();
-        var myFunctions = new ArrayList<Function>();
+        var myFunctions = new LinkedList<Function>();
         functions.forEach(function -> {
             function.setYearAllocation(
                     prepareAllocations(allocationService.getFunctionAllocations(function.getId()).getAllocations()));
@@ -235,22 +238,22 @@ public class FunctionService {
     }
 
     public List<Allocation> prepareFirst(List<Function> functions) {
-        List<Allocation> firstAllocations = new ArrayList<>();
+        List<Allocation> firstAllocations = new LinkedList<>();
         functions.forEach(function -> {
             switch(function.getFunctionAllocations().size()) {
                 case 0: {
                     firstAllocations.add(new Allocation().time(-1));
-                    function.setFunctionAllocations(new ArrayList<>());
+                    function.functionAllocations(new LinkedList<>());
                     break;
                 }
                 case 1: {
                     firstAllocations.add(function.getFunctionAllocations().get(0));
-                    function.setFunctionAllocations(new ArrayList<>());
+                    function.functionAllocations(new LinkedList<>());
                     break;
                 }
                 default: {
                     firstAllocations.add(function.getFunctionAllocations().remove(0));
-                    function.setFunctionAllocations(function.getFunctionAllocations());
+                    function.functionAllocations(function.getFunctionAllocations());
                     break;
                 }
             }
@@ -265,9 +268,9 @@ public class FunctionService {
      * @return list of allocations
      */
     private List<Float> prepareAllocations(List<Allocation> allocations) {
-        List<Float> yearAllocations = new ArrayList<>(Collections.nCopies(12, (float) 0));
+        List<Float> yearAllocations = new LinkedList<>(Collections.nCopies(12, (float) 0));
 
-        List<Allocation> thisYearsAllocations = new ArrayList<>();
+        List<Allocation> thisYearsAllocations = new LinkedList<>();
         allocations.forEach(allocation -> {
             if (isThisYearAllocation(allocation))
                 thisYearsAllocations.add(allocation);
@@ -280,15 +283,15 @@ public class FunctionService {
 
 //        Here I will go through every month of the year and add to list 0 or time for function.
             for (int i = 1; i < 13; i++) {
-                if ((allocation.getDateFrom().getMonthValue() <= i
-                        && allocation.getDateUntil().getMonthValue() >= i)
+                if ((allocation.getDateFrom().getMonth() <= i
+                        && allocation.getDateUntil().getMonth() >= i)
                         || (i == 1 && isThisYearAllocation(allocation)
                         && allocation.getDateFrom().getYear() < LocalDate.now().getYear())
                         || (i == 12 && isThisYearAllocation(allocation)
                         && allocation.getDateUntil().getYear() > LocalDate.now().getYear()))
                     yearAllocations.set(i - 1, allocation.getTime());
                 else {
-                    if (allocation.getDateUntil().getMonthValue() == i)
+                    if (allocation.getDateUntil().getMonth() == i)
                         allocation = thisYearsAllocations.get(allocationsIndex++);
                     else
                         yearAllocations.set(i - 1, (float) 0);
@@ -296,7 +299,7 @@ public class FunctionService {
             }
             return yearAllocations;
         } else
-            return new ArrayList<>();
+            return new LinkedList<>();
     }
 
     private boolean isThisYearAllocation(Allocation allocation) {

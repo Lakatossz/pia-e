@@ -5,9 +5,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 @Getter
@@ -42,13 +42,13 @@ public class Function extends Activity {
     }
 
     @Override
-    public Function dateFrom(LocalDate dateFrom) {
+    public Function dateFrom(Date dateFrom) {
         super.dateFrom(dateFrom);
         return this;
     }
 
     @Override
-    public Function dateUntil(LocalDate dateUntil) {
+    public Function dateUntil(Date dateUntil) {
         super.dateUntil(dateUntil);
         return this;
     }

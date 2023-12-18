@@ -1,43 +1,34 @@
 package cz.zcu.kiv.mjakubas.piae.sem.core.vo;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
 
-import java.time.LocalDate;
+import java.util.Date;
 
-@Getter
+@NoArgsConstructor
+@AllArgsConstructor
 @Setter
+@Getter
+@Data
 public class FunctionVO {
 
     private long id;
     private String name;
     private String shortcut;
-    private LocalDate dateFrom;
-    private LocalDate dateUntil;
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private Date dateFrom;
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private Date dateUntil;
     private float probability;
     private float defaultTime;
     private Long functionManagerId;
     private String functionManagerName;
     private Long functionWorkplace;
-
-    public FunctionVO() {
-
-    }
-
-    public FunctionVO(long id, String name, String shortcut, LocalDate dateFrom,
-                    LocalDate dateUntil, float probability, float defaultTime,
-                      Long functionManagerId, String functionManagerName, Long functionWorkplace) {
-        this.id = id;
-        this.name = name;
-        this.shortcut = shortcut;
-        this.dateFrom = dateFrom;
-        this.dateUntil = dateUntil;
-        this.probability = probability;
-        this.defaultTime = defaultTime;
-        this.functionManagerId = functionManagerId;
-        this.functionManagerName = functionManagerName;
-        this.functionWorkplace = functionWorkplace;
-    }
+    private String description;
 
     public FunctionVO id(long id) {
         this.id = id;
@@ -54,12 +45,12 @@ public class FunctionVO {
         return this;
     }
 
-    public FunctionVO dateFrom(LocalDate dateFrom) {
+    public FunctionVO dateFrom(Date dateFrom) {
         this.dateFrom = dateFrom;
         return this;
     }
 
-    public FunctionVO dateUntil(LocalDate dateUntil) {
+    public FunctionVO dateUntil(Date dateUntil) {
         this.dateUntil = dateUntil;
         return this;
     }
@@ -89,6 +80,11 @@ public class FunctionVO {
         return this;
     }
 
+    public FunctionVO description(String description) {
+        this.description = description;
+        return this;
+    }
+
     @Override
     public String toString() {
         return "FunctionVO{" +
@@ -102,6 +98,7 @@ public class FunctionVO {
                 ", functionManagerId=" + functionManagerId +
                 ", functionManagerName=" + functionManagerName +
                 ", functionWorkplace=" + functionWorkplace +
+                ", description=" + description +
                 '}';
     }
 }

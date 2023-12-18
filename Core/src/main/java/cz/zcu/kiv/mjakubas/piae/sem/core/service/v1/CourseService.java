@@ -15,12 +15,19 @@ import lombok.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
+import javafx.util.Pair;
 
 /**
  * Service for working with allocations.
@@ -123,7 +130,7 @@ public class CourseService {
     @Transactional
     public void createCourse(@NonNull CourseVO courseVO) {
         var manager = employeeRepository.fetchEmployee(courseVO.getCourseManagerId());
-        if (courseVO.getDateUntil() != null && (courseVO.getDateFrom().isAfter(courseVO.getDateUntil())))
+        if (courseVO.getDateUntil() != null && (courseVO.getDateFrom().after(courseVO.getDateUntil())))
                 {throw new ServiceException();
         }
 
@@ -131,13 +138,15 @@ public class CourseService {
                 .name(courseVO.getName())
                 .dateFrom(courseVO.getDateFrom())
                 .dateUntil(courseVO.getDateUntil() != null ?
-                        courseVO.getDateUntil() : LocalDate.of(9999, 9, 9))
+                        courseVO.getDateUntil() : Date.from(
+                                Instant.from(LocalDate.of(9999, 9, 9))))
                 .probability(courseVO.getProbability())
                 .courseManager(manager)
                 .courseWorkplace(
                         Workplace.builder().id(courseVO.getCourseWorkplace()).build()).term(courseVO.getTerm())
                 .numberOfStudents(courseVO.getNumberOfStudents())
                 .lectureLength(courseVO.getLectureLength())
+                .term(courseVO.getTerm())
                 .exerciseLength(courseVO.getExerciseLength())
                 .credits(courseVO.getCredits());
 
@@ -153,15 +162,18 @@ public class CourseService {
      */
     @Transactional
     public void editCourse(@NonNull CourseVO courseVO, long id) {
-        var data = employeeRepository.fetchEmployee(courseVO.getName());
-        if (courseVO.getDateUntil() != null && (courseVO.getDateFrom().isAfter(courseVO.getDateUntil())))
+        var data = employeeRepository.fetchEmployee(courseVO.getCourseManagerId());
+        if (courseVO.getDateUntil() != null && (courseVO.getDateFrom().after(courseVO.getDateUntil())))
                 {throw new ServiceException();
         }
-        var processed = allocationService.processAllocations(allocationService.getCourseAllocations(id).getAllocations());
-        if (!processed.isEmpty() && (processed.get(0).getFrom().isBefore(courseVO.getDateFrom())
-                    || processed.get(processed.size() - 1).getUntil().isAfter(courseVO.getDateUntil())))
-                {throw new ServiceException();
-        }
+
+        System.out.println(courseVO);
+
+//        var processed = allocationService.processAllocations(allocationService.getCourseAllocations(id).getAllocations());
+//        if (!processed.isEmpty() && (processed.get(0).getFrom().before(courseVO.getDateFrom())
+//                    || processed.get(processed.size() - 1).getUntil().after(courseVO.getDateUntil())))
+//                {throw new ServiceException();
+//        }
 
 
         Course course = new Course()
@@ -169,7 +181,8 @@ public class CourseService {
                 .name(courseVO.getName())
                 .dateFrom(courseVO.getDateFrom())
                 .dateUntil(courseVO.getDateUntil() != null ?
-                        courseVO.getDateUntil() : LocalDate.of(9999, 9, 9))
+                        courseVO.getDateUntil() : Date.from(
+                                Instant.from(LocalDate.of(9999, 9, 9))))
                 .probability(courseVO.getProbability())
                 .courseManager(data)
                 .courseWorkplace(Workplace.builder().id(courseVO.getCourseWorkplace()).build())
@@ -245,7 +258,7 @@ public class CourseService {
         return myCourses;
     }
 
-    public List<Allocation> prepareForTable(List<Course> courses) {
+    public List<Allocation> prepareFirst(List<Course> courses) {
         List<Allocation> firstAllocations = new ArrayList<>();
         courses.forEach(course -> {
             switch(course.getCourseAllocations().size()) {
@@ -270,6 +283,65 @@ public class CourseService {
         return firstAllocations;
     }
 
+    public List<Integer> prepareYearsForDetail(List<Allocation> allocations) {
+        List<Allocation> sortedAllocations = new LinkedList<>(
+                allocations.stream().sorted(Comparator.comparing(Allocation::getDateFrom)).toList());
+
+        List<Integer> years = new LinkedList<>();
+        Calendar date = new GregorianCalendar();
+        int lastAllYear = 0;
+        int index = -1;
+
+        List<Pair<Integer, Integer>> pairs = new LinkedList<>();
+
+        for (Allocation allocation : sortedAllocations)  {
+            date.setTime(allocation.getDateFrom());
+            if (lastAllYear == date.get(Calendar.YEAR)) {
+                int value = pairs.get(index).getValue() + 1;
+                pairs.set(index, new Pair<>(lastAllYear, value));
+            } else {
+                date.setTime(allocation.getDateFrom());
+                pairs.add(new Pair<>(date.get(Calendar.YEAR), 1));
+                lastAllYear = date.get(Calendar.YEAR);
+                index++;
+            }
+        }
+
+        for (Pair<Integer, Integer> pair : pairs) {
+            years.add(pair.getKey());
+        }
+
+        return years;
+    }
+
+    public List<Integer> prepareCountsDetail(List<Allocation> allocations) {
+        List<Integer> counts = new LinkedList<>();
+        Calendar date = new GregorianCalendar();
+        int lastAllYear = 0;
+        int index = -1;
+
+        List<Pair<Integer, Integer>> pairs = new LinkedList<>();
+
+        for (Allocation allocation : allocations)  {
+            date.setTime(allocation.getDateFrom());
+            if (lastAllYear == date.get(Calendar.YEAR)) {
+                int value = pairs.get(index).getValue() + 1;
+                pairs.set(index, new Pair<>(lastAllYear, value));
+            } else {
+                date.setTime(allocation.getDateFrom());
+                pairs.add(new Pair<>(date.get(Calendar.YEAR), 1));
+                lastAllYear = date.get(Calendar.YEAR);
+                index++;
+            }
+        }
+
+        for (Pair<Integer, Integer> pair : pairs) {
+            counts.add(pair.getValue());
+        }
+
+        return counts;
+    }
+
     /**
      * Prepares allocations times for using.
      * @param allocations allocations
@@ -291,12 +363,12 @@ public class CourseService {
 
 //        Here I will go through every month of the year and add to list 0 or time for project.
             for (int i = 1; i < 13; i++) {
-                if ((allocation.getDateFrom().getMonthValue() <= i && allocation.getDateUntil().getMonthValue() >= i)
+                if ((allocation.getDateFrom().getMonth() <= i && allocation.getDateUntil().getMonth() >= i)
                         || (isThisYearAllocation(allocation) && allocation.getDateFrom().getYear() == i)
                         || (isThisYearAllocation(allocation) && allocation.getDateUntil().getYear() == i))
                     yearAllocations.set(i - 1, allocation.getTime());
                 else {
-                    if (allocation.getDateUntil().getMonthValue() == i)
+                    if (allocation.getDateUntil().getMonth() == i)
                         allocation = thisYearsAllocations.get(allocationsIndex++);
                     else
                         yearAllocations.set(i - 1, (float) 0);

@@ -1,14 +1,14 @@
 package cz.zcu.kiv.mjakubas.piae.sem.core.vo;
 
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Employee;
-import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Workplace;
 import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.util.Date;
 
 /**
  * Value object for representing {@link Employee}.
@@ -19,6 +19,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Setter
 @Getter
+@Data
 public class EmployeeVO {
 
     private long id;
@@ -28,7 +29,8 @@ public class EmployeeVO {
     private String emailAddress;
     private Long workplaceId;
     private String password;
-    private LocalDate dateCreated;
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private Date dateCreated;
     private float certainTime;
     private float uncertainTime;
     private String description;

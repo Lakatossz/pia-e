@@ -6,7 +6,7 @@ import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalDate;
+import java.util.Date;
 
 public class ProjectMapper implements RowMapper<Project> {
 
@@ -17,8 +17,8 @@ public class ProjectMapper implements RowMapper<Project> {
         var prId = rs.getLong("project_id");
         var name = rs.getString("pro_name");
         var shortcut = rs.getString("pro_shortcut");
-        var dateFrom = rs.getObject("pro_date_from", LocalDate.class);
-        var dateUntil = rs.getObject("pro_date_until", LocalDate.class);
+        var dateFrom = rs.getObject("pro_date_from", Date.class);
+        var dateUntil = rs.getObject("pro_date_until", Date.class);
         var description = rs.getString("pro_description");
         var budget = rs.getInt("pro_budget");
         var budgetParticipation = rs.getInt("pro_budget_participation");

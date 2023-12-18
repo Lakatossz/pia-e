@@ -119,8 +119,9 @@ public class JdbcProjectRepository implements IProjectRepository {
                 UPDATE project
                 SET pro_enabled = :pro_enabled, pro_name = :pro_name, pro_manager_id = :pro_manager_id,
                 pro_workplace_id = :pro_workplace_id, pro_date_from = :pro_date_from, pro_description = :pro_description,
-                pro_probability = :pro_probability, pro_budget = :pro_budget, pro_participation = :pro_participation,
-                pro_total_time = :pro_total_time
+                pro_probability = :pro_probability, pro_budget = :pro_budget, pro_agency = :pro_agency,
+                pro_budget_participation = :pro_budget_participation, pro_participation = :pro_participation,
+                pro_total_time = :pro_total_time, pro_grant_title = :pro_grant_title
                 WHERE project_id = :project_id
                 """;
 
@@ -203,6 +204,9 @@ public class JdbcProjectRepository implements IProjectRepository {
         params.addValue("pro_budget", project.getBudget());
         params.addValue("pro_participation", project.getParticipation());
         params.addValue("pro_total_time", project.getTotalTime());
+        params.addValue("pro_budget_participation", project.getBudgetParticipation());
+        params.addValue("pro_agency", project.getAgency());
+        params.addValue("pro_grant_title", project.getGrantTitle());
 
         return params;
     }

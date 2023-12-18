@@ -1,5 +1,6 @@
 package cz.zcu.kiv.mjakubas.piae.sem.webapplication.controller.v1;
 
+import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Allocation;
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Project;
 import cz.zcu.kiv.mjakubas.piae.sem.core.service.v1.AllocationService;
 import cz.zcu.kiv.mjakubas.piae.sem.core.service.v1.EmployeeService;
@@ -13,6 +14,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * Contains all sites for working with projects.
@@ -41,8 +44,10 @@ public class ProjectV1Controller {
         var projects = projectService.getProjects();
         projects.forEach(project ->
                 project.getEmployees().addAll(projectService.getProjectEmployees(project.getId())));
+        List<Allocation> firstAllocations = projectService.prepareFirst(projects);
 
         model.addAttribute("projects", projects);
+        model.addAttribute("firstAllocations", firstAllocations);
         return "views/projects";
     }
 
@@ -122,14 +127,13 @@ public class ProjectV1Controller {
     @PostMapping("/{id}/edit")
     public String editProject(Model model, @PathVariable long id, @ModelAttribute ProjectVO projectVO,
                               BindingResult errors, @RequestParam(required = false) Boolean manage) {
-        projectVO.setProjectManagerId(projectVO.getProjectManagerId());
 
         projectService.editProject(projectVO, id);
 
-        if (Boolean.TRUE.equals(manage))
-            return String.format("redirect:/p/%s/manage?edit=success", id);
+//        if (Boolean.TRUE.equals(manage))
+//            return String.format("redirect:/p/%s/manage?edit=success", id);
 
-        return "redirect:/p?edit=success";
+        return "redirect:/p/{id}/detail?edit=success";
     }
 
     @PreAuthorize("hasAnyAuthority(" +
@@ -143,6 +147,8 @@ public class ProjectV1Controller {
         Project data = projectService.getProject(id);
         var allocations = allocationService.getProjectAllocations(id).getAllocations();
 
+        var allocationAverage = projectService.averageAllocation(data, allocations);
+
         model.addAttribute("allocations", allocations);
         model.addAttribute("project",
                 new ProjectVO()
@@ -154,6 +160,7 @@ public class ProjectV1Controller {
                         .dateUntil(data.getDateUntil())
                         .description(data.getDescription())
                         .budget(data.getBudget())
+                        .probability(data.getProbability())
                         .budgetParticipation(data.getBudgetParticipation())
                         .participation(data.getParticipation())
                         .totalTime(data.getTotalTime())

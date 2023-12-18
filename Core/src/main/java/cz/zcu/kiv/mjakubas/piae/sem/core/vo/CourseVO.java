@@ -1,10 +1,14 @@
 package cz.zcu.kiv.mjakubas.piae.sem.core.vo;
 
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Course;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
 
-import java.time.LocalDate;
+import java.util.Date;
 
 /**
  * Value object for representing {@link Course}.
@@ -12,14 +16,19 @@ import java.time.LocalDate;
  * @see Course
  */
 
+@NoArgsConstructor
+@AllArgsConstructor
 @Setter
 @Getter
+@Data
 public class CourseVO {
 
     private long id;
     private String name;
-    private LocalDate dateFrom;
-    private LocalDate dateUntil;
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private Date dateFrom;
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private Date dateUntil;
     private float probability;
     private boolean enabled;
     private String shortcut;
@@ -31,37 +40,10 @@ public class CourseVO {
     private int lectureLength;
     private int exerciseLength;
     private int credits;
-    private LocalDate introduced;
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private Date introduced;
     private int lectureRequired;
     private int exerciseRequired;
-
-    public CourseVO() {
-
-    }
-
-    public CourseVO(long id, String name, LocalDate dateFrom, LocalDate dateUntil, float probability, String shortcut,
-                    Long courseManagerId, String courseManagerName, Long projectWorkplace, int numberOfStudents,
-                    String term, int lectureLength, int excerciseLength, int credits, boolean enabled,
-                    LocalDate introduced, int lectureRequired, int exerciseRequired) {
-        this.id = id;
-        this.name = name;
-        this.dateFrom = dateFrom;
-        this.dateUntil = dateUntil;
-        this.probability = probability;
-        this.enabled = enabled;
-        this.shortcut = shortcut;
-        this.courseManagerId = courseManagerId;
-        this.courseManagerName = courseManagerName;
-        this.courseWorkplace = projectWorkplace;
-        this.numberOfStudents = numberOfStudents;
-        this.term = term;
-        this.lectureLength = lectureLength;
-        this.exerciseLength = excerciseLength;
-        this.credits = credits;
-        this.introduced = introduced;
-        this.lectureRequired = lectureRequired;
-        this.exerciseRequired = exerciseRequired;
-    }
 
     public CourseVO id(long id) {
         this.id = id;
@@ -73,12 +55,12 @@ public class CourseVO {
         return this;
     }
 
-    public CourseVO dateFrom(LocalDate dateFrom) {
+    public CourseVO dateFrom(Date dateFrom) {
         this.dateFrom = dateFrom;
         return this;
     }
 
-    public CourseVO dateUntil(LocalDate dateUntil) {
+    public CourseVO dateUntil(Date dateUntil) {
         this.dateUntil = dateUntil;
         return this;
     }
@@ -139,7 +121,7 @@ public class CourseVO {
         return this;
     }
 
-    public CourseVO introduced(LocalDate introduced) {
+    public CourseVO introduced(Date introduced) {
         this.introduced = introduced;
         return this;
     }

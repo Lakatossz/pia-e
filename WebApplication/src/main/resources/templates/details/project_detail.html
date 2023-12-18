@@ -37,38 +37,115 @@
 
         <h1 class="text-center mt-5" th:text="#{view.project_detail.header} + ' ' + ${project.getName()}"></h1>
 
-        <div>
-            <label for="name" th:text="#{view.project_detail.name}"/>
-            <input type="text" id="name" name="name" th:value="${project.getName()}">
-        </div>
-        <div>
-            <label for="state" th:text="#{view.project_detail.state}"/>
-            <select id="state" name="state"></select><br>
-        </div>
-        <div>
-            <label for="from" th:text="#{view.project_detail.from}"/>
-            <input type="text" id="from" name="from" th:value="${project.getDateFrom()}">
-        </div>
-        <div>
-            <label for="until" th:text="#{view.project_detail.until}"/>
-            <input type="text" id="until" name="until" th:value="${project.getDateUntil()}">
-        </div>
-        <div>
-            <label for="director" th:text="#{view.project_detail.director}"/>
-            <input type="text" id="director" name="director" th:value="${project.getProjectManagerName()}">
-        </div>
-        <div>
-            <label for="agency" th:text="#{view.project_detail.agency}"/>
-            <input type="text" id="agency" name="agency" th:value="${project.getAgency()}">
-        </div>
-        <div>
-            <label for="grant_title" th:text="#{view.project_detail.grant_title}"/>
-            <input type="text" id="grant_title" name="grant_title" th:value="${project.getGrantTitle()}">
-        </div>
-        <div>
-            <label for="call_year" th:text="#{view.project_detail.call_year}"/>
-            <input type="text" id="call_year" name="call_year" th:value="${project.getDateFrom().getYear()}">
-        </div>
+        <form   method="post"
+                th:action="@{'/p/' + ${id} + '/edit'}"
+                th:object="${project}" th:method="POST" novalidate>
+            <table>
+                <tr>
+                    <td class="project-detail-div">
+                        <label class="project-detail-label" for="name" th:text="#{view.project_detail.name}"/>
+                        <input class="project-detail-input" type="text" id="name" name="name" th:field="*{name}">
+                    </td>
+                </tr>
+                <tr>
+                    <td class="project-detail-div">
+                        <label class="project-detail-label" for="state" th:text="#{view.project_detail.state}"/>
+                        <select class="project-detail-input" id="state" name="state"></select><br>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="project-detail-div">
+                        <label class="project-detail-label" for="from" th:text="#{view.project_detail.from}"/>
+                        <input class="project-detail-input" type="text" id="from" name="from" th:field="*{dateFrom}">
+                    </td>
+                </tr>
+                <tr>
+                    <td class="project-detail-div">
+                        <label class="project-detail-label" for="until" th:text="#{view.project_detail.until}"/>
+                        <input class="project-detail-input" type="text" id="until" name="until" th:field="*{dateUntil}">
+                    </td>
+                </tr>
+                <tr>
+                    <td class="project-detail-div">
+                        <label class="project-detail-label" for="director" th:text="#{view.project_detail.director}"/>
+                        <select class="project-detail-input" id="director" name="director" th:field="*{projectManagerId}">
+                            <option th:each="mng : ${employees}" th:value="${mng.getId()}"
+                                    th:text="${mng.getLastName()} + ' ' + ${mng.getFirstName()}">
+                            </option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="project-detail-div">
+                        <label class="project-detail-label" for="workplace" th:text="#{view.project_detail.workplace}"/>
+                        <select class="project-detail-input" id="workplace" name="workplace" th:field="*{workplaceId}">
+                            <option th:each="wrk : ${workplaces}" th:value="${wrk.getId()}"
+                                    th:text="${wrk.getFullName()}">
+                            </option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="project-detail-div">
+                        <label class="project-detail-label" for="total_time" th:text="#{view.project_detail.total_time}"/>
+                        <input class="project-detail-input" type="number" id="total_time" name="total_time" th:field="*{totalTime}">
+                    </td>
+                </tr>
+                <tr>
+                    <td class="project-detail-div">
+                        <label class="project-detail-label" for="agency" th:text="#{view.project_detail.agency}"/>
+                        <input class="project-detail-input" type="text" id="agency" name="agency" th:field="*{agency}">
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label class="project-detail-label" for="grant_title" th:text="#{view.project_detail.grant_title}"/>
+                        <input class="project-detail-input" type="text" id="grant_title" name="grant_title" th:field="*{grantTitle}">
+                    </td>
+                </tr>
+                <tr>
+                    <td class="project-detail-div">
+                        <label class="project-detail-label" for="call_year" th:text="#{view.project_detail.call_year}"/>
+                        <input class="project-detail-input" type="text" id="call_year" name="call_year" th:value="*{#dates.year(dateFrom)}">
+                    </td>
+                </tr>
+                <tr>
+                    <<td class="project-detail-div">
+                    <h4 th:text="#{view.project_detail.finance}"/>
+                </td>
+                </tr>
+                <tr>
+                    <td class="project-detail-div">
+                        <label class="project-detail-label" for="budget" th:text="#{view.project_detail.budget}"/>
+                        <input class="project-detail-input" type="text" id="budget" name="budget" th:field="*{budget}">
+                    </td>
+                </tr>
+                <tr>
+                    <td class="project-detail-div">
+                        <label class="project-detail-label" for="participation" th:text="#{view.project_detail.participation}"/>
+                        <input class="project-detail-input" type="text" id="participation" name="participation" th:field="*{participation}">
+                    </td>
+                </tr>
+                <tr>
+                    <td class="project-detail-div">
+                        <label class="project-detail-label" for="budget_participation" th:text="#{view.project_detail.budget_participation}"/>
+                        <input class="project-detail-input" type="text" id="budget_participation" name="budget_participation" th:field="*{budgetParticipation}">
+                    </td>
+                </tr>
+                <tr>
+                    <td class="project-detail-div">
+                        <label class="project-detail-label" for="description" th:text="#{view.project_detail.description}"/>
+                        <input class="project-detail-input" type="text" id="description" name="description" th:field="*{description}">
+                    </td>
+                </tr>
+                <tr>
+                    <td th:colspan="3">
+                        <input id="form-submit" class="project-detail-btn" type="submit"
+                               th:value="#{view.project_detail.submit}">
+                    </td>
+                </tr>
+            </table>
+        </form>
         <div>
             <!-- Members of project -->
             <h4 th:text="#{view.project_detail.members.title}"/>
@@ -90,13 +167,13 @@
                     <th:block th:each="all : ${allocations}">
                         <!-- Employee-->
                         <tr>
-                            <td th:text="${all.getWorker().getLastName()}"></td>
-                            <td th:text="${all.getRole()}"></td>
-                            <td th:text="${all.getDateFrom()}"></td>
-                            <td th:text="${all.getDateUntil()}"></td>
-                            <td th:text="${all.getTime()}"></td>
-                            <td th:text="${all.getTime()}"></td>
-                            <td th:text="${all.getDescription()}"></td>
+                            <td th:text="*{all.getWorker().getLastName()}"></td>
+                            <td th:text="*{all.getRole()}"></td>
+                            <td th:text="*{#dates.format(all.getDateFrom(), 'dd-MM-yyyy')}"></td>
+                            <td th:text="*{#dates.format(all.getDateUntil(), 'dd-MM-yyyy')}"></td>
+                            <td th:text="*{all.getTime()}"></td>
+                            <td th:text="*{all.getTime()}"></td>
+                            <td th:text="*{all.getDescription()}"></td>
                         </tr>
                     </th:block>
                     </tbody>

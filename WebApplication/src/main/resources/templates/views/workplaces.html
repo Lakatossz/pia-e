@@ -40,7 +40,7 @@
             <table class="table">
                 <thead>
                 <tr>
-                    <th scope="col">#</th>
+                    <th scope="col"></th>
                     <th scope="col" th:text="#{view.workplace.table.abbreviation}"></th>
                     <th scope="col" th:text="#{view.workplace.table.name}"></th>
                     <th scope="col" th:text="#{view.workplace.table.manager}"></th>
@@ -50,7 +50,9 @@
                 </thead>
                 <tbody>
                 <tr th:each="wrk, iStat : ${workplaces}">
-                    <th scope="row" th:text="(${iStat.index} + 1)"></th>
+                    <td class="function-cell">
+                        <a type="button" class="btn collapsible btn-detail" th:href="@{/w/{WRK_ID}/detail(WRK_ID=${wrk.getId()})}"></a>
+                    </td>
                     <td th:text="${wrk.abbreviation}"></td>
                     <td th:text="${wrk.fullName}"></td>
                     <td><span th:if="${wrk.manager.id != 0}"

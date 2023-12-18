@@ -1,13 +1,15 @@
 package cz.zcu.kiv.mjakubas.piae.sem.core.domain;
 
+import cz.zcu.kiv.mjakubas.piae.sem.core.vo.AllocationCellVO;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 @Getter
@@ -22,7 +24,8 @@ public class Project extends Activity {
     private Integer budgetParticipation;
     private Integer participation;
     private Integer totalTime;
-    private LocalDate introduced;
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private Date introduced;
     private String agency;
     private String grantTitle;
     private List<Employee> employees = new ArrayList<>();
@@ -48,13 +51,13 @@ public class Project extends Activity {
     }
 
     @Override
-    public Project dateFrom(LocalDate dateFrom) {
+    public Project dateFrom(Date dateFrom) {
         super.dateFrom(dateFrom);
         return this;
     }
 
     @Override
-    public Project dateUntil(LocalDate dateUntil) {
+    public Project dateUntil(Date dateUntil) {
         super.dateUntil(dateUntil);
         return this;
     }
@@ -101,7 +104,7 @@ public class Project extends Activity {
         return this;
     }
 
-    public Project introduced(LocalDate introduced) {
+    public Project introduced(Date introduced) {
         this.introduced = introduced;
         return this;
     }

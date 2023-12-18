@@ -4,10 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Date;
 
 @Getter
 @Setter
@@ -23,8 +22,10 @@ public class Allocation {
     private float time; /* TODO - pro zobrazeni nevalidni alokace pouzivam time = -1 */
     private float isCertain;
     private int allocationScope;
-    private LocalDate dateFrom;
-    private LocalDate dateUntil;
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private Date dateFrom;
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private Date dateUntil;
     private String description;
     private Boolean active;
     private String role;
@@ -42,10 +43,10 @@ public class Allocation {
         if (!this.active)
             return AssignmentState.INACTIVE;
 
-        if (LocalDate.now().isBefore(this.dateFrom))
+        if (new Date().before(this.dateFrom))
             return AssignmentState.UNREALIZED;
 
-        if (LocalDate.now().isAfter(this.dateUntil))
+        if (new Date().after(this.dateUntil))
             return AssignmentState.PAST;
 
         return AssignmentState.ACTIVE;
@@ -99,12 +100,12 @@ public class Allocation {
         return this;
     }
 
-    public Allocation dateFrom(LocalDate dateFrom) {
+    public Allocation dateFrom(Date dateFrom) {
         this.dateFrom = dateFrom;
         return this;
     }
 
-    public Allocation dateUntil(LocalDate dateUntil) {
+    public Allocation dateUntil(Date dateUntil) {
         this.dateUntil = dateUntil;
         return this;
     }

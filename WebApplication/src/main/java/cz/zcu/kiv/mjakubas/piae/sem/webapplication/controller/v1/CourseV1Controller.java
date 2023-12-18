@@ -2,8 +2,6 @@ package cz.zcu.kiv.mjakubas.piae.sem.webapplication.controller.v1;
 
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Allocation;
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Course;
-import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Employee;
-import cz.zcu.kiv.mjakubas.piae.sem.core.domain.payload.AllocationPayload;
 import cz.zcu.kiv.mjakubas.piae.sem.core.service.v1.AllocationService;
 import cz.zcu.kiv.mjakubas.piae.sem.core.service.v1.CourseService;
 import cz.zcu.kiv.mjakubas.piae.sem.core.service.v1.EmployeeService;
@@ -22,7 +20,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import java.util.ArrayList;
+import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -51,7 +50,7 @@ public class CourseV1Controller {
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN)")
     public String getCourses(Model model) {
         var courses = courseService.getCourses();
-        List<Allocation> firstAllocations = courseService.prepareForTable(courses);
+        List<Allocation> firstAllocations = courseService.prepareFirst(courses);
 
         model.addAttribute("courses", courses);
         model.addAttribute("firstAllocations", firstAllocations);
@@ -111,6 +110,7 @@ public class CourseV1Controller {
                         .dateFrom(data.getDateFrom())
                         .dateUntil(data.getDateUntil())
                         .introduced(data.getIntroduced())
+                        .term(data.getTerm())
                         .lectureRequired(data.getLectureRequired())
                         .exerciseRequired(data.getExerciseRequired()));
 
@@ -136,7 +136,7 @@ public class CourseV1Controller {
         if (Boolean.TRUE.equals(manage))
             return String.format("redirect:/c/%s/manage?edit=success", id);
 
-        return "redirect:/c?edit=success";
+        return "redirect:/c/{id}/detail?edit=success";
     }
 
     @GetMapping("/{id}/delete")
@@ -161,6 +161,11 @@ public class CourseV1Controller {
                                @RequestParam(required = false) Boolean manage) {
         Course data = courseService.getCourse(id);
         var allocations = allocationService.getCourseAllocations(id).getAllocations();
+        List<Integer> years = courseService.prepareYearsForDetail(allocations);
+        List<Integer> counts = courseService.prepareCountsDetail(allocations);
+
+        model.addAttribute("years", years);
+        model.addAttribute("counts", counts);
 
         model.addAttribute("allocations", allocations);
         model.addAttribute("course",
@@ -172,7 +177,8 @@ public class CourseV1Controller {
                         .courseWorkplace(data.getCourseWorkplace().getId())
                         .dateFrom(data.getDateFrom())
                         .dateUntil(data.getDateUntil())
-                        .introduced(data.getIntroduced())
+                        .introduced(new Date())
+                        .term(data.getTerm())
                         .lectureRequired(data.getLectureRequired())
                         .exerciseRequired(data.getExerciseRequired()));
 

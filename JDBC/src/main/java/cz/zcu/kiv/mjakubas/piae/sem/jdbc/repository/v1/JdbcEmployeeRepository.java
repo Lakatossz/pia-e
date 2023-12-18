@@ -106,7 +106,7 @@ public class JdbcEmployeeRepository implements IEmployeeRepository {
         var sql = """
                 UPDATE employee
                 SET emp_enabled = :emp_enabled, emp_workplace_id = :emp_workplace_id, emp_first_name = :emp_first_name,
-                 emp_last_name = :emp_last_name, emp_orion_login = :emp_orion_login, emp_email = :emp_email
+                 emp_last_name = :emp_last_name, emp_orion_login = :emp_orion_login, emp_email = :emp_email, emp_description = :emp_description
                 WHERE emp_enabled=:emp_enabled AND employee_id = :employee_id
                 """;
 
@@ -176,6 +176,7 @@ public class JdbcEmployeeRepository implements IEmployeeRepository {
         params.addValue("emp_last_name", employee.getLastName());
         params.addValue("emp_orion_login", employee.getOrionLogin());
         params.addValue("emp_email", employee.getEmailAddress());
+        params.addValue("emp_description", employee.getDescription());
 
         return params;
     }

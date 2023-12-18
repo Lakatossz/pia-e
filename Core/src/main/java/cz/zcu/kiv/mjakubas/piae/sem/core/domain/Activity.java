@@ -4,8 +4,10 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
+import java.util.Date;
 
 @Getter
 @Setter
@@ -16,8 +18,10 @@ public abstract class Activity {
     private long id;
     private String name;
     private String shortcut;
-    private LocalDate dateFrom;
-    private LocalDate dateUntil;
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private Date dateFrom;
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private Date dateUntil;
     private float probability;
     private String description;
 
@@ -36,12 +40,12 @@ public abstract class Activity {
         return this;
     }
 
-    public Activity dateFrom(LocalDate dateFrom) {
+    public Activity dateFrom(Date dateFrom) {
         this.dateFrom = dateFrom;
         return this;
     }
 
-    public Activity dateUntil(LocalDate dateUntil) {
+    public Activity dateUntil(Date dateUntil) {
         this.dateUntil = dateUntil;
         return this;
     }

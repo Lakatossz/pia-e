@@ -37,30 +37,62 @@
 
         <h1 class="text-center mt-5" th:text="#{view.function_detail.header} + ' ' + ${function.getName()}"></h1>
 
-        <div>
-            <label for="shortcut" th:text="#{view.function_detail.shortcut}"/>
-            <input type="text" id="shortcut" name="shortcut" th:value="${function.getShortcut()}">
-        </div>
-        <div>
-            <label for="name" th:text="#{view.function_detail.name}"/>
-            <input type="text" id="name" name="name" th:value="${function.getName()}">
-        </div>
-        <div>
-            <label for="director" th:text="#{view.function_detail.director}"/>
-            <input type="text" id="director" name="director" th:value="${function.getFunctionManagerName()}">
-        </div>
-        <div>
-            <label for="from" th:text="#{view.function_detail.from}"/>
-            <input type="text" id="from" name="from" th:value="${function.getDateFrom()}">
-        </div>
-        <div>
-            <label for="until" th:text="#{view.function_detail.until}"/>
-            <input type="text" id="until" name="until" th:value="${function.getDateUntil()}">
-        </div>
-        <div>
-            <label for="introduced" th:text="#{view.function_detail.introduced}"/>
-            <input type="text" id="introduced" name="introduced" th:value="${function.getDateFrom().getYear()}">
-        </div>
+        <form   method="post"
+                th:action="@{'/f/' + ${id} + '/edit'}"
+                th:object="${function}" th:method="POST" novalidate>
+            <table>
+                <tr>
+                    <td class="function-detail-div">
+                        <label class="function-detail-label" for="shortcut" th:text="#{view.function_detail.shortcut}"/>
+                        <input class="function-detail-input" type="text" id="shortcut" name="shortcut" th:field="*{shortcut}">
+                    </td>
+                    <td class="function-detail-div">
+                        <label class="function-detail-label" for="from" th:text="#{view.function_detail.from}"/>
+                        <input class="function-detail-input" th:type="date" id="from" name="from" th:field="*{dateFrom}">
+                    </td>
+                    <td th:rowspan="5" th:width="700px" class="function-detail-div" style="align-items: center">
+                        <label class="function-detail-label" for="description" th:text="#{view.function_detail.description}"/>
+                        <textarea class="function-detail-input" type="text"
+                                  th:rows="${function.getDescription().length() / 100}" th:cols="100"
+                                  id="description" name="description" th:field="*{description}"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="function-detail-div">
+                        <label class="function-detail-label" for="name" th:text="#{view.function_detail.name}"/>
+                        <input class="function-detail-input" type="text" id="name" name="name" th:field="*{name}">
+                    </td>
+                    <td class="function-detail-div">
+                        <label class="function-detail-label" for="until" th:text="#{view.function_detail.until}"/>
+                        <input class="function-detail-input" type="date" id="until" name="until" th:field="*{dateUntil}">
+                    </td>
+                </tr>
+                <tr>
+                    <td class="function-detail-div">
+                        <label class="function-detail-label" for="director" th:text="#{view.function_detail.director}"/>
+                        <select class="function-detail-input" id="director" name="director" th:field="*{functionManagerId}">
+                            <option th:each="mng : ${employees}" th:value="${mng.getId()}"
+                                    th:text="${mng.getLastName()} + ' ' + ${mng.getFirstName()}">
+                            </option>
+                        </select>
+                    </td>
+                    <td class="function-detail-div">
+                        <label class="function-detail-label" for="workplace" th:text="#{view.function_detail.director}"/>
+                        <select class="function-detail-input" id="workplace" name="workplace" th:field="*{functionWorkplace}">
+                            <option th:each="wrk : ${workplaces}" th:value="${wrk.getId()}"
+                                    th:text="${wrk.getFullName()}">
+                            </option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td th:colspan="3">
+                        <input id="form-submit" class="employee-detail-btn" type="submit"
+                               th:value="#{view.function_detail.submit}">
+                    </td>
+                </tr>
+            </table>
+        </form>
     </div>
 </div>
 

@@ -20,21 +20,21 @@
 </head>
 <body class="d-flex flex-column min-vh-100">
 <div th:replace="~{fragments/navbar}">Navbar</div>
-<div class="container-fluid">
 
+<div class="container-fluid">
     <!-- content -->
     <div class="container">
         <!-- alerts -->
         <div>
-            <div th:if="(${(param.edit != null)} or ${(param.create != null)} or ${(param.delete != null)} or ${(param.addemployee != null)})"
+            <div th:if="(${(param.edit != null)} or ${(param.create != null)} or ${(param.delete != null)} or ${(param.subordinate != null)})"
                  class="alert alert-success alert-dismissible fade show" role="success">
-                <strong th:if="${(param.edit != null)}" th:text="#{view.project.alert.edit}"></strong>
-                <strong th:if="${(param.create != null)}" th:text="#{view.project.alert.create}"></strong>
-                <strong th:if="${(param.addemployee != null)}" th:text="#{view.project.alert.add-employee}"></strong>
+                <strong th:if="${(param.edit != null)}" th:text="#{view.function.alert.edit}"></strong>
+                <strong th:if="${(param.create != null)}" th:text="#{view.function.alert.create}"></strong>
                 <strong th:if="${(param.delete != null)}" th:text="#{not-implemented}"></strong>
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         </div>
+        <!-- table -->
         <h1 class="text-center mt-5" th:text="#{view.project.header}"></h1>
         <a type="button" class="btn btn-primary common-border-radius"
            th:href="@{/p/create}" th:text="#{view.project.create}"></a>
@@ -42,114 +42,53 @@
             <table class="table">
                 <thead>
                 <tr>
-                    <th scope="col">#</th>
+                    <th scope="col"></th>
                     <th scope="col" th:text="#{view.project.table.name}"></th>
+                    <th scope="col" th:text="#{view.project.table.workplace}"></th>
                     <th scope="col" th:text="#{view.project.table.manager}"></th>
-                    <th scope="col" th:text="#{view.project.table.wrk-abbrevation}"></th>
-                    <th scope="col" th:text="#{view.project.table.active-from}"></th>
-                    <th scope="col" th:text="#{view.project.table.active-until}"></th>
-                    <th scope="col"></th>
-                    <th scope="col"></th>
-                    <th scope="col"></th>
+                    <th scope="col" th:text="#{view.project.table.from}"></th>
+                    <th scope="col" th:text="#{view.project.table.until}"></th>
+                    <th scope="col" th:text="#{view.project.table.current-time}"></th>
+                    <th scope="col" th:text="#{view.project.table.certain}"></th>
+                    <th scope="col" th:text="#{view.project.table.description}"></th>
                     <th scope="col"></th>
                 </tr>
                 </thead>
                 <tbody>
-                <tr th:each="pro, iStat : ${projects}">
-                    <th scope="row" th:text="(${iStat.index} + 1)"></th>
-                    <td th:text="${pro.name}"></td>
-                    <td th:text="${pro.getProjectManager().getFirstName()} + ' ' + ${pro.getProjectManager().getLastName()} + ' (' + ${pro.getProjectManager().getOrionLogin()} + ')'"></td>
-                    <td th:text="${pro.projectWorkplace.abbreviation}"></td>
-                    <td th:text="${pro.dateFrom}"></td>
-                    <td th:text="${pro.dateUntil}"></td>
-                    <td>
-                        <button type="button" class="btn btn-outline-info common-border-radius"
-                                data-bs-toggle="modal"
-                                th:data-bs-target="'#modal_desc_' + ${pro.id}"
-                                th:text="#{view.project.table.description}"></button>
-                        <!-- Modal -->
-                        <div class="modal modal-lg fade" th:id="'modal_desc_' + ${pro.id}" tabindex="-1">
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" th:text="#{view.project.table.description}"></h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                                aria-label="Close"></button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <textarea class="w-100" th:text="${pro.description}" readonly>
-                                        </textarea>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
-                                                th:text="#{view.employee.subordinate.close}">
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </td>
-                    <td>
-                        <button type="button" class="btn btn-outline-secondary common-border-radius"
-                                data-bs-toggle="modal"
-                                th:data-bs-target="'#modal_ass_' + ${pro.id}"
-                                th:text="#{view.project.table-content.employees}"></button>
-                        <!-- Modal -->
-                        <div class="modal modal-lg fade" th:id="'modal_ass_' + ${pro.id}" tabindex="-1">
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" th:text="#{view.project.table-content.employees}"></h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                                aria-label="Close"></button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <a type="button" class="btn btn-primary common-border-radius"
-                                           th:href="@{'/p/' + ${pro.id} + '/employee/add'}"
-                                           th:text="#{view.project.table-content.employees.add}"></a>
-                                        <table class="table">
-                                            <thead>
-                                            <tr>
-                                                <th scope="col">#</th>
-                                                <th scope="col" th:text="#{view.employee.table.fname}"></th>
-                                                <th scope="col" th:text="#{view.employee.table.lname}"></th>
-                                                <th scope="col" th:text="#{view.employee.table.wrk-abbreviation}"></th>
-                                                <th scope="col" th:text="#{view.employee.table.orion-login}"></th>
-                                                <th scope="col" th:text="#{view.employee.table.email}"></th>
-                                                <th scope="col"></th>
-                                            </tr>
-                                            </thead>
-                                            <tbody>
-                                            <tr th:each="e, iStat : ${pro.employees}">
-                                                <th scope="row" th:text="(${iStat.index} + 1)"></th>
-                                                <td th:text="${e.firstName}"></td>
-                                                <td th:text="${e.lastName}"></td>
-                                                <td th:text="${e.workplace.abbreviation}"></td>
-                                                <td th:text="${e.orionLogin}"></td>
-                                                <td th:text="${e.emailAddress}"></td>
-                                                <td><a class="btn btn-secondary w-100 common-border-radius"
-                                                       th:text="#{view.employee.table-content.remove}"
-                                                       th:href="'p/' + ${pro.id} + '/delete'"></a></td>
-                                            </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
-                                                th:text="#{view.employee.subordinate.close}">
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </td>
-                    <td><a class="btn btn-secondary w-100 common-border-radius"
-                           th:text="#{view.employee.table-content.edit}"
-                           th:href="'p/' + ${pro.id} + '/edit'"></a></td>
-                    <td><a class="btn btn-secondary w-100 common-border-radius"
-                           th:text="#{view.employee.table-content.remove}"
-                           th:href="'p/' + ${pro.id} + '/delete'"></a></td>
-                </tr>
+                <th:block th:each="pro, iStat : ${projects}">
+                    <!-- Project-->
+                    <th:block th:if="${firstAllocations.get(iStat.index).getTime >= 0}">
+                        <tr>
+                            <td class="project-cell" th:rowspan="${pro.getProjectAllocations().size() + 1}">
+                                <a type="button" class="btn collapsible btn-detail" th:href="@{/p/{PRO_ID}/detail(PRO_ID=${pro.getId()})}"></a>
+                            </td>
+                            <td th:rowspan="${pro.getProjectAllocations().size() + 1}" th:text="${pro.getName()}"></td>
+                            <td th:rowspan="${pro.getProjectAllocations().size() + 1}" th:text="${pro.getProjectManager().getLastName()}"></td>
+                            <td th:rowspan="${pro.getProjectAllocations().size() + 1}" th:text="${pro.getProjectWorkplace().getAbbreviation()}"></td>
+                            <td th:text="${#dates.format(firstAllocations.get(iStat.index).getDateFrom(), 'dd-MM-yyyy')}"></td>
+                            <td th:text="${#dates.format(firstAllocations.get(iStat.index).getDateUntil(), 'dd-MM-yyyy')}"></td>
+                            <td th:text="${firstAllocations.get(iStat.index).getTime()}"></td>
+                            <td th:text="${firstAllocations.get(iStat.index).getIsCertain()}"></td>
+                            <td th:text="${firstAllocations.get(iStat.index).getDescription()}"></td>
+                            <td class="project-cell">
+                                <button class="btn collapsible btn-edit" th:onclick="'editFunction('+${firstAllocations.get(iStat.index).getId()}+')'"></button>
+                            </td>
+                        </tr>
+                        <!-- Employees -->
+                        <th:block th:each="all, allStats : ${pro.getProjectAllocations()}">
+                            <tr>
+                                <td th:text="${#dates.format(all.getDateFrom(), 'dd-MM-yyyy')}"></td>
+                                <td th:text="${#dates.format(all.getDateUntil(), 'dd-MM-yyyy')}"></td>
+                                <td th:text="${all.getTime()}"></td>
+                                <td th:text="${all.getIsCertain()}"></td>
+                                <td th:text="${all.getDescription()}"></td>
+                                <td class="project-cell">
+                                    <button class="btn collapsible btn-edit" th:onclick="'editFunction('+${all.getId()}+')'"></button>
+                                </td>
+                            </tr>
+                        </th:block>
+                    </th:block>
+                </th:block>
                 </tbody>
             </table>
         </div>

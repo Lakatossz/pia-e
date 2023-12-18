@@ -6,7 +6,7 @@ import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalDate;
+import java.util.Date;
 
 public class CourseMapper implements RowMapper<Course> {
 
@@ -17,8 +17,8 @@ public class CourseMapper implements RowMapper<Course> {
 
         var crId = rs.getLong("course_id");
         var name = rs.getString("crs_name");
-        var dateFrom = rs.getObject("crs_date_from", LocalDate.class);
-        var dateUntil = rs.getObject("crs_date_until", LocalDate.class);
+        var dateFrom = rs.getObject("crs_date_from", Date.class);
+        var dateUntil = rs.getObject("crs_date_until", Date.class);
         var probability = rs.getFloat("crs_probability");
         var numberOfStudents = rs.getInt("crs_number_of_students");
         var term = rs.getString("crs_term");

@@ -119,7 +119,8 @@ public class JdbcFunctionRepository implements IFunctionRepository {
                 UPDATE `function`
                 SET fnc_enabled = :fnc_enabled, fnc_name = :fnc_name, fnc_manager_id = :fnc_manager_id, 
                 fnc_workplace_id = :fnc_workplace_id, fnc_date_from = :fnc_date_from, fnc_date_until = :fnc_date_until,
-                fnc_description = :fnc_description, fnc_probability = :fnc_probability, fnc_default_time = :fnc_default_time
+                fnc_description = :fnc_description, fnc_probability = :fnc_probability, 
+                fnc_default_time = :fnc_default_time, fnc_description = :fnc_description
                 WHERE function_id = :function_id;
                 """;
 
@@ -199,6 +200,7 @@ public class JdbcFunctionRepository implements IFunctionRepository {
         params.addValue("fnc_date_until", function.getDateUntil());
         params.addValue("fnc_probability", function.getProbability());
         params.addValue("fnc_default_time", function.getDefaultTime());
+        params.addValue("fnc_description", function.getDescription());
 
         return params;
     }

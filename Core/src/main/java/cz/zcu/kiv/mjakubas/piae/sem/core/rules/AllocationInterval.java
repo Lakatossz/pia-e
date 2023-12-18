@@ -7,6 +7,7 @@ import lombok.Setter;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.time.LocalDate;
+import java.util.Date;
 import java.util.HashMap;
 
 @AllArgsConstructor
@@ -14,8 +15,8 @@ import java.util.HashMap;
 @Setter
 public class AllocationInterval {
 
-    private final LocalDate from;
-    private final LocalDate until;
+    private final Date from;
+    private final Date until;
     private final float time;
     private HashMap<Allocation.AssignmentState, Integer> scopes;
 
@@ -23,7 +24,7 @@ public class AllocationInterval {
         var alFrom = allocation.getDateFrom();
         var alUntil = allocation.getDateUntil();
 
-        return (alFrom.isBefore(this.until) || alFrom.isEqual(this.until)) && (alUntil.isAfter(this.from) || alUntil.isEqual(this.from));
+        return (alFrom.before(this.until) || alFrom.equals(this.until)) && (alUntil.after(this.from) || alUntil.equals(this.from));
     }
 
 

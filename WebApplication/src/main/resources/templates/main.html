@@ -104,17 +104,15 @@
                                         <tbody>
                                         <!-- Projects values -->
                                         <th:block th:each="all, allStat: ${emp.getProjectsAllocations()}">
-                                            <form th:method="POST" th:action="@{'/a/' + ${all.getId() + '/edit?mana'}}" th:object="${all}" novalidate>
-                                                <th:block>
-                                                    <tr class="project-row-value">
-                                                        <td class="project-cell" th:text="${all.getProject().getName()}"></td>
-                                                        <td class="project-cell" th:text="${all.getProject().getProbability()}"></td>
-                                                        <th:block th:each="perMonth : ${all.getProject().getYearAllocation()}">
-                                                            <td class="project-cell" th:text="${perMonth}"></td>
-                                                        </th:block>
-                                                    </tr>
-                                                </th:block>
-                                            </form>
+                                            <th:block>
+                                                <tr class="project-row-value">
+                                                    <td class="project-cell" th:text="${all.getProject().getName()}"></td>
+                                                    <td class="project-cell" th:text="${all.getProject().getProbability()}"></td>
+                                                    <th:block th:each="perMonth : ${all.getProject().getYearAllocation()}">
+                                                        <td class="project-cell" th:text="${perMonth}"></td>
+                                                    </th:block>
+                                                </tr>
+                                            </th:block>
                                         </th:block>
                                         </tbody>
                                     </table>
@@ -153,17 +151,15 @@
                                         <tbody>
                                         <!-- Courses values -->
                                         <th:block th:each="all, allStat: ${emp.getCoursesAllocations()}">
-                                            <form th:method="POST" th:action="@{'/a/' + ${all.getId() + '/edit?mana'}}" th:object="${all}" novalidate>
-                                                <th:block>
-                                                    <tr class="course-row-value">
-                                                        <td th:text="${all.getCourse().getShortcut()}"></td>
-                                                        <td class="course-cell" th:text="${all.getCourse().getProbability()}"></td>
-                                                        <th:block th:each="perMonth : ${all.getCourse().getYearAllocation()}">
-                                                            <td class="course-cell" th:text="${perMonth}"></td>
-                                                        </th:block>
-                                                    </tr>
-                                                </th:block>
-                                            </form>
+                                            <th:block>
+                                                <tr class="course-row-value">
+                                                    <td th:text="${all.getCourse().getShortcut()}"></td>
+                                                    <td class="course-cell" th:text="${all.getCourse().getProbability()}"></td>
+                                                    <th:block th:each="perMonth : ${all.getCourse().getYearAllocation()}">
+                                                        <td class="course-cell" th:text="${perMonth}"></td>
+                                                    </th:block>
+                                                </tr>
+                                            </th:block>
                                         </th:block>
                                         </tbody>
                                     </table>
@@ -202,18 +198,15 @@
                                         <tbody>
                                         <!-- Functions values -->
                                         <th:block th:each="all, allStat: ${emp.getFunctionsAllocations()}">
-                                            <form th:method="POST" th:action="@{'/a/' + ${all.getId() + '/edit?mana'}}" th:object="${all}" novalidate>
-                                                <th:block>
-                                                    <tr class="function-row-value" id="allStat">
-                                                        <td></td>
-                                                        <td th:text="${all.getFunction().getName()}"></td>
-                                                        <td class="function-cell" th:text="${all.getFunction().getProbability()}"></td>
-                                                        <th:block th:each="perMonth : ${all.getFunction().getYearAllocation()}">
-                                                            <td class="function-cell" th:text="${perMonth}"></td>
-                                                        </th:block>
-                                                    </tr>
-                                                </th:block>
-                                            </form>
+                                            <th:block>
+                                                <tr class="function-row-value" id="allStat">
+                                                    <td th:text="${all.getFunction().getName()}"></td>
+                                                    <td class="function-cell" th:text="${all.getFunction().getProbability()}"></td>
+                                                    <th:block th:each="perMonth : ${all.getFunction().getYearAllocation()}">
+                                                        <td class="function-cell" th:text="${perMonth}"></td>
+                                                    </th:block>
+                                                </tr>
+                                            </th:block>
                                         </th:block>
                                         </tbody>
                                     </table>
@@ -246,6 +239,13 @@
                 } else {
                     collapse[i].style.visibility = "visible";
                 }
+            }
+            if (this.classList.contains("btn-dropdown")) {
+                this.classList.remove("btn-dropdown");
+                this.classList.add("btn-dropdown-clicked");
+            } else {
+                this.classList.add("btn-dropdown");
+                this.classList.remove("btn-dropdown-clicked");
             }
         });
         td.append(button);

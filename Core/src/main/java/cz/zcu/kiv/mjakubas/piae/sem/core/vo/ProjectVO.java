@@ -1,10 +1,14 @@
 package cz.zcu.kiv.mjakubas.piae.sem.core.vo;
 
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Project;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
 
-import java.time.LocalDate;
+import java.util.Date;
 
 /**
  * Value object for representing {@link Project}.
@@ -12,13 +16,18 @@ import java.time.LocalDate;
  * @see Project
  */
 
+@NoArgsConstructor
+@AllArgsConstructor
 @Setter
 @Getter
+@Data
 public class ProjectVO {
 
     private String name;
-    private LocalDate dateFrom;
-    private LocalDate dateUntil;
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private Date dateFrom;
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private Date dateUntil;
     private float probability;
     private Long projectManagerId;
     private String projectManagerName;
@@ -28,13 +37,10 @@ public class ProjectVO {
     private Integer budgetParticipation;
     private Integer participation;
     private Integer totalTime;
-    private LocalDate introduced;
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private Date introduced;
     private String agency;
     private String grantTitle;
-
-    public ProjectVO() {
-
-    }
 
     public ProjectVO name(String name) {
         this.name = name;
@@ -56,17 +62,17 @@ public class ProjectVO {
         return this;
     }
 
-    public ProjectVO dateFrom(LocalDate dateFrom) {
+    public ProjectVO dateFrom(Date dateFrom) {
         this.dateFrom = dateFrom;
         return this;
     }
 
-    public ProjectVO dateUntil(LocalDate dateUntil) {
+    public ProjectVO dateUntil(Date dateUntil) {
         this.dateUntil = dateUntil;
         return this;
     }
 
-    public ProjectVO probability(long probability) {
+    public ProjectVO probability(float probability) {
         this.probability = probability;
         return this;
     }
@@ -96,7 +102,7 @@ public class ProjectVO {
         return this;
     }
 
-    public ProjectVO introduced(LocalDate introduced) {
+    public ProjectVO introduced(Date introduced) {
         this.introduced = introduced;
         return this;
     }

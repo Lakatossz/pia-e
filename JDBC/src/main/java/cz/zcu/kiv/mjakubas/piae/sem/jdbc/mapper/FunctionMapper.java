@@ -6,7 +6,7 @@ import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalDate;
+import java.util.Date;
 
 public class FunctionMapper implements RowMapper<Function> {
 
@@ -16,8 +16,8 @@ public class FunctionMapper implements RowMapper<Function> {
         var prId = rs.getLong("function_id");
         var name = rs.getString("fnc_name");
         var defaultTime = rs.getLong("fnc_default_time");
-        var dateFrom = rs.getObject("fnc_date_from", LocalDate.class);
-        var dateUntil = rs.getObject("fnc_date_until", LocalDate.class);
+        var dateFrom = rs.getObject("fnc_date_from", Date.class);
+        var dateUntil = rs.getObject("fnc_date_until", Date.class);
         var probability = rs.getFloat("fnc_probability");
         var shortcut = rs.getString("fnc_shortcut");
         var description = rs.getString("fnc_description");

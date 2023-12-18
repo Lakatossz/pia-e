@@ -6,8 +6,7 @@ import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.util.Date;
 
 
 public class EmployeeMapper implements RowMapper<Employee> {
@@ -39,7 +38,7 @@ public class EmployeeMapper implements RowMapper<Employee> {
                 .orionLogin(orionLogin)
                 .emailAddress(email)
                 .workplace(workplace)
-                .dateCreated(LocalDate.now())
+                .dateCreated(new Date())
                 .description(description);
     }
 }

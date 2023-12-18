@@ -126,6 +126,7 @@ public class EmployeeService {
                 .lastName(employeeVO.getLastName())
                 .orionLogin(employeeVO.getOrionLogin())
                 .emailAddress(employeeVO.getEmailAddress())
+                .description(employeeVO.getDescription())
                 .workplace(Workplace.builder()
                         .id(employeeVO.getWorkplaceId())
                         .build());

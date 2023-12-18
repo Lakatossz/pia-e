@@ -24,17 +24,6 @@
 <div class="container-fluid">
     <!-- content -->
     <div class="container">
-        <!-- alerts -->
-        <div class="row">
-            <div th:if="(${(param.edit != null)} or ${(param.create != null)} or ${(param.delete != null)} or ${(param.subordinate != null)})"
-                 class="alert alert-success alert-dismissible fade show" role="success">
-                <strong th:if="${(param.edit != null)}" th:text="#{view.employee.alert.edit}"></strong>
-                <strong th:if="${(param.create != null)}" th:text="#{view.employee.alert.create}"></strong>
-                <strong th:if="${(param.subordinate != null)}" th:text="#{view.employee.alert.subordinate}"></strong>
-                <strong th:if="${(param.delete != null)}" th:text="#{not-implemented}"></strong>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        </div>
         <!-- table -->
         <h1 class="text-center mt-5" th:text="#{view.employee.header}"></h1>
 <!--        <a type="button" class="btn btn-primary common-border-radius"-->
@@ -65,8 +54,8 @@
                             <td th:rowspan="${emp.getAllocations().size() + 1}" th:text="${emp.getFirstName()}"></td>
                             <td th:rowspan="${emp.getAllocations().size() + 1}" th:text="${emp.getLastName()}"></td>
                             <td class="employee-activity-name-first"></td>
-                            <td th:text="${firstAllocations.get(iStat.index).getDateFrom()}"></td>
-                            <td th:text="${firstAllocations.get(iStat.index).getDateUntil()}"></td>
+                            <td th:text="${#dates.format(firstAllocations.get(iStat.index).getDateFrom(), 'dd-MM-yyyy')}"></td>
+                            <td th:text="${#dates.format(firstAllocations.get(iStat.index).getDateFrom(), 'dd-MM-yyyy')}"></td>
                             <td th:text="${firstAllocations.get(iStat.index).getTime()}"></td>
                             <td th:text="${firstAllocations.get(iStat.index).getIsCertain()}"></td>
                             <td th:text="${firstAllocations.get(iStat.index).getDescription()}"></td>
@@ -74,8 +63,8 @@
                         <th:block th:each="all, allStats : ${emp.getAllocations()}" th:id="'all_' + ${all.getId()}">
                             <tr>
                                 <td class="employee-activity-name"></td>
-                                <td th:text="${all.getDateFrom()}"></td>
-                                <td th:text="${all.getDateUntil()}"></td>
+                                <td th:text="${#dates.format(all.getDateFrom(), 'dd-MM-yyyy')}"></td>
+                                <td th:text="${#dates.format(all.getDateUntil(), 'dd-MM-yyyy')}"></td>
                                 <td th:text="${all.getTime()}"></td>
                                 <td th:text="${all.getIsCertain()}"></td>
                                 <td th:text="${all.getDescription()}"></td>
@@ -93,38 +82,7 @@
 </body>
 
 <script>
-    // let employeeActivityTr = document.querySelectorAll(".employee-activity-name-first");
-    //
-    // Array.from(employeeActivityTr).forEach(function(trArray) {
-    //     let text, emp_id, all_id;
-    //     /*[# th:each="n : ${firstAllocations}"]*/
-    //     emp_id = 'emp_' + [[${n.id}]];
-    //     if ([[${n.getProject()}]] != null) {
-    //         text = [[${n.getProject().getShortcut()}]];
-    //     } else if ([[${n.getCourse()}]] != null) {
-    //         text = [[${n.getCourse().getShortcut()}]];
-    //     } else if ([[${n.getFunction()}]] != null) {
-    //         text = [[${n.getFunction().getShortcut()}]];
-    //     }
-    //     trArray.append(text);
-    //     /*[/]*/
-    // });
-    //
-    // let employeeActivityTr = document.querySelectorAll(".employee-activity-name");
-    //
-    // Array.from(employeeActivityTr).forEach(function(trArray) {
-    //     let text, emp_id, all_id;
-    //     /*[# th:each="n : ${employees}"]*/
-    //     emp_id = 'emp_' + [[${n.id}]];
-    //     if ([[${n.getProject()}]] != null) {
-    //         text = [[${n.getProject().getShortcut()}]];
-    //     } else if ([[${n.getCourse()}]] != null) {
-    //         text = [[${n.getCourse().getShortcut()}]];
-    //     } else if ([[${n.getFunction()}]] != null) {
-    //         text = [[${n.getFunction().getShortcut()}]];
-    //     }rray.append(text);
-    //     /*[/]*/
-    // });
+
 </script>
 
 </html>

@@ -25,93 +25,182 @@
     <!-- content -->
     <div class="container">
         <!-- alerts -->
-        <div>
-            <div th:if="(${(param.edit != null)} or ${(param.create != null)} or ${(param.delete != null)} or ${(param.subordinate != null)})"
-                 class="alert alert-success alert-dismissible fade show" role="success">
-                <strong th:if="${(param.edit != null)}" th:text="#{view.course.alert.edit}"></strong>
-                <strong th:if="${(param.create != null)}" th:text="#{view.course.alert.create}"></strong>
-                <strong th:if="${(param.delete != null)}" th:text="#{not-implemented}"></strong>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
+        <div th:if="(${(param.edit != null)} or ${(param.create != null)} or ${(param.delete != null)} or ${(param.subordinate != null)})"
+             class="alert alert-success alert-dismissible fade show" role="success">
+            <strong th:if="${(param.edit != null)}" th:text="#{view.course.alert.edit}"></strong>
+            <strong th:if="${(param.create != null)}" th:text="#{view.course.alert.create}"></strong>
+            <strong th:if="${(param.delete != null)}" th:text="#{not-implemented}"></strong>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
 
         <h1 class="text-center mt-5" th:text="#{view.course_detail.header} + ' ' + ${course.getName()}"></h1>
 
-        <div>
-            <label for="shortcut" th:text="#{view.course_detail.shortcut}"/>
-            <input type="text" id="shortcut" name="shortcut" th:value="${course.getShortcut()}">
-        </div>
-        <div>
-            <label for="name" th:text="#{view.course_detail.name}"/>
-            <input type="text" id="name" name="name" th:value="${course.getName()}">
-        </div>
-    <div>
-            <label for="guarantor" th:text="#{view.course_detail.guarantor}"/>
-            <input type="text" id="guarantor" name="guarantor" th:value="${course.getCourseManagerName()}">
-        </div>
-        <div>
-            <h4 th:text="#{view.course_detail.scope}"/>
-            <div>
-                <label for="lecture" th:text="#{view.course_detail.lecture}"/>
-                <input type="text" id="lecture" name="lecture" th:value="${course.getLectureLength()}">
-            </div>
-            <div>
-                <label for="exercise" th:text="#{view.course_detail.exercise}"/>
-                <input type="text" id="exercise" name="exercise" th:value="${course.getLectureLength()}">
-            </div>
-        </div>
-        <div>
-            <label for="introduced" th:text="#{view.course_detail.introduced}"/>
-            <input type="text" id="introduced" name="introduced" th:value="${course.getIntroduced()}">
-        </div>
-        <div>
-            <label for="year" th:text="#{view.course_detail.year}"/>
-            <input type="text" id="year" name="year" th:value="${course.getName()}">
-        </div>
-        <div>
-            <label for="students" th:text="#{view.course_detail.students}"/>
-            <input type="text" id="students" name="students" th:value="${course.getNumberOfStudents()}">
-        </div>
-        <div>
-            <h4 th:text="#{view.course_detail.sa_required}"/>
-            <div>
-                <label for="lecture_sa" th:text="#{view.course_detail.lecture}"/>
-                <input type="text" id="lecture_sa" name="lecture_sa" th:value="${course.getLectureRequired()}">
-            </div>
-            <div>
-                <label for="exercise_sa" th:text="#{view.course_detail.exercise}"/>
-                <input type="text" id="exercise_sa" name="exercise_sa" th:value="${course.getExerciseRequired()}">
-            </div>
-        </div>
-    </div>
-    <div class="table">
-        <table class="table">
-            <thead>
-            <tr>
-                <th scope="col" th:text="#{view.course_detail.table.name}"></th>
-                <th scope="col" th:text="#{view.course_detail.table.role}"></th>
-                <th scope="col" th:text="#{view.course_detail.table.hours_weekly}"></th>
-                <th scope="col" th:text="#{view.course_detail.table.probability}"></th>
-                <th scope="col" th:text="#{view.course_detail.table.description}"></th>
-                <th scope="col"></th>
-            </tr>
-            </thead>
-            <tbody>
-            <th:block th:each="all, iStat: ${allocations}">
-                <!-- Employee-->
+        <form   method="post"
+                th:action="@{'/c/' + ${id} + '/edit'}"
+                th:object="${course}" th:method="POST" novalidate>
+            <table>
                 <tr>
-                    <td th:text="${all.getWorker().getLastName()}"></td>
-                    <td th:text="${all.getRole()}"></td>
-                    <td th:text="${all.getScopeInFTE()}"></td>
-                    <td th:text="${all.getIsCertain()}"></td>
-                    <td th:text="${all.getDescription()}"></td>
+                    <td class="course-detail-div">
+                        <label class="course-detail-label" for="shortcut" th:text="#{view.course_detail.shortcut}"/>
+                        <input class="course-detail-input" type="text" id="shortcut" name="shortcut" th:field="*{shortcut}">
+                    </td>
                 </tr>
+                <tr>
+                    <td class="course-detail-div">
+                        <label class="course-detail-label" for="name" th:text="#{view.course_detail.name}"/>
+                        <input class="course-detail-input" type="text" id="name" name="name" th:field="*{name}">
+                    </td>
+                </tr>
+                <tr>
+                    <td class="course-detail-div">
+                        <label class="course-detail-label" for="workplace" th:text="#{view.course_detail.workplace}"/>
+                        <select class="course-detail-input" id="workplace" name="workplace" th:field="*{courseWorkplace}">
+                            <option th:each="wrk : ${workplaces}" th:value="${wrk.getId()}"
+                                    th:text="${wrk.getFullName()}">
+                            </option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="course-detail-div">
+                        <label class="course-detail-label" for="guarantor" th:text="#{view.course_detail.guarantor}"/>
+                        <select class="course-detail-input" id="guarantor" name="guarantor" th:field="*{courseManagerId}">
+                            <option th:each="mng : ${employees}" th:value="${mng.getId()}"
+                                    th:text="${mng.getLastName()} + ' ' + ${mng.getFirstName()}">
+                            </option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="course-detail-div">
+                        <label class="course-detail-label" for="term" th:text="#{view.course_detail.term}"/>
+                        <input class="course-detail-input" type="text" id="term" name="term" th:field="*{term}">
+                    </td>
+                </tr>
+                <tr>
+                    <td class="course-detail-div">
+                        <h4 th:text="#{view.course_detail.scope}"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="course-detail-div">
+                        <div>
+                            <label class="course-detail-label" for="lecture" th:text="#{view.course_detail.lecture}"/>
+                            <input class="course-detail-input" type="number" id="lecture" name="lecture" th:field="*{lectureLength}">
+                        </div>
+                    </td>
+                    <td class="course-detail-div">
+                        <div>
+                            <label class="course-detail-label" for="exercise" th:text="#{view.course_detail.exercise}"/>
+                            <input class="course-detail-input" type="number" id="exercise" name="exercise" th:field="*{exerciseLength}">
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="course-detail-div">
+                        <label class="course-detail-label" for="from" th:text="#{view.course_detail.from}"/>
+                        <input class="course-detail-input" type="date" id="from" name="from" th:field="*{dateFrom}">
+                    </td>
+                </tr>
+                <tr>
+                    <td class="course-detail-div">
+                        <label class="course-detail-label" for="until" th:text="#{view.course_detail.until}"/>
+                        <input class="course-detail-input" type="date" id="until" name="until" th:field="*{dateUntil}">
+                    </td>
+                </tr>
+                <tr>
+                    <td class="course-detail-div">
+                        <label class="course-detail-label" for="year" th:text="#{view.course_detail.year}"/>
+                        <input class="course-detail-input" type="text" id="year" name="year" th:value="*{#dates.year(introduced)}">
+                    </td>
+                </tr>
+                <tr>
+                    <td class="course-detail-div">
+                        <label class="course-detail-label" for="students" th:text="#{view.course_detail.students}"/>
+                        <input class="course-detail-input" type="number" id="students" name="students" th:field="*{numberOfStudents}">
+                    </td>
+                </tr>
+                <tr>
+                    <td class="course-detail-div">
+                        <h4 th:text="#{view.course_detail.sa_required}"/>
+                    </td>
+                    <td class="course-detail-div">
+                        <label class="course-detail-label" for="lecture_sa" th:text="#{view.course_detail.lecture}"/>
+                        <input class="course-detail-input" type="number" id="lecture_sa" name="lecture_sa" th:field="*{lectureRequired}">
+                    </td>
+                    <td class="course-detail-div">
+                        <label class="course-detail-label" for="exercise_sa" th:text="#{view.course_detail.exercise}"/>
+                        <input class="course-detail-input" type="number" id="exercise_sa" name="exercise_sa" th:field="*{exerciseRequired}">
+                    </td>
+                </tr>
+                <tr>
+                    <td th:colspan="3">
+                        <input id="form-submit" class="employee-detail-btn" type="submit"
+                               th:value="#{view.function_detail.submit}">
+                    </td>
+                </tr>
+            </table>
+        </form>
+    </div>
+    <div class="course-detail-table">
+        <div class="course-detail-tab-container">
+            <th:block th:each="year, yearStat: ${years}">
+                <div class="course-detail-button" th:id="${yearStat.index}" th:onclick="'showTab(' + ${yearStat.index} + ')'" th:text="${year}"></div>
             </th:block>
-            </tbody>
-        </table>
+        </div>
+        <th:block th:each="count, countStat: ${counts}">
+            <table class="table course-detail-tab-content" th:id="${countStat.index} + 'Content'">
+                <thead>
+                <tr>
+                    <th scope="col" th:text="#{view.course_detail.table.name}"></th>
+                    <th scope="col" th:text="#{view.course_detail.table.role}"></th>
+                    <th scope="col" th:text="#{view.course_detail.table.hours_weekly}"></th>
+                    <th scope="col" th:text="#{view.course_detail.table.probability}"></th>
+                    <th scope="col" th:text="#{view.course_detail.table.description}"></th>
+                    <th scope="col"></th>
+                </tr>
+                </thead>
+                <tbody>
+                <th:block th:each="i : ${#numbers.sequence(0, count)}">
+                    <!-- Employee-->
+                    <tr>
+                        <td th:text="${allocations.get(i).getWorker().getLastName()}"></td>
+                        <td th:text="${allocations.get(i).getRole()}"></td>
+                        <td th:text="${allocations.get(i).getScopeInFTE()}"></td>
+                        <td th:text="${allocations.get(i).getIsCertain()}"></td>
+                        <td th:text="${allocations.get(i).getDescription()}"></td>
+                    </tr>
+                </th:block>
+                </tbody>
+            </table>
+        </th:block>
     </div>
 </div>
 
 <div th:replace="~{fragments/footer}">Footer</div>
 </body>
+<script th:inline="javascript">
+    function showTab(tabId) {
+        var tabContents = document.querySelectorAll('.course-detail-tab-content');
+        tabContents.forEach(function(tabContent) {
+            tabContent.classList.remove('active');
+        });
+
+        console.log(tabId);
+
+        var buttons = document.querySelectorAll('.course-detail-button');
+
+        buttons.forEach(function (button) {
+            button.classList.remove('course-detail-button-selected');
+        });
+
+        buttons[tabId].classList.add('course-detail-button-selected');
+
+        var selectedTabContent = document.getElementById(tabId + 'Content');
+        tabContents.forEach(function(tabContent) {
+            tabContent.classList.remove('active');
+        });
+        selectedTabContent.classList.add('active');
+    }
+</script>
 </html>

@@ -2,6 +2,7 @@ package cz.zcu.kiv.mjakubas.piae.sem.webapplication.controller;
 
 import cz.zcu.kiv.mjakubas.piae.sem.core.service.v1.EmployeeService;
 import cz.zcu.kiv.mjakubas.piae.sem.core.service.v1.ProjectService;
+import cz.zcu.kiv.mjakubas.piae.sem.core.vo.AllocationCellVO;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -9,6 +10,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Controls index view.
@@ -37,6 +41,12 @@ public class IndexController {
         var employees = employeeService.getEmployees();
         employees.forEach(employee ->
                 employee.getSubordinates().addAll(employeeService.getSubordinates(employee.getId())));
+
+        List<AllocationCellVO> cells = new LinkedList<>();
+
+        employees.forEach(employee -> {
+
+        });
 
         model.addAttribute("employees", employees);
 

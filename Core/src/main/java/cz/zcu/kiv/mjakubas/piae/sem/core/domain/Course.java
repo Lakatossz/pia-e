@@ -4,10 +4,12 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 @Getter
@@ -25,7 +27,8 @@ public class Course extends Activity {
     private int lectureLength;
     private int exerciseLength;
     private int credits;
-    private LocalDate introduced;
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private Date introduced;
     private int lectureRequired;
     private int exerciseRequired;
 //    Values joined from different tables.
@@ -52,13 +55,13 @@ public class Course extends Activity {
     }
 
     @Override
-    public Course dateFrom(LocalDate dateFrom) {
+    public Course dateFrom(Date dateFrom) {
         super.dateFrom(dateFrom);
         return this;
     }
 
     @Override
-    public Course dateUntil(LocalDate dateUntil) {
+    public Course dateUntil(Date dateUntil) {
         super.dateUntil(dateUntil);
         return this;
     }
@@ -116,7 +119,7 @@ public class Course extends Activity {
         return this;
     }
 
-    public Course introduced(LocalDate introduced) {
+    public Course introduced(Date introduced) {
         this.introduced = introduced;
         return this;
     }

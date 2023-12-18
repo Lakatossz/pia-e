@@ -2,8 +2,9 @@ package cz.zcu.kiv.mjakubas.piae.sem.core.domain;
 
 import cz.zcu.kiv.mjakubas.piae.sem.core.rules.AllocationInterval;
 import lombok.*;
+import org.springframework.format.annotation.DateTimeFormat;
 
-import java.time.LocalDate;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -20,7 +21,8 @@ public class Employee {
     private String orionLogin;
     private String emailAddress;
     private Workplace workplace;
-    private LocalDate dateCreated;
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private Date dateCreated;
     private float certainTime;
     private float uncertainTime;
     private String description;
@@ -61,7 +63,7 @@ public class Employee {
         return this;
     }
 
-    public Employee dateCreated(LocalDate dateCreated) {
+    public Employee dateCreated(Date dateCreated) {
         this.dateCreated = dateCreated;
         return this;
     }

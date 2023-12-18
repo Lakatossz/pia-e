@@ -9,7 +9,7 @@ import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalDate;
+import java.util.Date;
 
 public class AllocationMapper implements RowMapper<Allocation> {
     @Override
@@ -19,8 +19,8 @@ public class AllocationMapper implements RowMapper<Allocation> {
         var projectId = rs.getLong("ass_project_id");
         var courseId = rs.getLong("ass_course_id");
         var functionId = rs.getLong("ass_function_id");
-        LocalDate activeFrom = rs.getObject("ass_active_from", LocalDate.class);
-        LocalDate activeUntil = rs.getObject("ass_active_until", LocalDate.class);
+        Date activeFrom = rs.getObject("ass_active_from", Date.class);
+        Date activeUntil = rs.getObject("ass_active_until", Date.class);
         var scope = rs.getInt("ass_scope");
         var description = rs.getString("ass_description");
         var active = rs.getBoolean("ass_active");

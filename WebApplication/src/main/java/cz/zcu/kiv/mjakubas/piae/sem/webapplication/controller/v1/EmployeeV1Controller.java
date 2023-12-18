@@ -17,6 +17,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -113,9 +114,9 @@ public class EmployeeV1Controller {
         var employees = employeeService.getEmployees();
         var workplaces = workplaceService.getWorkplaces();
         var projects = projectService.getEmployeeProjects(id);
-        List<Allocation> firstProjectsAllocations = projectService.prepareForTable(projects);
+        List<Allocation> firstProjectsAllocations = projectService.prepareFirst(projects);
         var courses = courseService.getEmployeesCourses(id);
-        List<Allocation> firstCoursesAllocations = courseService.prepareForTable(courses);
+        List<Allocation> firstCoursesAllocations = courseService.prepareFirst(courses);
 
         var functions = functionService.getEmployeeFunctions(id);
         List<Allocation> firstFunctionsAllocations = functionService.prepareFirst(functions);
@@ -123,7 +124,7 @@ public class EmployeeV1Controller {
         model.addAttribute("employee",
                 new EmployeeVO(employee.getId(), employee.getFirstName(), employee.getLastName(),
                         employee.getOrionLogin(), employee.getEmailAddress(), employee.getWorkplace().getId(),
-                        null, employee.getDateCreated(), employee.getCertainTime(), employee.getUncertainTime(),
+                        null, new Date(), employee.getCertainTime(), employee.getUncertainTime(),
                         employee.getDescription()));
 
         model.addAttribute(RESTRICITONS, employees);
@@ -178,8 +179,10 @@ public class EmployeeV1Controller {
     public String editEmployee(@ModelAttribute EmployeeVO userVO, BindingResult errors, Model model,
                                @PathVariable long id) {
 
+        System.out.println(userVO);
+
         employeeService.updateEmployee(userVO, id);
-        return "redirect:/e?edit=success";
+        return "redirect:/e/{id}/detail?edit=success";
     }
 
     @PreAuthorize("hasAnyAuthority(" +

@@ -64,8 +64,8 @@
                             </td>
                             <td th:rowspan="${fnc.getFunctionAllocations().size() + 1}" th:text="${fnc.getName()}"></td>
                             <td th:rowspan="${fnc.getFunctionAllocations().size() + 1}" th:text="${fnc.getFunctionManager().getLastName()}"></td>
-                            <td th:text="${firstAllocations.get(iStat.index).getDateFrom()}"></td>
-                            <td th:text="${firstAllocations.get(iStat.index).getDateUntil()}"></td>
+                            <td th:text="${#dates.format(firstAllocations.get(iStat.index).getDateFrom(), 'dd-MM-yyyy')}"></td>
+                            <td th:text="${#dates.format(firstAllocations.get(iStat.index).getDateUntil(), 'dd-MM-yyyy')}"></td>
                             <td th:text="${firstAllocations.get(iStat.index).getTime()}"></td>
                             <td th:text="${firstAllocations.get(iStat.index).getIsCertain()}"></td>
                             <td th:text="${firstAllocations.get(iStat.index).getDescription()}"></td>
@@ -75,8 +75,8 @@
                         </tr>
                         <th:block th:each="all, allStats : ${fnc.getFunctionAllocations()}">
                             <tr>
-                                <td th:text="${all.getDateFrom()}"></td>
-                                <td th:text="${all.getDateUntil()}"></td>
+                                <td th:text="${#dates.format(all.getDateFrom(), 'dd-MM-yyyy')}"></td>
+                                <td th:text="${#dates.format(all.getDateFrom(), 'dd-MM-yyyy')}"></td>
                                 <td th:text="${all.getTime()}"></td>
                                 <td th:text="${all.getIsCertain()}"></td>
                                 <td th:text="${all.getDescription()}"></td>

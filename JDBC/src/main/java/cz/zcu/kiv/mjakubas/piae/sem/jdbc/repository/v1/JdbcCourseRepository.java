@@ -204,9 +204,8 @@ public class JdbcCourseRepository implements ICourseRepository {
         params.addValue("crs_date_from", course.getDateFrom());
         params.addValue("crs_date_until", course.getDateUntil());
         params.addValue("crs_probability", course.getProbability());
-        params.addValue("crs_manager_id", course.getCourseManager());
-        params.addValue("crs_workplace_id", course.getCourseWorkplace());
-        params.addValue("crs_workplace_id", course.getCourseWorkplace());
+        params.addValue("crs_manager_id", course.getCourseManager().getId());
+        params.addValue("crs_workplace_id", course.getCourseWorkplace().getId());
 
         return params;
     }

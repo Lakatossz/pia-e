@@ -107,7 +107,8 @@ public class FunctionV1Controller {
                         data.getDefaultTime(),
                         data.getFunctionManager().getId(),
                         data.getFunctionManager().getLastName(),
-                        data.getFunctionWorkplace().getId()));
+                        data.getFunctionWorkplace().getId(),
+                        data.getDescription()));
 
         model.addAttribute(EMPLOYEES, employeeService.getEmployees());
         model.addAttribute("workplaces", workplaceService.getWorkplaces());
@@ -125,12 +126,14 @@ public class FunctionV1Controller {
             " or @securityService.isFunctionManager(#id) or @securityService.isWorkplaceManager(#id)")
     public String editFunction(Model model, @PathVariable long id, @ModelAttribute FunctionVO functionVO,
                               BindingResult errors, @RequestParam(required = false) Boolean manage) {
+        System.out.println(functionVO);
+
         functionService.editFunction(functionVO, id);
 
-        if (Boolean.TRUE.equals(manage))
-            return String.format("redirect:/f/%s/manage?edit=success", id);
+//        if (Boolean.TRUE.equals(manage))
+//            return String.format("redirect:/f/%s/manage?edit=success", id);
 
-        return "redirect:/f?edit=success";
+        return "redirect:/f/{id}/detail?edit=success";
     }
 
     @GetMapping("/{id}/delete")
@@ -161,11 +164,11 @@ public class FunctionV1Controller {
                         .shortcut(data.getShortcut())
                         .functionManagerId(data.getFunctionManager().getId())
                         .functionManagerName(data.getFunctionManager().getLastName())
-                        .functionManagerId(data.getFunctionWorkplace().getId())
                         .probability(data.getProbability())
                         .defaultTime(data.getDefaultTime())
                         .dateFrom(data.getDateFrom())
-                        .dateUntil(data.getDateUntil()));
+                        .dateUntil(data.getDateUntil())
+                        .description(data.getDescription()));
 
         model.addAttribute(EMPLOYEES, employeeService.getEmployees());
         model.addAttribute("workplaces", workplaceService.getWorkplaces());

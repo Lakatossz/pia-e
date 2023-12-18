@@ -25,11 +25,13 @@
     <!-- content -->
     <div class="container">
         <!-- alerts -->
-        <div>
+        <!-- alerts -->
+        <div class="row">
             <div th:if="(${(param.edit != null)} or ${(param.create != null)} or ${(param.delete != null)} or ${(param.subordinate != null)})"
                  class="alert alert-success alert-dismissible fade show" role="success">
-                <strong th:if="${(param.edit != null)}" th:text="#{view.course.alert.edit}"></strong>
-                <strong th:if="${(param.create != null)}" th:text="#{view.course.alert.create}"></strong>
+                <strong th:if="${(param.edit != null)}" th:text="#{view.employee.alert.edit}"></strong>
+                <strong th:if="${(param.create != null)}" th:text="#{view.employee.alert.create}"></strong>
+                <strong th:if="${(param.subordinate != null)}" th:text="#{view.employee.alert.subordinate}"></strong>
                 <strong th:if="${(param.delete != null)}" th:text="#{not-implemented}"></strong>
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
@@ -40,38 +42,56 @@
         <form   method="post"
                 th:action="@{'/e/' + ${id} + '/edit'}"
                 th:object="${employee}" th:method="POST" novalidate>
-            <div class="employee-detail-div">
-                <label class="employee-detail-label" for="first_name" th:text="#{view.employee_detail.first_name}"/>
-                <input class="employee-detail-input" type="text" id="first_name" name="first_name" th:value="${employee.getFirstName()}">
-            </div>
-            <div class="employee-detail-div">
-                <label class="employee-detail-label" for="last_name" th:text="#{view.employee_detail.last_name}"/>
-                <input class="employee-detail-input" type="text" id="last_name" name="last_name" th:value="${employee.getLastName()}">
-            </div>
-            <div class="employee-detail-div">
-                <label class="employee-detail-label" for="orion_login" th:text="#{view.employee_detail.orion_login}"/>
-                <input class="employee-detail-input" type="text" id="orion_login" name="orion_login" th:value="${employee.getOrionLogin()}">
-            </div>
-            <div class="employee-detail-div">
-                <label class="employee-detail-label" for="email" th:text="#{view.employee_detail.email}"/>
-                <input class="employee-detail-input" type="text" id="email" name="email" th:value="${employee.getEmailAddress()}">
-            </div>
-            <div class="employee-detail-div">
-                <label class="employee-detail-label" for="workplace" th:text="#{view.employee_detail.workplace}"/>
-                <input class="employee-detail-input" type="text" id="workplace" name="workplace" th:value="${employee.getWorkplaceId()}">
-            </div>
-            <div class="employee-detail-div">
-                <label class="employee-detail-label" for="introduced" th:text="#{view.employee_detail.introduced}"/>
-                <input class="employee-detail-input" type="date" id="introduced" name="introduced" th:value="${employee.getDateCreated()}">
-            </div>
-            <div class="employee-detail-div">
-                <label class="employee-detail-label" for="description" th:text="#{view.employee_detail.description}"/>
-                <input class="employee-detail-input" type="text" id="description" name="description" th:value="${employee.getDescription()}">
-            </div>
-            <div class="employee-detail-div">
-                <input id="form-submit" class="employee-detail-btn" type="submit"
-                       th:value="#{view.employee_detail.submit}">
-            </div>
+            <table>
+                <tr>
+                    <td class="employee-detail-div">
+                        <label class="employee-detail-label" for="first_name" th:text="#{view.employee_detail.first_name}"/>
+                        <input class="employee-detail-input" type="text" id="first_name" name="first_name" th:field="*{firstName}">
+                    </td>
+                    <td class="employee-detail-div">
+                        <label class="employee-detail-label" for="workplace" th:text="#{view.employee_detail.workplace}"/>
+                        <select class="employee-detail-input" id="workplace" name="workplace" th:field="*{workplaceId}">
+                            <option th:each="wrk : ${workplaces}" th:value="${wrk.getId()}" th:text="${wrk.getFullName()}">
+                            </option>
+                        </select>
+                    </td>
+                    <td th:rowspan="5" th:width="700px" class="employee-detail-div" style="align-items: center">
+                        <label class="employee-detail-label" for="description" th:text="#{view.employee_detail.description}"/>
+                        <textarea class="employee-detail-input" type="text"
+                                  th:rows="${employee.getDescription().length() / 100}" th:cols="100"
+                                  id="description" name="description" th:field="*{description}"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="employee-detail-div">
+                        <label class="employee-detail-label" for="last_name" th:text="#{view.employee_detail.last_name}"/>
+                        <input class="employee-detail-input" type="text" id="last_name" name="last_name" th:field="*{lastName}">
+                    </td>
+                    <td class="employee-detail-div">
+                        <label class="employee-detail-label" for="email" th:text="#{view.employee_detail.email}"/>
+                        <input class="employee-detail-input" type="text" id="email" name="email" th:field="*{emailAddress}">
+                    </td>
+                </tr>
+                <tr>
+                    <td class="employee-detail-div">
+                        <label class="employee-detail-label" for="orion_login" th:text="#{view.employee_detail.orion_login}"/>
+                        <input class="employee-detail-input" type="text" id="orion_login" name="orion_login" th:field="*{orionLogin}">
+                    </td>
+                    <td class="employee-detail-div">
+                        <label class="employee-detail-label" for="introduced" th:text="#{view.employee_detail.introduced}"/>
+                        <input class="employee-detail-input" type="date" id="introduced" name="introduced" th:field="${employee.dateCreated}">
+                    </td>
+                </tr>
+                <tr></tr>
+                <tr></tr>
+                <tr></tr>
+                <tr>
+                    <td th:colspan="3">
+                        <input id="form-submit" class="employee-detail-btn" type="submit"
+                               th:value="#{view.employee_detail.submit}">
+                    </td>
+                </tr>
+            </table>
         </form>
     </div>
 </div>

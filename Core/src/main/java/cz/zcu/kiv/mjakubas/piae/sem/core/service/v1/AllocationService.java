@@ -46,7 +46,8 @@ public class AllocationService {
     public void createAllocation(AllocationVO allocationVO) {
         int scope = (int) (allocationVO.getAllocationScope() * 40 * 60); // fte to minutes
         var allocationProject = projectRepository.fetchProject(allocationVO.getProjectId());
-        if (allocationVO.getDateFrom().isBefore(allocationProject.getDateFrom()) || allocationVO.getDateUntil().isAfter(allocationProject.getDateUntil()))
+        if (allocationVO.getDateFrom().before(allocationProject.getDateFrom())
+                || allocationVO.getDateUntil().after(allocationProject.getDateUntil()))
             throw new ServiceException();
 
         Allocation allocation = new Allocation()
@@ -84,15 +85,15 @@ public class AllocationService {
     public void updateAllocation(AllocationVO allocationVO, long id) {
         int scope = (int) (allocationVO.getAllocationScope() * 40 * 60); // fte to minutes
         var allocationProject = projectRepository.fetchProject(allocationVO.getProjectId());
-        if (allocationVO.getDateFrom().isBefore(allocationProject.getDateFrom()) || allocationVO.getDateUntil().isAfter(allocationProject.getDateUntil()))
+        if (allocationVO.getDateFrom().before(allocationProject.getDateFrom()) || allocationVO.getDateUntil().after(allocationProject.getDateUntil()))
             throw new ServiceException();
 
         var allocationCourse = courseRepository.fetchCourse(allocationVO.getCourseId());
-        if (allocationVO.getDateFrom().isBefore(allocationCourse.getDateFrom()) || allocationVO.getDateUntil().isAfter(allocationCourse.getDateUntil()))
+        if (allocationVO.getDateFrom().before(allocationCourse.getDateFrom()) || allocationVO.getDateUntil().after(allocationCourse.getDateUntil()))
             throw new ServiceException();
 
         var allocationFunction = functionRepository.fetchFunction(allocationVO.getFunctionId());
-        if (allocationVO.getDateFrom().isBefore(allocationFunction.getDateFrom()) || allocationVO.getDateUntil().isAfter(allocationFunction.getDateUntil()))
+        if (allocationVO.getDateFrom().before(allocationFunction.getDateFrom()) || allocationVO.getDateUntil().after(allocationFunction.getDateUntil()))
             throw new ServiceException();
 
         Allocation allocation = new Allocation()
@@ -281,8 +282,8 @@ public class AllocationService {
     public AllocationRule getProjectAllocationsRules(long projectId, long employeeId) {
         var project = projectRepository.fetchProject(projectId);
 
-        LocalDate minDate = project.getDateFrom();
-        LocalDate maxDate = project.getDateUntil();
+        Date minDate = project.getDateFrom();
+        Date maxDate = project.getDateUntil();
 
         var employeeAllocations = assignmentRepository.fetchEmployeeAllocations(employeeId);
 
@@ -301,8 +302,8 @@ public class AllocationService {
     public AllocationRule getCourseAllocationsRules(long courseId, long employeeId) {
         var course = courseRepository.fetchCourse(courseId);
 
-        LocalDate minDate = course.getDateFrom();
-        LocalDate maxDate = course.getDateUntil();
+        Date minDate = course.getDateFrom();
+        Date maxDate = course.getDateUntil();
 
         var employeeAllocations = assignmentRepository.fetchEmployeeAllocations(employeeId);
 
@@ -321,8 +322,8 @@ public class AllocationService {
     public AllocationRule getFunctionAllocationsRules(long functionId, long employeeId) {
         var function = functionRepository.fetchFunction(functionId);
 
-        LocalDate minDate = function.getDateFrom();
-        LocalDate maxDate = function.getDateUntil();
+        Date minDate = function.getDateFrom();
+        Date maxDate = function.getDateUntil();
 
         var employeeAllocations = assignmentRepository.fetchEmployeeAllocations(employeeId);
 
@@ -341,13 +342,13 @@ public class AllocationService {
         if (allocations.isEmpty())
             return new LinkedList<>();
 
-        Set<LocalDate> dates = new HashSet<>();
+        Set<Date> dates = new HashSet<>();
         allocations.forEach(allocation -> {
             dates.add(allocation.getDateFrom());
             dates.add(allocation.getDateUntil());
         });
 
-        List<LocalDate> sortedDates = new LinkedList<>(dates.stream().toList());
+        List<Date> sortedDates = new LinkedList<>(dates.stream().toList());
         Collections.sort(sortedDates);
 
         List<AllocationInterval> intervals = new LinkedList<>();

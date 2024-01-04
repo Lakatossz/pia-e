@@ -122,7 +122,7 @@ public class FunctionService {
      * @param functionVO functionVO
      */
     @Transactional
-    public void createFunction(@NonNull FunctionVO functionVO) {
+    public long createFunction(@NonNull FunctionVO functionVO) {
         var manager = employeeRepository.fetchEmployee(functionVO.getFunctionManagerId());
         if (functionVO.getDateUntil() != null && (functionVO.getDateFrom().after(functionVO.getDateUntil())))
                 {throw new ServiceException();
@@ -138,7 +138,11 @@ public class FunctionService {
                 .functionWorkplace(Workplace.builder().id(functionVO.getFunctionWorkplace()).build())
                 .defaultTime(functionVO.getDefaultTime());
 
-        if (!functionRepository.createFunction(function))
+        long id = functionRepository.createFunction(function);
+
+        if (id > 0)
+            return id;
+        else
             throw new ServiceException();
     }
 

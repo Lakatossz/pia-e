@@ -73,9 +73,9 @@ public interface IAllocationRepository {
      * Throws runtime exception if any problem occurs.
      *
      * @param allocation given {@link Allocation} data
-     * @return true if allocation was successfully created else returns false
+     * @return id of newly created entity
      */
-    public boolean createAllocation(@NonNull Allocation allocation);
+    public long createAllocation(@NonNull Allocation allocation);
 
     /**
      * Updates existing {@link Allocation} from given allocation data and allocation id.

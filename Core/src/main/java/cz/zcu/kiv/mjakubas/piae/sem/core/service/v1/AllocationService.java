@@ -43,7 +43,7 @@ public class AllocationService {
      * @param allocationVO assignment data
      */
     @Transactional
-    public void createAllocation(AllocationVO allocationVO) {
+    public long createAllocation(AllocationVO allocationVO) {
         int scope = (int) (allocationVO.getAllocationScope() * 40 * 60); // fte to minutes
         var allocationProject = projectRepository.fetchProject(allocationVO.getProjectId());
         if (allocationVO.getDateFrom().before(allocationProject.getDateFrom())
@@ -71,9 +71,12 @@ public class AllocationService {
             }
         }
 
-        if (!assignmentRepository.createAllocation(allocation)) {
+        long id = assignmentRepository.createAllocation(allocation);
+
+        if (id > 0)
+            return id;
+        else
             throw new ServiceException();
-        }
     }
 
     /**

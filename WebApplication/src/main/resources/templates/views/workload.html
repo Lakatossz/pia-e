@@ -104,6 +104,8 @@
     </div>
 </div>
 <div th:replace="~{fragments/footer}">Footer</div>
+</body>
+
 <script type="text/javascript" th:src="@{/js/filter_employees.js}"></script>
 <script type="text/javascript" th:inline="javascript">
     let criteria = [];
@@ -115,5 +117,5 @@
     /*[/]*/
     let filter = new EmployeeFilter(criteria, 'search');
 </script>
-</body>
+
 </html>

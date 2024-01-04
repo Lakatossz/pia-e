@@ -21,7 +21,7 @@
 </head>
 <body class="d-flex flex-column min-vh-100">
 <div th:replace="~{fragments/navbar}">Navbar</div>
-<div class="container-fluid">
+<div class="container-fluid content my_page">
     <!-- content -->
     <div class="container">
         <a th:href="'a/of/employee/' + ${me.id}" class="btn btn-primary" th:text="#{index.my-allocations}"></a>
@@ -42,75 +42,100 @@
         <!--        <a type="button" class="btn btn-primary common-border-radius"-->
         <!--           th:href="@{/e/create}" th:text="#{view.employee.create}"></a>-->
         <div class="row my-container">
-            <table class="my-table">
+            <table class="main-row-table">
                 <thead>
-                <tr class="employee-row-header">
-                    <th scope="col"></th>
-                    <th scope="col" th:text="#{view.main.table.fname}"></th>
-                    <th scope="col" th:text="#{view.main.table.lname}"></th>
-                    <th scope="col" th:text="#{view.main.table.wrk-abbreviation}"></th>
-                    <th scope="col" th:text="#{view.main.table.wrk-projects}"></th>
-                    <th scope="col" th:text="#{view.main.table.wrk-courses}"></th>
-                    <th scope="col" th:text="#{view.main.table.wrk-functions}"></th>
-                    <th scope="col" th:text="#{view.main.table.certain-time}"></th>
-                    <th scope="col" th:text="#{view.main.table.uncertain-time}"></th>
-                    <th scope="col"></th>
+                <tr class="main-row-header">
+                    <td class="main-row-header-eye"></td>
+                    <td class="main-row-header-cell" th:text="#{view.main.table.fname}"></td>
+                    <td class="main-row-header-cell" th:text="#{view.main.table.lname}"></td>
+                    <td class="main-row-header-cell" th:text="#{view.main.table.wrk-abbreviation}"></td>
+                    <td class="main-row-header-cell" th:text="#{view.main.table.wrk-projects}"></td>
+                    <td class="main-row-header-cell" th:text="#{view.main.table.wrk-courses}"></td>
+                    <td class="main-row-header-cell" th:text="#{view.main.table.wrk-functions}"></td>
+                    <td class="main-row-header-cell" th:text="#{view.main.table.certain-time}"></td>
+                    <td class="main-row-header-cell" th:text="#{view.main.table.uncertain-time}"></td>
+                    <td class="main-row-header-cell"></td>
                 </tr>
                 </thead>
                 <tbody>
                 <th:block th:each="emp, iStat: ${employees}">
                     <!-- Employee-->
-                    <tr class="employee-row-value" th:id="${iStat.index}">
-                        <td>
-                            <a type="button" class="btn collapsible btn-detail" th:href="@{/e/{EMP_ID}/detail(EMP_ID=${emp.getId()})}"></a>
+                    <tr class="main-row main-row-employee" th:id="${iStat.index}">
+                        <td class="main-row-header-cell">
+                            <a type="button" class="btn btn-detail" th:href="@{/e/{EMP_ID}/detail(EMP_ID=${emp.getId()})}"></a>
                         </td>
-                        <td th:text="${emp.getFirstName()}"></td>
-                        <td th:text="${emp.getLastName()}"></td>
-                        <td th:text="${emp.getWorkplace().getAbbreviation()}"></td>
-                        <td th:text="${emp.getProjectsAllocations().size()}"></td>
-                        <td th:text="${emp.getCoursesAllocations().size()}"></td>
-                        <td th:text="${emp.getFunctionsAllocations().size()}"></td>
-                        <td th:text="${emp.getCertainTime()}"></td>
-                        <td th:text="${emp.getUncertainTime()}"></td>
+                        <td class="main-row-header-cell" th:text="${emp.getFirstName()}"></td>
+                        <td class="main-row-header-cell" th:text="${emp.getLastName()}"></td>
+                        <td class="main-row-header-cell" th:text="${emp.getWorkplace().getAbbreviation()}"></td>
+                        <td class="main-row-header-cell" th:text="${emp.getProjectsAllocations().size()}"></td>
+                        <td class="main-row-header-cell" th:text="${emp.getCoursesAllocations().size()}"></td>
+                        <td class="main-row-header-cell" th:text="${emp.getFunctionsAllocations().size()}"></td>
+                        <td class="main-row-header-cell" th:text="${emp.getCertainTime()}"></td>
+                        <td class="main-row-header-cell" th:text="${emp.getUncertainTime()}"></td>
                     </tr>
-                    <tr>
+                    <tr class="main-row">
                         <th:block>
                             <th colspan="10" th:class="my-collapse">
-                                <div th:if="${emp.getProjectsAllocations().size()} > 0">
-                                    <table>
+                                <div th:if="${emp.getProjectsAllocations().size()} > 0 or ${emp.getCoursesAllocations().size()} > 0 or ${emp.getFunctionsAllocations().size()} > 0">
+                                    <table class="main-row-table">
+                                        <thead>
+                                        <!-- Header -->
+                                        <tr class="main-row-header">
+                                            <!-- Labels -->
+                                            <td class="main-row-name" th:text="#{view.main.table.activity.name}"></td>
+                                            <td class="main-cell" th:text="#{view.main.table.activity.certain}"></td>
+                                            <td class="main-cell btn-left"></td>
+                                            <td class="main-cell" th:text="#{month.january}"></td>
+                                            <td class="main-cell" th:text="#{month.february}"></td>
+                                            <td class="main-cell" th:text="#{month.march}"></td>
+                                            <td class="main-cell" th:text="#{month.april}"></td>
+                                            <td class="main-cell" th:text="#{month.may}"></td>
+                                            <td class="main-cell" th:text="#{month.june}"></td>
+                                            <td class="main-cell" th:text="#{month.july}"></td>
+                                            <td class="main-cell" th:text="#{month.august}"></td>
+                                            <td class="main-cell" th:text="#{month.september}"></td>
+                                            <td class="main-cell" th:text="#{month.october}"></td>
+                                            <td class="main-cell" th:text="#{month.november}"></td>
+                                            <td class="main-cell" th:text="#{month.december}"></td>
+                                            <td class="main-cell btn-right"></td>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr class="main-certain-times">
+                                            <td class="main-row-name" th:text="#{view.project_detail.members.title.total}"></td>
+                                            <td class="main-cell"></td>
+                                            <td class="main-cell-times" th:text="#{view.employee.table.certain-time}"></td>
+                                        </tr>
+                                        <tr class="main-uncertain-times">
+                                            <td class="main-row-name"></td>
+                                            <td class="main-cell"></td>
+                                            <td class="main-cell-times" th:text="#{view.employee.table.uncertain-time}"></td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </th>
+                        </th:block>
+                    </tr>
+                    <tr class="main-row">
+                        <th:block>
+                            <th colspan="10" th:class="my-collapse">
+                                <div th:if="${emp.getProjectsAllocationCells().size()} >= 1">
+                                    <table class="main-row-table">
                                         <thead>
                                         <!-- Projects header -->
-                                        <tr class="project-row-title">
-                                            <th th:text="#{view.main.table.activity.projects}"></th>
-                                        </tr>
-                                        <!-- Project labels -->
-                                        <tr class="project-row-header">
-                                            <th class="project-cell" th:text="#{view.main.table.activity.name}"></th>
-                                            <th class="project-cell" th:text="#{view.main.table.activity.certain}"></th>
-                                            <th class="project-cell" th:text="#{month.january}"></th>
-                                            <th class="project-cell" th:text="#{month.february}"></th>
-                                            <th class="project-cell" th:text="#{month.march}"></th>
-                                            <th class="project-cell" th:text="#{month.april}"></th>
-                                            <th class="project-cell" th:text="#{month.may}"></th>
-                                            <th class="project-cell" th:text="#{month.june}"></th>
-                                            <th class="project-cell" th:text="#{month.july}"></th>
-                                            <th class="project-cell" th:text="#{month.august}"></th>
-                                            <th class="project-cell" th:text="#{month.september}"></th>
-                                            <th class="project-cell" th:text="#{month.october}"></th>
-                                            <th class="project-cell" th:text="#{month.november}"></th>
-                                            <th class="project-cell" th:text="#{month.december}"></th>
+                                        <tr class="main-row-title">
+                                            <td th:colspan="16" class="main-row-title" th:text="#{view.main.table.activity.projects}"></td>
                                         </tr>
                                         </thead>
                                         <tbody>
                                         <!-- Projects values -->
-                                        <th:block th:each="all, allStat: ${emp.getProjectsAllocations()}">
-                                            <th:block>
-                                                <tr class="project-row-value">
-                                                    <td class="project-cell" th:text="${all.getProject().getName()}"></td>
-                                                    <td class="project-cell" th:text="${all.getProject().getProbability()}"></td>
-                                                    <th:block th:each="perMonth : ${all.getProject().getYearAllocation()}">
-                                                        <td class="project-cell" th:text="${perMonth}"></td>
-                                                    </th:block>
+                                        <th:block th:each="project : ${#numbers.sequence(0, emp.getProjectsAllocations().size() - 1)}">
+                                            <th:block th:if="${project} > 0">
+                                                <tr class="main-projects-times" th:id="${project}">
+                                                    <td class="main-row-name" th:text="${emp.getProjectsAllocations().get(project).getProject().getName()}"></td>
+                                                    <td class="main-cell" th:text="${emp.getProjectsAllocations().get(project).getProject().getProbability()}"></td>
+                                                    <td class="main-cell-times"></td>
                                                 </tr>
                                             </th:block>
                                         </th:block>
@@ -120,91 +145,53 @@
                             </th>
                         </th:block>
                     </tr>
-                    <tr>
+                    <tr class="main-row">
                         <th:block>
                             <th colspan="10" th:class="my-collapse">
-                                <div th:if="${emp.getCoursesAllocations().size()} > 0">
-                                    <table>
+                                <div th:if="${emp.getCoursesAllocationCells().size()} >= 1">
+                                    <table class="main-row-table">
                                         <thead>
                                         <!-- Courses header -->
-                                        <tr class="course-row-title">
-                                            <td th:text="#{view.main.table.activity.courses}"></td>
-                                        </tr>
-                                        <!-- Course labels -->
-                                        <tr class="course-row-header">
-                                            <td class="course-cell" th:text="#{view.main.table.activity.name}"></td>
-                                            <td class="course-cell" th:text="#{view.main.table.activity.certain}"></td>
-                                            <td class="course-cell" th:text="#{month.january}"></td>
-                                            <td class="course-cell" th:text="#{month.february}"></td>
-                                            <td class="course-cell" th:text="#{month.march}"></td>
-                                            <td class="course-cell" th:text="#{month.april}"></td>
-                                            <td class="course-cell" th:text="#{month.may}"></td>
-                                            <td class="course-cell" th:text="#{month.june}"></td>
-                                            <td class="course-cell" th:text="#{month.july}"></td>
-                                            <td class="course-cell" th:text="#{month.august}"></td>
-                                            <td class="course-cell" th:text="#{month.september}"></td>
-                                            <td class="course-cell" th:text="#{month.october}"></td>
-                                            <td class="course-cell" th:text="#{month.november}"></td>
-                                            <td class="course-cell" th:text="#{month.december}"></td>
+                                        <tr class="main-row-title">
+                                            <td th:colspan="16" class="main-row-title" th:text="#{view.main.table.activity.courses}"></td>
                                         </tr>
                                         </thead>
                                         <tbody>
-                                        <!-- Courses values -->
-                                        <th:block th:each="all, allStat: ${emp.getCoursesAllocations()}">
-                                            <th:block>
-                                                <tr class="course-row-value">
-                                                    <td th:text="${all.getCourse().getShortcut()}"></td>
-                                                    <td class="course-cell" th:text="${all.getCourse().getProbability()}"></td>
-                                                    <th:block th:each="perMonth : ${all.getCourse().getYearAllocation()}">
-                                                        <td class="course-cell" th:text="${perMonth}"></td>
-                                                    </th:block>
-                                                </tr>
+                                            <!-- Courses values -->
+                                            <th:block th:each="course : ${#numbers.sequence(0, emp.getCoursesAllocations().size() - 1)}">
+                                                <th:block th:if="${course} > 0">
+                                                    <tr class="main-courses-times" th:id="${course}">
+                                                        <td class="main-row-name" th:text="${emp.getCoursesAllocations().get(course).getCourse().getShortcut()}"></td>
+                                                        <td class="main-cell" th:text="${emp.getCoursesAllocations().get(course).getCourse().getProbability()}"></td>
+                                                        <td class="main-cell-times"></td>
+                                                    </tr>
+                                                </th:block>
                                             </th:block>
-                                        </th:block>
                                         </tbody>
                                     </table>
                                 </div>
                             </th>
                         </th:block>
                     </tr>
-                    <tr>
+                    <tr class="main-row">
                         <th:block>
                             <th colspan="10" th:class="my-collapse">
-                                <div th:if="${emp.getFunctionsAllocations().size()} > 0">
-                                    <table>
+                                <div th:if="${emp.getFunctionsAllocationCells().size()} >= 1">
+                                    <table class="main-row-table">
                                         <thead>
                                         <!-- Functions header -->
-                                        <tr class="function-row-title">
-                                            <td th:text="#{view.main.table.activity.functions}"></td>
-                                        </tr>
-                                        <!-- Function labels -->
-                                        <tr class="function-row-header">
-                                            <td class="function-cell" th:text="#{view.main.table.activity.name}"></td>
-                                            <td class="function-cell" th:text="#{view.main.table.activity.certain}"></td>
-                                            <td class="function-cell" th:text="#{month.january}"></td>
-                                            <td class="function-cell" th:text="#{month.february}"></td>
-                                            <td class="function-cell" th:text="#{month.march}"></td>
-                                            <td class="function-cell" th:text="#{month.april}"></td>
-                                            <td class="function-cell" th:text="#{month.may}"></td>
-                                            <td class="function-cell" th:text="#{month.june}"></td>
-                                            <td class="function-cell" th:text="#{month.july}"></td>
-                                            <td class="function-cell" th:text="#{month.august}"></td>
-                                            <td class="function-cell" th:text="#{month.september}"></td>
-                                            <td class="function-cell" th:text="#{month.october}"></td>
-                                            <td class="function-cell" th:text="#{month.november}"></td>
-                                            <td class="function-cell" th:text="#{month.december}"></td>
+                                        <tr class="main-row-title">
+                                            <td th:colspan="16" class="main-row-title" th:text="#{view.main.table.activity.functions}"></td>
                                         </tr>
                                         </thead>
                                         <tbody>
                                         <!-- Functions values -->
-                                        <th:block th:each="all, allStat: ${emp.getFunctionsAllocations()}">
-                                            <th:block>
-                                                <tr class="function-row-value" id="allStat">
-                                                    <td th:text="${all.getFunction().getName()}"></td>
-                                                    <td class="function-cell" th:text="${all.getFunction().getProbability()}"></td>
-                                                    <th:block th:each="perMonth : ${all.getFunction().getYearAllocation()}">
-                                                        <td class="function-cell" th:text="${perMonth}"></td>
-                                                    </th:block>
+                                        <th:block th:each="function : ${#numbers.sequence(0, emp.getFunctionsAllocations().size() - 1)}">
+                                            <th:block  th:if="${function} > 0">
+                                                <tr class="main-functions-times" th:id="${function}">
+                                                    <td class="main-row-name" th:text="${emp.getFunctionsAllocations().get(function).getFunction().getName()}"></td>
+                                                    <td class="main-cell" th:text="${emp.getFunctionsAllocations().get(function).getFunction().getProbability()}"></td>
+                                                    <td class="main-cell-times"></td>
                                                 </tr>
                                             </th:block>
                                         </th:block>
@@ -223,16 +210,17 @@
 <div th:replace="~{fragments/footer}">Footer</div>
 </body>
 
-<script>
-    let employeeTr = document.querySelectorAll(".employee-row-value");
+<script th:inline="javascript">
+    let employeeTr = document.querySelectorAll(".main-row-employee");
 
     Array.from(employeeTr).forEach(function(trArray) {
         let button = document.createElement("button");
         let td = document.createElement("td");
+        td.style.textAlign = "center";
         button.className = "btn collapsible btn-dropdown";
         button.addEventListener("click", function(evt) {
             let collapse = document.getElementsByClassName("my-collapse");
-            let i = trArray.id * 3, ii = trArray.id * 3 + 3;
+            let i = trArray.id * 4, ii = trArray.id * 4 + 4;
             for (; i < ii; i++) {
                 if (collapse[i].style.visibility === "visible") {
                     collapse[i].style.visibility = "collapse";
@@ -252,6 +240,226 @@
         trArray.append(td);
     });
 
+    let employees = [[${employees}]];
+    let certain_times = document.getElementsByClassName("main-certain-times");
+    let uncertain_times = document.getElementsByClassName("main-uncertain-times");
+    let projects_times = document.getElementsByClassName("main-projects-times");
+    let courses_times = document.getElementsByClassName("main-courses-times");
+    let functions_times = document.getElementsByClassName("main-functions-times");
+    let index = 0;
+    const opts = { minimumFractionDigits: 1 };
+    let year_offsets = {};
+    for (let i = 0; i < employees.length; ++i)
+        year_offsets[i] = 0;
+
+    Array.from(certain_times).forEach(function(trArray) {
+        if (employees.length > index && employees[index].totalCertainAllocationCells.length > 0) {
+            for (let j = 0; j < 12; ++j) {
+                let td = document.createElement("td");
+                td.className = "main-cell-times-values";
+                td.innerHTML = (employees[index].totalCertainAllocationCells[0][j].time)
+                    .toLocaleString(undefined, opts).replace(',', '.');
+                trArray.append(td);
+            }
+            let td = document.createElement("td");
+            td.className = "main-cell";
+            trArray.append(td);
+        }
+        index++;
+    });
+
+    index = 0;
+
+    Array.from(uncertain_times).forEach(function(trArray) {
+        if (employees.length > index && employees[index].totalUncertainAllocationCells.length > 0) {
+            for (let j = 0; j < 12; ++j) {
+                let td = document.createElement("td");
+                td.className = "main-cell-times-values";
+                td.innerHTML = (employees[index].totalUncertainAllocationCells[0][j].time)
+                    .toLocaleString(undefined, opts).replace(',', '.');
+                trArray.append(td);
+            }
+            let td = document.createElement("td");
+            td.className = "main-cell";
+            trArray.append(td);
+        }
+        index++;
+    });
+
+    index = 0;
+
+    Array.from(projects_times).forEach(function(trArray) {
+        if (employees.length > index && employees[index].projectsAllocationCells.length > 0) {
+            let last = employees[index].projectsAllocationCells[0][0].time;
+            for (let j = 0; j < 12; ++j) {
+                let td = document.createElement("td");
+                if (last !== employees[index].projectsAllocationCells[0][j].time) {
+                    last = employees[index].projectsAllocationCells[0][j].time;
+                    td.className = "main-cell-times-values main-cell-times-values-changed";
+                } else
+                    td.className = "main-cell-times-values";
+                td.innerHTML = (employees[index].projectsAllocationCells[0][j].time)
+                    .toLocaleString(undefined, opts).replace(',', '.');
+                trArray.append(td);
+            }
+            let td = document.createElement("td");
+            td.className = "main-cell";
+            trArray.append(td);
+        }
+        index++;
+    });
+
+    index = 0;
+
+    Array.from(courses_times).forEach(function(trArray) {
+        if (employees.length > index && employees[index].coursesAllocationCells.length > 0) {
+            let last = employees[index].coursesAllocationCells[0][0].time;
+            for (let j = 0; j < 12; ++j) {
+                let td = document.createElement("td");
+                if (last !== employees[index].coursesAllocationCells[0][j].time) {
+                    last = employees[index].coursesAllocationCells[0][j].time;
+                    td.className = "main-cell-times-values main-cell-times-values-changed";
+                } else
+                    td.className = "main-cell-times-values";
+                td.innerHTML = (employees[index].coursesAllocationCells[0][j].time)
+                    .toLocaleString(undefined, opts).replace(',', '.');
+                trArray.append(td);
+            }
+            let td = document.createElement("td");
+            td.className = "main-cell";
+            trArray.append(td);
+        }
+        index++;
+    });
+
+    index = 0;
+
+    Array.from(functions_times).forEach(function(trArray) {
+        if (employees.length > index && employees[index].functionsAllocationCells.length > 0) {
+            let last = employees[index].functionsAllocationCells[0][0].time;
+            for (let j = 0; j < 12; ++j) {
+                let td = document.createElement("td");
+                if (last !== employees[index].functionsAllocationCells[0][j].time) {
+                    last = employees[index].functionsAllocationCells[0][j].time;
+                    td.className = "main-cell-times-values main-cell-times-values-changed";
+                } else
+                    td.className = "main-cell-times-values";
+                td.innerHTML = (employees[index].functionsAllocationCells[0][j].time)
+                    .toLocaleString(undefined, opts).replace(',', '.');
+                trArray.append(td);
+            }
+            let td = document.createElement("td");
+            td.className = "main-cell";
+            trArray.append(td);
+        }
+        index++;
+    });
+
+    let left_btns = document.getElementsByClassName("btn-left");
+    for(let i=0; i< left_btns.length; i++){
+        left_btns[i].classList.add("btn");
+        left_btns[i].id = i;
+        left_btns[i].addEventListener("click", function(evt) {
+            if (year_offsets[i] > 0 && year_offsets[i] !== undefined) {
+                year_offsets[i]--;
+
+                let last_projects = employees[this.id].projectsAllocationCells[year_offsets[i]][0].time;
+                let last_courses = employees[this.id].coursesAllocationCells[year_offsets[i]][0].time;
+                let last_functions = employees[this.id].functionsAllocationCells[year_offsets[i]][0].time;
+                let certain_times_tds = certain_times[i].getElementsByClassName("main-cell-times-values-certain");
+                let uncertain_times_tds = uncertain_times[i].getElementsByClassName("main-cell-times-values-certain");
+                let projects_times_tds = projects_times[i].getElementsByClassName("main-cell-times-values-certain");
+                let courses_times_tds = courses_times[i].getElementsByClassName("main-cell-times-values-certain");
+                let functions_times_tds = functions_times[i].getElementsByClassName("main-cell-times-values-certain");
+                for (let j = 0; j < 12; ++j) {
+                    certain_times_tds[j].className = "main-cell-times-values";
+                    certain_times_tds[j].innerHTML = (employees[this.id].totalCertainAllocationCells[year_offsets[i]][j].time)
+                        .toLocaleString(undefined, opts).replace(',', '.');
+
+
+                    uncertain_times_tds[j].className = "main-cell-times-values";
+                    uncertain_times_tds[j].innerHTML = (employees[this.id].totalUncertainAllocationCells[year_offsets[i]][j].time)
+                        .toLocaleString(undefined, opts).replace(',', '.');
+
+                    if (last_projects !== employees[this.id].projectsAllocationCells[year_offsets[i]][j].time) {
+                        last_projects = employees[this.id].projectsAllocationCells[year_offsets[i]][j].time;
+                        projects_times_tds[j].className = "main-cell-times-values main-cell-times-values-changed";
+                    } else
+                        projects_times_tds[j].className = "main-cell-times-values";
+                    projects_times_tds[j].innerHTML = (employees[this.id].projectsAllocationCells[year_offsets[i]][j].time)
+                        .toLocaleString(undefined, opts).replace(',', '.');
+
+                    if (last_courses !== employees[this.id].coursesAllocationCells[year_offsets[i]][j].time) {
+                        last_courses = employees[this.id].coursesAllocationCells[year_offsets[i]][j].time;
+                        courses_times_tds[j].className = "main-cell-times-values main-cell-times-values-changed";
+                    } else
+                        courses_times_tds[j].className = "main-cell-times-values";
+                    courses_times_tds[j].innerHTML = (employees[this.id].coursesAllocationCells[year_offsets[i]][j].time)
+                        .toLocaleString(undefined, opts).replace(',', '.');
+
+                    if (last_functions !== employees[this.id].functionsAllocationCells[year_offsets[i]][j].time) {
+                        last_functions = employees[this.id].functionsAllocationCells[year_offsets[i]][j].time;
+                        functions_times_tds[j].className = "main-cell-times-values main-cell-times-values-changed";
+                    } else
+                        functions_times_tds[j].className = "main-cell-times-values";
+                    functions_times_tds[j].innerHTML = (employees[this.id].functionsAllocationCells[year_offsets[i]][j].time)
+                        .toLocaleString(undefined, opts).replace(',', '.');
+                }
+            }
+        });
+    }
+
+    let right_btns = document.getElementsByClassName("btn-right");
+    for(let i=0; i< right_btns.length; i++){
+        right_btns[i].classList.add("btn");
+        right_btns[i].id = i;
+        right_btns[i].addEventListener("click", function() {
+            if ((year_offsets[i] + 1) < employees[this.id].totalCertainAllocationCells.length && year_offsets[i] !== undefined) {
+                year_offsets[i]++;
+
+                let last_projects = employees[this.id].projectsAllocationCells[year_offsets[i]][0].time;
+                let last_courses = employees[this.id].coursesAllocationCells[year_offsets[i]][0].time;
+                let last_functions = employees[this.id].functionsAllocationCells[year_offsets[i]][0].time;
+                let certain_times_tds = certain_times[i].getElementsByClassName("main-certain-times");
+                let uncertain_times_tds = uncertain_times[i].getElementsByClassName("main-uncertain-times");
+                let projects_times_tds = projects_times[i].getElementsByClassName("main-projects-times");
+                let courses_times_tds = courses_times[i].getElementsByClassName("main-courses-times");
+                let functions_times_tds = functions_times[i].getElementsByClassName("main-functions-times");
+                for (let j = 0; j < 12; ++j) {
+                    certain_times_tds[j].className = "main-cell-times-values";
+                    certain_times_tds[j].innerHTML = (employees[this.id].totalCertainAllocationCells[year_offsets[i]][j].time)
+                        .toLocaleString(undefined, opts).replace(',', '.');
+                    uncertain_times_tds[j].className = "main-cell-times-values";
+                    uncertain_times_tds[j].innerHTML = (employees[this.id].totalUncertainAllocationCells[year_offsets[i]][j].time)
+                        .toLocaleString(undefined, opts).replace(',', '.');
+
+                    if (last_projects !== employees[this.id].projectsAllocationCells[year_offsets[i]][j].time) {
+                        last_projects = employees[this.id].projectsAllocationCells[year_offsets[i]][j].time;
+                        projects_times_tds[j].className = "main-cell-times-values main-cell-times-values-changed";
+                    } else
+                        projects_times_tds[j].className = "main-cell-times-values";
+                    projects_times_tds[j].innerHTML = (employees[this.id].projectsAllocationCells[year_offsets[i]][j].time)
+                        .toLocaleString(undefined, opts).replace(',', '.');
+
+                    if (last_courses !== employees[this.id].coursesAllocationCells[year_offsets[i]][j].time) {
+                        last_courses = employees[this.id].coursesAllocationCells[year_offsets[i]][j].time;
+                        courses_times_tds[j].className = "main-cell-times-values main-cell-times-values-changed";
+                    } else
+                        courses_times_tds[j].className = "main-cell-times-values";
+                    courses_times_tds[j].innerHTML = (employees[this.id].coursesAllocationCells[year_offsets[i]][j].time)
+                        .toLocaleString(undefined, opts).replace(',', '.');
+
+                    if (last_functions !== employees[this.id].functionsAllocationCells[year_offsets[i]][j].time) {
+                        last_functions = employees[this.id].functionsAllocationCells[year_offsets[i]][j].time;
+                        functions_times_tds[j].className = "main-cell-times-values main-cell-times-values-changed";
+                    } else
+                        functions_times_tds[j].className = "main-cell-times-values";
+                    functions_times_tds[j].innerHTML = (employees[this.id].functionsAllocationCells[year_offsets[i]][j].time)
+                        .toLocaleString(undefined, opts).replace(',', '.');
+                }
+            }
+        });
+    }
 
 </script>
 </html>

@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" lang="">
 <head>
     <meta charset="UTF-8">
-    <title th:text="#{form.create-project.title}"></title>
+    <title th:text="#{view.project_detail.title} + ' ' + ${project.getName()}"></title>
 
     <link rel="stylesheet" th:href="@{/css/color.css}">
     <link rel="stylesheet" th:href="@{/css/common.css}">
@@ -18,117 +18,199 @@
     <!-- jquery -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 </head>
-<body class="d-flex flex-column min-vh-100">
+<body>
 <div th:replace="~{fragments/navbar}">Navbar</div>
+
 <div class="container-fluid">
     <!-- content -->
-    <div class="text-center mt-5"><h1 th:text="#{form.create-project.header}"></h1></div>
-    <div class="d-flex justify-content-center">
-        <form method="post" th:action="@{/p/create}" th:object="${projectVO}" th:method="POST"
-              class="border needs-validation m-5 mt-0 was-validated" novalidate>
-            <div class="row m-3">
-                <div class="col">
-                    <label for="project_name" class="form-label" th:text="#{form.create-project.label.pname}"></label>
-                    <input th:field="*{name}" type="text" id="project_name" name="project_name"
-                           class="form-control common-border-radius" required>
-                    <div class="invalid-feedback" th:text="#{form.create-project.invalid.pname}"></div>
-                </div>
+    <div class="container">
+        <!-- alerts -->
+        <div>
+            <div th:if="(${(param.edit != null)} or ${(param.create != null)} or ${(param.delete != null)} or ${(param.subordinate != null)})"
+                 class="alert alert-success alert-dismissible fade show" role="success">
+                <strong th:if="${(param.edit != null)}" th:text="#{view.course.alert.edit}"></strong>
+                <strong th:if="${(param.create != null)}" th:text="#{view.course.alert.create}"></strong>
+                <strong th:if="${(param.delete != null)}" th:text="#{not-implemented}"></strong>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
-            <div class="row m-3">
-                <div class="col">
-                    <label for="project_manager" class="form-label"
-                           th:text="#{form.create-project.label.pmanager}"></label>
-                    <input th:field="*{projectManagerOrionLogin}" type="text" id="project_manager"
-                           name="project_manager"
-                           class="form-control common-border-radius" th:required>
-                    <div class="invalid-feedback" th:text="#{form.create-project.invalid.pmanager}"></div>
-                </div>
-            </div>
-            <div class="row m-3">
-                <div class="col">
-                    <label for="project_workplace" class="form-label"
-                           th:text="#{form.create-project.label.workplace}"></label>
-                    <select th:field="*{workplaceId}" id="project_workplace" class="form-select common-border-radius"
-                            required>
-                        <option th:value="*{null}" hidden selected>-- select an option --</option>
-                        <tr th:each="workplace : ${workplaces}">
-                            <option th:text="${workplace.abbreviation}" th:value="${workplace.id}"></option>
-                        </tr>
-                    </select>
-                    <div class="invalid-feedback" th:text="#{form.create-project.invalid.workplace}"></div>
-                </div>
-            </div>
-            <div class="row m-3">
-                <div class="col">
-                    <label for="project_valid_from" class="form-label"
-                           th:text="#{form.create-project.label.vfrom}"></label>
-                    <input th:field="*{dateValidFrom}" type="date" id="project_valid_from"
-                           name="project_valid_from"
-                           class="form-control common-border-radius" required>
-                    <div class="invalid-feedback" th:text="#{form.create-project.invalid.vfrom}"></div>
-                </div>
-                <div class="col">
-                    <label for="project_valid_until" class="form-label"
-                           th:text="#{form.create-project.label.vuntil}"></label>
-                    <input th:field="*{dateValidUntil}" type="date" id="project_valid_until"
-                           name="project_valid_until"
-                           class="form-control common-border-radius">
-                    <div class="invalid-feedback" th:text="#{form.create-project.invalid.vuntil}"></div>
-                </div>
-            </div>
-            <div class="row m-3">
-                <div class="col">
-                    <label for="project_description" class="form-label"
-                           th:text="#{form.create-project.label.description}"></label>
-                    <textarea th:field="*{description}" id="project_description" name="project_description"
-                              class="form-control common-border-radius" rows="5" required></textarea>
-                    <div class="invalid-feedback" th:text="#{form.create-project.invalid.description}"></div>
-                </div>
-            </div>
-            <div class="row m-3 justify-content-center">
-                <div class="col">
-                    <input class="btn btn-outline-primary w-100 common-border-radius" type="submit"
-                           th:value="#{form.create-project.submit}">
-                </div>
-            </div>
+        </div>
+
+        <h1 class="text-center mt-5" th:text="#{view.project_detail.header} + ' ' + ${project.getName()}"></h1>
+
+        <form   method="post"
+                th:action="@{'/p/create'}"
+                th:object="${project}" th:method="POST" novalidate>
+            <table>
+                <tr>
+                    <td class="project-detail-div">
+                        <label class="project-detail-label" for="name" th:text="#{view.project_detail.name}"/>
+                        <input class="project-detail-input" type="text" id="name" name="name" th:field="*{name}">
+                    </td>
+                </tr>
+                <tr>
+                    <td class="project-detail-div">
+                        <label class="project-detail-label" for="shortcut" th:text="#{view.project_detail.shortcut}"/>
+                        <input class="project-detail-input" type="text" id="shortcut" name="shortcut" th:field="*{shortcut}">
+                    </td>
+                </tr>
+                <tr>
+                    <td class="project-detail-div">
+                        <label class="project-detail-label" for="state" th:text="#{view.project_detail.state}"/>
+                        <select class="project-detail-input" id="state" name="state"></select><br>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="project-detail-div">
+                        <label class="project-detail-label" for="from" th:text="#{view.project_detail.from}"/>
+                        <input class="project-detail-input" type="text" id="from" name="from" th:field="*{dateFrom}">
+                    </td>
+                </tr>
+                <tr>
+                    <td class="project-detail-div">
+                        <label class="project-detail-label" for="until" th:text="#{view.project_detail.until}"/>
+                        <input class="project-detail-input" type="text" id="until" name="until" th:field="*{dateUntil}">
+                    </td>
+                </tr>
+                <tr>
+                    <td class="project-detail-div">
+                        <label class="project-detail-label" for="director" th:text="#{view.project_detail.director}"/>
+                        <select class="project-detail-input" id="director" name="director" th:field="*{projectManagerId}">
+                            <option th:each="mng : ${employees}" th:value="${mng.getId()}"
+                                    th:text="${mng.getLastName()} + ' ' + ${mng.getFirstName()}">
+                            </option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="project-detail-div">
+                        <label class="project-detail-label" for="workplace" th:text="#{view.project_detail.workplace}"/>
+                        <select class="project-detail-input" id="workplace" name="workplace" th:field="*{workplaceId}">
+                            <option th:each="wrk : ${workplaces}" th:value="${wrk.getId()}"
+                                    th:text="${wrk.getFullName()}">
+                            </option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="project-detail-div">
+                        <label class="project-detail-label" for="total_time" th:text="#{view.project_detail.total_time}"/>
+                        <input class="project-detail-input" type="number" id="total_time" name="total_time" th:field="*{totalTime}">
+                    </td>
+                </tr>
+                <tr>
+                    <td class="project-detail-div">
+                        <label class="project-detail-label" for="agency" th:text="#{view.project_detail.agency}"/>
+                        <input class="project-detail-input" type="text" id="agency" name="agency" th:field="*{agency}">
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label class="project-detail-label" for="grant_title" th:text="#{view.project_detail.grant_title}"/>
+                        <input class="project-detail-input" type="text" id="grant_title" name="grant_title" th:field="*{grantTitle}">
+                    </td>
+                </tr>
+                <tr>
+                    <td class="project-detail-div">
+                        <label class="project-detail-label" for="call_year" th:text="#{view.project_detail.call_year}"/>
+                        <input class="project-detail-input" type="text" id="call_year" name="call_year" th:value="*{#dates.year(dateFrom)}">
+                    </td>
+                </tr>
+                <tr>
+                    <td class="project-detail-div">
+                    <h4 th:text="#{view.project_detail.finance}"/>
+                </td>
+                </tr>
+                <tr>
+                    <td class="project-detail-div">
+                        <label class="project-detail-label" for="budget" th:text="#{view.project_detail.budget}"/>
+                        <input class="project-detail-input" type="text" id="budget" name="budget" th:field="*{budget}">
+                    </td>
+                </tr>
+                <tr>
+                    <td class="project-detail-div">
+                        <label class="project-detail-label" for="participation" th:text="#{view.project_detail.participation}"/>
+                        <input class="project-detail-input" type="text" id="participation" name="participation" th:field="*{participation}">
+                    </td>
+                </tr>
+                <tr>
+                    <td class="project-detail-div">
+                        <label class="project-detail-label" for="budget_participation" th:text="#{view.project_detail.budget_participation}"/>
+                        <input class="project-detail-input" type="text" id="budget_participation" name="budget_participation" th:field="*{budgetParticipation}">
+                    </td>
+                </tr>
+                <tr>
+                    <td class="project-detail-div">
+                        <label class="project-detail-label" for="description" th:text="#{view.project_detail.description}"/>
+                        <input class="project-detail-input" type="text" id="description" name="description" th:field="*{description}">
+                    </td>
+                </tr>
+                <tr>
+                    <td th:colspan="3">
+                        <input id="form-submit" class="project-detail-btn" type="submit"
+                               th:value="#{view.project_detail.submit}">
+                    </td>
+                </tr>
+            </table>
         </form>
+        <div>
+            <!-- Members of project -->
+            <h4 th:text="#{view.project_detail.members.title}"/>
+            <div class="table">
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th scope="col" th:text="#{view.project_detail.members.table.name}"></th>
+                        <th scope="col" th:text="#{view.project_detail.members.table.role}"></th>
+                        <th scope="col" th:text="#{view.project_detail.members.table.from}"></th>
+                        <th scope="col" th:text="#{view.project_detail.members.table.until}"></th>
+                        <th scope="col" th:text="#{view.project_detail.members.table.current-time}"></th>
+                        <th scope="col" th:text="#{view.project_detail.members.table.average-time}"></th>
+                        <th scope="col" th:text="#{view.project_detail.members.table.description}"></th>
+                        <th scope="col"></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <th:block th:each="all : ${allocations}">
+                        <!-- Employee-->
+                        <tr>
+                            <td th:text="*{all.getWorker().getLastName()}"></td>
+                            <td th:text="*{all.getRole()}"></td>
+                            <td th:text="*{#dates.format(all.getDateFrom(), 'dd-MM-yyyy')}"></td>
+                            <td th:text="*{#dates.format(all.getDateUntil(), 'dd-MM-yyyy')}"></td>
+                            <td th:text="*{all.getTime()}"></td>
+                            <td th:text="*{all.getTime()}"></td>
+                            <td th:text="*{all.getDescription()}"></td>
+                        </tr>
+                    </th:block>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <!-- Times per months -->
+        <h4 th:text="#{view.project_detail.members.title.times-per-months}"/>
+        <div class="table">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th scope="col" th:text="#{view.project_detail.members.table.name}"></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <th scope="col" th:text="#{view.project_detail.members.title.total}"></th>
+                </tr>
+                <th:block th:each="all, iStat: ${allocations}">
+                    <!-- Employee-->
+                    <tr>
+                        <td th:text="${all.getWorker().getLastName()}"></td>
+                    </tr>
+                </th:block>
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
+
 <div th:replace="~{fragments/footer}">Footer</div>
-<script type="text/javascript" th:src="@{/js/form_validation.js}"></script>
-<script type="text/javascript" th:src="@{/js/validation/project_form_validation.js}"></script>
-<script type="text/javascript" th:inline="javascript">
-    let restrictions = [];
-    /*[# th:each="n : ${restrictions}"]*/
-    restrictions.push(new ProjectRestrictions("[(${n.name})]"))
-    /*[/]*/
-    let emp_restrictions = [];
-
-    let name;
-    /*[# th:each="n : ${employees}"]*/
-    name = '[(${n.getFirstName()})]' + ' ' + '[(${n.getLastName()})]' + ' (' + '[(${n.getOrionLogin()})]' + ')';
-    emp_restrictions.push(name);
-    /*[/]*/
-    let wv = new ProjectValidation(restrictions, 'project_name', emp_restrictions, 'project_manager');
-</script>
-<script type="text/javascript" th:src="@{/js/external/autocomplete.js}"></script>
-<script type="text/javascript" th:inline="javascript">
-    let employees = [];
-
-    /*[# th:each="n : ${employees}"]*/
-
-    label = '[(${n.getFirstName()})]' + ' ' + '[(${n.getLastName()})]' + ' (' + '[(${n.getOrionLogin()})]' + ')';
-    employees.push({label: label, value: '[(${n.getOrionLogin()})]'});
-
-    /*[/]*/
-
-    const ac = new Autocomplete(document.getElementById('project_manager'), {
-        data: employees
-    });
-</script>
-<script type="text/javascript" th:src="@{/js/form_integrity/allocation_date.js}"></script>
-<script type="text/javascript" th:inline="javascript">
-    let dc = new AllocationDateController('project_valid_from', 'project_valid_until');
-</script>
 </body>
 </html>

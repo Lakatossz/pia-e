@@ -11,9 +11,11 @@ import lombok.NonNull;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Objects;
 
 @Primary
 @Repository
@@ -98,7 +100,7 @@ public class JdbcFunctionRepository implements IFunctionRepository {
     }
 
     @Override
-    public boolean createFunction(@NonNull Function function) {
+    public long createFunction(@NonNull Function function) {
         var sql = """
                 INSERT INTO `function`
                 (fnc_enabled, fnc_name, fnc_manager_id, fnc_workplace_id,\s
@@ -110,7 +112,10 @@ public class JdbcFunctionRepository implements IFunctionRepository {
                 :fnc_default_time);
                 """;
 
-        return jdbcTemplate.update(sql, prepareParams(function)) == 1;
+        GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update(sql, prepareParams(function), keyHolder);
+
+        return Objects.requireNonNull(keyHolder.getKey()).intValue();
     }
 
     @Override

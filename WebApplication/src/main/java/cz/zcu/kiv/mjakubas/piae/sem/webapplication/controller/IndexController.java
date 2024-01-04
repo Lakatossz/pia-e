@@ -11,6 +11,9 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -42,11 +45,10 @@ public class IndexController {
         employees.forEach(employee ->
                 employee.getSubordinates().addAll(employeeService.getSubordinates(employee.getId())));
 
-        List<AllocationCellVO> cells = new LinkedList<>();
-
-        employees.forEach(employee -> {
-
-        });
+        employees.forEach(employeeService::prepareProjectsCells);
+        employees.forEach(employeeService::prepareCoursesCells);
+        employees.forEach(employeeService::prepareFunctionsCells);
+        employees.forEach(employeeService::prepareTotalCells);
 
         model.addAttribute("employees", employees);
 

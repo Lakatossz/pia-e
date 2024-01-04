@@ -18,27 +18,19 @@
     <!-- jquery -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 </head>
-<body>
+<body class="d-flex flex-column min-vh-100">
 
 <div th:replace="~{fragments/navbar}">Navbar</div>
 
 <div class="container-fluid">
     <!-- content -->
     <div class="container">
-        <!-- alerts -->
-        <div>
-            <div th:if="(${(param.edit != null)} or ${(param.create != null)} or ${(param.delete != null)} or ${(param.subordinate != null)})"
-                 class="alert alert-success alert-dismissible fade show" role="success">
-                <strong th:if="${(param.edit != null)}" th:text="#{view.function.alert.edit}"></strong>
-                <strong th:if="${(param.create != null)}" th:text="#{view.function.alert.create}"></strong>
-                <strong th:if="${(param.delete != null)}" th:text="#{not-implemented}"></strong>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        </div>
         <!-- table -->
         <h1 class="text-center mt-5" th:text="#{view.function.header}"></h1>
-        <a type="button" class="btn btn-primary common-border-radius"
-           th:href="@{/c/create}" th:text="#{view.function.create}"></a>
+
+
+        <input type="button" class="function-btn"
+           th:href="@{/f/create}" th:value="#{view.function.create}">
         <div class="row">
             <table class="table">
                 <thead>
@@ -69,9 +61,9 @@
                             <td th:text="${firstAllocations.get(iStat.index).getTime()}"></td>
                             <td th:text="${firstAllocations.get(iStat.index).getIsCertain()}"></td>
                             <td th:text="${firstAllocations.get(iStat.index).getDescription()}"></td>
-                            <td class="function-cell">
-                                <button class="btn collapsible btn-edit" th:onclick="'editFunction('+${firstAllocations.get(iStat.index).getId()}+')'"></button>
-                            </td>
+<!--                            <td class="function-cell">-->
+<!--                                <button class="btn collapsible btn-edit" th:onclick="'editFunction('+${firstAllocations.get(iStat.index).getId()}+')'"></button>-->
+<!--                            </td>-->
                         </tr>
                         <th:block th:each="all, allStats : ${fnc.getFunctionAllocations()}">
                             <tr>
@@ -80,9 +72,9 @@
                                 <td th:text="${all.getTime()}"></td>
                                 <td th:text="${all.getIsCertain()}"></td>
                                 <td th:text="${all.getDescription()}"></td>
-                                <td class="function-cell">
-                                    <button class="btn collapsible btn-edit" th:onclick="'editFunction('+${all.getId()}+')'"></button>
-                                </td>
+<!--                                <td class="function-cell">-->
+<!--                                    <button class="btn collapsible btn-edit" th:onclick="'editFunction('+${all.getId()}+')'"></button>-->
+<!--                                </td>-->
                             </tr>
                         </th:block>
                     </th:block>

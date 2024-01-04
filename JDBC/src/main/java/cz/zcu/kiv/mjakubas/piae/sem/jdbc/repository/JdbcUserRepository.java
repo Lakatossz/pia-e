@@ -6,7 +6,10 @@ import lombok.NonNull;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
+
+import java.util.Objects;
 
 @Primary
 @Repository
@@ -16,7 +19,7 @@ public class JdbcUserRepository implements IUserRepository {
     private final NamedParameterJdbcTemplate jdbcTemplate;
 
     @Override
-    public boolean createNewUser(long employeeId, @NonNull String password) {
+    public long createNewUser(long employeeId, @NonNull String password) {
         var sql = """
                 INSERT INTO user (password, enabled, us_employee, us_is_temp)
                 VALUES (:pw, 1, :id, 1);
@@ -26,7 +29,10 @@ public class JdbcUserRepository implements IUserRepository {
         params.addValue("pw", password);
         params.addValue("id", employeeId);
 
-        return jdbcTemplate.update(sql, params) == 1;
+        GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update(sql, params, keyHolder);
+
+        return Objects.requireNonNull(keyHolder.getKey()).intValue();
     }
 
     @Override

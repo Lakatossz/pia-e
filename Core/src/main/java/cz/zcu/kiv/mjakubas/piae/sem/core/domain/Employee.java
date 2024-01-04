@@ -32,6 +32,13 @@ public class Employee {
     private List<Allocation> functionsAllocations = new LinkedList<>();
     private List<Allocation> allocations = new LinkedList<>();
     private List<AllocationInterval> intervals = new LinkedList<>();
+    private List<List<AllocationCell>> projectsAllocationCells = new LinkedList<>();
+    private List<List<AllocationCell>> coursesAllocationCells = new LinkedList<>();
+    private List<List<AllocationCell>> functionsAllocationCells = new LinkedList<>();
+    private List<List<AllocationCell>> totalCertainAllocationCells = new LinkedList<>();
+    private List<List<AllocationCell>> totalUncertainAllocationCells = new LinkedList<>();
+    private long firstYear = Integer.MAX_VALUE;
+    private long numberOfYears = 0;
 
     public Employee id(long id) {
         this.id = id;
@@ -100,6 +107,31 @@ public class Employee {
 
     public Employee functionsAllocations(List<Allocation> functionsAllocations) {
         this.functionsAllocations.addAll(functionsAllocations);
+        return this;
+    }
+
+    public Employee projectsAllocationCells(List<List<AllocationCell>> projectsAllocationCells) {
+        this.projectsAllocationCells.addAll(projectsAllocationCells);
+        return this;
+    }
+
+    public Employee coursesAllocationCells(List<List<AllocationCell>> coursesAllocationCells) {
+        this.coursesAllocationCells.addAll(coursesAllocationCells);
+        return this;
+    }
+
+    public Employee functionsAllocationCells(List<List<AllocationCell>> functionsAllocationCells) {
+        this.functionsAllocationCells.addAll(functionsAllocationCells);
+        return this;
+    }
+
+    public Employee totalCertainAllocationCells(List<AllocationCell> totalCertainAllocationCells) {
+        this.totalCertainAllocationCells.add(totalCertainAllocationCells);
+        return this;
+    }
+
+    public Employee totalUncertainAllocationCells(List<AllocationCell> totalUncertainAllocationCells) {
+        this.totalUncertainAllocationCells.add(totalUncertainAllocationCells);
         return this;
     }
 

@@ -5,12 +5,14 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+
 @Getter
-@Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class AllocationCell {
-    long key;
-    float time;
-    float certain;
+public enum ProjectState {
+    NOVY("nový"),
+    BEZI("běží"),
+    DOKONCENY("dokončený");
+
+    private String value;
 }

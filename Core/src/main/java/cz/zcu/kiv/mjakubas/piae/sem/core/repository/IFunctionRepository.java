@@ -49,9 +49,9 @@ public interface IFunctionRepository {
      * Throws runtime exception if any problem occurs.
      *
      * @param function given {@link Function} data
-     * @return true if workplace was successfully created else returns false
+     * @return id of newly created entity
      */
-    public boolean createFunction(@NonNull Function function);
+    public long createFunction(@NonNull Function function);
 
     /**
      * Updates existing {@link Function} from given workplace data and workplace id.

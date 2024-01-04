@@ -63,7 +63,7 @@ public class UserServiceUnitTests {
                 .workplace(Workplace.builder()
                         .id(1L)
                         .build());
-        when(employeeRepository.createEmployee(employee)).thenReturn(true);
+        when(employeeRepository.createEmployee(employee)).thenReturn(1L);
 //        Assertions.assertDoesNotThrow(() -> employeeServiceMocked.createEmployee(
 //                new EmployeeVO("foo", "foo", "foo@foo.fo", "foo", 1L, "foo")
 //        ));
@@ -71,7 +71,7 @@ public class UserServiceUnitTests {
 
     @Test
     public void test_create_employee_if_not_valid_email() {
-        when(employeeRepository.createEmployee(any())).thenReturn(true); // not used
+        when(employeeRepository.createEmployee(any())).thenReturn(-1L); // not used
 //        Assertions.assertThrows(ServiceException.class, () -> employeeServiceMocked.createEmployee(
 //                new EmployeeVO("foo", "foo", "definitely wrong email address", "foo", 1L, "foo")
 //        ));
@@ -79,7 +79,7 @@ public class UserServiceUnitTests {
 
     @Test
     public void test_create_employee_if_employee_creation_was_unsuccessful() {
-        when(employeeRepository.createEmployee(any())).thenReturn(false);
+        when(employeeRepository.createEmployee(any())).thenReturn(-1L);
 //        Assertions.assertThrows(ServiceException.class, () -> employeeServiceMocked.createEmployee(
 //                new EmployeeVO("foo", "foo", "foo@foo.fo", "foo", 1L, "foo")
 //        ));
@@ -88,7 +88,7 @@ public class UserServiceUnitTests {
     @Test
     public void test_create_user_if_correct() {
         when(employeeService.getEmployee("foo")).thenReturn(new Employee().id(1L).orionLogin("foo"));
-        when(userRepository.createNewUser(1L, "foo")).thenReturn(true);
+        when(userRepository.createNewUser(1L, "foo")).thenReturn(1L);
         when(userRepository.addUserRole("foo")).thenReturn(true);
         when(passwordEncoder.encode(any())).thenReturn("foo");
 
@@ -98,7 +98,7 @@ public class UserServiceUnitTests {
     @Test
     public void test_create_user_if_create_new_user_fails() {
         when(employeeService.getEmployee("foo")).thenReturn(new Employee().id(1L).orionLogin("foo"));
-        when(userRepository.createNewUser(1L, "foo")).thenReturn(false);
+        when(userRepository.createNewUser(1L, "foo")).thenReturn(-1L);
         when(userRepository.addUserRole("foo")).thenReturn(true);
         when(passwordEncoder.encode(any())).thenReturn("foo");
 
@@ -108,7 +108,7 @@ public class UserServiceUnitTests {
     @Test
     public void test_create_user_if_add_new_role_fails() {
         when(employeeService.getEmployee("foo")).thenThrow(RuntimeException.class);
-        when(userRepository.createNewUser(1L, "foo")).thenReturn(true);
+        when(userRepository.createNewUser(1L, "foo")).thenReturn(-1L);
         when(userRepository.addUserRole("foo")).thenReturn(true);
         when(passwordEncoder.encode(any())).thenReturn("foo");
 

@@ -11,9 +11,11 @@ import lombok.NonNull;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Objects;
 
 @Primary
 @Repository
@@ -98,19 +100,24 @@ public class JdbcProjectRepository implements IProjectRepository {
     }
 
     @Override
-    public boolean createProject(@NonNull Project project) {
+    public long createProject(@NonNull Project project) {
         var sql = """
                 INSERT INTO project
                 (pro_enabled, pro_name, pro_manager_id, pro_workplace_id,\s
                 pro_date_from, pro_date_until, pro_description, pro_probability, 
-                pro_budget, pro_participation, pro_total_time)
+                pro_budget, pro_budget_participation, pro_total_time, 
+                pro_shortcut, pro_agency, pro_grant_title)
                 VALUES
                 (:pro_enabled, :pro_name, :pro_manager_id, :pro_workplace_id,\s
                 :pro_date_from, :pro_date_until, :pro_description, :pro_probability,
-                :pro_budget, :pro_participation, :pro_total_time);
+                :pro_budget, :pro_budget_participation, :pro_total_time, 
+                :pro_shortcut, :pro_agency, :pro_grant_title);
                 """;
 
-        return jdbcTemplate.update(sql, prepareParams(project)) == 1;
+        GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update(sql, prepareParams(project), keyHolder);
+
+        return Objects.requireNonNull(keyHolder.getKey()).intValue();
     }
 
     @Override
@@ -120,7 +127,7 @@ public class JdbcProjectRepository implements IProjectRepository {
                 SET pro_enabled = :pro_enabled, pro_name = :pro_name, pro_manager_id = :pro_manager_id,
                 pro_workplace_id = :pro_workplace_id, pro_date_from = :pro_date_from, pro_description = :pro_description,
                 pro_probability = :pro_probability, pro_budget = :pro_budget, pro_agency = :pro_agency,
-                pro_budget_participation = :pro_budget_participation, pro_participation = :pro_participation,
+                pro_budget_participation = :pro_budget_participation,
                 pro_total_time = :pro_total_time, pro_grant_title = :pro_grant_title
                 WHERE project_id = :project_id
                 """;
@@ -195,6 +202,7 @@ public class JdbcProjectRepository implements IProjectRepository {
         var params = new MapSqlParameterSource();
         params.addValue("pro_enabled", 1);
         params.addValue("pro_name", project.getName());
+        params.addValue("pro_shortcut", project.getShortcut());
         params.addValue("pro_manager_id", project.getProjectManager().getId());
         params.addValue("pro_workplace_id", project.getProjectWorkplace().getId());
         params.addValue("pro_date_from", project.getDateFrom());
@@ -202,7 +210,6 @@ public class JdbcProjectRepository implements IProjectRepository {
         params.addValue("pro_description", project.getDescription());
         params.addValue("pro_probability", project.getProbability());
         params.addValue("pro_budget", project.getBudget());
-        params.addValue("pro_participation", project.getParticipation());
         params.addValue("pro_total_time", project.getTotalTime());
         params.addValue("pro_budget_participation", project.getBudgetParticipation());
         params.addValue("pro_agency", project.getAgency());

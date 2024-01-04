@@ -24,20 +24,10 @@
 <div class="container-fluid">
     <!-- content -->
     <div class="container">
-        <!-- alerts -->
-        <div>
-            <div th:if="(${(param.edit != null)} or ${(param.create != null)} or ${(param.delete != null)} or ${(param.subordinate != null)})"
-                 class="alert alert-success alert-dismissible fade show" role="success">
-                <strong th:if="${(param.edit != null)}" th:text="#{view.function.alert.edit}"></strong>
-                <strong th:if="${(param.create != null)}" th:text="#{view.function.alert.create}"></strong>
-                <strong th:if="${(param.delete != null)}" th:text="#{not-implemented}"></strong>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        </div>
         <!-- table -->
         <h1 class="text-center mt-5" th:text="#{view.project.header}"></h1>
-        <a type="button" class="btn btn-primary common-border-radius"
-           th:href="@{/p/create}" th:text="#{view.project.create}"></a>
+        <input type="button" class="project-btn"
+           th:href="@{/p/create}" th:value="#{view.project.create}">
         <div class="row">
             <table class="table">
                 <thead>
@@ -70,9 +60,9 @@
                             <td th:text="${firstAllocations.get(iStat.index).getTime()}"></td>
                             <td th:text="${firstAllocations.get(iStat.index).getIsCertain()}"></td>
                             <td th:text="${firstAllocations.get(iStat.index).getDescription()}"></td>
-                            <td class="project-cell">
-                                <button class="btn collapsible btn-edit" th:onclick="'editFunction('+${firstAllocations.get(iStat.index).getId()}+')'"></button>
-                            </td>
+<!--                            <td class="project-cell">-->
+<!--                                <button class="btn collapsible btn-edit" th:onclick="'editFunction('+${firstAllocations.get(iStat.index).getId()}+')'"></button>-->
+<!--                            </td>-->
                         </tr>
                         <!-- Employees -->
                         <th:block th:each="all, allStats : ${pro.getProjectAllocations()}">
@@ -82,11 +72,29 @@
                                 <td th:text="${all.getTime()}"></td>
                                 <td th:text="${all.getIsCertain()}"></td>
                                 <td th:text="${all.getDescription()}"></td>
-                                <td class="project-cell">
-                                    <button class="btn collapsible btn-edit" th:onclick="'editFunction('+${all.getId()}+')'"></button>
-                                </td>
+<!--                                <td class="project-cell">-->
+<!--                                    <button class="btn collapsible btn-edit" th:onclick="'editFunction('+${all.getId()}+')'"></button>-->
+<!--                                </td>-->
                             </tr>
                         </th:block>
+                    </th:block>
+                    <th:block th:if="${firstAllocations.get(iStat.index).getTime == -1}">
+                        <tr>
+                            <td class="project-cell" th:rowspan="${pro.getProjectAllocations().size() + 1}">
+                                <a type="button" class="btn collapsible btn-detail" th:href="@{/p/{PRO_ID}/detail(PRO_ID=${pro.getId()})}"></a>
+                            </td>
+                            <td class="project-cell" th:text="${pro.getName()}"></td>
+                            <td class="project-cell" th:text="${pro.getProjectManager().getLastName()}"></td>
+                            <td class="project-cell" th:text="${pro.getProjectWorkplace().getAbbreviation()}"></td>
+                            <td class="project-cell" th:text="'-'"></td>
+                            <td class="project-cell" th:text="'-'"></td>
+                            <td class="project-cell" th:text="'-'"></td>
+                            <td class="project-cell" th:text="'-'"></td>
+                            <td class="project-cell" th:text="'-'"></td>
+                            <td class="project-cell">
+                                <button class="btn collapsible btn-edit"></button>
+                            </td>
+                        </tr>
                     </th:block>
                 </th:block>
                 </tbody>
@@ -94,6 +102,7 @@
         </div>
     </div>
 </div>
+
 <div th:replace="~{fragments/footer}">Footer</div>
 </body>
 </html>

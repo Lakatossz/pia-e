@@ -11,9 +11,11 @@ import lombok.NonNull;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Objects;
 
 @Primary
 @Repository
@@ -99,7 +101,7 @@ public class JdbcCourseRepository implements ICourseRepository {
     }
 
     @Override
-    public boolean createCourse(@NonNull Course course) {
+    public long createCourse(@NonNull Course course) {
         var sql = """
                 INSERT INTO course 
                 (course_id, crs_name, crs_number_of_students, crs_term,
@@ -112,7 +114,10 @@ public class JdbcCourseRepository implements ICourseRepository {
                 
                 """;
 
-        return jdbcTemplate.update(sql, prepareParams(course)) == 1;
+        GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update(sql, prepareParams(course), keyHolder);
+
+        return Objects.requireNonNull(keyHolder.getKey()).intValue();
     }
 
     @Override

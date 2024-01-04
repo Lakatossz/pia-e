@@ -3,6 +3,7 @@ package cz.zcu.kiv.mjakubas.piae.sem.core.service.v1;
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Allocation;
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Employee;
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Project;
+import cz.zcu.kiv.mjakubas.piae.sem.core.domain.ProjectState;
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Workplace;
 import cz.zcu.kiv.mjakubas.piae.sem.core.repository.IEmployeeRepository;
 import cz.zcu.kiv.mjakubas.piae.sem.core.repository.IProjectRepository;
@@ -124,7 +125,7 @@ public class ProjectService {
      * @param projectVO projectVO
      */
     @Transactional
-    public void createProject(@NonNull ProjectVO projectVO) {
+    public long createProject(@NonNull ProjectVO projectVO) {
         var manager = employeeRepository.fetchEmployee(projectVO.getProjectManagerId());
         if (projectVO.getDateUntil() != null && (projectVO.getDateFrom().after(projectVO.getDateUntil())))
                 {throw new ServiceException();
@@ -132,6 +133,7 @@ public class ProjectService {
 
         Project project = new Project()
                 .name(projectVO.getName())
+                .shortcut(projectVO.getShortcut())
                 .dateFrom(projectVO.getDateFrom())
                 .dateUntil(projectVO.getDateUntil() != null ? projectVO.getDateUntil() : Date.from(
                         Instant.from(LocalDate.of(9999, 9, 9))))
@@ -140,10 +142,17 @@ public class ProjectService {
                 .projectWorkplace(Workplace.builder().id(projectVO.getWorkplaceId()).build())
                 .description(projectVO.getDescription())
                 .budget(projectVO.getBudget())
-                .participation(projectVO.getParticipation())
+                .budgetParticipation(projectVO.getBudgetParticipation())
+                .agency(projectVO.getAgency())
+                .grantTitle(projectVO.getGrantTitle())
+                .state(ProjectState.valueOf(projectVO.getState()))
                 .totalTime(projectVO.getTotalTime());
 
-        if (!projectRepository.createProject(project))
+        long id = projectRepository.createProject(project);
+
+        if (id > 0)
+            return id;
+        else
             throw new ServiceException();
     }
 
@@ -168,6 +177,7 @@ public class ProjectService {
         Project project = new Project()
                 .id(id)
                 .name(projectVO.getName())
+                .shortcut(projectVO.getShortcut())
                 .dateFrom(projectVO.getDateFrom())
                 .dateUntil(projectVO.getDateUntil() != null ? projectVO.getDateUntil() : Date.from(
                         Instant.from(LocalDate.of(9999, 9, 9))))
@@ -177,9 +187,9 @@ public class ProjectService {
                 .description(projectVO.getDescription())
                 .budget(projectVO.getBudget())
                 .budgetParticipation(projectVO.getBudgetParticipation())
-                .participation(projectVO.getParticipation())
                 .totalTime(projectVO.getTotalTime())
                 .agency(projectVO.getAgency())
+//                .state(ProjectState.valueOf("běží"))
                 .grantTitle(projectVO.getGrantTitle());
 
         if (!projectRepository.updateProject(project, id))

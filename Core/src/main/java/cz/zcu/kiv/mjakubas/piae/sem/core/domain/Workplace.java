@@ -14,4 +14,5 @@ public class Workplace {
     private final String abbreviation;
     private final String fullName;
     private final Employee manager;
+    private final String description;
 }

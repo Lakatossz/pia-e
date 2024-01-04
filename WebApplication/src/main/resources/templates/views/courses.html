@@ -18,26 +18,16 @@
     <!-- jquery -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 </head>
-<body>
+<body class="d-flex flex-column min-vh-100">
 <div th:replace="~{fragments/navbar}">Navbar</div>
 
 <div class="container-fluid">
     <!-- content -->
     <div class="container">
-        <!-- alerts -->
-        <div>
-            <div th:if="(${(param.edit != null)} or ${(param.create != null)} or ${(param.delete != null)} or ${(param.subordinate != null)})"
-                 class="alert alert-success alert-dismissible fade show" role="success">
-                <strong th:if="${(param.edit != null)}" th:text="#{view.course.alert.edit}"></strong>
-                <strong th:if="${(param.create != null)}" th:text="#{view.course.alert.create}"></strong>
-                <strong th:if="${(param.delete != null)}" th:text="#{not-implemented}"></strong>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        </div>
         <!-- table -->
         <h1 class="text-center mt-5" th:text="#{view.course.header}"></h1>
-        <a type="button" class="btn btn-primary common-border-radius"
-           th:href="@{/c/create}" th:text="#{view.course.create}"></a>
+        <input type="button" class="course-btn"
+           th:href="@{/c/create}" th:value="#{view.course.create}">
         <div class="row">
             <table class="table">
                 <thead>
@@ -73,7 +63,7 @@
                                 <td class="course-cell" th:text="${firstAllocations.get(crsStats.index).getIsCertain()}"></td>
                                 <td class="course-cell" th:text="${firstAllocations.get(crsStats.index).getIsCertain()}"></td>
                                 <td class="course-cell">
-                                    <button class="btn collapsible btn-edit" th:onclick="'editAllocation('+${firstAllocations.get(crsStats.index).getId()}+')'"></button>
+<!--                                    <button class="btn collapsible btn-edit" th:onclick="'editAllocation('+${firstAllocations.get(crsStats.index).getId()}+')'"></button>-->
                                 </td>
                             </tr>
                             <th:block th:each="all : ${crs.getCourseAllocations()}">
@@ -85,7 +75,7 @@
                                     <td class="course-cell" th:text="${all.getIsCertain()}"></td>
                                     <td class="course-cell" th:text="${all.getIsCertain()}"></td>
                                     <td class="course-cell">
-                                        <button class="btn collapsible btn-edit" th:onclick="'editAllocation('+${all.getId()}+')'"></button>
+<!--                                        <button class="btn collapsible btn-edit" th:onclick="'editAllocation('+${all.getId()}+')'"></button>-->
                                     </td>
                                 </tr>
                             </th:block>

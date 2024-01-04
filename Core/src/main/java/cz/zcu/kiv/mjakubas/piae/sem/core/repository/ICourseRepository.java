@@ -50,9 +50,9 @@ public interface ICourseRepository {
      * Throws runtime exception if any problem occurs.
      *
      * @param course given {@link Course} data
-     * @return true if workplace was successfully created else returns false
+     * @return  id of newly created entity
      */
-    public boolean createCourse(@NonNull Course course);
+    public long createCourse(@NonNull Course course);
 
     /**
      * Updates existing {@link Course} from given workplace data and workplace id.

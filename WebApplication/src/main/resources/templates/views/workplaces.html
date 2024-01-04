@@ -23,19 +23,9 @@
 <div class="container-fluid">
     <!-- content -->
     <div class="container">
-        <!-- alerts -->
-        <div>
-            <div th:if="(${(param.edit != null)} or ${(param.create != null)} or ${(param.delete != null)})"
-                 class="alert alert-success alert-dismissible fade show" role="success">
-                <strong th:if="${(param.edit != null)}" th:text="#{view.workplace.alert.edit}"></strong>
-                <strong th:if="${(param.create != null)}" th:text="#{view.workplace.alert.create}"></strong>
-                <strong th:if="${(param.delete != null)}" th:text="#{not-implemented}"></strong>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        </div>
         <h1 class="text-center mt-5" th:text="#{view.workplace.header}"></h1>
-        <a type="button" class="btn btn-primary common-border-radius"
-           th:href="@{/w/create}" th:text="#{view.workplace.create}"></a>
+        <input type="button" class="workplace-btn"
+           th:href="@{/w/create}" th:value="#{view.workplace.create}">
         <div class="row">
             <table class="table">
                 <thead>
@@ -58,13 +48,6 @@
                     <td><span th:if="${wrk.manager.id != 0}"
                               th:text="${wrk.manager.firstName} + ' ' + ${wrk.manager.lastName} + ' (' + ${wrk.manager.orionLogin} + ')'">
                     </span></td>
-                    <td><a th:href="'w/' + ${wrk.id} + '/edit'"
-                           class="btn btn-secondary w-100 common-border-radius"
-                           th:text="#{view.workplace.table-content.edit}"></a>
-                    </td>
-                    <td><a class="btn btn-secondary w-100 common-border-radius"
-                           th:text="#{view.workplace.table-content.remove}"
-                           th:href="@{'w/' + ${wrk.id} + '/delete'}"></a></td>
                 </tr>
                 </tbody>
             </table>

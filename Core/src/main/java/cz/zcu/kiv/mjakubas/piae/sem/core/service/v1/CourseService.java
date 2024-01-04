@@ -128,7 +128,7 @@ public class CourseService {
      * @param courseVO courseVO
      */
     @Transactional
-    public void createCourse(@NonNull CourseVO courseVO) {
+    public long createCourse(@NonNull CourseVO courseVO) {
         var manager = employeeRepository.fetchEmployee(courseVO.getCourseManagerId());
         if (courseVO.getDateUntil() != null && (courseVO.getDateFrom().after(courseVO.getDateUntil())))
                 {throw new ServiceException();
@@ -148,9 +148,14 @@ public class CourseService {
                 .lectureLength(courseVO.getLectureLength())
                 .term(courseVO.getTerm())
                 .exerciseLength(courseVO.getExerciseLength())
+                .description(courseVO.getDescription())
                 .credits(courseVO.getCredits());
 
-        if (!courseRepository.createCourse(course))
+        long id = courseRepository.createCourse(course);
+
+        if (id > 0)
+            return id;
+        else
             throw new ServiceException();
     }
 

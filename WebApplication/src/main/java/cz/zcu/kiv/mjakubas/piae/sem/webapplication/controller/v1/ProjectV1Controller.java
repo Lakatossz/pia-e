@@ -2,6 +2,7 @@ package cz.zcu.kiv.mjakubas.piae.sem.webapplication.controller.v1;
 
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Allocation;
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Project;
+import cz.zcu.kiv.mjakubas.piae.sem.core.domain.ProjectState;
 import cz.zcu.kiv.mjakubas.piae.sem.core.service.v1.AllocationService;
 import cz.zcu.kiv.mjakubas.piae.sem.core.service.v1.EmployeeService;
 import cz.zcu.kiv.mjakubas.piae.sem.core.service.v1.ProjectService;
@@ -14,7 +15,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -57,7 +60,8 @@ public class ProjectV1Controller {
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).PROJECT_ADMIN, " +
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN)")
     public String createProject(Model model) {
-        model.addAttribute("projectVO", new ProjectVO());
+        ProjectVO newProject = new ProjectVO().name("Nový projekt");
+        model.addAttribute("project", newProject);
 
         var projects = projectService.getProjects();
         var employees = employeeService.getEmployees();
@@ -75,12 +79,12 @@ public class ProjectV1Controller {
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT, " +
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).PROJECT_ADMIN, " +
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN)")
-    public String createProject(@ModelAttribute ProjectVO projectVO, BindingResult bindingResult, Model model) {
-        projectVO.setProjectManagerId(projectVO.getProjectManagerId());
-
-        projectService.createProject(projectVO);
-
-        return "redirect:/p?create=success";
+    public String createProject(@ModelAttribute ProjectVO projectVO,
+                                BindingResult bindingResult, Model model,
+                                RedirectAttributes redirectAttributes) {
+        long id = projectService.createProject(projectVO);
+        redirectAttributes.addAttribute("id", id);
+        return "redirect:/p/{id}/detail?create=success";
     }
 
     @PreAuthorize("hasAnyAuthority(" +
@@ -93,7 +97,7 @@ public class ProjectV1Controller {
                               @RequestParam(required = false) Boolean manage) {
         Project data = projectService.getProject(id);
 
-        model.addAttribute("projectVO",
+        model.addAttribute("project",
                 new ProjectVO()
                         .name(data.getName())
                         .projectManagerId(data.getProjectManager().getId())
@@ -104,10 +108,12 @@ public class ProjectV1Controller {
                         .description(data.getDescription())
                         .budget(data.getBudget())
                         .budgetParticipation(data.getBudgetParticipation())
-                        .participation(data.getParticipation())
                         .totalTime(data.getTotalTime())
                         .agency(data.getAgency())
-                        .grantTitle(data.getGrantTitle()));
+                        .grantTitle(data.getGrantTitle())
+                        .state(data.getState().getValue()));
+
+        model.addAttribute("states", ProjectState.values());
 
         model.addAttribute(EMPLOYEES, employeeService.getEmployees());
         model.addAttribute("workplaces", workplaceService.getWorkplaces());
@@ -162,12 +168,21 @@ public class ProjectV1Controller {
                         .budget(data.getBudget())
                         .probability(data.getProbability())
                         .budgetParticipation(data.getBudgetParticipation())
-                        .participation(data.getParticipation())
                         .totalTime(data.getTotalTime())
                         .agency(data.getAgency())
-                        .grantTitle(data.getGrantTitle()));
+                        .grantTitle(data.getGrantTitle())
+                        .state(data.getState().getValue()));
 
-        model.addAttribute(EMPLOYEES, employeeService.getEmployees());
+        model.addAttribute("states", ProjectState.values());
+
+        var employees = employeeService.getEmployees();
+        employees.forEach(employee ->
+                employee.getSubordinates().addAll(employeeService.getSubordinates(employee.getId())));
+
+        employees.forEach(employeeService::prepareProjectsCells);
+//        employees.forEach(employeeService::prepareTotalCells);
+
+        model.addAttribute(EMPLOYEES, employees);
         model.addAttribute("workplaces", workplaceService.getWorkplaces());
         model.addAttribute(RESTRICTIONS, projectService.getProjects());
         model.addAttribute("manage", manage);

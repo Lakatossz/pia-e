@@ -25,14 +25,22 @@
     <!-- content -->
     <div class="container">
         <!-- alerts -->
-        <div>
-            <div th:if="(${(param.edit != null)} or ${(param.create != null)} or ${(param.delete != null)} or ${(param.subordinate != null)})"
-                 class="alert alert-success alert-dismissible fade show" role="success">
-                <strong th:if="${(param.edit != null)}" th:text="#{view.course.alert.edit}"></strong>
-                <strong th:if="${(param.create != null)}" th:text="#{view.course.alert.create}"></strong>
-                <strong th:if="${(param.delete != null)}" th:text="#{not-implemented}"></strong>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
+        <div th:if="(${(param.edit != null)} and ${(param.edit[0] == 'success')}
+        or ${(param.create != null)} and ${(param.create[0] == 'success')}
+        or ${(param.delete != null)} or ${(param.subordinate != null)})"
+             class="alert alert-success alert-dismissible fade show">
+            <strong th:if="${(param.edit != null)} and ${(param.edit[0] == 'success')}" th:text="#{view.function.alert.edit.success}"></strong>
+            <strong th:if="${(param.create != null)}" th:text="#{view.function.alert.create}"></strong>
+            <strong th:if="${(param.delete != null)}" th:text="#{not-implemented}"></strong>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <div th:if="(${(param.edit != null)} and ${(param.edit[0] == 'failure')}
+        or ${(param.create != null)} and ${(param.create[0] == 'failure')})"
+             class="alert alert-danger alert-dismissible fade show">
+            <strong th:if="${(param.edit != null)} and ${(param.edit[0] == 'failure')}" th:text="#{view.function.alert.edit.failure}"></strong>
+            <strong th:if="${(param.create != null)}" th:text="#{view.function.alert.create}"></strong>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
 
         <h1 class="text-center mt-5" th:text="#{view.function_detail.header} + ' ' + ${function.getName()}"></h1>
@@ -43,42 +51,54 @@
             <table>
                 <tr>
                     <td class="function-detail-div">
-                        <label class="function-detail-label" for="shortcut" th:text="#{view.function_detail.shortcut}"/>
-                        <input class="function-detail-input" type="text" id="shortcut" name="shortcut" th:field="*{shortcut}">
-                    </td>
-                    <td class="function-detail-div">
-                        <label class="function-detail-label" for="from" th:text="#{view.function_detail.from}"/>
-                        <input class="function-detail-input" th:type="date" id="from" name="from" th:field="*{dateFrom}">
-                    </td>
-                    <td th:rowspan="5" th:width="700px" class="function-detail-div" style="align-items: center">
-                        <label class="function-detail-label" for="description" th:text="#{view.function_detail.description}"/>
-                        <textarea class="function-detail-input" type="text"
-                                  th:rows="${function.getDescription().length() / 100}" th:cols="100"
-                                  id="description" name="description" th:field="*{description}"></textarea>
+                        <label class="function-detail-label" for="shortcut"
+                               th:text="#{view.function_detail.shortcut}" th:required="true"/>
+                        <input class="function-detail-input" type="text"
+                               id="shortcut" name="shortcut" th:field="*{shortcut}">
                     </td>
                 </tr>
                 <tr>
                     <td class="function-detail-div">
-                        <label class="function-detail-label" for="name" th:text="#{view.function_detail.name}"/>
-                        <input class="function-detail-input" type="text" id="name" name="name" th:field="*{name}">
-                    </td>
-                    <td class="function-detail-div">
-                        <label class="function-detail-label" for="until" th:text="#{view.function_detail.until}"/>
-                        <input class="function-detail-input" type="date" id="until" name="until" th:field="*{dateUntil}">
+                        <label class="function-detail-label" th:required="true"
+                               for="name" th:text="#{view.function_detail.name}"/>
+                        <input class="function-detail-input" type="text"
+                               id="name" name="name" th:field="*{name}">
                     </td>
                 </tr>
                 <tr>
                     <td class="function-detail-div">
-                        <label class="function-detail-label" for="director" th:text="#{view.function_detail.director}"/>
-                        <select class="function-detail-input" id="director" name="director" th:field="*{functionManagerId}">
+                        <label class="function-detail-label" for="director"
+                               th:text="#{view.function_detail.director}"  th:required="true"/>
+                        <select class="function-detail-input"
+                                id="director" name="director" th:field="*{functionManagerId}">
                             <option th:each="mng : ${employees}" th:value="${mng.getId()}"
                                     th:text="${mng.getLastName()} + ' ' + ${mng.getFirstName()}">
                             </option>
                         </select>
                     </td>
+                </tr>
+                <tr>
                     <td class="function-detail-div">
-                        <label class="function-detail-label" for="workplace" th:text="#{view.function_detail.director}"/>
-                        <select class="function-detail-input" id="workplace" name="workplace" th:field="*{functionWorkplace}">
+                        <label class="function-detail-label" for="from"
+                               th:text="#{view.function_detail.from}" th:required="true"/>
+                        <input class="function-detail-input" th:type="date"
+                               id="from" name="from" th:field="*{dateFrom}">
+                    </td>
+                </tr>
+                <tr>
+                    <td class="function-detail-div">
+                        <label class="function-detail-label" th:required="true"
+                               for="until" th:text="#{view.function_detail.until}"/>
+                        <input class="function-detail-input" type="date"
+                               id="until" name="until" th:field="*{dateUntil}">
+                    </td>
+                </tr>
+                <tr>
+                    <td class="function-detail-div">
+                        <label class="function-detail-label" for="workplace"
+                               th:text="#{view.function_detail.director}" th:required="true"/>
+                        <select class="function-detail-input"
+                                id="workplace" name="workplace" th:field="*{functionWorkplace}">
                             <option th:each="wrk : ${workplaces}" th:value="${wrk.getId()}"
                                     th:text="${wrk.getFullName()}">
                             </option>
@@ -86,9 +106,26 @@
                     </td>
                 </tr>
                 <tr>
-                    <td th:colspan="3">
-                        <input id="form-submit" class="employee-detail-btn" type="submit"
+                    <td class="function-detail-div">
+                        <label class="function-detail-label" for="description"
+                               th:text="#{view.function_detail.description}"/>
+                        <textarea contenteditable class="function-text-area" type="text"
+                                  th:rows="${function.getDescription().length() / 100}" th:cols="100"
+                                  id="description" name="description" th:field="*{description}"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="flex-duo">
+                        <input id="form-submit" class="employee-detail-btn"
+                               th:attr="onclick=|return empty('#{view.function_detail.submit.empty}')|"
+                               th:formaction="'/f/' + ${id} + '/edit'" type="submit"
                                th:value="#{view.function_detail.submit}">
+                        <!-- an delete button link -->
+                        <input id="form-delete" class="employee-detail-btn"
+                               th:formaction="'/f/' + ${id} + '/delete'" type="submit"
+                               th:value="#{view.function_detail.delete}"
+                               th:data-confirm-delete="#{view.function_detail.delete.confirm}"
+                               onclick="if (!confirm(this.getAttribute('data-confirm-delete'))) return false">
                     </td>
                 </tr>
             </table>
@@ -98,4 +135,23 @@
 
 <div th:replace="~{fragments/footer}">Footer</div>
 </body>
+
+<script>
+    function empty(message) {
+        var x;
+        console.log(message);
+        x = document.getElementById("shortcut").value;
+        if (x === "") {
+            window.location.replace(location.protocol + '//' + location.host + location.pathname + '?edit=failure');
+            return false;
+        }
+        x = document.getElementById("name").value;
+        if (x === "") {
+            window.location.replace(location.protocol + '//' + location.host + location.pathname + '?edit=failure');
+            return false;
+        }
+    }
+
+</script>
+
 </html>

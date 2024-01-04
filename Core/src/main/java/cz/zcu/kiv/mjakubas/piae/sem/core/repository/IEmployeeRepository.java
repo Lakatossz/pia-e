@@ -48,9 +48,9 @@ public interface IEmployeeRepository {
      * Throws runtime exception if any problem occurs.
      *
      * @param employee given {@link Employee} data
-     * @return true if employee was successfully created else returns false
+     * @return id of newly created entity
      */
-    public boolean createEmployee(@NonNull Employee employee);
+    public long createEmployee(@NonNull Employee employee);
 
     /**
      * Updates existing {@link Employee} from given employee data and employee id.

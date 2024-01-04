@@ -59,25 +59,30 @@ public class WorkplaceService {
      * @param workplaceVO value object
      */
     @Transactional
-    public void createWorkplace(@NonNull WorkplaceVO workplaceVO) {
+    public long createWorkplace(@NonNull WorkplaceVO workplaceVO) {
         Workplace workplace = Workplace.builder()
                 .abbreviation(workplaceVO.getAbbreviation())
                 .fullName(workplaceVO.getName())
                 .build();
 
-        if (!workplaceRepository.createWorkplace(workplace))
+        long id = workplaceRepository.createWorkplace(workplace);
+
+        if (id > 0)
+            return id;
+        else
             throw new ServiceException();
     }
 
     @Transactional
     public void updateWorkplace(@NonNull WorkplaceVO workplaceVO, long id) {
-        Employee manager = (workplaceVO.getManager() == null) ? null : employeeService.getEmployee(workplaceVO.getManager());
+        Employee manager = employeeService.getEmployee(workplaceVO.getManager());
 
         Workplace workplace = Workplace.builder()
                 .id(id)
                 .abbreviation(workplaceVO.getAbbreviation())
                 .fullName(workplaceVO.getName())
                 .manager(manager)
+                .description(workplaceVO.getDescription())
                 .build();
 
         if (!workplaceRepository.updateWorkplace(workplace, id))

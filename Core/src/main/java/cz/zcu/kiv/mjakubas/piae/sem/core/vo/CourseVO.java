@@ -44,6 +44,7 @@ public class CourseVO {
     private Date introduced;
     private int lectureRequired;
     private int exerciseRequired;
+    private String description;
 
     public CourseVO id(long id) {
         this.id = id;
@@ -136,6 +137,11 @@ public class CourseVO {
         return this;
     }
 
+    public CourseVO description(String description) {
+        this.description = description;
+        return this;
+    }
+
     @Override
     public String toString() {
         return "CourseVO{" +
@@ -154,6 +160,7 @@ public class CourseVO {
                 ", introduced=" + introduced +
                 ", lectureRequired=" + lectureRequired +
                 ", exerciseRequired=" + exerciseRequired +
+                ", description=" + description +
                 '}';
     }
 }

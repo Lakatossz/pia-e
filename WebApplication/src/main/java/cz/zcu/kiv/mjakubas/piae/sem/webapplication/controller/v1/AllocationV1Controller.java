@@ -12,6 +12,8 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.http.HttpRequest;
+
 /**
  * Contains all sites for working with allocations.
  */
@@ -86,7 +88,8 @@ public class AllocationV1Controller {
 
     @PreAuthorize("@securityService.isAtLeastProjectManager() or @securityService.isWorkplaceManager(#id)")
     @PostMapping("{id}/edit")
-    public String editAllocation(Model model, @PathVariable long id, @ModelAttribute AllocationVO allocationVO) {
+    public String editAllocation(Model model, @PathVariable long id,
+                                 @ModelAttribute AllocationVO allocationVO) {
         var projectId = allocationVO.getProjectId();
 
         allocationService.updateAllocation(allocationVO, id);

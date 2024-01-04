@@ -49,9 +49,9 @@ public interface IProjectRepository {
      * Throws runtime exception if any problem occurs.
      *
      * @param project given {@link Project} data
-     * @return true if workplace was successfully created else returns false
+     * @return id of newly created entity
      */
-    public boolean createProject(@NonNull Project project);
+    public long createProject(@NonNull Project project);
 
     /**
      * Updates existing {@link Project} from given workplace data and workplace id.

@@ -12,9 +12,9 @@ public interface IUserRepository {
      *
      * @param employeeId employee id
      * @param password   password
-     * @return true if user was created successfully
+     * @return id of newly created entity
      */
-    public boolean createNewUser(long employeeId, @NonNull String password);
+    public long createNewUser(long employeeId, @NonNull String password);
 
     /**
      * Adds new role to user by its employee orion login.

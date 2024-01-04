@@ -50,9 +50,9 @@ public interface IWorkplaceRepository {
      * Throws runtime exception if any problem occurs.
      *
      * @param workplace given {@link Workplace} data
-     * @return true if workplace was successfully created else returns false
+     * @return id of newly created entity
      */
-    public boolean createWorkplace(@NonNull Workplace workplace);
+    public long createWorkplace(@NonNull Workplace workplace);
 
     /**
      * Updates existing {@link Workplace} from given workplace data and workplace id.

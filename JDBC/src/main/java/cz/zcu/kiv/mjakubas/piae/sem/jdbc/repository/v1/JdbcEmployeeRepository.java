@@ -9,9 +9,11 @@ import lombok.NonNull;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Objects;
 
 @Primary
 @Repository
@@ -90,7 +92,7 @@ public class JdbcEmployeeRepository implements IEmployeeRepository {
     }
 
     @Override
-    public boolean createEmployee(@NonNull Employee employee) {
+    public long createEmployee(@NonNull Employee employee) {
         var sql = """
                 INSERT INTO employee
                 (emp_enabled, emp_workplace_id, emp_first_name, emp_last_name, emp_orion_login, emp_email)
@@ -98,7 +100,10 @@ public class JdbcEmployeeRepository implements IEmployeeRepository {
                 (:emp_enabled, :emp_workplace_id, :emp_first_name, :emp_last_name, :emp_orion_login, :emp_email)
                 """;
 
-        return jdbcTemplate.update(sql, prepareParams(employee)) == 1;
+        GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update(sql, prepareParams(employee), keyHolder);
+
+        return Objects.requireNonNull(keyHolder.getKey()).intValue();
     }
 
     @Override

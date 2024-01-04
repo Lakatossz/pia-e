@@ -8,9 +8,11 @@ import lombok.NonNull;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * JDBC implementation of {@link IAllocationRepository}.
@@ -134,7 +136,7 @@ public class JdbcAllocationRepository implements IAllocationRepository {
     }
 
     @Override
-    public boolean createAllocation(@NonNull Allocation allocation) {
+    public long createAllocation(@NonNull Allocation allocation) {
         var sql = """
                 INSERT INTO assignment
                 (ass_enabled, ass_employee_id, ass_project_id, ass_course_id, ass_function_id, ass_active_from, ass_active_until, ass_scope, ass_description, ass_active)
@@ -142,7 +144,10 @@ public class JdbcAllocationRepository implements IAllocationRepository {
                 (:isEnabled, :eId, :pId, :cId, :fId, :aFrom, :aUntil, :scope, :descr, :active)
                 """;
 
-        return jdbcTemplate.update(sql, prepareParams(allocation)) == 1;
+        GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update(sql, prepareParams(allocation), keyHolder);
+
+        return Objects.requireNonNull(keyHolder.getKey()).intValue();
     }
 
     @Override

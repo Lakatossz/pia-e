@@ -17,12 +17,13 @@ public class WorkplaceMapper implements RowMapper<Workplace> {
         String abbreviation = rs.getString("wrk_abbrevation");
         String fullName = rs.getString("wrk_name");
         Employee manager = null;
+        String description = rs.getString("wrk_description");
         try {
             manager = EMPLOYEE_MAPPER.mapRow(rs, rowNum);
         } catch (Exception e) {
             //ignored
         }
 
-        return new Workplace(id, abbreviation, fullName, manager);
+        return new Workplace(id, abbreviation, fullName, manager, description);
     }
 }

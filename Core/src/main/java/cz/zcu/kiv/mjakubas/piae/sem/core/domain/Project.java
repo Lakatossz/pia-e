@@ -1,6 +1,5 @@
 package cz.zcu.kiv.mjakubas.piae.sem.core.domain;
 
-import cz.zcu.kiv.mjakubas.piae.sem.core.vo.AllocationCellVO;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,12 +21,12 @@ public class Project extends Activity {
     private Workplace projectWorkplace;
     private Integer budget;
     private Integer budgetParticipation;
-    private Integer participation;
     private Integer totalTime;
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date introduced;
     private String agency;
     private String grantTitle;
+    private ProjectState state;
     private List<Employee> employees = new ArrayList<>();
     private List<Float> yearAllocation = new ArrayList<>(Collections.nCopies(12, (float) 0));
     private List<Allocation> projectAllocations = new ArrayList<>();
@@ -95,7 +94,6 @@ public class Project extends Activity {
     }
 
     public Project participation(Integer participation) {
-        this.participation = participation;
         return this;
     }
 
@@ -116,6 +114,11 @@ public class Project extends Activity {
 
     public Project grantTitle(String grantTitle) {
         this.grantTitle = grantTitle;
+        return this;
+    }
+
+    public Project state(ProjectState state) {
+        this.state = state;
         return this;
     }
 
@@ -142,11 +145,11 @@ public class Project extends Activity {
                 ", projectWorkplace=" + projectWorkplace +
                 ", budget=" + budget +
                 ", budgetParticipation=" + budgetParticipation +
-                ", participation=" + participation +
                 ", totalTime=" + totalTime + '\'' +
                 ", introduced=" + introduced +
                 ", agency=" + agency +
                 ", grantTitle=" + grantTitle +
+                ", state=" + state +
                 ", employees=" + employees +
                 ", yearAllocation=" + yearAllocation +
                 ", projectAllocations=" + projectAllocations +

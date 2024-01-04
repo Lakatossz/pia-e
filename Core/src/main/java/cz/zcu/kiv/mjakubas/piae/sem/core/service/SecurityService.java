@@ -55,11 +55,14 @@ public class SecurityService {
      * @param id       user id
      * @param password plaintext password
      */
-    public void createUserUser(@NonNull long id, @NonNull String password) {
+    public long createUserUser(@NonNull long id, @NonNull String password) {
         var pw = passwordEncoder.encode(password);
-        if (!userRepository.createNewUser(id, pw)) {
+        long userId = userRepository.createNewUser(id, pw);
+
+        if (userId > 0)
+            return userId;
+        else
             throw new ServiceException();
-        }
     }
 
     /**
@@ -235,8 +238,9 @@ public class SecurityService {
      * @param employeeVO employee VO
      */
     @Transactional
-    public void createUserAccount(@NonNull EmployeeVO employeeVO) {
-        employeeService.createEmployee(employeeVO);
+    public long createUserAccount(@NonNull EmployeeVO employeeVO) {
+        long id = employeeService.createEmployee(employeeVO);
         createUser(employeeVO.getOrionLogin(), employeeVO.getPassword());
+        return id;
     }
 }

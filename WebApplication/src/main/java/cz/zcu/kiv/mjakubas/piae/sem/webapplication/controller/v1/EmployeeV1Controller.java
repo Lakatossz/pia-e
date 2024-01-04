@@ -16,6 +16,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.Date;
 import java.util.List;
@@ -77,7 +78,7 @@ public class EmployeeV1Controller {
     @PreAuthorize("hasAnyAuthority(" +
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT, " +
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN)")
-    public String createEmployee(Model model) {
+    public String createEmployee(Model model, RedirectAttributes redirectAttributes) {
         var employees = employeeService.getEmployees();
         var workplaces = workplaceService.getWorkplaces();
 
@@ -85,6 +86,8 @@ public class EmployeeV1Controller {
         model.addAttribute(WORKLPACES, workplaces);
 
         var employeeVO = new EmployeeVO();
+        employeeVO.setFirstName("Nový");
+        employeeVO.setLastName("Uživatel");
         employeeVO.setPassword(RandomStringUtils.random(7, true, false));
         model.addAttribute(USER_VO, employeeVO);
         return "forms/employee/create_employee_form";
@@ -94,9 +97,13 @@ public class EmployeeV1Controller {
     @PreAuthorize("hasAnyAuthority(" +
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT, " +
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN)")
-    public String createEmployee(@ModelAttribute EmployeeVO employeeVO, BindingResult errors, Model model) {
-        securityService.createUserAccount(employeeVO);
-        return "redirect:/e?create=success";
+    public String createEmployee(@ModelAttribute EmployeeVO employeeVO,
+                                 BindingResult errors, Model model,
+                                 RedirectAttributes redirectAttributes) {
+        long id = securityService.createUserAccount(employeeVO);
+
+        redirectAttributes.addAttribute("id", id);
+        return "redirect:/e/{id}/detail?create=success";
     }
 
     @GetMapping("/{id}/detail")

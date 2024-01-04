@@ -24,6 +24,7 @@ import java.util.Date;
 public class ProjectVO {
 
     private String name;
+    private String shortcut;
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date dateFrom;
     @DateTimeFormat(pattern = "yyyy-MM-dd")
@@ -35,15 +36,20 @@ public class ProjectVO {
     private String description;
     private Integer budget;
     private Integer budgetParticipation;
-    private Integer participation;
     private Integer totalTime;
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date introduced;
     private String agency;
     private String grantTitle;
+    private String state;
 
     public ProjectVO name(String name) {
         this.name = name;
+        return this;
+    }
+
+    public ProjectVO shortcut(String shortcut) {
+        this.shortcut = shortcut;
         return this;
     }
 
@@ -93,7 +99,6 @@ public class ProjectVO {
     }
 
     public ProjectVO participation(Integer participation) {
-        this.participation = participation;
         return this;
     }
 
@@ -117,10 +122,16 @@ public class ProjectVO {
         return this;
     }
 
+    public ProjectVO state(String state) {
+        this.state = state;
+        return this;
+    }
+
     @Override
     public String toString() {
         return "ProjectVO{" +
                 "name='" + name + '\'' +
+                ", shortcut='" + shortcut + '\'' +
                 ", dateFrom=" + dateFrom +
                 ", dateUntil=" + dateUntil +
                 ", projectManagerId='" + projectManagerId + '\'' +
@@ -130,6 +141,7 @@ public class ProjectVO {
                 ", budgetParticipation=" + budgetParticipation +
                 ", agency=" + agency +
                 ", grantTitle=" + grantTitle +
+                ", state=" + state +
                 ", introduced=" + introduced +
                 ", description='" + description + '\'' +
                 '}';

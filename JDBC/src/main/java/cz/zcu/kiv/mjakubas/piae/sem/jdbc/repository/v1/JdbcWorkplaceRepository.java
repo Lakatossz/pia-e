@@ -10,9 +10,11 @@ import lombok.NonNull;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Objects;
 
 @Primary
 @Repository
@@ -87,20 +89,24 @@ public class JdbcWorkplaceRepository implements IWorkplaceRepository {
     }
 
     @Override
-    public boolean createWorkplace(@NonNull Workplace workplace) {
+    public long createWorkplace(@NonNull Workplace workplace) {
         var sql = """
                 INSERT INTO workplace
-                (wrk_enabled, wrk_abbrevation, wrk_name)
+                (wrk_enabled, wrk_abbrevation, wrk_name, wrk_description)
                 VALUES
-                (:wrk_enabled, :wrk_abbreviation, :wrk_name)
+                (:wrk_enabled, :wrk_abbreviation, :wrk_name, :wrk_description)
                 """;
 
         var params = new MapSqlParameterSource();
         params.addValue("wrk_enabled", true);
         params.addValue("wrk_abbreviation", workplace.getAbbreviation());
         params.addValue("wrk_name", workplace.getFullName());
+        params.addValue("wrk_description", workplace.getDescription());
 
-        return jdbcTemplate.update(sql, params) == 1;
+        GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update(sql, params, keyHolder);
+
+        return Objects.requireNonNull(keyHolder.getKey()).intValue();
     }
 
     @Override
@@ -108,7 +114,7 @@ public class JdbcWorkplaceRepository implements IWorkplaceRepository {
         var sql = """
                 UPDATE workplace
                 SET wrk_enabled = :wrk_enabled, wrk_abbrevation = :wrk_abbrevation,
-                 wrk_name = :wrk_name, wrk_manager_id = :wrk_manager_id
+                 wrk_name = :wrk_name, wrk_manager_id = :wrk_manager_id, wrk_description = :wrk_description
                 WHERE workplace_id = :workplace_id;
                 """;
 
@@ -119,6 +125,7 @@ public class JdbcWorkplaceRepository implements IWorkplaceRepository {
         if (workplace.getManager() != null) params.addValue("wrk_manager_id", workplace.getManager().getId());
         else params.addValue("wrk_manager_id", null);
         params.addValue("workplace_id", workplace.getId());
+        params.addValue("wrk_description", workplace.getDescription());
 
         var rowsUpdated = jdbcTemplate.update(sql, params);
 

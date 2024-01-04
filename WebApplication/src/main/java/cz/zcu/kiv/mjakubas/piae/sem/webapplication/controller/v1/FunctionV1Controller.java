@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 
@@ -79,11 +80,14 @@ public class FunctionV1Controller {
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT, " +
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).FUNCTION_ADMIN, " +
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN)")
-    public String createFunction(@ModelAttribute FunctionVO functionVO, BindingResult bindingResult, Model model) {
+    public String createFunction(@ModelAttribute FunctionVO functionVO,
+                                 BindingResult bindingResult, Model model,
+                                 RedirectAttributes redirectAttributes) {
 
-        functionService.createFunction(functionVO);
+        long id = functionService.createFunction(functionVO);
 
-        return "redirect:/f?create=success";
+        redirectAttributes.addAttribute("id", id);
+        return "redirect:/f/{id}/detail?create=success";
     }
 
     @GetMapping("/{id}/edit")

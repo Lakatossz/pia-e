@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.Date;
 import java.util.LinkedList;
@@ -64,7 +65,8 @@ public class CourseV1Controller {
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).COURSE_SUPERVISOR, " +
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN)")
     public String createCourse(Model model) {
-        model.addAttribute("courseVO", new CourseVO());
+        CourseVO newCourse = new CourseVO().name("Nový projekt");
+        model.addAttribute("course", newCourse);
 
         var courses = courseService.getCourses();
         var employees = employeeService.getEmployees();
@@ -83,10 +85,13 @@ public class CourseV1Controller {
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).COURSE_SCHEDULER, " +
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).COURSE_SUPERVISOR, " +
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN)")
-    public String createCourse(@ModelAttribute CourseVO courseVO, BindingResult bindingResult, Model model) {
-        courseService.createCourse(courseVO);
+    public String createCourse(@ModelAttribute CourseVO courseVO,
+                               BindingResult bindingResult, Model model,
+                               RedirectAttributes redirectAttributes) {
+        long id = courseService.createCourse(courseVO);
 
-        return "redirect:/c?create=success";
+        redirectAttributes.addAttribute("id", id);
+        return "redirect:/c/{id}/detail?create=success";
     }
 
     @GetMapping("/{id}/edit")
@@ -168,6 +173,7 @@ public class CourseV1Controller {
         model.addAttribute("counts", counts);
 
         model.addAttribute("allocations", allocations);
+
         model.addAttribute("course",
                 new CourseVO()
                         .name(data.getName())

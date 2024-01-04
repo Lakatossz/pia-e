@@ -19,15 +19,15 @@
     <!-- jquery -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 </head>
-<body class="d-flex flex-column min-vh-100 employees-body">
+<body class="d-flex flex-column min-vh-100">
 <div th:replace="~{fragments/navbar}">Navbar</div>
 <div class="container-fluid">
     <!-- content -->
     <div class="container">
         <!-- table -->
         <h1 class="text-center mt-5" th:text="#{view.employee.header}"></h1>
-<!--        <a type="button" class="btn btn-primary common-border-radius"-->
-<!--           th:href="@{/e/create}" th:text="#{view.employee.create}"></a>-->
+        <input type="button" class="employee-btn"
+           th:href="@{/e/create}" th:value="#{view.employee.create}">
         <div class="row">
             <table class="table">
                 <thead>

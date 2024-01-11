@@ -53,7 +53,7 @@
                                 <td class="course-cell" th:rowspan="${crs.getCourseAllocations().size() + 1}">
                                     <a type="button" class="btn collapsible btn-detail" th:href="@{/c/{CRS_ID}/detail(CRS_ID=${crs.getId()})}"></a>
                                 </td>
-                                <td class="course-cell" th:rowspan="${crs.getCourseAllocations().size() + 1}" th:text="${crs.getName()}"></td>
+                                <td class="course-cell" th:rowspan="${crs.getCourseAllocations().size() + 1}" th:text="${crs.getShortcut()}"></td>
                                 <td class="course-cell" th:rowspan="${crs.getCourseAllocations().size() + 1}" th:text="${crs.getNumberOfStudents()}"></td>
                                 <td class="course-cell" th:rowspan="${crs.getCourseAllocations().size() + 1}" th:text="${crs.getCredits()}"></td>
                                 <td class="course-cell" th:text="${firstAllocations.get(crsStats.index).getWorker().getLastName()}"></td>

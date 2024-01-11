@@ -6,6 +6,7 @@ import cz.zcu.kiv.mjakubas.piae.sem.core.service.v1.AllocationService;
 import cz.zcu.kiv.mjakubas.piae.sem.core.service.v1.CourseService;
 import cz.zcu.kiv.mjakubas.piae.sem.core.service.v1.EmployeeService;
 import cz.zcu.kiv.mjakubas.piae.sem.core.service.v1.WorkplaceService;
+import cz.zcu.kiv.mjakubas.piae.sem.core.vo.AllocationVO;
 import cz.zcu.kiv.mjakubas.piae.sem.core.vo.CourseVO;
 import cz.zcu.kiv.mjakubas.piae.sem.core.vo.EmployeeVO;
 import lombok.AllArgsConstructor;
@@ -21,8 +22,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.ArrayList;
 import java.util.Date;
-import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -51,7 +52,7 @@ public class CourseV1Controller {
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN)")
     public String getCourses(Model model) {
         var courses = courseService.getCourses();
-        List<Allocation> firstAllocations = courseService.prepareFirst(courses);
+        List<Allocation> firstAllocations = courseService.getFirstAllocationsForEachCourse(courses);
 
         model.addAttribute("courses", courses);
         model.addAttribute("firstAllocations", firstAllocations);
@@ -107,6 +108,7 @@ public class CourseV1Controller {
 
         model.addAttribute("courseVO",
                 new CourseVO()
+                        .id(data.getId())
                         .name(data.getName())
                         .shortcut(data.getShortcut())
                         .courseManagerId(data.getCourseManager().getId())
@@ -164,31 +166,53 @@ public class CourseV1Controller {
             " or @securityService.isCourseManager(#id) or @securityService.isWorkplaceManager(#id)")
     public String detailCourse(Model model, @PathVariable long id,
                                @RequestParam(required = false) Boolean manage) {
-        Course data = courseService.getCourse(id);
+        Course course = courseService.getCourse(id);
         var allocations = allocationService.getCourseAllocations(id).getAllocations();
-        List<Integer> years = courseService.prepareYearsForDetail(allocations);
-        List<Integer> counts = courseService.prepareCountsDetail(allocations);
-
-        model.addAttribute("years", years);
-        model.addAttribute("counts", counts);
-
         model.addAttribute("allocations", allocations);
+
+        List<List<AllocationVO>> allocationsByEars = new ArrayList<>();
+        for (List<Allocation> allList : course.getAllocationsByYears()) {
+            List<AllocationVO> list = new ArrayList<>();
+            for (Allocation all : allList) {
+                var allVO = new AllocationVO();
+                allVO.setId(all.getId());
+                allVO.setCourseId(all.getCourse().getId());
+                allVO.setEmployeeId(all.getWorker().getId());
+                allVO.setAllocationScope(all.getAllocationScope());
+                allVO.setDateFrom(all.getDateFrom());
+                allVO.setDateUntil(all.getDateUntil());
+                allVO.setRole(all.getRole());
+                allVO.setDescription(all.getDescription());
+                allVO.setIsCertain(all.getIsCertain());
+                list.add(allVO);
+            }
+            allocationsByEars.add(list);
+        }
 
         model.addAttribute("course",
                 new CourseVO()
-                        .name(data.getName())
-                        .shortcut(data.getShortcut())
-                        .courseManagerId(data.getCourseManager().getId())
-                        .courseManagerName(data.getCourseManager().getLastName())
-                        .courseWorkplace(data.getCourseWorkplace().getId())
-                        .dateFrom(data.getDateFrom())
-                        .dateUntil(data.getDateUntil())
+                        .name(course.getName())
+                        .shortcut(course.getShortcut())
+                        .courseManagerId(course.getCourseManager().getId())
+                        .courseManagerName(course.getCourseManager().getLastName())
+                        .courseWorkplace(course.getCourseWorkplace().getId())
+                        .dateFrom(course.getDateFrom())
+                        .dateUntil(course.getDateUntil())
                         .introduced(new Date())
-                        .term(data.getTerm())
-                        .lectureRequired(data.getLectureRequired())
-                        .exerciseRequired(data.getExerciseRequired()));
+                        .term(course.getTerm())
+                        .lectureRequired(course.getLectureRequired())
+                        .exerciseRequired(course.getExerciseRequired())
+                        .allocationsByYears(allocationsByEars)
+                        .years(course.getYears()));
 
-        model.addAttribute(EMPLOYEES, employeeService.getEmployees());
+        var employees = employeeService.getEmployees();
+
+        employees.forEach(employeeService::prepareProjectsCells);
+        employees.forEach(employeeService::prepareTotalCells);
+
+        model.addAttribute("allocationsByYears", allocationsByEars);
+
+        model.addAttribute(EMPLOYEES, employees);
         model.addAttribute("workplaces", workplaceService.getWorkplaces());
         model.addAttribute(RESTRICTIONS, courseService.getCourses());
         model.addAttribute("manage", manage);

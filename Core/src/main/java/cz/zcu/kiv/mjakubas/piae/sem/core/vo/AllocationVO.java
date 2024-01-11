@@ -23,17 +23,19 @@ import java.util.Date;
 @Data
 public class AllocationVO {
 
+    private long id;
     private long employeeId;
     private long projectId;
     private long courseId;
     private long functionId;
     private float allocationScope;  // in x/FTE
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @DateTimeFormat(pattern = "dd-MM-yyyy")
     private Date dateFrom;
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @DateTimeFormat(pattern = "dd-MM-yyyy")
     private Date dateUntil;
     private String description;
     private String role;
+    private float isCertain;
 
     private Boolean isActive = true;
 }

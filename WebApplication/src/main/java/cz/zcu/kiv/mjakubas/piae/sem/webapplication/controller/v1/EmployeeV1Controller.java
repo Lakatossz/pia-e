@@ -123,7 +123,7 @@ public class EmployeeV1Controller {
         var projects = projectService.getEmployeeProjects(id);
         List<Allocation> firstProjectsAllocations = projectService.prepareFirst(projects);
         var courses = courseService.getEmployeesCourses(id);
-        List<Allocation> firstCoursesAllocations = courseService.prepareFirst(courses);
+        List<Allocation> firstCoursesAllocations = courseService.getFirstAllocationsForEachCourse(courses);
 
         var functions = functionService.getEmployeeFunctions(id);
         List<Allocation> firstFunctionsAllocations = functionService.prepareFirst(functions);

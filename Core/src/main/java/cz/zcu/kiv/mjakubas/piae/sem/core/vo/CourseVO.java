@@ -8,7 +8,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Value object for representing {@link Course}.
@@ -45,6 +47,9 @@ public class CourseVO {
     private int lectureRequired;
     private int exerciseRequired;
     private String description;
+
+    private List<List<AllocationVO>> allocationsByYears = new ArrayList<>();
+    private List<Integer> years = new ArrayList<>();
 
     public CourseVO id(long id) {
         this.id = id;
@@ -139,6 +144,16 @@ public class CourseVO {
 
     public CourseVO description(String description) {
         this.description = description;
+        return this;
+    }
+
+    public CourseVO allocationsByYears(List<List<AllocationVO>> allocationsByYears) {
+        this.allocationsByYears.addAll(allocationsByYears);
+        return this;
+    }
+
+    public CourseVO years(List<Integer> years) {
+        this.years.addAll(years);
         return this;
     }
 

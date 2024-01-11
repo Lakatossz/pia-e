@@ -87,23 +87,25 @@ public class AllocationService {
     @Transactional
     public void updateAllocation(AllocationVO allocationVO, long id) {
         int scope = (int) (allocationVO.getAllocationScope() * 40 * 60); // fte to minutes
-        var allocationProject = projectRepository.fetchProject(allocationVO.getProjectId());
-        if (allocationVO.getDateFrom().before(allocationProject.getDateFrom()) || allocationVO.getDateUntil().after(allocationProject.getDateUntil()))
-            throw new ServiceException();
-
-        var allocationCourse = courseRepository.fetchCourse(allocationVO.getCourseId());
-        if (allocationVO.getDateFrom().before(allocationCourse.getDateFrom()) || allocationVO.getDateUntil().after(allocationCourse.getDateUntil()))
-            throw new ServiceException();
-
-        var allocationFunction = functionRepository.fetchFunction(allocationVO.getFunctionId());
-        if (allocationVO.getDateFrom().before(allocationFunction.getDateFrom()) || allocationVO.getDateUntil().after(allocationFunction.getDateUntil()))
-            throw new ServiceException();
+        if (allocationVO.getProjectId() > 0) {
+            var allocationProject = projectRepository.fetchProject(allocationVO.getProjectId());
+            if (allocationVO.getDateFrom().before(allocationProject.getDateFrom()) || allocationVO.getDateUntil().after(allocationProject.getDateUntil()))
+                throw new ServiceException();
+        } else if (allocationVO.getCourseId() > 0) {
+            var allocationCourse = courseRepository.fetchCourse(allocationVO.getCourseId());
+            if (allocationVO.getDateFrom().before(allocationCourse.getDateFrom()) || allocationVO.getDateUntil().after(allocationCourse.getDateUntil()))
+                throw new ServiceException();
+        } else {
+            var allocationFunction = functionRepository.fetchFunction(allocationVO.getFunctionId());
+            if (allocationVO.getDateFrom().before(allocationFunction.getDateFrom()) || allocationVO.getDateUntil().after(allocationFunction.getDateUntil()))
+                throw new ServiceException();
+        }
 
         Allocation allocation = new Allocation()
                 .worker(new Employee().id(allocationVO.getEmployeeId()))
-                .project(new Project().id(allocationVO.getProjectId()))
-                .course(new Course().id(allocationVO.getCourseId()))
-                .function(new Function().id(allocationVO.getFunctionId()))
+                .project(allocationVO.getProjectId() > 0 ? new Project().id(allocationVO.getProjectId()) : null)
+                .course(allocationVO.getCourseId() > 0 ? new Course().id(allocationVO.getCourseId()) : null)
+                .function(allocationVO.getFunctionId() > 0 ? new Function().id(allocationVO.getFunctionId()) : null)
                 .role(allocationVO.getRole())
                 .allocationScope(scope)
                 .dateFrom(allocationVO.getDateFrom())

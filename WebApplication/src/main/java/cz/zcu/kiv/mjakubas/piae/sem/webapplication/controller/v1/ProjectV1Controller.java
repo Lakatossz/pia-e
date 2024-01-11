@@ -180,7 +180,7 @@ public class ProjectV1Controller {
                 employee.getSubordinates().addAll(employeeService.getSubordinates(employee.getId())));
 
         employees.forEach(employeeService::prepareProjectsCells);
-//        employees.forEach(employeeService::prepareTotalCells);
+        employees.forEach(employeeService::prepareTotalCells);
 
         model.addAttribute(EMPLOYEES, employees);
         model.addAttribute("workplaces", workplaceService.getWorkplaces());

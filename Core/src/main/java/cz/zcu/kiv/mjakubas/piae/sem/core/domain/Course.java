@@ -31,10 +31,15 @@ public class Course extends Activity {
     private Date introduced;
     private int lectureRequired;
     private int exerciseRequired;
+
 //    Values joined from different tables.
     private List<Employee> employees = new ArrayList<>();
     private List<Float> yearAllocation = new ArrayList<>(Collections.nCopies(12, (float) 0));
     private List<Allocation> courseAllocations = new ArrayList<>();
+
+//    Values for course details table by years
+    private List<List<Allocation>> allocationsByYears = new ArrayList<>();
+    private List<Integer> years = new ArrayList<>();
 
     @Override
     public Course id(long id) {
@@ -146,6 +151,16 @@ public class Course extends Activity {
 
     public Course courseAllocations(List<Allocation> courseAllocations) {
         this.courseAllocations.addAll(courseAllocations);
+        return this;
+    }
+
+    public Course allocationsByYears(List<List<Allocation>> allocationsByYears) {
+        this.allocationsByYears.addAll(allocationsByYears);
+        return this;
+    }
+
+    public Course years(List<Integer> years) {
+        this.years.addAll(years);
         return this;
     }
 

@@ -53,9 +53,13 @@ public class CourseService {
         Course course = courseRepository.fetchCourse(id);
         List<Allocation> allocations = allocationService.getCourseAllocations(id).getAllocations();
         if(!allocations.isEmpty()) {
-            course.setYearAllocation(prepareAllocations(allocations));
+            course.setYearAllocation(formatAllocations(allocations));
             course.setCourseAllocations(allocations);
             course.setEmployees(courseRepository.fetchCourseEmployees(course.getId()));
+            List<Allocation> sortedAllocations = new LinkedList<>(
+                    allocations.stream().sorted(Comparator.comparing(Allocation::getDateFrom)).toList());
+            course.setYears(getYearsOfAllocations(sortedAllocations));
+            course.setAllocationsByYears(getAllocationsByYears(sortedAllocations, course.getYears().get(0)));
         }
 
         return course;
@@ -71,7 +75,7 @@ public class CourseService {
         courses.forEach(course -> {
             List<Allocation> allocations = allocationService.getCourseAllocations(course.getId()).getAllocations();
             if(!allocations.isEmpty()) {
-                course.setYearAllocation(prepareAllocations(allocations));
+                course.setYearAllocation(formatAllocations(allocations));
                 course.setCourseAllocations(allocations);
                 course.setEmployees(courseRepository.fetchCourseEmployees(course.getId()));
             }
@@ -235,7 +239,7 @@ public class CourseService {
         courses.forEach(course -> {
             course.setEmployees(courseRepository.fetchCourseEmployees(course.getId()));
             course.setYearAllocation(
-                    prepareAllocations(allocationService.getCourseAllocations(course.getId()).getAllocations()));
+                    formatAllocations(allocationService.getCourseAllocations(course.getId()).getAllocations()));
             if (course.getEmployees().stream().filter(employee -> employee.getId() == employeeId).toList().size() == 1)
                 myCourses.add(course);
             course.setCourseAllocations(allocationService.getCourseAllocations(course.getId()).getAllocations()
@@ -256,14 +260,14 @@ public class CourseService {
         var myCourses = new ArrayList<Course>();
         courses.forEach(course -> {
             course.setYearAllocation(
-                    prepareAllocations(allocationService.getCourseAllocations(course.getId()).getAllocations()));
+                    formatAllocations(allocationService.getCourseAllocations(course.getId()).getAllocations()));
             if (course.getCourseManager().getId() == employeeId)
                 myCourses.add(course);
         });
         return myCourses;
     }
 
-    public List<Allocation> prepareFirst(List<Course> courses) {
+    public List<Allocation> getFirstAllocationsForEachCourse(List<Course> courses) {
         List<Allocation> firstAllocations = new ArrayList<>();
         courses.forEach(course -> {
             switch(course.getCourseAllocations().size()) {
@@ -288,10 +292,7 @@ public class CourseService {
         return firstAllocations;
     }
 
-    public List<Integer> prepareYearsForDetail(List<Allocation> allocations) {
-        List<Allocation> sortedAllocations = new LinkedList<>(
-                allocations.stream().sorted(Comparator.comparing(Allocation::getDateFrom)).toList());
-
+    public List<Integer> getYearsOfAllocations(List<Allocation> allocations) {
         List<Integer> years = new LinkedList<>();
         Calendar date = new GregorianCalendar();
         int lastAllYear = 0;
@@ -299,11 +300,11 @@ public class CourseService {
 
         List<Pair<Integer, Integer>> pairs = new LinkedList<>();
 
-        for (Allocation allocation : sortedAllocations)  {
+        for (Allocation allocation : allocations)  {
             date.setTime(allocation.getDateFrom());
             if (lastAllYear == date.get(Calendar.YEAR)) {
-                int value = pairs.get(index).getValue() + 1;
-                pairs.set(index, new Pair<>(lastAllYear, value));
+                int currentValue = pairs.get(index).getValue() + 1;
+                pairs.set(index, new Pair<>(lastAllYear, currentValue));
             } else {
                 date.setTime(allocation.getDateFrom());
                 pairs.add(new Pair<>(date.get(Calendar.YEAR), 1));
@@ -319,40 +320,42 @@ public class CourseService {
         return years;
     }
 
-    public List<Integer> prepareCountsDetail(List<Allocation> allocations) {
-        List<Integer> counts = new LinkedList<>();
-        Calendar date = new GregorianCalendar();
-        int lastAllYear = 0;
-        int index = -1;
+    /* Tady pocitam s alokacema max na rok - koukam jen na zacatek. */
+    public List<List<Allocation>> getAllocationsByYears(List<Allocation> allocations, int firstYear) {
+        List<List<Allocation>> splitAllocations = new ArrayList<>();
+        if (!allocations.isEmpty()) {
+            Calendar date = Calendar.getInstance();
+            int thisYear = firstYear;
 
-        List<Pair<Integer, Integer>> pairs = new LinkedList<>();
+            List<Allocation> tempList = new ArrayList<>();
 
-        for (Allocation allocation : allocations)  {
-            date.setTime(allocation.getDateFrom());
-            if (lastAllYear == date.get(Calendar.YEAR)) {
-                int value = pairs.get(index).getValue() + 1;
-                pairs.set(index, new Pair<>(lastAllYear, value));
-            } else {
+            for (Allocation allocation : allocations) {
                 date.setTime(allocation.getDateFrom());
-                pairs.add(new Pair<>(date.get(Calendar.YEAR), 1));
-                lastAllYear = date.get(Calendar.YEAR);
-                index++;
+                if (thisYear == date.get(Calendar.YEAR)) {
+                    tempList.add(allocation);
+                } else {
+                    date.setTime(allocation.getDateFrom());
+                    thisYear = date.get(Calendar.YEAR);
+                    splitAllocations.add(tempList);
+                    tempList = new ArrayList<>();
+                    tempList.add(allocation);
+                }
+            }
+
+            if (!tempList.isEmpty()) {
+                splitAllocations.add(tempList);
             }
         }
 
-        for (Pair<Integer, Integer> pair : pairs) {
-            counts.add(pair.getValue());
-        }
-
-        return counts;
+        return splitAllocations;
     }
 
     /**
-     * Prepares allocations times for using.
+     * Formats allocations times for using on FE.
      * @param allocations allocations
      * @return list of allocations
      */
-    private List<Float> prepareAllocations(List<Allocation> allocations) {
+    private List<Float> formatAllocations(List<Allocation> allocations) {
         List<Float> yearAllocations = new ArrayList<>(Collections.nCopies(12, (float) 0));
 
         List<Allocation> thisYearsAllocations = new ArrayList<>();

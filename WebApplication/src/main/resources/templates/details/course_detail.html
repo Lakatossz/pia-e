@@ -21,7 +21,7 @@
 <body>
 <div th:replace="~{fragments/navbar}">Navbar</div>
 
-<div class="container-fluid">
+<div class="container-fluid content">
     <!-- content -->
     <div class="container">
         <!-- alerts -->
@@ -188,70 +188,103 @@
             </table>
         </form>
     </div>
-    <div>
-        <table class="course-detail-table">
-            <thead>
-            <tr>
-                <td class="course-table-detail-cell" th:text="#{view.course_detail.table.name}"></td>
-                <td class="course-table-detail-cell" th:text="#{view.course_detail.table.role}"></td>
-                <td class="course-table-detail-cell" th:text="#{view.course_detail.table.hours_weekly}"></td>
-                <td class="course-table-detail-cell" th:text="#{view.course_detail.table.probability}"></td>
-                <td class="course-table-detail-cell" th:text="#{view.course_detail.table.description}"></td>
-                <td class="course-table-detail-cell"></td>
-            </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td class="course-table-detail-cell" th:text="#{view.course_detail.table.name}"></td>
-                    <td class="course-table-detail-cell" th:text="#{view.course_detail.table.role}"></td>
-                    <td class="course-table-detail-cell" th:text="#{view.course_detail.table.hours_weekly}"></td>
-                    <td class="course-table-detail-cell" th:text="#{view.course_detail.table.probability}"></td>
-                    <td class="course-table-detail-cell" th:text="#{view.course_detail.table.description}"></td>
-                    <td class="course-table-detail-cell"></td>
-                </tr>
-            </tbody>
-        </table>
-<!--        <div class="course-detail-tab-container">-->
-<!--            <th:block th:each="year, yearStat: ${years}">-->
-<!--                <div class="course-detail-button" th:id="${yearStat.index}" th:onclick="'showTab(' + ${yearStat.index} + ')'" th:text="${year}"></div>-->
-<!--            </th:block>-->
-<!--        </div>-->
-<!--        <table class="table course-detail-tab-content">-->
-<!--            <thead>-->
-<!--            <tr>-->
-<!--                <th scope="col" th:text="#{view.course_detail.table.name}"></th>-->
-<!--                <th scope="col" th:text="#{view.course_detail.table.role}"></th>-->
-<!--                <th scope="col" th:text="#{view.course_detail.table.hours_weekly}"></th>-->
-<!--                <th scope="col" th:text="#{view.course_detail.table.probability}"></th>-->
-<!--                <th scope="col" th:text="#{view.course_detail.table.description}"></th>-->
-<!--                <th scope="col"></th>-->
-<!--            </tr>-->
-<!--            </thead>-->
-<!--            <tbody>-->
-<!--            <tr>-->
-<!--                <td th:text="${allocations.get(0).getWorker().getLastName()}"></td>-->
-<!--                <td th:text="${allocations.get(0).getRole()}"></td>-->
-<!--                <td th:text="${allocations.get(0).getScopeInFTE()}"></td>-->
-<!--                <td th:text="${allocations.get(0).getIsCertain()}"></td>-->
-<!--                <td th:text="${allocations.get(0).getDescription()}"></td>-->
-<!--            </tr>-->
-<!--            </tbody>-->
-<!--        </table>-->
+    <div class="course-detail-allocations">
+        <th:block th:each="year, yearStats : ${course.getYears()}">
+            <button class="course-table-detail-top-btn" th:text="${year}" th:id="${yearStats.index}"
+                    th:onclick="'showTab(' + ${yearStats.index} + ')'" type="button"></button>
+        </th:block>
+        <th:block th:each="allList, allListStats : ${allocationsByYears}">
+            <table class="course-detail-tab-content" th:id="${allListStats.index} + 'Content'">
+                <thead>
+                    <tr class="course-table-detail-row">
+                        <td class="course-table-detail-cell" th:text="#{view.course_detail.table.name}"></td>
+                        <td class="course-table-detail-cell" th:text="#{view.course_detail.table.role}"></td>
+                        <td class="course-table-detail-cell" th:text="#{view.course_detail.table.hours_weekly}"></td>
+                        <td class="course-table-detail-cell" th:text="#{view.course_detail.table.probability}"></td>
+                        <td class="course-table-detail-cell" th:text="#{view.course_detail.table.description}"></td>
+                        <td></td>
+                    </tr>
+                </thead>
+                <tbody>
+                    <th:block th:each="all : ${allList}">
+                        <!-- Employee-->
+                        <form method="post"
+                              th:action="@{'/a/' + ${all.id}}">
+                            <th:block>
+                                <tr class="course-table-detail-row">
+                                    <td class="course-table-detail-cell">
+                                        <label>
+                                            <select class="course-table-detail-input"
+                                                    th:name="employeeId">
+                                                <option th:each="emp : ${employees}" th:selected="${emp.getId()}" th:value="${emp.getId()}"
+                                                        th:text="${emp.getLastName()} + ' ' + ${emp.getFirstName()}">
+                                                </option>
+                                            </select>
+                                        </label>
+                                    </td>
+                                    <td class="course-table-detail-cell">
+                                        <label>
+                                            <input class="course-table-detail-input" type="text" th:name="role"
+                                                   readonly="readonly" th:value="${all.role}">
+                                        </label>
+                                    </td>
+                                    <td class="course-table-detail-cell">
+                                        <label>
+                                            <input class="course-table-detail-input" readonly="readonly"
+                                                   th:name="allocationScope" th:value="${all.allocationScope}">
+                                        </label>
+                                    </td>
+                                    <td class="course-table-detail-cell">
+                                        <label>
+                                            <input class="course-table-detail-input" readonly="readonly"
+                                                   th:name="isCertain" th:value="${all.isCertain}">
+                                        </label>
+                                    </td>
+                                    <td class="course-table-detail-cell">
+                                        <label>
+                                            <input class="course-table-detail-input" readonly="readonly"
+                                                   th:name="description" th:value="${all.description}">
+                                        </label>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-confirm" type="submit" readonly="readonly"
+                                                th:formaction="'/a/' + ${id} + '/edit'"></button>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-edit" type="button"></button>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-cancel" type="button"></button>
+                                    </td>
+                                    <td class="course-table-detail-cell">
+                                        <label>
+                                            <input class="course-table-detail-input" style="display : none"
+                                                   th:name="courseId" th:value="${all.courseId}">
+                                        </label>
+                                    </td>
+                                </tr>
+                            </th:block>
+                        </form>
+                    </th:block>
+                </tbody>
+            </table>
+        </th:block>
     </div>
 </div>
 
 <div th:replace="~{fragments/footer}">Footer</div>
 </body>
 <script th:inline="javascript">
+
+    showTab(0);
+
     function showTab(tabId) {
         var tabContents = document.querySelectorAll('.course-detail-tab-content');
         tabContents.forEach(function(tabContent) {
             tabContent.classList.remove('active');
         });
 
-        console.log(tabId);
-
-        var buttons = document.querySelectorAll('.course-detail-button');
+        var buttons = document.querySelectorAll('.course-table-detail-top-btn');
 
         buttons.forEach(function (button) {
             button.classList.remove('course-detail-button-selected');
@@ -279,6 +312,85 @@
             window.location.replace(location.protocol + '//' + location.host + location.pathname + '?edit=failure');
             return false;
         }
+        x = document.getElementById("workplace").value;
+        if (x === "") {
+            window.location.replace(location.protocol + '//' + location.host + location.pathname + '?edit=failure');
+            return false;
+        }
+        x = document.getElementById("guarantor").value;
+        if (x === "") {
+            window.location.replace(location.protocol + '//' + location.host + location.pathname + '?edit=failure');
+            return false;
+        }
+        x = document.getElementById("term").value;
+        if (x === "") {
+            window.location.replace(location.protocol + '//' + location.host + location.pathname + '?edit=failure');
+            return false;
+        }
+        x = document.getElementById("lecture").value;
+        if (x === "") {
+            window.location.replace(location.protocol + '//' + location.host + location.pathname + '?edit=failure');
+            return false;
+        }
+        x = document.getElementById("exercise").value;
+        if (x === "") {
+            window.location.replace(location.protocol + '//' + location.host + location.pathname + '?edit=failure');
+            return false;
+        }
+        x = document.getElementById("from").value;
+        if (x === "") {
+            window.location.replace(location.protocol + '//' + location.host + location.pathname + '?edit=failure');
+            return false;
+        }
+        x = document.getElementById("until").value;
+        if (x === "") {
+            window.location.replace(location.protocol + '//' + location.host + location.pathname + '?edit=failure');
+            return false;
+        }
+        x = document.getElementById("students").value;
+        if (x === "") {
+            window.location.replace(location.protocol + '//' + location.host + location.pathname + '?edit=failure');
+            return false;
+        }
     }
+
+    let course_allocations = document.getElementsByClassName("course-table-detail-row");
+    Array.from(course_allocations).forEach(function(trArray) {
+        let buttonsEdit = document.getElementsByClassName("btn-edit");
+        let buttonsConfirm = document.getElementsByClassName("btn-confirm");
+        let buttonsCancel = document.getElementsByClassName("btn-cancel");
+        for (let i = 0; i < buttonsEdit.length; ++i) {
+            buttonsEdit[i].addEventListener("click", function(evt) {
+                let tds = trArray.getElementsByClassName("course-table-detail-input");
+                Array.from(tds).forEach(function(td) {
+                    td.removeAttribute("readonly");
+                    buttonsConfirm[i].style.visibility = "visible";
+                    buttonsCancel[i].style.visibility = "visible";
+                    buttonsEdit[i].style.visibility = "hidden";
+                });
+            });
+
+            buttonsConfirm[i].addEventListener("click", function(evt) {
+                let tds = trArray.getElementsByClassName("course-table-detail-input");
+                Array.from(tds).forEach(function(td) {
+                    td.setAttribute('readonly', 'readonly');
+                    buttonsConfirm[i].style.visibility = 'hidden';
+                    buttonsCancel[i].style.visibility = 'hidden';
+                    buttonsEdit[i].style.visibility = 'visible';
+                });
+            });
+
+            buttonsCancel[i].addEventListener("click", function(evt) {
+                let tds = trArray.getElementsByClassName("course-table-detail-input");
+                Array.from(tds).forEach(function(td) {
+                    td.setAttribute('readonly', 'readonly');
+                    buttonsConfirm[i].style.visibility = 'hidden';
+                    buttonsCancel[i].style.visibility = 'hidden';
+                    buttonsEdit[i].style.visibility = 'visible'
+                });
+            });
+        }
+    });
+
 </script>
 </html>

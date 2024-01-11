@@ -87,7 +87,7 @@
     background-repeat: no-repeat;
     background-position: center;
     padding: 12px;
-    visibility: hidden;
+    visibility: visible;
 }
 
 table, body {
@@ -102,9 +102,8 @@ table {
     overflow: hidden;
 }
 
-content {
-    flex: 1 0 1500px;
-    height: 50%;
+.content {
+    padding-bottom: 50px
 }
 
 footer {
@@ -333,6 +332,24 @@ footer {
     display: flex;
 }
 
+.course-table-detail-top-btns-row {
+    width: 100%;
+}
+
+.course-table-detail-top-btn {
+    width: 100px;
+    background-color: #C8C8C8;
+    align-content: end;
+    border: #0062FF solid 1px;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+}
+
+.course-table-detail-top-btn-chosen {
+    width: 100px;
+    background-color: #0062FF;
+}
+
 .course-table-detail-btn {
     width: 100px;
     background-color: #f5fbff;
@@ -345,11 +362,22 @@ footer {
 
 .course-table-detail {
     width: auto;
-    left:10%;
-    right:10%;
+    left:5%;
+    right:5%;
+}
+
+.course-table-detail-row {
+    width: 100%;
+    border-top: black solid 1px;
+    border-bottom: black solid 1px;
 }
 
 .course-table-detail-cell {
+    width:100px;
+    padding:10px;
+}
+
+.course-table-detail-input {
     width:100px;
     padding:10px;
 }
@@ -364,7 +392,6 @@ footer {
 
 .course-detail-tab-content {
     display: none;
-    border: 1px solid #ffffff;
     padding: 10px;
     border-radius: 0 0 5px 5px;
 }
@@ -377,10 +404,16 @@ footer {
     background-color: #ffffff;
 }
 
-.course-detail-table {
+.course-detail-allocations {
     padding-top: 50px;
+    position: relative;
+    width: 50%;
+    left: 25%;
+    right: 25%;
+}
+
+.course-detail-table {
     background-color: #ffffff;
-    position: absolute;
     /*top: 40%;*/
     /*bottom: 10%;*/
     left: 25%;
@@ -393,10 +426,6 @@ footer {
 
 .project-row-title {
     text-align: center;
-}
-
-.project-row-header {
-
 }
 
 .project-row-value {
@@ -481,11 +510,18 @@ footer {
 }
 
 .project-detail-table-cell-name {
-    width: 300px;
+    max-width: 20%;
 }
 
-.project-detail-table-cell {
-    width: 100px;
+.project-detail-table-cell, .project-cell-times-values {
+    width:5%;
+    /*border: 1px solid black;*/
+}
+
+.project-row-header {
+    width: auto;
+    text-align: center;
+    margin: 10px;
 }
 
 .project-cell {
@@ -729,9 +765,8 @@ footer {
     max-width: 150px;
     border: none;
     background-color: transparent;
-    outline: none; /* Remove default outline on focus */
+    outline: none;
 }
-
 
 .employee-date {
     padding:10px;
@@ -763,11 +798,6 @@ footer {
     left: 20%;
     right: 20%;
 }
-
-/*.employee-detail-tr {*/
-/*    border: solid;*/
-/*    border-width: 1px 0*/
-/*}*/
 
 .my_page {
     height: 90%;

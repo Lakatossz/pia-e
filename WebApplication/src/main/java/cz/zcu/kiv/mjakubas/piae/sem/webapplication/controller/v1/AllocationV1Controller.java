@@ -90,10 +90,14 @@ public class AllocationV1Controller {
     @PostMapping("{id}/edit")
     public String editAllocation(Model model, @PathVariable long id,
                                  @ModelAttribute AllocationVO allocationVO) {
-        var projectId = allocationVO.getProjectId();
-
         allocationService.updateAllocation(allocationVO, id);
-        return String.format("redirect:/p/%s/manage", projectId);
+        if (allocationVO.getProjectId() > 0) {
+            return String.format("redirect:/p/%s/detail", allocationVO.getProjectId());
+        } else if (allocationVO.getCourseId() > 0) {
+            return String.format("redirect:/c/%s/detail", allocationVO.getCourseId());
+        } else {
+            return String.format("redirect:/f/%s/detail", allocationVO.getFunctionId());
+        }
     }
 
     @PreAuthorize("@securityService.isAtLeastProjectManager()")

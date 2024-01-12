@@ -189,7 +189,7 @@ public class ProjectService {
                 .budgetParticipation(projectVO.getBudgetParticipation())
                 .totalTime(projectVO.getTotalTime())
                 .agency(projectVO.getAgency())
-//                .state(ProjectState.valueOf("běží"))
+                .state(ProjectState.getByValue(projectVO.getState()))
                 .grantTitle(projectVO.getGrantTitle());
 
         if (!projectRepository.updateProject(project, id))

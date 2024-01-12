@@ -46,11 +46,15 @@
 
         <h1 class="text-center mt-5" th:text="#{view.employee_detail.header} + ' ' + ${employee.getFirstName()} + ' ' + ${employee.getLastName()}"></h1>
 
+        <div class="employee-detail-collapsible-header" style="display: flex">
+            <h4>Detail</h4>
+        </div>
+
         <form   method="post"
                 th:action="@{'/e/' + ${id} + '/edit'}"
                 th:object="${employee}" th:method="POST" novalidate>
-            <table>
-                <tr>
+            <table class="employee-detail-collapse">
+                <tr class="employee-detail-collapse">
                     <td class="employee-detail-div">
                         <label class="employee-detail-label" for="first_name"
                                th:text="#{view.employee_detail.first_name}" th:required="true"/>
@@ -492,55 +496,68 @@
                                 </tr>
                                 <th:block th:each="all, allStats : ${fnc.getFunctionAllocations()}">
                                     <form method="post"
-                                      th:action="@{'/a/' + ${all.id}}"
-                                      th:object="${all}" th:method="POST" novalidate>
-                                        <tr class="employee-detail-tr employee-functions-times">
-                                            <td class="employee-cell">
-                                                <label>
-                                                    <input class="project-allocations-input" type="text"
-                                                           th:value="*{role}" readonly="readonly">
-                                                </label>
-                                            </td>
-                                            <td class="employee-cell">
-                                                <label>
-                                                    <input class="project-allocations-input" type="text"
-                                                           th:value="*{#dates.format(dateFrom, 'dd-MM-yyyy')}" readonly="readonly">
-                                                </label>
-                                            </td>
-                                            <td class="employee-cell">
-                                                <label>
-                                                    <input class="project-allocations-input" type="text"
-                                                           th:value="*{#dates.format(dateUntil, 'dd-MM-yyyy')}" readonly="readonly">
-                                                </label>
-                                            </td>
-                                            <td class="employee-cell">
-                                                <label>
-                                                    <input class="project-allocations-input" type="text"
-                                                           th:value="*{time}" readonly="readonly">
-                                                </label>
-                                            </td>
-                                            <td class="employee-cell">
-                                                <label>
-                                                    <input class="project-allocations-input" type="text"
-                                                           th:value="*{isCertain}" readonly="readonly">
-                                                </label>
-                                            </td>
-                                            <td class="employee-cell">
-                                                <label>
-                                                    <input class="project-allocations-input" type="text"
-                                                           th:value="*{description}" readonly="readonly">
-                                                </label>
-                                            </td>
-                                            <td>
-                                                <button class="btn btn-confirm" th:formaction="'/a/' + ${id} + '/edit'"></button>
-                                            </td>
-                                            <td>
-                                                <button class="btn btn-edit" type="button"></button>
-                                            </td>
-                                            <td>
-                                                <button class="btn btn-cancel" type="button"></button>
-                                            </td>
-                                        </tr>
+                                      th:action="@{'/a/' + ${all.id} + '/edit'}">
+                                        <th:block>
+                                            <tr class="employee-detail-tr employee-functions-times">
+                                                <td class="employee-cell">
+                                                    <label>
+                                                        <input class="project-allocations-input" type="text"
+                                                               th:name="role" th:value="${all.role}" readonly="readonly">
+                                                    </label>
+                                                </td>
+                                                <td class="employee-cell">
+                                                    <label>
+                                                        <input class="project-allocations-input" type="text"
+                                                               readonly="readonly" th:name="dateFrom"
+                                                               th:value="${#dates.format(all.dateFrom, 'dd-MM-yyyy')}">
+                                                    </label>
+                                                </td>
+                                                <td class="employee-cell">
+                                                    <label>
+                                                        <input class="project-allocations-input" type="text"
+                                                               readonly="readonly" th:name="dateUntil"
+                                                               th:value="${#dates.format(all.dateFrom, 'dd-MM-yyyy')}">
+                                                    </label>
+                                                </td>
+                                                <td class="employee-cell">
+                                                    <label>
+                                                        <input class="project-allocations-input" type="text"
+                                                               readonly="readonly" th:name="time"
+                                                               th:value="${all.time}">
+                                                    </label>
+                                                </td>
+                                                <td class="employee-cell">
+                                                    <label>
+                                                        <input class="project-allocations-input" type="text"
+                                                               readonly="readonly" th:name="isCertain"
+                                                               th:value="${all.isCertain}">
+                                                    </label>
+                                                </td>
+                                                <td class="employee-cell">
+                                                    <label>
+                                                        <input class="project-allocations-input" type="text"
+                                                               readonly="readonly" th:name="description"
+                                                               th:value="${all.description}">
+                                                    </label>
+                                                </td>
+                                                <td>
+                                                    <button class="btn btn-confirm" type="submit"
+                                                            th:formaction="'/a/' + ${id} + '/edit'"></button>
+                                                </td>
+                                                <td>
+                                                    <button class="btn btn-edit" th:id="${allStats.index}" type="button"></button>
+                                                </td>
+                                                <td>
+                                                    <button class="btn btn-cancel" th:id="${allStats.index}" type="button"></button>
+                                                </td>
+                                                <td>
+                                                    <label>
+                                                        <input class="course-table-detail-input" style="display : none"
+                                                               th:id="${allStats.index}" th:name="employeeId" th:value="${employee.id}">
+                                                    </label>
+                                                </td>
+                                            </tr>
+                                        </th:block>
                                     </form>
                                 </th:block>
                             </th:block>
@@ -556,15 +573,40 @@
 <div th:replace="~{fragments/footer}">Footer</div>
 </body>
 
-<script>
+<script th:inline="javascript">
+    let employee = document.querySelectorAll(".employee-detail-collapsible-header");
 
-    let employees = [[${employees}]];
+    Array.from(employee).forEach(function(div) {
+        let button = document.createElement("button");
+        button.className = "btn collapsible btn-dropdown employee-detail-collapse-btn";
+        button.addEventListener("click", function(evt) {
+            let collapse = document.getElementsByClassName("employee-detail-collapse");
+            if (collapse[0].style.visibility === "visible") {
+                collapse[0].style.visibility = "collapse";
+            } else {
+                collapse[0].style.visibility = "visible";
+            }
+            if (this.classList.contains("btn-dropdown")) {
+                this.classList.remove("btn-dropdown");
+                this.classList.add("btn-dropdown-clicked");
+            } else {
+                this.classList.add("btn-dropdown");
+                this.classList.remove("btn-dropdown-clicked");
+            }
+        });
+        div.append(button);
+    });
+</script>
+
+<script>
+    let employees = /*[[${employees}]]*/ 'default';
     let projects_times = document.getElementsByClassName("employee-projects-times");
     let courses_times = document.getElementsByClassName("employee-coures-times");
     let functions_times = document.getElementsByClassName("employee-funtions-times");
     let index = 0;
     const opts = { minimumFractionDigits: 1 };
     let year_offsets = {};
+    console.log('employees: ' + employees.length);
     for (let i = 0; i < employees.length; ++i)
         year_offsets[i] = 0;
 
@@ -662,7 +704,6 @@
             return false;
         }
     }
-
 </script>
 
 </html>

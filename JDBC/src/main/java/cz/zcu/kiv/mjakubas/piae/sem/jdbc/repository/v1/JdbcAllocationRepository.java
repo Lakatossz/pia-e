@@ -202,9 +202,9 @@ public class JdbcAllocationRepository implements IAllocationRepository {
         var params = new MapSqlParameterSource();
         params.addValue(IS_ENABLED, 1);
         params.addValue("eId", allocation.getWorker().getId());
-        params.addValue("pId", allocation.getProject().getId());
-        params.addValue("cId", allocation.getCourse().getId());
-        params.addValue("fId", allocation.getFunction().getId());
+        params.addValue("pId", allocation.getProject() != null ? allocation.getProject().getId() : null);
+        params.addValue("cId", allocation.getCourse() != null ? allocation.getCourse().getId() : null);
+        params.addValue("fId", allocation.getFunction() != null ? allocation.getFunction().getId() : null);
         params.addValue("aFrom", allocation.getDateFrom());
         params.addValue("aUntil", allocation.getDateUntil());
         params.addValue("scope", allocation.getAllocationScope());

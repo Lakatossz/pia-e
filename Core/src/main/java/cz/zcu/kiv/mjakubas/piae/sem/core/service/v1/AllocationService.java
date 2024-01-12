@@ -87,43 +87,38 @@ public class AllocationService {
     @Transactional
     public void updateAllocation(AllocationVO allocationVO, long id) {
         int scope = (int) (allocationVO.getAllocationScope() * 40 * 60); // fte to minutes
-        if (allocationVO.getProjectId() > 0) {
-            var allocationProject = projectRepository.fetchProject(allocationVO.getProjectId());
-            if (allocationVO.getDateFrom().before(allocationProject.getDateFrom()) || allocationVO.getDateUntil().after(allocationProject.getDateUntil()))
-                throw new ServiceException();
-        } else if (allocationVO.getCourseId() > 0) {
-            var allocationCourse = courseRepository.fetchCourse(allocationVO.getCourseId());
-            if (allocationVO.getDateFrom().before(allocationCourse.getDateFrom()) || allocationVO.getDateUntil().after(allocationCourse.getDateUntil()))
-                throw new ServiceException();
-        } else {
-            var allocationFunction = functionRepository.fetchFunction(allocationVO.getFunctionId());
-            if (allocationVO.getDateFrom().before(allocationFunction.getDateFrom()) || allocationVO.getDateUntil().after(allocationFunction.getDateUntil()))
-                throw new ServiceException();
-        }
 
-        Allocation allocation = new Allocation()
-                .worker(new Employee().id(allocationVO.getEmployeeId()))
-                .project(allocationVO.getProjectId() > 0 ? new Project().id(allocationVO.getProjectId()) : null)
-                .course(allocationVO.getCourseId() > 0 ? new Course().id(allocationVO.getCourseId()) : null)
-                .function(allocationVO.getFunctionId() > 0 ? new Function().id(allocationVO.getFunctionId()) : null)
+        Allocation allocation = assignmentRepository.fetchAllocation(id);
+
+        allocation.worker(new Employee().id(allocationVO.getEmployeeId()))
                 .role(allocationVO.getRole())
                 .allocationScope(scope)
-                .dateFrom(allocationVO.getDateFrom())
-                .dateUntil(allocationVO.getDateUntil())
                 .description(allocationVO.getDescription())
-                .active(allocationVO.getIsActive());
+                .active(Boolean.TRUE);
 
-        if (Boolean.TRUE.equals(allocationVO.getIsActive())) {
-            var processedAllocations = processAllocations(getEmployeeAllocations(allocationVO.getEmployeeId()));
-            for (AllocationInterval interval : processedAllocations) {
-                if (interval.isFromInterval(allocation)) {
-                    int sum = interval.getScopeOfPast() + interval.getScopeOfActive() + interval.getScopeOfUnrealized();
-                    if ((sum + allocation.getAllocationScope()) > 40 * 60) {
-                        throw new ServiceException();
-                    }
-                }
-            }
+        if (allocationVO.getDateFrom() != null && allocationVO.getDateUntil() != null) {
+            allocation.dateFrom(allocationVO.getDateFrom()).dateUntil(allocationVO.getDateUntil());
         }
+
+        if (allocationVO.getProjectId() > 0) {
+            allocation.project(projectRepository.fetchProject(allocationVO.getProjectId()));
+        } else if (allocationVO.getCourseId() > 0) {
+            allocation.course(courseRepository.fetchCourse(allocationVO.getCourseId()));
+        } else {
+            allocation.function(functionRepository.fetchFunction(allocationVO.getFunctionId()));
+        }
+
+//        if (Boolean.TRUE.equals(allocationVO.getIsActive())) {
+//            var processedAllocations = processAllocations(getEmployeeAllocations(allocationVO.getEmployeeId()));
+//            for (AllocationInterval interval : processedAllocations) {
+//                if (interval.isFromInterval(allocation)) {
+//                    int sum = interval.getScopeOfPast() + interval.getScopeOfActive() + interval.getScopeOfUnrealized();
+//                    if ((sum + allocation.getAllocationScope()) > 40 * 60) {
+//                        throw new ServiceException();
+//                    }
+//                }
+//            }
+//        }
         if (!assignmentRepository.updateAllocation(allocation, id)) {
             throw new ServiceException();
         }

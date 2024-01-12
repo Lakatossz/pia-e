@@ -45,10 +45,14 @@
 
         <h1 class="text-center mt-5" th:text="#{view.function_detail.header} + ' ' + ${function.getName()}"></h1>
 
+        <div class="function-detail-collapsible-header" style="display: flex">
+            <h4>Detail</h4>
+        </div>
+
         <form   method="post"
                 th:action="@{'/f/' + ${id} + '/edit'}"
                 th:object="${function}" th:method="POST" novalidate>
-            <table>
+            <table class="function-detail-collapse">
                 <tr>
                     <td class="function-detail-div">
                         <label class="function-detail-label" for="shortcut"
@@ -136,7 +140,31 @@
 <div th:replace="~{fragments/footer}">Footer</div>
 </body>
 
-<script>
+<script th:inline="javascript">
+
+    let func = document.querySelectorAll(".function-detail-collapsible-header");
+
+    Array.from(func).forEach(function(div) {
+        let button = document.createElement("button");
+        button.className = "btn collapsible btn-dropdown function-detail-collapse-btn";
+        button.addEventListener("click", function(evt) {
+            let collapse = document.getElementsByClassName("function-detail-collapse");
+            if (collapse[0].style.visibility === "visible") {
+                collapse[0].style.visibility = "collapse";
+            } else {
+                collapse[0].style.visibility = "visible";
+            }
+            if (this.classList.contains("btn-dropdown")) {
+                this.classList.remove("btn-dropdown");
+                this.classList.add("btn-dropdown-clicked");
+            } else {
+                this.classList.add("btn-dropdown");
+                this.classList.remove("btn-dropdown-clicked");
+            }
+        });
+        div.append(button);
+    });
+
     function empty(message) {
         var x;
         console.log(message);

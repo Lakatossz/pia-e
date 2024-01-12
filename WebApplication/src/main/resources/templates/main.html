@@ -219,6 +219,7 @@
         td.style.textAlign = "center";
         button.className = "btn collapsible btn-dropdown";
         button.addEventListener("click", function(evt) {
+            console.log('Volam');
             let collapse = document.getElementsByClassName("my-collapse");
             let i = trArray.id * 4, ii = trArray.id * 4 + 4;
             for (; i < ii; i++) {

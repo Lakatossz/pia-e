@@ -87,12 +87,12 @@
     background-repeat: no-repeat;
     background-position: center;
     padding: 12px;
-    visibility: visible;
+    visibility: hidden;
 }
 
 table, body {
     background-color: #ffffff;
-    margin-top: 0px;
+    margin-top: 0;
     padding-top: 0px;
     text-align: start;
     border-collapse: collapse;
@@ -183,6 +183,20 @@ footer {
 .function-detail-label[required]::after {
     content: "*";
     color: red;
+}
+
+.function-detail-collapse-btn {
+    position: relative;
+    left: 100%;
+}
+
+.function-detail-collapse {
+    visibility: collapse;
+    margin-bottom: 50px;
+}
+
+.function-detail-collapsible-header {
+
 }
 
 .function-detail-input {
@@ -287,6 +301,20 @@ footer {
     color: red;
 }
 
+.course-detail-collapse-btn {
+    position: relative;
+    left: 100%;
+}
+
+.course-detail-collapse {
+    visibility: collapse;
+    margin-bottom: 50px;
+}
+
+.course-detail-collapsible-header {
+
+}
+
 .course-detail-input {
     width: 200px;
     border-radius: 4px;
@@ -372,14 +400,30 @@ footer {
     border-bottom: black solid 1px;
 }
 
-.course-table-detail-cell {
-    width:100px;
+.course-table-detail-select {
+    width:200px;
     padding:10px;
+}
+
+.course-table-detail-select:read-only {
+    width:200px;
+    padding:10px;
+    border: none;
+    background-color: transparent;
+    outline: none; /* Remove default outline on focus */
 }
 
 .course-table-detail-input {
     width:100px;
     padding:10px;
+}
+
+.course-table-detail-input:read-only {
+    width:100px;
+    padding:10px;
+    border: none;
+    background-color: transparent;
+    outline: none; /* Remove default outline on focus */
 }
 
 .course-detail-button {
@@ -441,6 +485,20 @@ footer {
 }
 
 /* Project detail */
+
+.project-detail-collapse-btn {
+    position: relative;
+    left: 100%;
+}
+
+.project-detail-collapse {
+    visibility: collapse;
+    margin-bottom: 50px;
+}
+
+.project-detail-collapsible-header {
+
+}
 
 .project-detail-div {
     margin-bottom: 10px;
@@ -684,6 +742,20 @@ footer {
 .employee-detail-label[required]::after {
     content: "*";
     color: red;
+}
+
+.employee-detail-collapse-btn {
+    position: relative;
+    left: 100%;
+}
+
+.employee-detail-collapse {
+    visibility: collapse;
+    margin-bottom: 50px;
+}
+
+.employee-detail-collapsible-header {
+    width: 90%;
 }
 
 .employee-detail-input {

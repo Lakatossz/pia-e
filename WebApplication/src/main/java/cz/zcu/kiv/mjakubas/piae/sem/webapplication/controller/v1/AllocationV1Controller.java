@@ -56,7 +56,13 @@ public class AllocationV1Controller {
                                    @ModelAttribute AllocationVO allocationVO, BindingResult errors) {
 
         allocationService.createAllocation(allocationVO);
-        return String.format("redirect:/p/%s/manage", projectId);
+        if (allocationVO.getProjectId() > 0) {
+            return String.format("redirect:/p/%s/detail?edit=success", allocationVO.getProjectId());
+        } else if (allocationVO.getCourseId() > 0) {
+            return String.format("redirect:/c/%s/detail?edit=success", allocationVO.getCourseId());
+        } else {
+            return String.format("redirect:/f/%s/detail?edit=success", allocationVO.getFunctionId());
+        }
     }
 
     @PreAuthorize("@securityService.isAtLeastProjectManager() or @securityService.isWorkplaceManager(#id)")
@@ -92,11 +98,11 @@ public class AllocationV1Controller {
                                  @ModelAttribute AllocationVO allocationVO) {
         allocationService.updateAllocation(allocationVO, id);
         if (allocationVO.getProjectId() > 0) {
-            return String.format("redirect:/p/%s/detail", allocationVO.getProjectId());
+            return String.format("redirect:/p/%s/detail?edit=success", allocationVO.getProjectId());
         } else if (allocationVO.getCourseId() > 0) {
-            return String.format("redirect:/c/%s/detail", allocationVO.getCourseId());
+            return String.format("redirect:/c/%s/detail?edit=success", allocationVO.getCourseId());
         } else {
-            return String.format("redirect:/f/%s/detail", allocationVO.getFunctionId());
+            return String.format("redirect:/f/%s/detail?edit=success", allocationVO.getFunctionId());
         }
     }
 

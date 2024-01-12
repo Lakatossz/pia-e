@@ -45,10 +45,14 @@
 
         <h1 class="text-center mt-5" th:text="#{view.project_detail.header} + ' ' + ${project.getName()}"></h1>
 
+        <div class="project-detail-collapsible-header" style="display: flex">
+            <h4>Detail</h4>
+        </div>
+
         <form   method="post"
                 th:action="@{'/p/' + ${id} + '/edit'}"
                 th:object="${project}" th:method="POST" novalidate>
-            <table>
+            <table class="project-detail-collapse">
                 <tr>
                     <td class="project-detail-div">
                         <label class="project-detail-label" for="name"
@@ -209,17 +213,15 @@
                     <tbody>
                     <th:block th:each="all, allStats : ${allocations}">
                         <!-- Employee-->
-                        <form ACTION="#"
-                              th:action="@{'/a/' + ${allStats.index} + '/edit'}"
-                              th:object="${all}" method="POST">
-                            <fieldset>
+                        <form th:action="@{'/a/' + ${all.id} + '/edit'}">
+                            <th:block>
                                 <tr class="project-allocations" th:id="${allStats.index}">
                                     <td class="project-allocations-cell">
                                         <label>
                                             <select class="project-allocations-input"
-                                                    id="worker" name="director" field="*{employeeId}" disabled="true">
-                                                <option th:each="emp : ${employees}" th:value="${emp.getId()}"
-                                                        field="${emp.getId()}"
+                                                    th:name="director" field="*{employeeId}" disabled="true">
+                                                <option th:each="emp : ${employees}" th:selected="${emp.getId()}"
+                                                        th:value="${emp.getId()}" disabled="true"
                                                         th:text="${emp.getLastName()} + ' ' + ${emp.getFirstName()}">
                                                 </option>
                                             </select>
@@ -227,40 +229,42 @@
                                     </td>
                                     <td class="project-allocations-cell">
                                         <label>
-                                            <input class="project-allocations-input" type="text" name="role"
-                                                   field="*{role}" th:value="*{role}" readonly="readonly">
+                                            <input class="project-allocations-input" type="text" readonly="readonly"
+                                                   th:name="role" th:value="${all.role}">
                                         </label>
                                     </td>
                                     <td class="project-allocations-cell">
                                         <label>
-                                            <input class="project-allocations-input" type="text" name="dateFrom"
-                                                   field="*{#dates.format(dateFrom, 'dd-MM-yyyy')}"
-                                                   th:value="*{#dates.format(dateFrom, 'dd-MM-yyyy')}" readonly="readonly">
+                                            <input class="project-allocations-input" type="text"
+                                                   th:name="dateFrom" readonly="readonly"
+                                                   th:value="${#dates.format(all.dateFrom, 'dd-MM-yyyy')}">
                                         </label>
                                     </td>
                                     <td class="project-allocations-cell">
                                         <label>
-                                            <input class="project-allocations-input" type="text" name="dateUntil"
-                                                   field="*{#dates.format(dateUntil, 'dd-MM-yyyy')}" readonly="readonly"
-                                                   th:value="*{#dates.format(dateUntil, 'dd-MM-yyyy')}">
+                                            <input class="project-allocations-input" type="text"
+                                                   th:name="dateUntil" readonly="readonly"
+                                                   th:value="${#dates.format(all.dateUntil, 'dd-MM-yyyy')}">
                                         </label>
                                     </td>
                                     <td class="project-allocations-cell">
                                         <label>
-                                            <input class="project-allocations-input" type="text" name="time"
-                                                   field="*{time}" th:value="*{time}" readonly="readonly">
+                                            <input class="project-allocations-input" type="text"
+                                                   th:name="time" readonly="readonly"
+                                                   th:value="${all.time}">
                                         </label>
                                     </td>
                                     <td class="project-allocations-cell">
                                         <label>
-                                            <input class="project-allocations-input" type="text" name="time"
-                                                   field="*{time}" th:value="*{time}" readonly="readonly">
+                                            <input class="project-allocations-input" type="text"
+                                                   th:name="time" th:value="${all.time}" readonly="readonly">
                                         </label>
                                     </td>
                                     <td class="project-allocations-cell">
                                         <label>
-                                            <input class="project-allocations-input" type="text" name="description"
-                                                   field="*{description}" th:value="*{description}" readonly="readonly">
+                                            <input class="project-allocations-input" type="text"
+                                                   th:name="description" readonly="readonly"
+                                                   th:value="${all.description}">
                                         </label>
                                     </td>
                                     <td>
@@ -269,79 +273,20 @@
                                     <td>
                                         <label>
                                             <label>
-                                                <input type="text" name="projectId"
-                                                       field="*{projectId}" th:value="*{project.getId()}" disabled="true">
+                                                <input type="text" name="projectId"  style="display : none"
+                                                       field="*{projectId}" th:value="${id}" disabled="true">
                                             </label>
                                         </label>
                                     </td>
-                                    <!--                                    <td>-->
-                                    <!--                                        <button class="btn btn-edit" type="button"></button>-->
-                                    <!--                                    </td>-->
-                                    <!--                                    <td>-->
-                                    <!--                                        <button class="btn btn-cancel" type="button"></button>-->
-                                    <!--                                    </td>-->
+                                    <td>
+                                        <button class="btn btn-edit" type="button"></button>
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-cancel" type="button"></button>
+                                    </td>
                                 </tr>
-                            </fieldset>
+                            </th:block>
                         </form>
-<!--                        <form method="post"-->
-<!--                        th:action="@{'/a/' + ${all.id}}"-->
-<!--                        th:object="${all}" th:method="POST" novalidate>-->
-<!--                            <th:block>-->
-<!--                                <tr class="project-allocations" th:id="${allStats.index}">-->
-<!--                                    <td class="project-allocations-cell">-->
-<!--                                        <label>-->
-<!--                                            <input class="project-allocations-input" type="text"-->
-<!--                                                   th:value="*{worker.getLastName()}" readonly="readonly">-->
-<!--                                        </label>-->
-<!--                                    </td>-->
-<!--                                    <td class="project-allocations-cell">-->
-<!--                                        <label>-->
-<!--                                            <input class="project-allocations-input" type="text"-->
-<!--                                                   th:value="*{role}" readonly="readonly">-->
-<!--                                        </label>-->
-<!--                                    </td>-->
-<!--                                    <td class="project-allocations-cell">-->
-<!--                                        <label>-->
-<!--                                            <input class="project-allocations-input" type="text"-->
-<!--                                                   th:value="*{#dates.format(dateFrom, 'dd-MM-yyyy')}" readonly="readonly">-->
-<!--                                        </label>-->
-<!--                                    </td>-->
-<!--                                    <td class="project-allocations-cell">-->
-<!--                                        <label>-->
-<!--                                            <input class="project-allocations-input" type="text"-->
-<!--                                                   th:value="*{#dates.format(dateUntil, 'dd-MM-yyyy')}" readonly="readonly">-->
-<!--                                        </label>-->
-<!--                                    </td>-->
-<!--                                    <td class="project-allocations-cell">-->
-<!--                                        <label>-->
-<!--                                            <input class="project-allocations-input" type="text"-->
-<!--                                                   th:value="*{time}" readonly="readonly">-->
-<!--                                        </label>-->
-<!--                                    </td>-->
-<!--                                    <td class="project-allocations-cell">-->
-<!--                                        <label>-->
-<!--                                            <input class="project-allocations-input" type="text"-->
-<!--                                                   th:value="*{time}" readonly="readonly">-->
-<!--                                        </label>-->
-<!--                                    </td>-->
-<!--                                    <td class="project-allocations-cell">-->
-<!--                                        <label>-->
-<!--                                            <input class="project-allocations-input" type="text"-->
-<!--                                                   th:value="*{description}" readonly="readonly">-->
-<!--                                        </label>-->
-<!--                                    </td>-->
-<!--                                    <td>-->
-<!--                                        <button class="btn btn-confirm" th:formaction="'/a/' + ${all.id} + '/edit'"></button>-->
-<!--                                    </td>-->
-<!--&lt;!&ndash;                                    <td>&ndash;&gt;-->
-<!--&lt;!&ndash;                                        <button class="btn btn-edit" type="button"></button>&ndash;&gt;-->
-<!--&lt;!&ndash;                                    </td>&ndash;&gt;-->
-<!--&lt;!&ndash;                                    <td>&ndash;&gt;-->
-<!--&lt;!&ndash;                                        <button class="btn btn-cancel" type="button"></button>&ndash;&gt;-->
-<!--&lt;!&ndash;                                    </td>&ndash;&gt;-->
-<!--                                </tr>-->
-<!--                            </th:block>-->
-<!--                        </form>-->
                     </th:block>
                     </tbody>
                 </table>
@@ -400,6 +345,31 @@
 </body>
 
 <script th:inline="javascript">
+    let project = document.querySelectorAll(".project-detail-collapsible-header");
+
+    Array.from(project).forEach(function(div) {
+        let button = document.createElement("button");
+        button.className = "btn collapsible btn-dropdown project-detail-collapse-btn";
+        button.addEventListener("click", function(evt) {
+            let collapse = document.getElementsByClassName("project-detail-collapse");
+            if (collapse[0].style.visibility === "visible") {
+                collapse[0].style.visibility = "collapse";
+            } else {
+                collapse[0].style.visibility = "visible";
+            }
+            if (this.classList.contains("btn-dropdown")) {
+                this.classList.remove("btn-dropdown");
+                this.classList.add("btn-dropdown-clicked");
+            } else {
+                this.classList.add("btn-dropdown");
+                this.classList.remove("btn-dropdown-clicked");
+            }
+        });
+        div.append(button);
+    });
+
+    // Handling details of project updating
+
     function empty(message) {
         var x;
         console.log(message);
@@ -439,6 +409,8 @@
             return false;
         }
     }
+
+    // Handling table with month allocation of every worker
 
     let employees = [[${employees}]];
     let certain_times = document.getElementsByClassName("project-certain-times");
@@ -607,6 +579,8 @@
             }
         });
     }
+
+    //
 
     let project_allocations = document.getElementsByClassName("project-allocations");
     Array.from(project_allocations).forEach(function(trArray) {

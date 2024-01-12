@@ -110,7 +110,7 @@ public class JdbcProjectRepository implements IProjectRepository {
                 VALUES
                 (:pro_enabled, :pro_name, :pro_manager_id, :pro_workplace_id,\s
                 :pro_date_from, :pro_date_until, :pro_description, :pro_probability,
-                :pro_budget, :pro_budget_participation, :pro_total_time, 
+                :pro_budget, :pro_budget_participation, :pro_total_time, pro_state = :pro_state,
                 :pro_shortcut, :pro_agency, :pro_grant_title);
                 """;
 
@@ -127,7 +127,7 @@ public class JdbcProjectRepository implements IProjectRepository {
                 SET pro_enabled = :pro_enabled, pro_name = :pro_name, pro_manager_id = :pro_manager_id,
                 pro_workplace_id = :pro_workplace_id, pro_date_from = :pro_date_from, pro_description = :pro_description,
                 pro_probability = :pro_probability, pro_budget = :pro_budget, pro_agency = :pro_agency,
-                pro_budget_participation = :pro_budget_participation,
+                pro_budget_participation = :pro_budget_participation, pro_state = :pro_state,
                 pro_total_time = :pro_total_time, pro_grant_title = :pro_grant_title
                 WHERE project_id = :project_id
                 """;
@@ -214,6 +214,7 @@ public class JdbcProjectRepository implements IProjectRepository {
         params.addValue("pro_budget_participation", project.getBudgetParticipation());
         params.addValue("pro_agency", project.getAgency());
         params.addValue("pro_grant_title", project.getGrantTitle());
+        params.addValue("pro_state", project.getState().getValue());
 
         return params;
     }

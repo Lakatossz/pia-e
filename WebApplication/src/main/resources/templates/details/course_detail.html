@@ -45,10 +45,14 @@
 
         <h1 class="text-center mt-5" th:text="#{view.course_detail.header} + ' ' + ${course.getName()}"></h1>
 
+        <div class="course-detail-collapsible-header" style="display: flex">
+            <h4>Detail</h4>
+        </div>
+
         <form   method="post"
                 th:action="@{'/c/' + ${id}}"
                 th:object="${course}" th:method="POST" novalidate>
-            <table>
+            <table class="course-detail-collapse">
                 <tr>
                     <td class="course-detail-div">
                         <label class="course-detail-label" for="shortcut"
@@ -206,17 +210,18 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <th:block th:each="all : ${allList}">
+                    <th:block th:each="all, allStats: ${allList}">
                         <!-- Employee-->
                         <form method="post"
-                              th:action="@{'/a/' + ${all.id}}">
+                              th:action="@{'/a/' + ${all.id} + '/edit'}">
                             <th:block>
-                                <tr class="course-table-detail-row">
+                                <tr class="course-table-detail-row"  th:id="${allStats.index}">
                                     <td class="course-table-detail-cell">
                                         <label>
-                                            <select class="course-table-detail-input"
-                                                    th:name="employeeId">
-                                                <option th:each="emp : ${employees}" th:selected="${emp.getId()}" th:value="${emp.getId()}"
+                                            <select class="course-table-detail-select"
+                                                    th:name="employeeId" disabled="true">
+                                                <option th:each="emp : ${employees}" th:selected="${emp.getId()}"
+                                                        th:value="${emp.getId()}" disabled="true"
                                                         th:text="${emp.getLastName()} + ' ' + ${emp.getFirstName()}">
                                                 </option>
                                             </select>
@@ -224,42 +229,42 @@
                                     </td>
                                     <td class="course-table-detail-cell">
                                         <label>
-                                            <input class="course-table-detail-input" type="text" th:name="role"
-                                                   readonly="readonly" th:value="${all.role}">
+                                            <input class="course-table-detail-input" type="text" readonly="readonly"
+                                                   th:name="role" th:value="${all.role}">
                                         </label>
                                     </td>
                                     <td class="course-table-detail-cell">
                                         <label>
-                                            <input class="course-table-detail-input" readonly="readonly"
+                                            <input class="course-table-detail-input" type="text" readonly="readonly"
                                                    th:name="allocationScope" th:value="${all.allocationScope}">
                                         </label>
                                     </td>
                                     <td class="course-table-detail-cell">
                                         <label>
-                                            <input class="course-table-detail-input" readonly="readonly"
+                                            <input class="course-table-detail-input" type="text" readonly="readonly"
                                                    th:name="isCertain" th:value="${all.isCertain}">
                                         </label>
                                     </td>
                                     <td class="course-table-detail-cell">
                                         <label>
-                                            <input class="course-table-detail-input" readonly="readonly"
+                                            <input class="course-table-detail-input" type="text" readonly="readonly"
                                                    th:name="description" th:value="${all.description}">
                                         </label>
                                     </td>
                                     <td>
-                                        <button class="btn btn-confirm" type="submit" readonly="readonly"
+                                        <button class="btn btn-confirm" type="submit"
                                                 th:formaction="'/a/' + ${id} + '/edit'"></button>
                                     </td>
                                     <td>
-                                        <button class="btn btn-edit" type="button"></button>
+                                        <button class="btn btn-edit" th:id="${allStats.index}" type="button"></button>
                                     </td>
                                     <td>
-                                        <button class="btn btn-cancel" type="button"></button>
+                                        <button class="btn btn-cancel" th:id="${allStats.index}" type="button"></button>
                                     </td>
-                                    <td class="course-table-detail-cell">
+                                    <td>
                                         <label>
                                             <input class="course-table-detail-input" style="display : none"
-                                                   th:name="courseId" th:value="${all.courseId}">
+                                                   th:id="${allStats.index}" th:name="courseId" th:value="${all.courseId}">
                                         </label>
                                     </td>
                                 </tr>
@@ -278,13 +283,36 @@
 
     showTab(0);
 
+    let course = document.querySelectorAll(".course-detail-collapsible-header");
+
+    Array.from(course).forEach(function(div) {
+        let button = document.createElement("button");
+        button.className = "btn collapsible btn-dropdown course-detail-collapse-btn";
+        button.addEventListener("click", function(evt) {
+            let collapse = document.getElementsByClassName("course-detail-collapse");
+            if (collapse[0].style.visibility === "visible") {
+                collapse[0].style.visibility = "collapse";
+            } else {
+                collapse[0].style.visibility = "visible";
+            }
+            if (this.classList.contains("btn-dropdown")) {
+                this.classList.remove("btn-dropdown");
+                this.classList.add("btn-dropdown-clicked");
+            } else {
+                this.classList.add("btn-dropdown");
+                this.classList.remove("btn-dropdown-clicked");
+            }
+        });
+        div.append(button);
+    });
+
     function showTab(tabId) {
-        var tabContents = document.querySelectorAll('.course-detail-tab-content');
+        let tabContents = document.querySelectorAll('.course-detail-tab-content');
         tabContents.forEach(function(tabContent) {
             tabContent.classList.remove('active');
         });
 
-        var buttons = document.querySelectorAll('.course-table-detail-top-btn');
+        let buttons = document.querySelectorAll('.course-table-detail-top-btn');
 
         buttons.forEach(function (button) {
             button.classList.remove('course-detail-button-selected');
@@ -292,7 +320,7 @@
 
         buttons[tabId].classList.add('course-detail-button-selected');
 
-        var selectedTabContent = document.getElementById(tabId + 'Content');
+        let selectedTabContent = document.getElementById(tabId + 'Content');
         tabContents.forEach(function(tabContent) {
             tabContent.classList.remove('active');
         });
@@ -359,21 +387,34 @@
         let buttonsEdit = document.getElementsByClassName("btn-edit");
         let buttonsConfirm = document.getElementsByClassName("btn-confirm");
         let buttonsCancel = document.getElementsByClassName("btn-cancel");
+
         for (let i = 0; i < buttonsEdit.length; ++i) {
-            buttonsEdit[i].addEventListener("click", function(evt) {
-                let tds = trArray.getElementsByClassName("course-table-detail-input");
-                Array.from(tds).forEach(function(td) {
-                    td.removeAttribute("readonly");
+            buttonsEdit[i].addEventListener("click", function() {
+                console.log(buttonsEdit[i].id + ' - ' + i.toString(10));
+                if (buttonsEdit[i].id === i.toString(10)) {
+                    let tds = trArray.getElementsByClassName("course-table-detail-input");
+                    console.log('pocet tds: ' + tds.length);
+                    let select = trArray.getElementsByClassName("course-table-detail-select");
+                    console.log('pocet selectu: ' + select.length);
+                    for (let j = 0; j < tds.length; ++j) {
+                        tds[j].removeAttribute("readonly");
+                    }
+                    // select[0].removeAttribute("disabled");
                     buttonsConfirm[i].style.visibility = "visible";
                     buttonsCancel[i].style.visibility = "visible";
                     buttonsEdit[i].style.visibility = "hidden";
-                });
+                }
             });
 
             buttonsConfirm[i].addEventListener("click", function(evt) {
                 let tds = trArray.getElementsByClassName("course-table-detail-input");
+                let select = trArray.getElementsByClassName("course-table-detail-select");
                 Array.from(tds).forEach(function(td) {
                     td.setAttribute('readonly', 'readonly');
+                    for (let j = 0; j < tds.length; ++j) {
+                        tds[j].removeAttribute("readonly");
+                    }
+                    // select[0].setAttribute('disabled', 'disabled');
                     buttonsConfirm[i].style.visibility = 'hidden';
                     buttonsCancel[i].style.visibility = 'hidden';
                     buttonsEdit[i].style.visibility = 'visible';
@@ -382,8 +423,13 @@
 
             buttonsCancel[i].addEventListener("click", function(evt) {
                 let tds = trArray.getElementsByClassName("course-table-detail-input");
+                let select = trArray.getElementsByClassName("course-table-detail-select");
                 Array.from(tds).forEach(function(td) {
                     td.setAttribute('readonly', 'readonly');
+                    for (let j = 0; j < tds.length; ++j) {
+                        tds[j].removeAttribute("readonly");
+                    }
+                    // select[0].removeAttribute("disabled");
                     buttonsConfirm[i].style.visibility = 'hidden';
                     buttonsCancel[i].style.visibility = 'hidden';
                     buttonsEdit[i].style.visibility = 'visible'

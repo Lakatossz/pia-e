@@ -1,6 +1,8 @@
 package cz.zcu.kiv.mjakubas.piae.sem.webapplication.controller.v1;
 
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Allocation;
+import cz.zcu.kiv.mjakubas.piae.sem.core.domain.AllocationCell;
+import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Employee;
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Project;
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.ProjectState;
 import cz.zcu.kiv.mjakubas.piae.sem.core.service.v1.AllocationService;
@@ -114,12 +116,9 @@ public class ProjectV1Controller {
                         .state(data.getState().getValue()));
 
         model.addAttribute("states", ProjectState.values());
-
         model.addAttribute(EMPLOYEES, employeeService.getEmployees());
         model.addAttribute("workplaces", workplaceService.getWorkplaces());
-
         model.addAttribute(RESTRICTIONS, projectService.getProjects());
-
         model.addAttribute("manage", manage);
 
         return "forms/project/edit_project_form";
@@ -179,8 +178,21 @@ public class ProjectV1Controller {
         employees.forEach(employee ->
                 employee.getSubordinates().addAll(employeeService.getSubordinates(employee.getId())));
 
-        employees.forEach(employeeService::prepareProjectsCells);
-        employees.forEach(employeeService::prepareTotalCells);
+        int length = 2;
+        int first = 2022;
+
+        employees.forEach(employee -> employeeService.prepareProjectsCells(employee, first, length));
+        employees.forEach(employee -> employeeService.prepareTotalCells(employee, first, length));
+
+        for (Employee emp : employees) {
+            System.out.println("\n" + emp.getLastName());
+            for (List<AllocationCell> list : emp.getProjectsAllocationCells()) {
+                for (AllocationCell cell : list) {
+                    System.out.print(cell.getTime() + " ");
+                }
+                System.out.println();
+            }
+        }
 
         model.addAttribute(EMPLOYEES, employees);
         model.addAttribute("workplaces", workplaceService.getWorkplaces());

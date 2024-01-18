@@ -26,9 +26,9 @@ public class Allocation {
     private Date dateFrom;
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date dateUntil;
+    private String role;
     private String description;
     private Boolean active;
-    private String role;
 
     private AssignmentState currentState;
 

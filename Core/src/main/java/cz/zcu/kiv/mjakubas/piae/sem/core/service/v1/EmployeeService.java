@@ -15,11 +15,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.Setter;
-import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Year;
+import java.time.LocalDate;
+import java.time.Period;
+import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
@@ -196,441 +197,200 @@ public class EmployeeService {
         return firstAllocations;
     }
 
-    /* Pokus o kodovani pro nasledne zpracovani na FE -> YYYYMM. */
-    void codeYearAndMonth(List<List<AllocationCell>> lists, Employee employee) {
-        for (List<AllocationCell> list : lists) {
-            for (AllocationCell cell : list) {
-                if (cell.getKey() / 100 < employee.getFirstYear())
-                    employee.setFirstYear(cell.getKey() / 100);
+    public void prepareAllocationsCells(Employee employee) {
+        List<Allocation> projectAllocations = employee.getProjectsAllocations();
+        List<MergingObject> projectAllocationsByFunctionAndRole = splitByRoleAndEmployeeId(projectAllocations, employee, Allocation::getProject);
+
+        List<Allocation> courseAllocations = employee.getCoursesAllocations();
+        List<MergingObject> courseAllocationsByFunctionAndRole = splitByRoleAndEmployeeId(courseAllocations, employee, Allocation::getCourse);
+
+        List<Allocation> functionAllocations = employee.getFunctionsAllocations();
+        List<MergingObject> functionAllocationsByFunctionAndRole = splitByRoleAndEmployeeId(functionAllocations, employee, Allocation::getFunction);
+
+        setFirstAndTotalByActitvitiesAllocations(employee, projectAllocationsByFunctionAndRole,
+                courseAllocationsByFunctionAndRole,functionAllocationsByFunctionAndRole);
+
+        employee.setProjectsAllocationCells(prepareActivityCells(employee, projectAllocationsByFunctionAndRole));
+        employee.setCoursesAllocationCells(prepareActivityCells(employee, courseAllocationsByFunctionAndRole));
+        employee.setFunctionsAllocationCells(prepareActivityCells(employee, functionAllocationsByFunctionAndRole));
+        prepareTotalCells(employee);
+    }
+
+    private void setFirstAndTotalByActitvitiesAllocations(Employee employee,
+                                                          List<MergingObject> projectAllocationsByFunctionAndRole,
+                                                          List<MergingObject> courseAllocationsByFunctionAndRole,
+                                                          List<MergingObject> functionAllocationsByFunctionAndRole) {
+        setFirstAndTotal(employee, projectAllocationsByFunctionAndRole);
+        setFirstAndTotal(employee, courseAllocationsByFunctionAndRole);
+        setFirstAndTotal(employee, functionAllocationsByFunctionAndRole);
+    }
+
+    private void setFirstAndTotal(Employee employee, List<MergingObject> allocationsByFunctionAndRole) {
+        for (MergingObject o : allocationsByFunctionAndRole) {
+            if (employee.getNumberOfYears() == 0 && employee.getFirstYear() == Integer.MAX_VALUE) {
+                employee.setFirstYear(o.getFirstYear());
+                employee.setNumberOfYears(o.getNumberOfYears());
             }
-            if (list.size() / 12 > employee.getNumberOfYears()) {
-                employee.setNumberOfYears(list.size() / 12);
+            if (o.getFirstYear() < employee.getFirstYear()) {
+                employee.setNumberOfYears(employee.getNumberOfYears() + Math.abs(o.getFirstYear() - employee.getFirstYear()));
+                employee.setFirstYear(o.getFirstYear());
+            }
+            if (o.getFirstYear() - (employee.getFirstYear() + employee.getNumberOfYears()) >= 0) {
+                employee.setNumberOfYears(o.getFirstYear() + o.getNumberOfYears() - (employee.getFirstYear() - employee.getNumberOfYears()));
             }
         }
     }
 
-    public void prepareProjectsCells(Employee employee) {
-        List<Allocation> current = employee.getProjectsAllocations();
-        List<MergingObject> allocationsByProjectAndRole = new LinkedList<>();
+    private void prepareTotalCells(Employee employee) {
+        List<AllocationCell> certains = new java.util.ArrayList<>(Collections.nCopies(
+                (int)employee.getNumberOfYears() * 12, new AllocationCell()));
 
-//        Zakoduju ostatni akce a pritom zjistim prvni rok a delku
-        codeYearAndMonth(employee.getCoursesAllocationCells(), employee);
-        codeYearAndMonth(employee.getFunctionsAllocationCells(), employee);
+        List<AllocationCell> uncertains = new java.util.ArrayList<>(Collections.nCopies(
+                (int)employee.getNumberOfYears() * 12, new AllocationCell()));
 
-//        Projdu vsechny alokace a spojim ty se stejnou roli a projektem
-        for (Allocation allocation : current) {
-            List<MergingObject> list = allocationsByProjectAndRole.stream().filter(
-                    o -> o.getActivityId() == allocation.getProject().getId()
-                            && o.getRole().equals(allocation.getRole())).toList();
-            if (!list.isEmpty()) {
-                MergingObject currentObject = list.get(0);
-                int index = allocationsByProjectAndRole.indexOf(currentObject);
-                if (index != -1)
-                    allocationsByProjectAndRole.get(index).allocations(allocation);
-                else
-                    allocationsByProjectAndRole.add(
-                            new MergingObject(allocation.getProject().getId(), allocation.getRole(), allocation));
-            } else
-                allocationsByProjectAndRole.add(
-                        new MergingObject(allocation.getProject().getId(), allocation.getRole(), allocation));
-        }
-
-        if (!allocationsByProjectAndRole.isEmpty()) {
-//            Seradim spojene alokace podle pocatecniho datumu
-            allocationsByProjectAndRole.forEach(MergingObject::sortAllocationsByDate);
-
-//            Zjistim prvni rok a delku a pripadne nastavim u zamestnance
-            for (MergingObject o : allocationsByProjectAndRole) {
-                if (o.getFirstYear() < employee.getFirstYear())
-                    employee.setFirstYear(o.getFirstYear());
-                if (o.getNumberOfYears() > employee.getNumberOfYears()) {
-                    employee.setNumberOfYears(o.getNumberOfYears());
+        for (List<AllocationCell> l : employee.getProjectsAllocationCells()) {
+            for (int i = 0; i < l.size(); ++i) {
+                if (l.get(i).getCertain() == 1) {
+                    certains.set(i, new AllocationCell(
+                            certains.get(i).getTime() + l.get(i).getTime(), (float) 1.0));
+                } else {
+                    uncertains.set(i, new AllocationCell(
+                            uncertains.get(i).getTime() + l.get(i).getTime(), (float) 1.0));
                 }
             }
+        }
 
-            List<List<AllocationCell>> list = new LinkedList<>();
-            for (MergingObject object : allocationsByProjectAndRole) {
-                int size = (int) (12 * employee.getNumberOfYears());
-                List<AllocationCell> allList = new java.util.ArrayList<>(Collections.nCopies(size, new AllocationCell()));
-                int index = 0;
-                int i = 0;
-                while (i < size && object.getAllocations().size() > index && object.getAllocations().get(index) != null) {
-                    if (object.getFirstYear() > employee.getFirstYear()
-                            || object.getFirstYear() + object.getNumberOfYears() < employee.getFirstYear() + employee.getNumberOfYears()) {
-                        for (int j = 0; j < 12; ++j) {
-                            allList.set(i, new AllocationCell(employee.getFirstYear() * 100 + j, 0, 0));
-                            i++;
-                        }
-                    } else {
-                        int j = 0;
-                        Date lastDate = object.getAllocations().get(index).getDateFrom();
-                        long lastYear = employee.getFirstYear();
-                        Date nextEnd = object.getAllocations().get(index).getDateUntil();
-                        while(i < size && nextEnd.after(lastDate)) {
-                            allList.set(i, new AllocationCell(lastYear * 100 + j,
-                                    object.getAllocations().get(index).getTime(),
-                                    object.getAllocations().get(index).getIsCertain()));
-                            if (j == 11) {
-                                lastYear++;
-                                j = 0;
-                            }
-                            lastDate = DateUtils.addMonths(lastDate, 1);
-                            ++j;
-                            ++i;
-                        }
-                        index++;
-                    }
+        for (List<AllocationCell> l : employee.getCoursesAllocationCells()) {
+            for (int i = 0; i < l.size(); ++i) {
+                if (l.get(i).getCertain() == 1) {
+                    certains.set(i, new AllocationCell(
+                            certains.get(i).getTime() + l.get(i).getTime(), (float) 1.0));
+                } else {
+                    uncertains.set(i, new AllocationCell(
+                            uncertains.get(i).getTime() + l.get(i).getTime(), (float) 1.0));
                 }
-                list.add(allList);
-                employee.setProjectsAllocationCells(list);
             }
         }
+
+        for (List<AllocationCell> l : employee.getFunctionsAllocationCells()) {
+            for (int i = 0; i < l.size(); ++i) {
+                if (l.get(i).getCertain() == 1) {
+                    certains.set(i, new AllocationCell(
+                            certains.get(i).getTime() + l.get(i).getTime(), (float) 1.0));
+                } else {
+                    uncertains.set(i, new AllocationCell(
+                            uncertains.get(i).getTime() + l.get(i).getTime(), (float) 1.0));
+                }
+            }
+        }
+
+        employee.totalCertainAllocationCells(certains);
+        employee.totalUncertainAllocationCells(uncertains);
     }
 
     /**
      * Projdu vsechny alokace a spojim ty se stejnou roli a projektem
      * @param current
-     * @param attributeSelector
+     * @param employee
      * @return
      */
-    private List<MergingObject> splitByRoleAndActivityId(Employee employee,
-                                                         List<Allocation> current,
+    private List<MergingObject> splitByRoleAndEmployeeId(List<Allocation> current,
+                                                         Employee employee,
                                                          Function<Allocation, Activity> attributeSelector) {
+
+        System.out.println("Current: " + current.size());
+
         List<MergingObject> allocationsByActivityAndRole = new LinkedList<>();
 
         for (Allocation allocation : current) {
-            List<MergingObject> list = allocationsByActivityAndRole.stream().filter(
-                    o -> o.getActivityId() == attributeSelector.apply(allocation).getId()
-                            && o.getRole().equals(allocation.getRole())).toList();
-            if (!list.isEmpty()) {
-                MergingObject currentObject = list.get(0);
-                int index = allocationsByActivityAndRole.indexOf(currentObject);
-                if (index != -1)
-                    allocationsByActivityAndRole.get(index).allocations(allocation);
-                else
-                    allocationsByActivityAndRole.add(
-                            new MergingObject(attributeSelector.apply(allocation).getId(), allocation.getRole(), allocation));
-            } else
+            System.out.println("Id: " + allocation.getId());
+            List<MergingObject> objects = allocationsByActivityAndRole.stream().filter(o ->
+                    o.getActivityId() == attributeSelector.apply(allocation).getId() && o.role.equals(allocation.getRole())).toList();
+            if (objects.size() == 1) {
+                int index = allocationsByActivityAndRole.indexOf(objects.get(0));
+                allocationsByActivityAndRole.get(index).allocations(allocation);
+            } else {
                 allocationsByActivityAndRole.add(
-                        new MergingObject(attributeSelector.apply(allocation).getId(), allocation.getRole(), allocation));
+                        new MergingObject().employeeId(employee.getId()).role(allocation.getRole()).activityId(attributeSelector.apply(allocation).getId()));
+            }
+
         }
+
+        System.out.println(allocationsByActivityAndRole.size());
 
 //        Seradim spojene alokace podle pocatecniho datumu
         allocationsByActivityAndRole.forEach(MergingObject::sortAllocationsByDate);
 
-//        Zjistim prvni rok a delku a pripadne nastavim u zamestnance
-        for (MergingObject o : allocationsByActivityAndRole) {
-            if (o.getFirstYear() < employee.getFirstYear())
-                employee.setFirstYear(o.getFirstYear());
-            if (o.getNumberOfYears() > employee.getNumberOfYears()) {
-                employee.setNumberOfYears(o.getNumberOfYears());
+        System.out.println("allocationsByActivityAndRole: " + allocationsByActivityAndRole.size());
+
+        allocationsByActivityAndRole.forEach(object -> {
+            Allocation allocation = object.allocations.get(0);
+            if (allocation.getProject().getId() > 0) {
+                employee.projectsName(allocation.getProject().getName());
+                employee.projectsCertain(allocation.getIsCertain());
+                System.out.println("projectName: " + allocation.getProject().getName() + " role: " + allocation.getRole());
+            } else if (allocation.getCourse().getId() > 0) {
+                employee.coursesName(allocation.getCourse().getShortcut());
+                employee.coursesCertain(allocation.getIsCertain());
+                System.out.println("courseName: " + allocation.getCourse().getShortcut() + " role: " + allocation.getRole());
+            } else if (allocation.getFunction().getId() > 0) {
+                employee.functionsName(allocation.getFunction().getName());
+                employee.functionsCertain(allocation.getIsCertain());
+                System.out.println("functionName: " + allocation.getFunction().getName() + " role: " + allocation.getRole());
             }
-        }
+        });
 
         return allocationsByActivityAndRole;
     }
 
-    public void prepareActivityCells(Employee employee,
-                                     List<MergingObject> allocationsByActivityAndRole,
-                                     int totalFirstYear, int totalNumberOfYears) {
-        if (!allocationsByActivityAndRole.isEmpty()) {
-            List<List<AllocationCell>> list = new LinkedList<>();
-            for (MergingObject object : allocationsByActivityAndRole) {
-                int size = (12 * totalNumberOfYears);
-                List<AllocationCell> allList = new java.util.ArrayList<>(Collections.nCopies(size, new AllocationCell()));
-                int index = 0;
-                int i = 0;
-                while (i < size && object.getAllocations().size() > index
-                        && object.getAllocations().get(index) != null) {
-                    if (object.getFirstYear() > totalFirstYear
-                            || object.getFirstYear() + object.getNumberOfYears() < totalFirstYear + totalNumberOfYears) {
-                        for (int j = 0; j < 12; ++j) {
-                            allList.set(i, new AllocationCell(employee.getFirstYear() * 100 + j, 0, 0));
-                            i++;
-                        }
-                    } else {
-                        int j = 0;
-                        Date lastDate = object.getAllocations().get(index).getDateFrom();
-                        long lastYear = totalFirstYear;
-                        Date nextEnd = object.getAllocations().get(index).getDateUntil();
-                        while(i < size && nextEnd.after(lastDate)) {
-                            allList.set(i, new AllocationCell(lastYear * 100 + j,
-                                    object.getAllocations().get(index).getTime(),
-                                    object.getAllocations().get(index).getIsCertain()));
-                            if (j == 11) {
-                                lastYear++;
-                                j = 0;
-                            }
-                            lastDate = DateUtils.addMonths(lastDate, 1);
-                            ++j;
-                            ++i;
-                        }
-                        index++;
-                    }
-                }
-                list.add(allList);
-                employee.setProjectsAllocationCells(list);
-            }
+    public LocalDate convertToLocalDateTime(Date dateToConvert) {
+        return dateToConvert.toInstant()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDate();
+    }
+
+    private void addAllocationsPerMonth(Allocation allocation,
+                                        List<AllocationCell> cellsList,
+                                        int firstYear) {
+        Date dateFrom = allocation.getDateFrom();
+        Date dateUntil = allocation.getDateUntil();
+        int yearsDiff = Period.between(convertToLocalDateTime(dateFrom), convertToLocalDateTime(dateUntil)).getYears();
+        int monthsDiff = yearsDiff * 12 + Period.between(convertToLocalDateTime(dateFrom), convertToLocalDateTime(dateUntil)).getMonths() + 1; // leden - leden je porad 1 mesic xD
+
+        Calendar date = new GregorianCalendar();
+        date.setTime(dateFrom);
+        int startIndex = (date.get(Calendar.YEAR) - firstYear) * 12 + date.get(Calendar.MONTH);
+
+        for (int i = 0; i < monthsDiff; ++i) {
+            cellsList.set(startIndex + i, new AllocationCell(allocation.getTime(), allocation.getIsCertain()));
         }
     }
 
-    /**
-     * Nastavi bunky pro alokace na projektu pro detail projektu.
-     * Oproti predchozi metode nastavuje pro vsechny zamestnance u projektu.
-     * @param employee Aktualni zamestannec
-     * @param totalFirstYear Prvni rok u zamestnancu u projektu
-     * @param totalNumberOfYears Celkovy pocet roku u zamestnancu u projektu
-     */
-    public void prepareProjectsCells(Employee employee, int totalFirstYear, int totalNumberOfYears) {
-        List<Allocation> current = employee.getProjectsAllocations();
+    private List<List<AllocationCell>> prepareAllocationCells(List<MergingObject> allocationsByActivityAndRole,
+                                                              int totalFirstYear,
+                                                              int totalNumberOfYears) {
+        List<List<AllocationCell>> list = new LinkedList<>();
+        for (MergingObject object : allocationsByActivityAndRole) {
+//            Pripravim cele pole
+            int cellsSize = (12 * totalNumberOfYears);
+            System.out.println("cellsSize: " + cellsSize);
+            List<AllocationCell> cellsList = new java.util.ArrayList<>(Collections.nCopies(cellsSize, new AllocationCell()));
+            object.allocations.forEach(allocation -> addAllocationsPerMonth(allocation, cellsList, totalFirstYear));
+            list.add(cellsList);
+        }
 
-//        Zakoduju ostatni akce a pritom zjistim prvni rok a delku
-        codeYearAndMonth(employee.getCoursesAllocationCells(), employee);
-        codeYearAndMonth(employee.getFunctionsAllocationCells(), employee);
+        System.out.println("list: " + list.size());
 
-        List<MergingObject> allocationsByProjectAndRole = splitByRoleAndActivityId(employee, current, Allocation::getProject);
-
-        prepareActivityCells(employee, allocationsByProjectAndRole, totalFirstYear, totalNumberOfYears);
+        return list;
     }
 
-    public void prepareCoursesCells(Employee employee) {
-        List<Allocation> current = employee.getCoursesAllocations();
+    public List<List<AllocationCell>> prepareActivityCells(Employee employee,
+                                                           List<MergingObject> allocationsByActivityAndRole) {
 
-        codeYearAndMonth(employee.getProjectsAllocationCells(), employee);
-        codeYearAndMonth(employee.getFunctionsAllocationCells(), employee);
-
-        List<MergingObject> allocationsByCourseAndRole = splitByRoleAndActivityId(employee, current, Allocation::getCourse);
-
-        if (!allocationsByCourseAndRole.isEmpty()) {
-            List<List<AllocationCell>> list = new LinkedList<>();
-            for (MergingObject object : allocationsByCourseAndRole) {
-                int size = (int) (12 * employee.getNumberOfYears());
-                List<AllocationCell> allList = new java.util.ArrayList<>(Collections.nCopies(size, new AllocationCell()));
-                int index = 0;
-                int i = 0;
-                while (i < size && object.getAllocations().size() > index && object.getAllocations().get(index) != null) {
-                    if (object.getFirstYear() > employee.getFirstYear()
-                            || object.getFirstYear() + object.getNumberOfYears() < employee.getFirstYear() + employee.getNumberOfYears()) {
-                        for (int j = 0; j < 12; ++j) {
-                            allList.set(i, new AllocationCell(employee.getFirstYear() * 100 + j, 0, 0));
-                            i++;
-                        }
-                    } else {
-                        int j = 0;
-                        Date lastDate = object.getAllocations().get(index).getDateFrom();
-                        long lastYear = employee.getFirstYear();
-                        Date nextEnd = object.getAllocations().get(index).getDateUntil();
-                        while(i < size && nextEnd.after(lastDate)) {
-                            allList.set(i, new AllocationCell(lastYear * 100 + j,
-                                    object.getAllocations().get(index).getTime(),
-                                    object.getAllocations().get(index).getIsCertain()));
-                            if (j == 11) {
-                                lastYear++;
-                                j = 0;
-                            }
-                            lastDate = DateUtils.addMonths(lastDate, 1);
-                            ++j;
-                            ++i;
-                        }
-                        index++;
-                    }
-                }
-                list.add(allList);
-                employee.setCoursesAllocationCells(list);
-            }
-        }
-    }
-
-    public void prepareFunctionsCells(Employee employee) {
-        List<Allocation> current = employee.getFunctionsAllocations();
-
-        codeYearAndMonth(employee.getProjectsAllocationCells(), employee);
-        codeYearAndMonth(employee.getCoursesAllocationCells(), employee);
-
-        List<MergingObject> allocationsByFunctionAndRole = splitByRoleAndActivityId(employee, current, Allocation::getFunction);
-
-        if (!allocationsByFunctionAndRole.isEmpty()) {
-            List<List<AllocationCell>> list = new LinkedList<>();
-            for (MergingObject object : allocationsByFunctionAndRole) {
-                int size = (int) (12 * employee.getNumberOfYears());
-                List<AllocationCell> allList = new java.util.ArrayList<>(Collections.nCopies(size, new AllocationCell()));
-                int index = 0;
-                int i = 0;
-                while (i < size && object.getAllocations().size() > index && object.getAllocations().get(index) != null) {
-                    if (object.getFirstYear() > employee.getFirstYear()
-                            || object.getFirstYear() + object.getNumberOfYears() < employee.getFirstYear() + employee.getNumberOfYears()) {
-                        for (int j = 0; j < 12; ++j) {
-                            allList.set(i, new AllocationCell(employee.getFirstYear() * 100 + j, 0, 0));
-                            i++;
-                        }
-                    } else {
-                        int j = 0;
-                        Date lastDate = object.getAllocations().get(index).getDateFrom();
-                        long lastYear = employee.getFirstYear();
-                        Date nextEnd = object.getAllocations().get(index).getDateUntil();
-                        while(i < size && nextEnd.after(lastDate)) {
-                            allList.set(i, new AllocationCell(lastYear * 100 + j,
-                                    object.getAllocations().get(index).getTime(),
-                                    object.getAllocations().get(index).getIsCertain()));
-                            if (j == 11) {
-                                lastYear++;
-                                j = 0;
-                            }
-                            lastDate = DateUtils.addMonths(lastDate, 1);
-                            ++j;
-                            ++i;
-                        }
-                        index++;
-                    }
-                }
-                list.add(allList);
-                employee.setFunctionsAllocationCells(list);
-            }
-        }
-    }
-
-    public void prepareTotalCells(Employee employee) {
-
-        if (!employee.getProjectsAllocationCells().isEmpty()) {
-            employee.setFirstYear(employee.getProjectsAllocationCells().get(0).get(0).getKey() / 100);
-            employee.setNumberOfYears(employee.getProjectsAllocationCells().get(0).size());
-        } else if (!employee.getCoursesAllocationCells().isEmpty()) {
-            employee.setFirstYear(employee.getCoursesAllocationCells().get(0).get(0).getKey() / 100);
-            employee.setNumberOfYears(employee.getCoursesAllocationCells().get(0).size());
-        } else if (!employee.getFunctionsAllocationCells().isEmpty()) {
-            employee.setFirstYear(employee.getFunctionsAllocationCells().get(0).get(0).getKey() / 100);
-            employee.setNumberOfYears(employee.getFunctionsAllocationCells().get(0).size());
-        } else {
-            employee.totalCertainAllocationCells(Collections.nCopies(12, new AllocationCell(0,0L, 0)));
-            employee.totalUncertainAllocationCells(Collections.nCopies(12, new AllocationCell(0,0L, 0)));
-            return;
-        }
-
-        int size = Integer.max(Integer.max(employee.getProjectsAllocationCells().size(),
-                employee.getCoursesAllocationCells().size()), employee.getFunctionsAllocationCells().size());
-
-        for (int i = 0; i < size; ++i) {
-            List<AllocationCell> currentCertain = new LinkedList<>();
-            List<AllocationCell> currentUnCertain = new LinkedList<>();
-
-            for (int j = 0; j < employee.getNumberOfYears(); ++j) {
-                for (int k = 0; k < 12; ++k) {
-                    currentCertain.add(j, new AllocationCell((employee.getFirstYear() + j) * 100L + k, 0L, 0));
-                    currentUnCertain.add(j, new AllocationCell((employee.getFirstYear() + j) * 100L + k, 0L, 0));
-                }
-            }
-
-            if (employee.getProjectsAllocationCells().size() > i) {
-                for (int j = 0; j < employee.getProjectsAllocationCells().get(i).size(); ++j) {
-                    if (employee.getProjectsAllocationCells().get(i).get(j).getCertain() == 1)
-                        currentCertain.set(j, new AllocationCell(currentCertain.get(i).getKey(),
-                                currentCertain.get(j).getTime() + employee.getProjectsAllocationCells().get(i).get(j).getTime(),
-                                employee.getProjectsAllocationCells().get(i).get(j).getCertain()));
-                    else
-                        currentUnCertain.set(j, new AllocationCell(currentUnCertain.get(i).getKey(),
-                                currentUnCertain.get(j).getTime() + employee.getProjectsAllocationCells().get(i).get(j).getTime(),
-                                employee.getProjectsAllocationCells().get(i).get(j).getCertain()));
-                }
-            }
-            if (employee.getCoursesAllocationCells().size() > i) {
-                for (int j = 0; j < employee.getCoursesAllocationCells().get(i).size(); ++j) {
-                    if (employee.getCoursesAllocationCells().get(i).get(j).getCertain() == 1)
-                        currentCertain.set(j, new AllocationCell(currentUnCertain.get(i).getKey(),
-                                currentUnCertain.get(j).getTime() + employee.getCoursesAllocationCells().get(i).get(j).getTime(),
-                                employee.getCoursesAllocationCells().get(i).get(j).getCertain()));
-                    else
-                        currentUnCertain.set(j, new AllocationCell(currentUnCertain.get(i).getKey(),
-                                currentUnCertain.get(j).getTime() + employee.getCoursesAllocationCells().get(i).get(j).getTime(),
-                                employee.getCoursesAllocationCells().get(i).get(j).getCertain()));
-                }
-            }
-            if (employee.getFunctionsAllocationCells().size() > i) {
-                for (int j = 0; j < employee.getFunctionsAllocationCells().get(i).size(); ++j) {
-                    if (employee.getFunctionsAllocationCells().get(i).get(j).getCertain() == 1)
-                        currentCertain.set(j, new AllocationCell(currentCertain.get(i).getKey(),
-                                currentCertain.get(j).getTime() + employee.getFunctionsAllocationCells().get(i).get(j).getTime(),
-                                employee.getFunctionsAllocationCells().get(i).get(j).getCertain()));
-                    else
-                        currentUnCertain.set(j, new AllocationCell(currentUnCertain.get(i).getKey(),
-                                currentUnCertain.get(j).getTime() + employee.getFunctionsAllocationCells().get(i).get(j).getTime(),
-                                employee.getFunctionsAllocationCells().get(i).get(j).getCertain()));
-                }
-            }
-            employee.totalCertainAllocationCells(currentCertain);
-            employee.totalUncertainAllocationCells(currentUnCertain);
-        }
-    }
-
-    public void prepareTotalCells(Employee employee, int first, int length) {
-
-        if (!employee.getProjectsAllocationCells().isEmpty()) {
-            employee.setFirstYear(employee.getProjectsAllocationCells().get(0).get(0).getKey() / 100);
-            employee.setNumberOfYears(employee.getProjectsAllocationCells().get(0).size());
-        } else if (!employee.getCoursesAllocationCells().isEmpty()) {
-            employee.setFirstYear(employee.getCoursesAllocationCells().get(0).get(0).getKey() / 100);
-            employee.setNumberOfYears(employee.getCoursesAllocationCells().get(0).size());
-        } else if (!employee.getFunctionsAllocationCells().isEmpty()) {
-            employee.setFirstYear(employee.getFunctionsAllocationCells().get(0).get(0).getKey() / 100);
-            employee.setNumberOfYears(employee.getFunctionsAllocationCells().get(0).size());
-        } else {
-            employee.totalCertainAllocationCells(Collections.nCopies(12, new AllocationCell(0,0L, 0)));
-            employee.totalUncertainAllocationCells(Collections.nCopies(12, new AllocationCell(0,0L, 0)));
-            return;
-        }
-
-        int size = Integer.max(Integer.max(employee.getProjectsAllocationCells().size(),
-                employee.getCoursesAllocationCells().size()), employee.getFunctionsAllocationCells().size());
-
-        for (int i = 0; i < size; ++i) {
-            List<AllocationCell> currentCertain = new LinkedList<>();
-            List<AllocationCell> currentUnCertain = new LinkedList<>();
-
-            for (int j = 0; j < employee.getNumberOfYears(); ++j) {
-                for (int k = 0; k < 12; ++k) {
-                    currentCertain.add(j, new AllocationCell((employee.getFirstYear() + j) * 100L + k, 0L, 0));
-                    currentUnCertain.add(j, new AllocationCell((employee.getFirstYear() + j) * 100L + k, 0L, 0));
-                }
-            }
-
-            if (employee.getProjectsAllocationCells().size() > i) {
-                for (int j = 0; j < employee.getProjectsAllocationCells().get(i).size(); ++j) {
-                    if (employee.getProjectsAllocationCells().get(i).get(j).getCertain() == 1)
-                        currentCertain.set(j, new AllocationCell(currentCertain.get(i).getKey(),
-                                currentCertain.get(j).getTime() + employee.getProjectsAllocationCells().get(i).get(j).getTime(),
-                                employee.getProjectsAllocationCells().get(i).get(j).getCertain()));
-                    else
-                        currentUnCertain.set(j, new AllocationCell(currentUnCertain.get(i).getKey(),
-                                currentUnCertain.get(j).getTime() + employee.getProjectsAllocationCells().get(i).get(j).getTime(),
-                                employee.getProjectsAllocationCells().get(i).get(j).getCertain()));
-                }
-            }
-            if (employee.getCoursesAllocationCells().size() > i) {
-                for (int j = 0; j < employee.getCoursesAllocationCells().get(i).size(); ++j) {
-                    if (employee.getCoursesAllocationCells().get(i).get(j).getCertain() == 1)
-                        currentCertain.set(j, new AllocationCell(currentUnCertain.get(i).getKey(),
-                                currentUnCertain.get(j).getTime() + employee.getCoursesAllocationCells().get(i).get(j).getTime(),
-                                employee.getCoursesAllocationCells().get(i).get(j).getCertain()));
-                    else
-                        currentUnCertain.set(j, new AllocationCell(currentUnCertain.get(i).getKey(),
-                                currentUnCertain.get(j).getTime() + employee.getCoursesAllocationCells().get(i).get(j).getTime(),
-                                employee.getCoursesAllocationCells().get(i).get(j).getCertain()));
-                }
-            }
-            if (employee.getFunctionsAllocationCells().size() > i) {
-                for (int j = 0; j < employee.getFunctionsAllocationCells().get(i).size(); ++j) {
-                    if (employee.getFunctionsAllocationCells().get(i).get(j).getCertain() == 1)
-                        currentCertain.set(j, new AllocationCell(currentCertain.get(i).getKey(),
-                                currentCertain.get(j).getTime() + employee.getFunctionsAllocationCells().get(i).get(j).getTime(),
-                                employee.getFunctionsAllocationCells().get(i).get(j).getCertain()));
-                    else
-                        currentUnCertain.set(j, new AllocationCell(currentUnCertain.get(i).getKey(),
-                                currentUnCertain.get(j).getTime() + employee.getFunctionsAllocationCells().get(i).get(j).getTime(),
-                                employee.getFunctionsAllocationCells().get(i).get(j).getCertain()));
-                }
-            }
-            employee.totalCertainAllocationCells(currentCertain);
-            employee.totalUncertainAllocationCells(currentUnCertain);
-        }
+        return prepareAllocationCells(
+                allocationsByActivityAndRole,
+                (int) employee.getFirstYear(),
+                (int) employee.getNumberOfYears());
     }
 
     private void setProjectFirst(Employee employee, List<Allocation> firstAllocations) {
@@ -708,13 +468,13 @@ public class EmployeeService {
     @NoArgsConstructor
     private class MergingObject {
         long activityId;
+        long employeeId;
         String role;
         long firstYear;
         long numberOfYears;
         List<Allocation> allocations = new LinkedList<>();
-
-        public MergingObject(long activityId, String role, Allocation allocation) {
-            this.activityId = activityId;
+        public MergingObject(String role, long employeeId, Allocation allocation) {
+            this.employeeId = employeeId;
             this.role = role;
             this.allocations.add(allocation);
         }
@@ -724,13 +484,28 @@ public class EmployeeService {
             return this;
         }
 
+        public MergingObject role(String role) {
+            this.role = role;
+            return this;
+        }
+
+        public MergingObject employeeId(long employeeId) {
+            this.employeeId = employeeId;
+            return this;
+        }
+
+        public MergingObject activityId(long activityId) {
+            this.activityId = activityId;
+            return this;
+        }
+
         public void sortAllocationsByDate() {
-            this.allocations.sort(Comparator.comparing(Allocation::getDateFrom));
+            allocations.sort(Comparator.comparing(Allocation::getDateFrom));
             Calendar date = new GregorianCalendar();
             date.setTime(allocations.get(0).getDateFrom());
-            this.firstYear = date.get(Calendar.YEAR);
+            firstYear = date.get(Calendar.YEAR);
             date.setTime(allocations.get(allocations.size() - 1).getDateUntil());
-            this.numberOfYears = date.get(Calendar.YEAR) - this.firstYear;
+            numberOfYears = (date.get(Calendar.YEAR) - firstYear) + 1;
         }
     }
 }

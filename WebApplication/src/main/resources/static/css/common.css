@@ -63,6 +63,7 @@
     background-repeat: no-repeat;
     background-position: right;
     right: 0;
+    height: 30px;
     padding: 12px;
 }
 
@@ -71,23 +72,44 @@
     background-repeat: no-repeat;
     background-position: center;
     padding: 12px;
+    height: 30px;
     visibility: visible;
 }
 
-.btn-cancel {
+.btn-delete {
+    background-image: url(../img/trash-solid.svg);
+    background-repeat: no-repeat;
+    background-position: center;
+    padding: 12px;
+    height: 30px;
+    visibility: visible;
+}
+
+.btn-cancel, .btn-cancel-new-all {
     background-image: url(../img/times-solid.svg);
     background-repeat: no-repeat;
     background-position: center;
     padding: 12px;
+    height: 30px;
     visibility: hidden;
 }
 
-.btn-confirm {
+.btn-confirm, .btn-confirm-new-all {
     background-image: url(../img/check-solid.svg);
     background-repeat: no-repeat;
     background-position: center;
     padding: 12px;
+    height: 30px;
     visibility: hidden;
+}
+
+.btn-add {
+    background-image: url(../img/plus-solid.svg);
+    background-repeat: no-repeat;
+    background-position: center;
+    padding: 12px;
+    height: 30px;
+    visibility: visible;
 }
 
 table, body {
@@ -202,6 +224,25 @@ footer {
 .function-detail-input {
     width: 200px;
     border-radius: 4px;
+}
+
+.function-allocations-header {
+    width: 150px;
+}
+
+.function-allocations {
+    width: 100%;
+}
+
+.function-allocations-input, .function-allocations-select {
+    max-width: 150px;
+}
+
+.function-allocations-input:read-only {
+    max-width: 150px;
+    border: none;
+    background-color: transparent;
+    outline: none; /* Remove default outline on focus */
 }
 
 .function-btn {
@@ -438,10 +479,12 @@ footer {
     display: none;
     padding: 10px;
     border-radius: 0 0 5px 5px;
+    width:1500px
 }
 
 .course-detail-tab-content.active {
-    display: block;
+    display: table;
+    width:1500px
 }
 
 .course-detail-button-selected {
@@ -451,9 +494,17 @@ footer {
 .course-detail-allocations {
     padding-top: 50px;
     position: relative;
-    width: 50%;
-    left: 25%;
-    right: 25%;
+    width: 80%;
+    left: 10%;
+    right: 10%;
+}
+
+.course-allocation-new-displayed {
+    display: none;
+}
+
+.course-allocation-new-hidden {
+    display: none;
 }
 
 .course-detail-table {
@@ -613,12 +664,34 @@ footer {
     width: 150px;
 }
 
+.project-allocations-cell-name {
+    width: 400px;
+}
+
+.project-allocation-new-displayed {
+    display: none;
+}
+
+.project-allocation-new-hidden {
+    display: none;
+}
+
 .project-allocations {
     width: 100%;
 }
 
-.project-allocations-input {
+.project-allocations-input, .project-allocations-select {
     max-width: 150px;
+}
+
+.project-allocations-select:disabled {
+    max-width: 150px;
+    border: none;
+    background-color: transparent;
+    outline: none; /* Remove default outline on focus */
+    opacity: 1 !important;
+    -webkit-appearance: none;
+    -moz-appearance: none;
 }
 
 .project-allocations-input:read-only {
@@ -896,26 +969,25 @@ footer {
 }
 
 .main-row-header {
-    width: auto;
+    width: 100%;
     text-align: center;
     margin: 10px;
 }
 
 .main-row-header-cell {
-    width: 10%;
-    /*border: 1px solid black;*/
+    width:50px;
+    border: 1px solid black;
     text-align: center;
     margin: 10px;
 }
 
 .main-row-header-eye {
     width: 10%;
-    /*border: 1px solid black;*/
+    border: 1px solid black;
     text-align: right;
 }
 
-
-.main-row-value {
+.main-uncertain-times, .main-certain-times, .main-projects-times, .main-courses-times, .main-functions-times {
     width: 100%;
 }
 
@@ -924,20 +996,31 @@ footer {
 }
 
 .main-row-name {
-    width:20%;
-    /*border: 1px solid black;*/
+    width: 15%;
+    max-width: 300px;
+    border: 1px solid black;
     text-align: center;
 }
 
 .main-cell, .main-cell-times, .main-cell-times-values {
-    width:5%;
-    /*border: 1px solid black;*/
+    width:50px;
+    border: 1px solid black;
+    text-align: center;
+}
+
+.main-cell-certain-times-values,
+.main-cell-uncertain-times-values,
+.main-cell-project-times-values,
+.main-cell-course-times-values,
+.main-cell-function-times-values {
+    width:50px;
+    border: 1px solid black;
     text-align: center;
 }
 
 .main-cell-times-values-changed {
-    width:5%;
-    /*border: 1px solid black;*/
+    width:50px;
+    border: 1px solid black;
     text-align: center;
     background-color: darkgoldenrod;
 }

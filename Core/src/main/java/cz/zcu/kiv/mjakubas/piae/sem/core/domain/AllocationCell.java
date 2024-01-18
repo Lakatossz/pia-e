@@ -10,7 +10,6 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AllocationCell {
-    long key;
     float time;
     float certain;
 }

@@ -1,6 +1,7 @@
 package cz.zcu.kiv.mjakubas.piae.sem.webapplication.controller.v1;
 
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Allocation;
+import cz.zcu.kiv.mjakubas.piae.sem.core.domain.AllocationCell;
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Function;
 import cz.zcu.kiv.mjakubas.piae.sem.core.service.v1.AllocationService;
 import cz.zcu.kiv.mjakubas.piae.sem.core.service.v1.EmployeeService;
@@ -158,21 +159,41 @@ public class FunctionV1Controller {
             " or @securityService.isFunctionManager(#id) or @securityService.isWorkplaceManager(#id)")
     public String detailFunction(Model model, @PathVariable long id,
                                @RequestParam(required = false) Boolean manage) {
-        Function data = functionService.getFunction(id);
+        Function function = functionService.getFunction(id);
         var allocations = allocationService.getFunctionAllocations(id).getAllocations();
 
         model.addAttribute("allocations", allocations);
         model.addAttribute("function",
                 new FunctionVO()
-                        .name(data.getName())
-                        .shortcut(data.getShortcut())
-                        .functionManagerId(data.getFunctionManager().getId())
-                        .functionManagerName(data.getFunctionManager().getLastName())
-                        .probability(data.getProbability())
-                        .defaultTime(data.getDefaultTime())
-                        .dateFrom(data.getDateFrom())
-                        .dateUntil(data.getDateUntil())
-                        .description(data.getDescription()));
+                        .name(function.getName())
+                        .shortcut(function.getShortcut())
+                        .functionManagerId(function.getFunctionManager().getId())
+                        .functionManagerName(function.getFunctionManager().getLastName())
+                        .probability(function.getProbability())
+                        .defaultTime(function.getDefaultTime())
+                        .dateFrom(function.getDateFrom())
+                        .dateUntil(function.getDateUntil())
+                        .description(function.getDescription()));
+
+        List<List<AllocationCell>> allList = functionService.prepareFunctionsCells(allocations);
+
+        model.addAttribute("certainAllocations", functionService.prepareCertainFunctionsCells(allList));
+        model.addAttribute("uncertainAllocations", functionService.prepareUncertainFunctionsCells(allList));
+        model.addAttribute("monthlyAllocations", allList);
+
+        int i = 0;
+
+        for (List<AllocationCell> list : allList) {
+            for (AllocationCell cell : list) {
+                ++i;
+                System.out.print(cell.getTime() + " ");
+                if (i == 12) {
+                    i = 0;
+                    System.out.println();
+                }
+            }
+            System.out.println();
+        }
 
         model.addAttribute(EMPLOYEES, employeeService.getEmployees());
         model.addAttribute("workplaces", workplaceService.getWorkplaces());

@@ -9,9 +9,11 @@ import cz.zcu.kiv.mjakubas.piae.sem.core.service.v1.AllocationService;
 import cz.zcu.kiv.mjakubas.piae.sem.core.service.v1.EmployeeService;
 import cz.zcu.kiv.mjakubas.piae.sem.core.service.v1.ProjectService;
 import cz.zcu.kiv.mjakubas.piae.sem.core.service.v1.WorkplaceService;
+import cz.zcu.kiv.mjakubas.piae.sem.core.vo.AllocationVO;
 import cz.zcu.kiv.mjakubas.piae.sem.core.vo.EmployeeVO;
 import cz.zcu.kiv.mjakubas.piae.sem.core.vo.ProjectVO;
 import lombok.AllArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -19,7 +21,11 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 
 /**
@@ -149,28 +155,43 @@ public class ProjectV1Controller {
     @GetMapping("/{id}/detail")
     public String detailProject(Model model, @PathVariable long id,
                                @RequestParam(required = false) Boolean manage) {
-        Project data = projectService.getProject(id);
+        Project project = projectService.getProject(id);
         var allocations = allocationService.getProjectAllocations(id).getAllocations();
 
-        var allocationAverage = projectService.averageAllocation(data, allocations);
+        var allocationAverage = projectService.averageAllocation(project, allocations);
 
         model.addAttribute("allocations", allocations);
         model.addAttribute("project",
                 new ProjectVO()
-                        .name(data.getName())
-                        .projectManagerId(data.getProjectManager().getId())
-                        .projectManagerName(data.getProjectManager().getLastName())
-                        .workplaceId(data.getProjectWorkplace().getId())
-                        .dateFrom(data.getDateFrom())
-                        .dateUntil(data.getDateUntil())
-                        .description(data.getDescription())
-                        .budget(data.getBudget())
-                        .probability(data.getProbability())
-                        .budgetParticipation(data.getBudgetParticipation())
-                        .totalTime(data.getTotalTime())
-                        .agency(data.getAgency())
-                        .grantTitle(data.getGrantTitle())
-                        .state(data.getState().getValue()));
+                        .name(project.getName())
+                        .projectManagerId(project.getProjectManager().getId())
+                        .projectManagerName(project.getProjectManager().getLastName())
+                        .workplaceId(project.getProjectWorkplace().getId())
+                        .dateFrom(project.getDateFrom())
+                        .dateUntil(project.getDateUntil())
+                        .description(project.getDescription())
+                        .budget(project.getBudget())
+                        .probability(project.getProbability())
+                        .budgetParticipation(project.getBudgetParticipation())
+                        .totalTime(project.getTotalTime())
+                        .agency(project.getAgency())
+                        .grantTitle(project.getGrantTitle())
+                        .state(project.getState().getValue()));
+
+        Calendar cal = Calendar.getInstance();
+
+        AllocationVO newAllocation = new AllocationVO();
+        newAllocation.setProjectId(project.getId());
+        newAllocation.setRole("nový");
+        newAllocation.setIsCertain(1.0F);
+        newAllocation.setAllocationScope(1.0F);
+        cal.set(2023, Calendar.JANUARY, 1);
+        newAllocation.setDateFrom(cal.getTime());
+        cal.set(2023, Calendar.DECEMBER, 31);
+        newAllocation.setDateUntil(cal.getTime());
+        newAllocation.setDescription("description");
+
+        model.addAttribute("newAllocation", newAllocation);
 
         model.addAttribute("states", ProjectState.values());
 
@@ -178,21 +199,11 @@ public class ProjectV1Controller {
         employees.forEach(employee ->
                 employee.getSubordinates().addAll(employeeService.getSubordinates(employee.getId())));
 
-        int length = 2;
-        int first = 2022;
+        List<List<AllocationCell>> allList = projectService.prepareProjectsCells(allocations);
 
-        employees.forEach(employee -> employeeService.prepareProjectsCells(employee, first, length));
-        employees.forEach(employee -> employeeService.prepareTotalCells(employee, first, length));
-
-        for (Employee emp : employees) {
-            System.out.println("\n" + emp.getLastName());
-            for (List<AllocationCell> list : emp.getProjectsAllocationCells()) {
-                for (AllocationCell cell : list) {
-                    System.out.print(cell.getTime() + " ");
-                }
-                System.out.println();
-            }
-        }
+        model.addAttribute("certainAllocations", projectService.prepareCertainProjectsCells(allList));
+        model.addAttribute("uncertainAllocations", projectService.prepareUncertainProjectsCells(allList));
+        model.addAttribute("monthlyAllocations", allList);
 
         model.addAttribute(EMPLOYEES, employees);
         model.addAttribute("workplaces", workplaceService.getWorkplaces());

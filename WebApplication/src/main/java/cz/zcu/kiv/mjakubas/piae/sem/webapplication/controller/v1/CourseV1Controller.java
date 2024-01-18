@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -104,22 +105,22 @@ public class CourseV1Controller {
             " or @securityService.isCourseManager(#id) or @securityService.isWorkplaceManager(#id)")
     public String editCourse(Model model, @PathVariable long id,
                               @RequestParam(required = false) Boolean manage) {
-        Course data = courseService.getCourse(id);
+        Course course = courseService.getCourse(id);
 
         model.addAttribute("courseVO",
                 new CourseVO()
-                        .id(data.getId())
-                        .name(data.getName())
-                        .shortcut(data.getShortcut())
-                        .courseManagerId(data.getCourseManager().getId())
-                        .courseManagerName(data.getCourseManager().getLastName())
-                        .courseWorkplace(data.getCourseWorkplace().getId())
-                        .dateFrom(data.getDateFrom())
-                        .dateUntil(data.getDateUntil())
-                        .introduced(data.getIntroduced())
-                        .term(data.getTerm())
-                        .lectureRequired(data.getLectureRequired())
-                        .exerciseRequired(data.getExerciseRequired()));
+                        .id(course.getId())
+                        .name(course.getName())
+                        .shortcut(course.getShortcut())
+                        .courseManagerId(course.getCourseManager().getId())
+                        .courseManagerName(course.getCourseManager().getLastName())
+                        .courseWorkplace(course.getCourseWorkplace().getId())
+                        .dateFrom(course.getDateFrom())
+                        .dateUntil(course.getDateUntil())
+                        .introduced(course.getIntroduced())
+                        .term(course.getTerm())
+                        .lectureRequired(course.getLectureRequired())
+                        .exerciseRequired(course.getExerciseRequired()));
 
         model.addAttribute(EMPLOYEES, employeeService.getEmployees());
         model.addAttribute("workplaces", workplaceService.getWorkplaces());
@@ -205,10 +206,25 @@ public class CourseV1Controller {
                         .allocationsByYears(allocationsByEars)
                         .years(course.getYears()));
 
+        Calendar cal = Calendar.getInstance();
+
+        AllocationVO newAllocation = new AllocationVO();
+        newAllocation.setCourseId(course.getId());
+        newAllocation.setRole("nový");
+        newAllocation.setIsCertain(1.0F);
+        newAllocation.setAllocationScope(1.0F);
+        cal.set(2023, Calendar.JANUARY, 1);
+        newAllocation.setDateFrom(cal.getTime());
+        cal.set(2023, Calendar.DECEMBER, 31);
+        newAllocation.setDateUntil(cal.getTime());
+        newAllocation.setDescription("description");
+
+        model.addAttribute("newAllocation", newAllocation);
+
         var employees = employeeService.getEmployees();
 
-        employees.forEach(employeeService::prepareProjectsCells);
-        employees.forEach(employeeService::prepareTotalCells);
+//        employees.forEach(employeeService::prepareProjectsCells); // TODO potrebuju to?
+//        employees.forEach(employeeService::prepareTotalCells);
 
         model.addAttribute("allocationsByYears", allocationsByEars);
 

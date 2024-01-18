@@ -143,3 +143,17 @@ MCore/src/main/java/cz/zcu/kiv/mjakubas/piae/sem/core/domain/ProjectState.java,
 -.idea/sonarlint/securityhotspotstore/index.pb,8/8/88a9255124c95bdc913197c120a8d560edc59c8e
 S
 #.idea/sonarlint/issuestore/index.pb,9/f/9fe84ebb15faf917b7def6236dba604453cc61e0
+C
+terraform/README.md,8/0/800d400dc35711ca737e1ffc8d80b40a6cff73ef
+F
+terraform/terraform.tf,7/0/708b3a1f91d5b08acf60fbb5b356ffac9c09867e
+J
+terraform/terraform.tfvars,6/4/64520112f5d24667103feaaa1358e18e013b6224
+F
+terraform/variables.tf,0/1/01d84c99873568e2425a17dfd3c2507334c283f1
+å
+\WebApplication/src/main/java/cz/zcu/kiv/mjakubas/piae/sem/webapplication/SemApplication.java,b/9/b9699992d53c6e9698165143872e6dff5acdfaae
+Å
+QCore/src/main/java/cz/zcu/kiv/mjakubas/piae/sem/core/domain/AllocationDetail.java,0/3/03cac795f17c58aa39339518c808adb384ad3709
+â
+YCore/src/main/java/cz/zcu/kiv/mjakubas/piae/sem/core/domain/ActivityAllocationDetail.java,8/6/86335deba563bd4a8325edbbca2b07f9625a82d3

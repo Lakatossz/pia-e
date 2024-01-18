@@ -2,17 +2,16 @@ package cz.zcu.kiv.mjakubas.piae.sem.webapplication.controller.v1;
 
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Employee;
 import cz.zcu.kiv.mjakubas.piae.sem.core.service.v1.AllocationService;
+import cz.zcu.kiv.mjakubas.piae.sem.core.service.v1.CourseService;
 import cz.zcu.kiv.mjakubas.piae.sem.core.service.v1.EmployeeService;
+import cz.zcu.kiv.mjakubas.piae.sem.core.service.v1.FunctionService;
 import cz.zcu.kiv.mjakubas.piae.sem.core.service.v1.ProjectService;
 import cz.zcu.kiv.mjakubas.piae.sem.core.vo.AllocationVO;
 import lombok.AllArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-
-import java.net.http.HttpRequest;
 
 /**
  * Contains all sites for working with allocations.
@@ -25,71 +24,49 @@ public class AllocationV1Controller {
 
     private final AllocationService allocationService;
     private final ProjectService projectService;
+    private final CourseService courseService;
+    private final FunctionService functionService;
     private final EmployeeService employeeService;
 
     private static final String EMPLOYEES = "employees";
 
     @PreAuthorize("@securityService.isProjectManager(#projectId) or @securityService.isWorkplaceManager(#projectId)")
-    @GetMapping("/of/{projectId}/manage/for/{employeeId}/add")
-    public String createAllocation(Model model, @PathVariable long employeeId, @PathVariable long projectId) {
+    @GetMapping("/create/{projectId}")
+    public String createAllocationForProject(Model model, @ModelAttribute AllocationVO allocationVO, @PathVariable long projectId) {
         var project = projectService.getProject(projectId);
-        var employee = employeeService.getEmployee(employeeId);
+        var employee = employeeService.getEmployee(allocationVO.getEmployeeId());
 
-        model.addAttribute(EMPLOYEES, employeeService.getEmployees());
-
-        model.addAttribute("minDate", project.getDateFrom());
-        model.addAttribute("maxDate", project.getDateUntil());
-
-        var rules = allocationService.getProjectAllocationsRules(projectId, employeeId);
+        var rules = allocationService.getProjectAllocationsRules(projectId, 1);
         model.addAttribute("rules", rules);
 
-        AllocationVO allocationVO = new AllocationVO();
-        allocationVO.setProjectId(project.getId());
-        allocationVO.setEmployeeId(employee.getId());
-        model.addAttribute("assignmentVO", allocationVO);
-        return "forms/allocation/create_assignment_form";
+        long allocationId = allocationService.createAllocation(allocationVO);
+        return String.format("redirect:/p/%s/detail?edit=success", projectId);
     }
 
-    @PreAuthorize("@securityService.isProjectManager(#projectId) or @securityService.isWorkplaceManager(#projectId)")
-    @PostMapping("/of/{projectId}/manage/for/{employeeId}/add")
-    public String createAllocation(Model model, @PathVariable long employeeId, @PathVariable long projectId,
-                                   @ModelAttribute AllocationVO allocationVO, BindingResult errors) {
+    @PreAuthorize("@securityService.isCourseManager(#courseId) or @securityService.isWorkplaceManager(#courseId)")
+    @GetMapping("/create/{courseId}")
+    public String createAllocationForCourse(Model model, @ModelAttribute AllocationVO allocationVO, @PathVariable long courseId) {
+        var course = courseService.getCourse(courseId);
+        var employee = employeeService.getEmployee(allocationVO.getEmployeeId());
 
-        allocationService.createAllocation(allocationVO);
-        if (allocationVO.getProjectId() > 0) {
-            return String.format("redirect:/p/%s/detail?edit=success", allocationVO.getProjectId());
-        } else if (allocationVO.getCourseId() > 0) {
-            return String.format("redirect:/c/%s/detail?edit=success", allocationVO.getCourseId());
-        } else {
-            return String.format("redirect:/f/%s/detail?edit=success", allocationVO.getFunctionId());
-        }
-    }
-
-    @PreAuthorize("@securityService.isAtLeastProjectManager() or @securityService.isWorkplaceManager(#id)")
-    @GetMapping("{id}/edit")
-    public String editAllocation(Model model, @PathVariable long id) {
-        var allocation = allocationService.getAllocation(id);
-        var project = projectService.getProject(allocation.getProject().getId());
-        var employee = employeeService.getEmployee(allocation.getWorker().getId());
-
-        model.addAttribute(EMPLOYEES, employeeService.getEmployees());
-
-        model.addAttribute("minDate", project.getDateFrom());
-        model.addAttribute("maxDate", project.getDateUntil());
-
-        var rules = allocationService.getProjectAllocationsRules(project.getId(), employee.getId());
+        var rules = allocationService.getCourseAllocationsRules(courseId, 1);
         model.addAttribute("rules", rules);
 
-        AllocationVO allocationVO = new AllocationVO();
-        allocationVO.setProjectId(project.getId());
-        allocationVO.setEmployeeId(employee.getId());
-        allocationVO.setAllocationScope(allocation.getAllocationScope());
-        allocationVO.setDescription(allocation.getDescription());
-        allocationVO.setDateFrom(allocation.getDateFrom());
-        allocationVO.setDateUntil(allocation.getDateUntil());
-        model.addAttribute("assignmentVO", allocationVO);
+        long allocationId = allocationService.createAllocation(allocationVO);
+        return String.format("redirect:/c/%s/detail?edit=success", courseId);
+    }
 
-        return "forms/allocation/edit_assignment_form";
+    @PreAuthorize("@securityService.isFunctionManager(#functionId) or @securityService.isWorkplaceManager(#functionId)")
+    @GetMapping("/create/{functionId}")
+    public String createAllocationForFunction(Model model, @ModelAttribute AllocationVO allocationVO, @PathVariable long functionId) {
+        var function = functionService.getFunction(functionId);
+        var employee = employeeService.getEmployee(allocationVO.getEmployeeId());
+
+        var rules = allocationService.getFunctionAllocationsRules(functionId, 1);
+        model.addAttribute("rules", rules);
+
+        long allocationId = allocationService.createAllocation(allocationVO);
+        return String.format("redirect:/f/%s/detail?edit=success", functionId);
     }
 
     @PreAuthorize("@securityService.isAtLeastProjectManager() or @securityService.isWorkplaceManager(#id)")

@@ -54,7 +54,7 @@
                 th:action="@{'/e/' + ${id} + '/edit'}"
                 th:object="${employee}" th:method="POST" novalidate>
             <table class="employee-detail-collapse">
-                <tr class="employee-detail-collapse">
+                <tr>
                     <td class="employee-detail-div">
                         <label class="employee-detail-label" for="first_name"
                                th:text="#{view.employee_detail.first_name}" th:required="true"/>
@@ -209,6 +209,9 @@
                                         <td>
                                             <button class="btn btn-cancel" type="button"></button>
                                         </td>
+                                        <td>
+                                            <button class="btn btn-delete" type="button"></button>
+                                        </td>
                                     </form>
                                 </th:block>
                             </tr>
@@ -264,6 +267,9 @@
                                             </td>
                                             <td>
                                                 <button class="btn btn-cancel" type="button"></button>
+                                            </td>
+                                            <td>
+                                                <button class="btn btn-delete" type="button"></button>
                                             </td>
                                         </form>
                                     </th:block>
@@ -348,6 +354,9 @@
                                         <td>
                                             <button class="btn btn-cancel" type="button"></button>
                                         </td>
+                                        <td>
+                                            <button class="btn btn-delete" type="button"></button>
+                                        </td>
                                     </form>
                                 </th:block>
                             </tr>
@@ -406,6 +415,9 @@
                                             </td>
                                             <td>
                                                 <button class="btn btn-cancel" type="button"></button>
+                                            </td>
+                                            <td>
+                                                <button class="btn btn-delete" type="button"></button>
                                             </td>
                                         </form>
                                     </th:block>
@@ -491,6 +503,9 @@
                                             <td>
                                                 <button class="btn btn-cancel" type="button"></button>
                                             </td>
+                                            <td>
+                                                <button class="btn btn-delete" type="button"></button>
+                                            </td>
                                         </form>
                                     </th:block>
                                 </tr>
@@ -549,6 +564,9 @@
                                                 </td>
                                                 <td>
                                                     <button class="btn btn-cancel" th:id="${allStats.index}" type="button"></button>
+                                                </td>
+                                                <td>
+                                                    <button class="btn btn-delete" type="button"></button>
                                                 </td>
                                                 <td>
                                                     <label>

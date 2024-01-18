@@ -1,6 +1,7 @@
 package cz.zcu.kiv.mjakubas.piae.sem.core.service.v1;
 
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Allocation;
+import cz.zcu.kiv.mjakubas.piae.sem.core.domain.AllocationCell;
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Employee;
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Project;
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.ProjectState;
@@ -12,19 +13,30 @@ import cz.zcu.kiv.mjakubas.piae.sem.core.service.ServiceException;
 import cz.zcu.kiv.mjakubas.piae.sem.core.vo.EmployeeVO;
 import cz.zcu.kiv.mjakubas.piae.sem.core.vo.ProjectVO;
 import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
+import lombok.Setter;
+import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.Period;
+import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.function.Function;
 
 /**
  * Services for working with projects.
@@ -346,5 +358,180 @@ public class ProjectService {
         dateUntil.setTime(allocation.getDateUntil());
         return dateFrom.get(Calendar.YEAR) == LocalDate.now().getYear()
                 || dateUntil.get(Calendar.YEAR) == LocalDate.now().getYear();
+    }
+
+    /**
+     * Nastavi bunky pro alokace na projektu pro detail projektu.
+     * Oproti predchozi metode nastavuje pro vsechny zamestnance u projektu.
+     * @param projectAllocations Alokace na projekt
+     */
+    public List<List<AllocationCell>>  prepareProjectsCells(List<Allocation> projectAllocations) {
+        List<MergingObject> allocationsByProjectAndRole = splitByRoleAndEmployeeId(projectAllocations, Allocation::getWorker);
+
+        return prepareActivityCells(allocationsByProjectAndRole);
+    }
+
+    public List<AllocationCell>  prepareCertainProjectsCells(List<List<AllocationCell>> list) {
+        List<AllocationCell> cellList = new java.util.ArrayList<>(Collections.nCopies(list.get(0).size(), new AllocationCell()));
+
+        for (List<AllocationCell> l : list) {
+            for (int i = 0; i < l.size(); ++i) {
+                if (l.get(i).getCertain() == 1) {
+                    cellList.set(i, new AllocationCell(cellList.get(i).getTime() + l.get(i).getTime(), (float) 1.0));
+                }
+            }
+        }
+
+        return cellList;
+    }
+
+    public List<AllocationCell>  prepareUncertainProjectsCells(List<List<AllocationCell>> list) {
+        List<AllocationCell> cellList = new java.util.ArrayList<>(Collections.nCopies(list.get(0).size(), new AllocationCell()));
+
+        for (List<AllocationCell> l : list) {
+            for (int i = 0; i < l.size(); ++i) {
+                if (l.get(i).getCertain() != 1) {
+                    cellList.set(i, new AllocationCell(cellList.get(i).getTime() + l.get(i).getTime(), (float) 1.0));
+                }
+            }
+        }
+
+        return cellList;
+    }
+
+    /**
+     * Projdu vsechny alokace a spojim ty se stejnou roli a projektem
+     * @param current
+     * @param attributeSelector
+     * @return
+     */
+    private List<MergingObject> splitByRoleAndEmployeeId(List<Allocation> current,
+                                                                         Function<Allocation, Employee> attributeSelector) {
+        List<MergingObject> allocationsByActivityAndRole = new LinkedList<>();
+
+        for (Allocation allocation : current) {
+            List<MergingObject> list = allocationsByActivityAndRole.stream().filter(
+                    o -> o.getEmployeeId() == attributeSelector.apply(allocation).getId()
+                            && o.getRole().equals(allocation.getRole())).toList();
+            if (!list.isEmpty()) {
+                MergingObject currentObject = list.get(0);
+                int index = allocationsByActivityAndRole.indexOf(currentObject);
+                if (index != -1) {
+                    allocationsByActivityAndRole.get(index).allocations(allocation);
+                    continue;
+                }
+            }
+
+            allocationsByActivityAndRole.add(new MergingObject(allocation.getRole(),
+                    attributeSelector.apply(allocation).getId(), allocation));
+        }
+
+//        Seradim spojene alokace podle pocatecniho datumu
+        allocationsByActivityAndRole.forEach(MergingObject::sortAllocationsByDate);
+
+        return allocationsByActivityAndRole;
+    }
+
+    public LocalDate convertToLocalDateTime(Date dateToConvert) {
+        return dateToConvert.toInstant()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDate();
+    }
+
+    private void addAllocationsPerMonth(Allocation allocation,
+                                        List<AllocationCell> cellsList,
+                                        int firstYear) {
+        Date dateFrom = allocation.getDateFrom();
+        Date dateUntil = allocation.getDateUntil();
+        int yearsDiff = Period.between(convertToLocalDateTime(dateFrom), convertToLocalDateTime(dateUntil)).getYears();
+        int monthsDiff = yearsDiff * 12 + Period.between(convertToLocalDateTime(dateFrom), convertToLocalDateTime(dateUntil)).getMonths() + 1; // leden - leden je porad 1 mesic xD
+
+        Calendar date = new GregorianCalendar();
+        date.setTime(dateFrom);
+        int startIndex = (date.get(Calendar.YEAR) - firstYear) * 12 + date.get(Calendar.MONTH);
+
+        for (int i = 0; i < monthsDiff; ++i) {
+            cellsList.set(startIndex + i, new AllocationCell(allocation.getTime(), allocation.getIsCertain()));
+        }
+    }
+
+    private List<List<AllocationCell>> prepareAllocationCells(List<MergingObject> allocationsByActivityAndRole,
+                                                              int totalFirstYear,
+                                                              int totalNumberOfYears) {
+        List<List<AllocationCell>> list = new LinkedList<>();
+        for (MergingObject object : allocationsByActivityAndRole) {
+//            Pripravim cele pole
+            int cellsSize = (12 * totalNumberOfYears);
+            List<AllocationCell> cellsList = new java.util.ArrayList<>(Collections.nCopies(cellsSize, new AllocationCell()));
+            object.allocations.forEach(allocation -> addAllocationsPerMonth(allocation, cellsList, totalFirstYear));
+            list.add(cellsList);
+        }
+
+        return list;
+    }
+
+    public List<List<AllocationCell>> prepareActivityCells(List<MergingObject> allocationsByActivityAndRole) {
+
+        List<List<AllocationCell>> list = new ArrayList<>();
+
+        if (!allocationsByActivityAndRole.isEmpty()) {
+
+            long totalFirstYear = Integer.MAX_VALUE;
+            long totalNumberOfYears = 0;
+
+            for (MergingObject o : allocationsByActivityAndRole) {
+                if (o.firstYear < totalFirstYear)
+                    totalFirstYear = o.firstYear;
+                if (o.numberOfYears + (o.firstYear - totalFirstYear) > totalNumberOfYears) {
+                    totalNumberOfYears = o.numberOfYears + (o.firstYear - totalFirstYear);
+                }
+            }
+
+            System.out.println("f:" + totalFirstYear + " " + "n: " + totalNumberOfYears);
+
+            list = prepareAllocationCells(allocationsByActivityAndRole, (int) totalFirstYear, (int) totalNumberOfYears);
+        }
+
+        return list;
+    }
+
+    @Data
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    private class MergingObject {
+        long activityId;
+        long employeeId;
+        String role;
+        long firstYear;
+        long numberOfYears;
+        List<Allocation> allocations = new LinkedList<>();
+
+        public MergingObject(long activityId, String role, Allocation allocation) {
+            this.activityId = activityId;
+            this.role = role;
+            this.allocations.add(allocation);
+        }
+
+        public MergingObject(String role, long employeeId, Allocation allocation) {
+            this.employeeId = employeeId;
+            this.role = role;
+            this.allocations.add(allocation);
+        }
+
+        public MergingObject allocations(Allocation allocations) {
+            this.allocations.add(allocations);
+            return this;
+        }
+
+        public void sortAllocationsByDate() {
+            this.allocations.sort(Comparator.comparing(Allocation::getDateFrom));
+            Calendar date = new GregorianCalendar();
+            date.setTime(allocations.get(0).getDateFrom());
+            this.firstYear = date.get(Calendar.YEAR);
+            date.setTime(allocations.get(allocations.size() - 1).getDateUntil());
+            this.numberOfYears = (date.get(Calendar.YEAR) - this.firstYear) + 1;
+        }
     }
 }

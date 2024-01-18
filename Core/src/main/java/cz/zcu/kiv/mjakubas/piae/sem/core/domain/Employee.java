@@ -35,17 +35,13 @@ public class Employee {
     private List<Allocation> allocations = new LinkedList<>();
     private List<AllocationInterval> intervals = new LinkedList<>();
 
-    private List<List<AllocationCell>> projectsAllocationCells = new LinkedList<>();
-    private List<List<AllocationCell>> coursesAllocationCells = new LinkedList<>();
-    private List<List<AllocationCell>> functionsAllocationCells = new LinkedList<>();
+    private List<ActivityAllocationDetail> projectOverviewAllocations = new LinkedList<>();
+    private List<ActivityAllocationDetail> courseOverviewAllocations = new LinkedList<>();
+    private List<ActivityAllocationDetail> functionOverviewAllocations = new LinkedList<>();
+
     private List<AllocationCell> totalCertainAllocationCells = new LinkedList<>();
     private List<AllocationCell> totalUncertainAllocationCells = new LinkedList<>();
-    private List<String> projectsName = new LinkedList<>();
-    private List<String> coursesName = new LinkedList<>();
-    private List<String> functionsName = new LinkedList<>();
-    private List<Float> projectsCertain = new LinkedList<>();
-    private List<Float> coursesCertain = new LinkedList<>();
-    private List<Float> functionsCertain = new LinkedList<>();
+
     private long firstYear = Integer.MAX_VALUE;
     private long numberOfYears = 0;
 
@@ -119,18 +115,14 @@ public class Employee {
         return this;
     }
 
-    public Employee projectsAllocationCells(List<List<AllocationCell>> projectsAllocationCells) {
-        this.projectsAllocationCells.addAll(projectsAllocationCells);
+    public Employee allocations(List<Allocation> allocations) {
+        this.allocations.addAll(allocations);
         return this;
     }
 
-    public Employee coursesAllocationCells(List<List<AllocationCell>> coursesAllocationCells) {
-        this.coursesAllocationCells.addAll(coursesAllocationCells);
-        return this;
-    }
 
-    public Employee functionsAllocationCells(List<List<AllocationCell>> functionsAllocationCells) {
-        this.functionsAllocationCells.addAll(functionsAllocationCells);
+    public Employee intervals(List<AllocationInterval> intervals) {
+        this.intervals.addAll(intervals);
         return this;
     }
 
@@ -141,47 +133,6 @@ public class Employee {
 
     public Employee totalUncertainAllocationCells(List<AllocationCell> totalUncertainAllocationCells) {
         this.totalUncertainAllocationCells.addAll(totalUncertainAllocationCells);
-        return this;
-    }
-
-    public Employee allocations(List<Allocation> allocations) {
-        this.allocations.addAll(allocations);
-        return this;
-    }
-
-    public Employee projectsName(String projectsName) {
-        this.projectsName.add(projectsName);
-        return this;
-    }
-
-    public Employee coursesName(String coursesName) {
-        this.coursesName.add(coursesName);
-        return this;
-    }
-
-    public Employee functionsName(String functionsName) {
-        this.functionsName.add(functionsName);
-        return this;
-    }
-
-    public Employee projectsCertain(Float projectsCertain) {
-        this.projectsCertain.add(projectsCertain);
-        return this;
-    }
-
-    public Employee coursesCertain(Float coursesCertain) {
-        this.coursesCertain.add(coursesCertain);
-        return this;
-    }
-
-    public Employee functionsCertain(Float functionsCertain) {
-        this.functionsCertain.add(functionsCertain);
-        return this;
-    }
-
-
-    public Employee intervals(List<AllocationInterval> intervals) {
-        this.intervals.addAll(intervals);
         return this;
     }
 }

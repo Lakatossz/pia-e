@@ -67,21 +67,25 @@
                         <td class="main-row-header-cell" th:text="${emp.getFirstName()}"></td>
                         <td class="main-row-header-cell" th:text="${emp.getLastName()}"></td>
                         <td class="main-row-header-cell" th:text="${emp.getWorkplace().getAbbreviation()}"></td>
-                        <td class="main-row-header-cell" th:text="${emp.getProjectsAllocations().size()}"></td>
-                        <td class="main-row-header-cell" th:text="${emp.getCoursesAllocations().size()}"></td>
-                        <td class="main-row-header-cell" th:text="${emp.getFunctionsAllocations().size()}"></td>
+                        <td class="main-row-header-cell" th:text="${emp.getProjectOverviewAllocations().size()}"></td>
+                        <td class="main-row-header-cell" th:text="${emp.getCourseOverviewAllocations().size()}"></td>
+                        <td class="main-row-header-cell" th:text="${emp.getFunctionOverviewAllocations().size()}"></td>
                         <td class="main-row-header-cell" th:text="${emp.getCertainTime()}"></td>
                         <td class="main-row-header-cell" th:text="${emp.getUncertainTime()}"></td>
                     </tr>
                     <tr class="main-row">
                         <th:block>
                             <th colspan="10" th:class="my-collapse">
-                                <div th:if="${emp.getProjectsName().size()} > 0
-                                or ${emp.getCoursesName().size()} > 0
-                                or ${emp.getFunctionsName().size()} > 0">
+                                <div th:if="${emp.getProjectOverviewAllocations.size()} > 0
+                                or ${emp.getCourseOverviewAllocations().size()} > 0
+                                or ${emp.getFunctionOverviewAllocations().size()} > 0">
                                     <table class="main-row-table">
                                         <thead>
                                         <!-- Header -->
+                                        <tr class="main-row-header">
+                                            <!-- Labels -->
+                                            <td class="main-row-year" th:colspan="16" th:text="2023" th:id="${iStat.index}"></td>
+                                        </tr>
                                         <tr class="main-row-header">
                                             <!-- Labels -->
                                             <td class="main-row-name" th:text="#{view.main.table.activity.name}"></td>
@@ -122,8 +126,8 @@
                     <tr class="main-row">
                         <th:block>
                             <th colspan="10" th:class="my-collapse">
-                                <div th:if="${emp.getProjectsName().size()} > 0">
-                                    <table class="main-row-table">
+                                <div th:if="${emp.getProjectOverviewAllocations().size()} > 0">
+                                    <table class="main-row-table projects-table" th:id="${iStat.index}">
                                         <thead>
                                         <!-- Projects header -->
                                         <tr class="main-row-title">
@@ -132,10 +136,10 @@
                                         </thead>
                                         <tbody>
                                         <!-- Projects values -->
-                                        <th:block th:each="projectName, projectNameStats : ${emp.getProjectsName()}">
-                                            <tr class="main-projects-times" th:id="${projectNameStats.index}">
-                                                <td class="main-row-name" th:text="${projectName}"></td>
-                                                <td class="main-cell" th:text="${emp.getProjectsCertain().get(projectNameStats.index)}"></td>
+                                        <th:block th:each="project, projectStats : ${emp.getProjectOverviewAllocations()}">
+                                            <tr class="main-projects-times" th:id="${projectStats.index}">
+                                                <td class="main-row-name" th:text="${project.getActivityName()}"></td>
+                                                <td class="main-cell" th:text="${project.getActivityRole()}"></td>
                                                 <td class="main-cell-times"></td>
                                             </tr>
                                         </th:block>
@@ -148,8 +152,8 @@
                     <tr class="main-row">
                         <th:block>
                             <th colspan="10" th:class="my-collapse">
-                                <div th:if="${emp.getCoursesName().size()} >= 1">
-                                    <table class="main-row-table">
+                                <div th:if="${emp.getCourseOverviewAllocations().size()} > 0">
+                                    <table class="main-row-table courses-table" th:id="${iStat.index}">
                                         <thead>
                                         <!-- Courses header -->
                                         <tr class="main-row-title">
@@ -158,10 +162,10 @@
                                         </thead>
                                         <tbody>
                                             <!-- Courses values -->
-                                            <th:block th:each="courseName, courseNameStats : ${emp.getCoursesName()}">
-                                                <tr class="main-courses-times" th:id="${courseNameStats.index}">
-                                                    <td class="main-row-name" th:text="${courseName}"></td>
-                                                    <td class="main-cell" th:text="${emp.getCoursesCertain().get(courseNameStats.index)}"></td>
+                                            <th:block th:each="course, courseStats : ${emp.getCourseOverviewAllocations()}">
+                                                <tr class="main-courses-times" th:id="${courseStats.index}">
+                                                    <td class="main-row-name" th:text="${course.getActivityName()}"></td>
+                                                    <td class="main-cell" th:text="${course.getActivityRole()}"></td>
                                                     <td class="main-cell-times"></td>
                                                 </tr>
                                             </th:block>
@@ -174,8 +178,8 @@
                     <tr class="main-row">
                         <th:block>
                             <th colspan="10" th:class="my-collapse">
-                                <div th:if="${emp.getFunctionsName().size()} > 0">
-                                    <table class="main-row-table">
+                                <div th:if="${emp.getFunctionOverviewAllocations().size()} > 0">
+                                    <table class="main-row-table functions-table">
                                         <thead>
                                         <!-- Functions header -->
                                         <tr class="main-row-title">
@@ -184,10 +188,10 @@
                                         </thead>
                                         <tbody>
                                         <!-- Functions values -->
-                                        <th:block th:each="functionName, functionNameStats : ${emp.getFunctionsName()}">
-                                            <tr class="main-functions-times" th:id="${functionNameStats.index}">
-                                                <td class="main-row-name" th:text="${functionName}"></td>
-                                                <td class="main-cell" th:text="${emp.getFunctionsCertain().get(functionNameStats.index)}"></td>
+                                        <th:block th:each="function, functionStats : ${emp.getFunctionOverviewAllocations()}">
+                                            <tr class="main-functions-times" th:id="${functionStats.index}">
+                                                <td class="main-row-name" th:text="${function.getActivityName()}"></td>
+                                                <td class="main-cell" th:text="${function.getActivityRole()}"></td>
                                                 <td class="main-cell-times"></td>
                                             </tr>
                                         </th:block>
@@ -209,6 +213,8 @@
 <script th:inline="javascript">
 
     let current_index = 0;
+
+    let yearsArray = {};
 
     let employeeTr = document.querySelectorAll(".main-row-employee");
 
@@ -243,17 +249,24 @@
 
     let employees = [[${employees}]];
 
+    let years = document.getElementsByClassName("main-row-year");
     let certain_times = document.getElementsByClassName("main-certain-times");
     let uncertain_times = document.getElementsByClassName("main-uncertain-times");
-    let projects_times = document.getElementsByClassName("main-projects-times");
-    let courses_times = document.getElementsByClassName("main-courses-times");
-    let functions_times = document.getElementsByClassName("main-functions-times");
+    let projects_times = document.getElementsByClassName("projects-table");
+    let courses_times = document.getElementsByClassName("courses-table");
+    let functions_times = document.getElementsByClassName("functions-table");
 
     let index = 0;
     const opts = { minimumFractionDigits: 1 };
     let numberOfYears = {};
-    for (let i = 0; i < employees.length; ++i)
+    for (let i = 0; i < employees.length; ++i) {
         numberOfYears[i] = employees[i].totalCertainAllocationCells.length / 12;
+        yearsArray[i] = employees[i].firstYear;
+    }
+
+    Array.from(years).forEach(function(year) {
+        year.textContent = employees[year.id].firstYear;
+    });
 
     Array.from(certain_times).forEach(function(trArray) {
         if (employees.length > index
@@ -293,73 +306,85 @@
 
     index = 0;
 
-    Array.from(projects_times).forEach(function(trArray) {
-        if (employees.length > index && employees[index].projectsAllocationCells.length > 0) {
-            let last = employees[index].projectsAllocationCells[0][0].time;
+    Array.from(projects_times).forEach(function(table) {
+        let project_rows = table.getElementsByClassName("main-projects-times");
+        while (employees.length !== index && employees[index].projectOverviewAllocations.length === 0) {
+            index++;
+        }
+        Array.from(project_rows).forEach(function (trArray) {
+            let last = employees[index].projectOverviewAllocations[trArray.id].activityAllocationCells[0].time;
             for (let j = 0; j < 12; ++j) {
                 let td = document.createElement("td");
-                if (last !== employees[index].projectsAllocationCells[0][j].time) {
-                    last = employees[index].projectsAllocationCells[0][j].time;
+                if (last !== employees[index].projectOverviewAllocations[trArray.id].activityAllocationCells[j].time) {
+                    last = employees[index].projectOverviewAllocations[trArray.id].activityAllocationCells[j].time;
                     td.style.backgroundColor = "darkgoldenrod";
                 } else
                     td.style.backgroundColor = "white";
                 td.className = "main-cell-project-times-values";
-                td.innerHTML = (employees[index].projectsAllocationCells[0][j].time)
+                td.innerHTML = (employees[index].projectOverviewAllocations[trArray.id].activityAllocationCells[j].time)
                     .toLocaleString(undefined, opts).replace(',', '.');
                 trArray.append(td);
             }
             let td = document.createElement("td");
             td.className = "main-cell";
             trArray.append(td);
-        }
+        });
         index++;
     });
 
     index = 0;
 
-    Array.from(courses_times).forEach(function(trArray) {
-        if (employees.length > index && employees[index].coursesAllocationCells.length > 0) {
-            let last = employees[index].coursesAllocationCells[0][0].time;
+    Array.from(courses_times).forEach(function(table) {
+        let courses_rows = table.getElementsByClassName("main-courses-times");
+        while (employees.length !== index && employees[index].courseOverviewAllocations.length === 0) {
+            index++;
+        }
+        Array.from(courses_rows).forEach(function(trArray) {
+            let last = employees[index].courseOverviewAllocations[trArray.id].activityAllocationCells[0].time;
             for (let j = 0; j < 12; ++j) {
                 let td = document.createElement("td");
-                if (last !== employees[index].coursesAllocationCells[0][j].time) {
-                    last = employees[index].coursesAllocationCells[0][j].time;
+                if (last !== employees[index].courseOverviewAllocations[trArray.id].activityAllocationCells[j].time) {
+                    last = employees[index].courseOverviewAllocations[trArray.id].activityAllocationCells[j].time;
                     td.style.backgroundColor = "darkgoldenrod";
                 } else
                     td.style.backgroundColor = "white";
                 td.className = "main-cell-course-times-values";
-                td.innerHTML = (employees[index].coursesAllocationCells[0][j].time)
+                td.innerHTML = (employees[index].courseOverviewAllocations[trArray.id].activityAllocationCells[j].time)
                     .toLocaleString(undefined, opts).replace(',', '.');
                 trArray.append(td);
             }
             let td = document.createElement("td");
             td.className = "main-cell";
             trArray.append(td);
-        }
+        });
         index++;
     });
 
     index = 0;
 
-    Array.from(functions_times).forEach(function(trArray) {
-        if (employees.length > index && employees[index].functionsAllocationCells.length > 0) {
-            let last = employees[index].functionsAllocationCells[0][0].time;
+    Array.from(functions_times).forEach(function(table) {
+        let functions_rows = table.getElementsByClassName("main-functions-times");
+        while (employees.length !== index && employees[index].functionOverviewAllocations.length === 0) {
+            index++;
+        }
+        Array.from(functions_rows).forEach(function(trArray) {
+            let last = employees[index].functionOverviewAllocations[trArray.id].activityAllocationCells[0].time;
             for (let j = 0; j < 12; ++j) {
                 let td = document.createElement("td");
-                if (last !== employees[index].functionsAllocationCells[0][j].time) {
-                    last = employees[index].functionsAllocationCells[0][j].time;
+                if (last !== employees[index].functionOverviewAllocations[trArray.id].activityAllocationCells[j].time) {
+                    last = employees[index].functionOverviewAllocations[trArray.id].activityAllocationCells[j].time;
                     td.style.backgroundColor = "darkgoldenrod";
                 } else
                     td.style.backgroundColor = "white";
                 td.className = "main-cell-function-times-values";
-                td.innerHTML = (employees[index].functionsAllocationCells[0][j].time)
+                td.innerHTML = (employees[index].functionOverviewAllocations[trArray.id].activityAllocationCells[j].time)
                     .toLocaleString(undefined, opts).replace(',', '.');
                 trArray.append(td);
             }
             let td = document.createElement("td");
             td.className = "main-cell";
             trArray.append(td);
-        }
+        });
         index++;
     });
 
@@ -369,24 +394,32 @@
         left_btns[i].classList.add("btn");
         left_btns[i].addEventListener("click", function(evt) {
             if (current_index > 0 && current_index !== undefined) {
+                let project_rows = projects_times[i].getElementsByClassName("main-projects-times");
+                let courses_rows = courses_times[i].getElementsByClassName("main-courses-times");
+                let function_rows = functions_times[i].getElementsByClassName("main-functions-times");
                 current_index--;
-                console.log('left_btn: ' + current_index);
-                renderTimes(i, certain_times[i], uncertain_times[i], projects_times[i], courses_times[i], functions_times[i]);
+                renderTimes(i, certain_times[i], uncertain_times[i], project_rows, courses_rows, function_rows);
+                let previousYear = yearsArray[i] - 1;
+                yearsArray[i] = previousYear;
+                years[i].textContent = previousYear.toString();
             }
         });
     }
 
     let right_btns = document.getElementsByClassName("btn-right");
 
-    console.log(numberOfYears[0]);
-
     for (let i = 0; i < right_btns.length; ++i) {
         right_btns[i].classList.add("btn");
         right_btns[i].addEventListener("click", function(evt) {
             if ((current_index + 1) < numberOfYears[i] && current_index !== undefined) {
+                let project_rows = projects_times[i].getElementsByClassName("main-projects-times");
+                let courses_rows = courses_times[i].getElementsByClassName("main-courses-times");
+                let function_rows = functions_times[i].getElementsByClassName("main-functions-times");
                 current_index++;
-                console.log('right_btn: ' + current_index);
-                renderTimes(i, certain_times[i], uncertain_times[i], projects_times[i], courses_times[i], functions_times[i]);
+                renderTimes(i, certain_times[i], uncertain_times[i], project_rows, courses_rows, function_rows);
+                let nextYear = yearsArray[i] + 1;
+                yearsArray[i] = nextYear;
+                years[i].textContent = nextYear.toString();
             }
         });
     }
@@ -433,7 +466,6 @@
 
 
     function renderTimes(employee_index, certain_times, uncertain_times, projects_times, courses_times, functions_times) {
-
         for (let i = 0; i < employees[employee_index].totalUncertainAllocationCells.length; ++i) {
             let certain_times_tds = certain_times.getElementsByClassName("main-cell-certain-times-values");
             let uncertain_times_tds = uncertain_times.getElementsByClassName("main-cell-uncertain-times-values");
@@ -446,51 +478,51 @@
             }
         }
 
-        for (let i = 0; i < employees[employee_index].projectsAllocationCells.length; ++i) {
+        for (let i = 0; i < employees[employee_index].projectOverviewAllocations.length; ++i) {
             let indexOfLast = ((current_index - 1) * 12 + 11 > 0) ? (current_index - 1) * 12 + 11 : 0;
-            let last_projects = employees[employee_index].projectsAllocationCells[i][indexOfLast].time;
-            let projects_times_tds = projects_times.getElementsByClassName("main-cell-project-times-values");
+            let last_projects = employees[employee_index].projectOverviewAllocations[i].activityAllocationCells[indexOfLast].time;
+            let projects_times_tds = projects_times[i].getElementsByClassName("main-cell-project-times-values");
 
             for (let j = 0; j < 12; ++j) {
-                if (last_projects !== employees[employee_index].projectsAllocationCells[i][current_index * 12 + j].time) {
-                    last_projects = employees[employee_index].projectsAllocationCells[i][current_index * 12 + j].time;
+                if (last_projects !== employees[employee_index].projectOverviewAllocations[i].activityAllocationCells[current_index * 12 + j].time) {
+                    last_projects = employees[employee_index].projectOverviewAllocations[i].activityAllocationCells[current_index * 12 + j].time;
                     projects_times_tds[j].style.backgroundColor = "darkgoldenrod";
                 } else {
                     projects_times_tds[j].style.backgroundColor = "white";
                 }
-                projects_times_tds[j].innerHTML = (employees[employee_index].projectsAllocationCells[i][current_index * 12 + j].time)
+                projects_times_tds[j].innerHTML = (employees[employee_index].projectOverviewAllocations[i].activityAllocationCells[current_index * 12 + j].time)
                     .toLocaleString(undefined, opts).replace(',', '.');
             }
         }
-        for (let i = 0; i < employees[employee_index].coursesAllocationCells.length; ++i) {
+        for (let i = 0; i < employees[employee_index].courseOverviewAllocations.length; ++i) {
             let indexOfLast = ((current_index - 1) * 12 + 11 > 0) ? (current_index - 1) * 12 + 11 : 0;
-            let last_courses = employees[employee_index].coursesAllocationCells[i][indexOfLast].time;
-            let courses_times_tds = courses_times.getElementsByClassName("main-cell-course-times-values");
+            let last_courses = employees[employee_index].courseOverviewAllocations[i].activityAllocationCells[indexOfLast].time;
+            let courses_times_tds = courses_times[i].getElementsByClassName("main-cell-course-times-values");
 
             for (let j = 0; j < 12; ++j) {
-                if (last_courses !== employees[employee_index].coursesAllocationCells[i][current_index * 12 + j].time) {
-                    last_courses = employees[employee_index].coursesAllocationCells[i][current_index * 12 + j].time;
+                if (last_courses !== employees[employee_index].courseOverviewAllocations[i].activityAllocationCells[current_index * 12 + j].time) {
+                    last_courses = employees[employee_index].courseOverviewAllocations[i].activityAllocationCells[current_index * 12 + j].time;
                     courses_times_tds[j].style.backgroundColor = "darkgoldenrod";
                 } else {
                     courses_times_tds[j].style.backgroundColor = "white";
                 }
-                courses_times_tds[j].innerHTML = (employees[employee_index].coursesAllocationCells[i][current_index * 12 + j].time)
+                courses_times_tds[j].innerHTML = (employees[employee_index].courseOverviewAllocations[i].activityAllocationCells[current_index * 12 + j].time)
                     .toLocaleString(undefined, opts).replace(',', '.');
             }
         }
-        for (let i = 0; i < employees[employee_index].functionsAllocationCells.length; ++i) {
+        for (let i = 0; i < employees[employee_index].functionOverviewAllocations.length; ++i) {
             let indexOfLast = ((current_index - 1) * 12 + 11 > 0) ? (current_index - 1) * 12 + 11 : 0;
-            let last_functions = employees[employee_index].functionsAllocationCells[i][indexOfLast].time;
-            let functions_times_tds = functions_times.getElementsByClassName("main-cell-function-times-values");
+            let last_functions = employees[employee_index].functionOverviewAllocations[i].activityAllocationCells[indexOfLast].time;
+            let functions_times_tds = functions_times[i].getElementsByClassName("main-cell-function-times-values");
 
             for (let j = 0; j < 12; ++j) {
-                if (last_functions !== employees[employee_index].functionsAllocationCells[i][current_index * 12 + j].time) {
-                    last_functions = employees[employee_index].functionsAllocationCells[i][current_index * 12 + j].time;
+                if (last_functions !== employees[employee_index].functionOverviewAllocations[i].activityAllocationCells[current_index * 12 + j].time) {
+                    last_functions = employees[employee_index].functionOverviewAllocations[i].activityAllocationCells[current_index * 12 + j].time;
                     functions_times_tds[j].style.backgroundColor = "darkgoldenrod";
                 } else {
                     functions_times_tds[j].style.backgroundColor = "white";
                 }
-                functions_times_tds[j].innerHTML = (employees[employee_index].functionsAllocationCells[i][current_index * 12 + j].time)
+                functions_times_tds[j].innerHTML = (employees[employee_index].functionOverviewAllocations[i].activityAllocationCells [current_index * 12 + j].time)
                     .toLocaleString(undefined, opts).replace(',', '.');
             }
         }

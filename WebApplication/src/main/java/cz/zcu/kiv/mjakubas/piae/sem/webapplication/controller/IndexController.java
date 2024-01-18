@@ -43,12 +43,9 @@ public class IndexController {
 
         employees.forEach(employeeService::prepareAllocationsCells);
 
-        System.out.println("Pocet nazvu projektu: " + employees.get(0).getProjectsName().size());
-        System.out.println("Pocet projektu: " + employees.get(0).getProjectsAllocationCells().get(3).size());
-        System.out.println("Pocet nazvu kursu: " + employees.get(0).getCoursesName().size());
-        System.out.println("Pocet kursu: " + employees.get(0).getCoursesAllocationCells().size());
-        System.out.println("Pocet nazvu funkci: " + employees.get(0).getFunctionsName().size());
-        System.out.println("Pocet funkci: " + employees.get(0).getFunctionsAllocationCells().size());
+        System.out.println("Pocet projektu: " + employees.get(0).getProjectOverviewAllocations().size());
+        System.out.println("Pocet kursu: " + employees.get(0).getCourseOverviewAllocations().size());
+        System.out.println("Pocet funkci: " + employees.get(0).getFunctionOverviewAllocations().size());
 
         model.addAttribute("employees", employees);
 

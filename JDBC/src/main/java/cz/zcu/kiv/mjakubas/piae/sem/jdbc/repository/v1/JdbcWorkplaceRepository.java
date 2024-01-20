@@ -92,15 +92,16 @@ public class JdbcWorkplaceRepository implements IWorkplaceRepository {
     public long createWorkplace(@NonNull Workplace workplace) {
         var sql = """
                 INSERT INTO workplace
-                (wrk_enabled, wrk_abbrevation, wrk_name, wrk_description)
+                (wrk_enabled, wrk_abbrevation, wrk_name, wrk_description, wrk_manager_id)
                 VALUES
-                (:wrk_enabled, :wrk_abbreviation, :wrk_name, :wrk_description)
+                (:wrk_enabled, :wrk_abbreviation, :wrk_name, :wrk_description, :wrk_manager_id)
                 """;
 
         var params = new MapSqlParameterSource();
         params.addValue("wrk_enabled", true);
         params.addValue("wrk_abbreviation", workplace.getAbbreviation());
         params.addValue("wrk_name", workplace.getFullName());
+        params.addValue("wrk_manager_id", workplace.getManager().getId());
         params.addValue("wrk_description", workplace.getDescription());
 
         GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
@@ -134,6 +135,18 @@ public class JdbcWorkplaceRepository implements IWorkplaceRepository {
 
     @Override
     public boolean removeWorkplace(long workplaceId) {
-        return false;
+        var sql = """
+                UPDATE workplace
+                SET wrk_enabled = :wrk_enabled
+                WHERE workplace_id = :workplace_id;
+                """;
+
+        var params = new MapSqlParameterSource();
+        params.addValue("wrk_enabled", 0);
+        params.addValue("workplace_id", workplaceId);
+
+        var rowsUpdated = jdbcTemplate.update(sql, params);
+
+        return rowsUpdated == 1;
     }
 }

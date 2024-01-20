@@ -193,6 +193,9 @@
         </form>
     </div>
     <div class="course-detail-allocations">
+        <div class="course-detail-collapsible-header" style="display: flex">
+            <h4>Alokace</h4>
+        </div>
         <th:block th:each="year, yearStats : ${course.getYears()}">
             <button class="course-table-detail-top-btn" th:text="${year}" th:id="${yearStats.index}"
                     th:onclick="'showTab(' + ${yearStats.index} + ')'" type="button"></button>
@@ -216,15 +219,14 @@
                     <th:block th:each="all, allStats: ${allList}">
                         <!-- Allocation-->
                         <form method="post"
-                              th:action="@{'/a/' + ${all.id} + '/edit'}">
+                              th:action="@{'/a/' + ${all.id} + '/edit/c/' + ${id}}">
                             <th:block>
                                 <tr class="course-allocation"  th:id="${allStats.index}">
                                     <td class="course-table-detail-cell">
                                         <label>
                                             <select class="course-table-detail-select"
-                                                    th:name="employeeId" field="*{employeeId}" disabled="true">
-                                                <option th:each="emp : ${employees}" th:selected="${emp.getId()}"
-                                                        th:value="${emp.getId()}"
+                                                    th:name="employeeId" disabled="true" th:selected="${all.employeeId}">
+                                                <option th:each="emp : ${employees}" th:value="${emp.getId()}"
                                                         th:text="${emp.getLastName()} + ' ' + ${emp.getFirstName()}">
                                                 </option>
                                             </select>
@@ -256,7 +258,7 @@
                                     </td>
                                     <td>
                                         <button class="btn btn-confirm" type="submit"
-                                                th:formaction="'/a/' + ${id} + '/edit'"></button>
+                                                th:formaction="'/a/' + ${all.id} + '/edit/c/' + ${id}"></button>
                                     </td>
                                     <td>
                                         <button class="btn btn-cancel" th:id="${allStats.index}" type="button"></button>
@@ -265,7 +267,10 @@
                                         <button class="btn btn-edit" th:id="${allStats.index}" type="button"></button>
                                     </td>
                                     <td>
-                                        <button class="btn btn-delete" type="button"></button>
+                                        <form th:action="${all.id} + '/delete/c/' + ${id}" method="post" th:method="POST" >
+                                            <button class="btn btn-delete" type="submit"
+                                                    th:formaction="${all.id} + '/delete/c/' + ${id}"></button>
+                                        </form>
                                     </td>
                                     <td>
                                         <label>
@@ -280,13 +285,13 @@
 
                     <!-- Newly added allocation-->
                     <form method="post"
-                          th:action="@{'/a/create/' + ${id}}">
+                          th:action="@{'/a/create/course/' + ${id}}">
                         <th:block>
                             <tr class="course-allocation-new course-allocation-new-hidden">
                                 <td class="course-table-detail-cell">
                                     <label>
                                         <select class="course-table-detail-select"
-                                                th:name="employeeId" field="*{employeeId}" disabled="true">
+                                                th:name="employeeId" th:field="*{newAllocation.employeeId}">
                                             <option th:each="emp : ${employees}" th:selected="${emp.getId()}"
                                                     th:value="${emp.getId()}"
                                                     th:text="${emp.getLastName()} + ' ' + ${emp.getFirstName()}">
@@ -296,40 +301,41 @@
                                 </td>
                                 <td class="course-table-detail-cell">
                                     <label>
-                                        <input class="course-table-detail-input" type="text" readonly="readonly"
+                                        <input class="course-table-detail-input" type="text"
                                                th:name="role" th:value="${newAllocation.role}">
                                     </label>
                                 </td>
                                 <td class="course-table-detail-cell">
                                     <label>
-                                        <input class="course-table-detail-input" type="text" readonly="readonly"
+                                        <input class="course-table-detail-input" type="text"
                                                th:name="allocationScope" th:value="${newAllocation.allocationScope}">
                                     </label>
                                 </td>
                                 <td class="course-table-detail-cell">
                                     <label>
-                                        <input class="course-table-detail-input" type="text" readonly="readonly"
+                                        <input class="course-table-detail-input" type="text"
                                                th:name="isCertain" th:value="${newAllocation.isCertain}">
                                     </label>
                                 </td>
                                 <td class="course-table-detail-cell">
                                     <label>
-                                        <input class="course-table-detail-input" type="text" readonly="readonly"
+                                        <input class="course-table-detail-input" type="text"
                                                th:name="description" th:value="${newAllocation.description}">
                                     </label>
                                 </td>
                                 <td>
                                     <button class="btn btn-confirm-new-all" type="submit"
-                                            style="visibility: visible" th:formaction="'/a/create/' + ${id}"></button>
+                                            style="visibility: visible" th:formaction="'/a/create/course/' + ${id}"></button>
                                 </td>
                                 <td>
-                                    <button class="btn btn-cancel-new-all" type="button"></button>
+                                    <button class="btn btn-cancel-new-all"
+                                            type="button" style="visibility: visible"></button>
                                 </td>
                                 <td>
-                                    <button class="btn btn-edit" type="button"></button>
+                                    <button class="btn" style="visibility: hidden" type="button"></button>
                                 </td>
                                 <td>
-                                    <button class="btn btn-delete" type="button"></button>
+                                    <button class="btn" style="visibility: hidden" type="button"></button>
                                 </td>
                                 <td>
                                     <label>
@@ -350,23 +356,32 @@
 </body>
 <script th:inline="javascript">
 
-    // Zobrazime defaultne prvni rok v alokacich predmetu
-    showTab(0);
-
     // Udrzuje hodnotu, zda-li je pridavana nova alokace - zobrazen radek pro vyplneni
     let allocation_being_added = false;
 
+    // Predmet
+    let course = [[${course}]];
+    // Pole uzivatelu
+    let employees = [[${employees}]];
+
     // Konstanty pro naplneni defaultniho pole nove alokace
     const default_role = 'nový';
-    const default_date_from = '01-01-2023';
-    const default_date_until = '12-31-2023';
     const default_time = 1.0;
-    const default_time_av = 1.0;
+    const default_certain = 1.0;
     const default_description = 'description';
 
+    // Tabulka alokaci predmetu
+    let course_allocations = document.getElementsByClassName("course-allocation"); // course-detail-tab-content
+
+    // Radek nove alokace
+    let new_allocation = document.getElementsByClassName("course-allocation-new");
+
+    // Zobrazime defaultne prvni rok v alokacich predmetu
+    showTab(0);
+
     // Tlacitko pro collapse detailu
-    let course = document.querySelectorAll(".course-detail-collapsible-header");
-    Array.from(course).forEach(function(div) {
+    let course_collapse = document.querySelectorAll(".course-detail-collapsible-header");
+    Array.from(course_collapse).forEach(function(div) {
         let button = document.createElement("button");
         button.className = "btn collapsible btn-dropdown course-detail-collapse-btn";
         button.addEventListener("click", function(evt) {
@@ -386,15 +401,6 @@
         });
         div.append(button);
     });
-
-    // Pole uzivatelu
-    let employees = [[${employees}]];
-
-    // Tabulka alokaci predmetu
-    let course_allocations = document.getElementsByClassName("course-allocation"); // course-detail-tab-content
-
-    // Radek nove alokace
-    let new_allocation = document.getElementsByClassName("course-allocation-new");
 
     // Tlacitko pro zobrazeni radku pro vyplneni nove alokace
     let add_button = document.getElementsByClassName("btn-add");
@@ -416,6 +422,36 @@
         let buttonsConfirmNewAll = document.getElementsByClassName("btn-confirm-new-all");
         let buttonsCancel = document.getElementsByClassName("btn-cancel");
         let buttonsCancelNewAll = document.getElementsByClassName("btn-cancel-new-all");
+        let trs = document.getElementsByClassName("course-allocation");
+
+        for (let i = 0; i < buttonsConfirmNewAll.length; ++i) {
+            let select = trs[i].getElementsByClassName("course-allocations-select");
+            Array.from(select).forEach(function (td) {
+                td.removeAttribute('disabled');
+            });
+
+            buttonsConfirmNewAll[i].addEventListener("click", function (evt) {
+                if (allocation_being_added)
+                    allocation_being_added = false;
+
+                Array.from(new_allocation).forEach(function (allocation) {
+                    clearRow(allocation);
+                    allocation.classList.remove('course-allocation-new-display');
+                    allocation.classList.add('course-allocation-new-hidden');
+                });
+            });
+
+            buttonsCancelNewAll[i].addEventListener("click", function (evt) {
+                if (allocation_being_added)
+                    allocation_being_added = false;
+
+                Array.from(new_allocation).forEach(function (allocation) {
+                    clearRow(allocation);
+                    allocation.classList.remove('course-allocation-new-display');
+                    allocation.classList.add('course-allocation-new-hidden');
+                });
+            });
+        }
 
         for (let i = 0; i < buttonsEdit.length; ++i) {
             buttonsEdit[i].addEventListener("click", function() {
@@ -471,19 +507,29 @@
             tabContent.classList.remove('active');
         });
 
+        if (allocation_being_added)
+            allocation_being_added = false;
+
+        Array.from(new_allocation).forEach(function (allocation) {
+            clearRow(allocation);
+            allocation.classList.remove('course-allocation-new-display');
+            allocation.classList.add('course-allocation-new-hidden');
+        });
+
         let buttons = document.querySelectorAll('.course-table-detail-top-btn');
+        if (buttons.length > 0) {
+            buttons.forEach(function (button) {
+                button.classList.remove('course-detail-button-selected');
+            });
 
-        buttons.forEach(function (button) {
-            button.classList.remove('course-detail-button-selected');
-        });
+            buttons[tabId].classList.add('course-detail-button-selected');
 
-        buttons[tabId].classList.add('course-detail-button-selected');
-
-        let selectedTabContent = document.getElementById(tabId + 'Content');
-        tabContents.forEach(function(tabContent) {
-            tabContent.classList.remove('active');
-        });
-        selectedTabContent.classList.add('active');
+            let selectedTabContent = document.getElementById(tabId + 'Content');
+            tabContents.forEach(function(tabContent) {
+                tabContent.classList.remove('active');
+            });
+            selectedTabContent.classList.add('active');
+        }
     }
 
     // Zkontroluje povinna pole detailu predmetu pri aktualizaci
@@ -535,6 +581,16 @@
             window.location.replace(location.protocol + '//' + location.host + location.pathname + '?edit=failure');
             return false;
         }
+    }
+
+    function clearRow(tr) {
+        let select = tr.getElementsByClassName('course-table-detail-select');
+        select.value = employees[0].id;
+        let input = tr.getElementsByClassName('course-table-detail-input');
+        input[0].value = default_role;
+        input[1].value = default_time;
+        input[2].value = default_certain;
+        input[3].value = default_description;
     }
 
 </script>

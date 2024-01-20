@@ -82,7 +82,7 @@
                         <label class="workplace-detail-label" for="description"
                                th:text="#{view.workplace_detail.table.description}"/>
                         <textarea contenteditable class="workplace-text-area" type="text"
-                                  th:rows="${workplace.getDescription().length() / 100}" th:cols="100"
+                                  th:rows="10" th:cols="100"
                                   id="description" name="description" th:field="*{description}"></textarea>
                     </td>
                 </tr>
@@ -94,6 +94,7 @@
                                th:value="#{view.workplace_detail.submit}">
                         <!-- an delete button link -->
                         <input id="form-delete" class="workplace-detail-btn"
+                                th:method="GET"
                                 th:formaction="'/w/' + ${id} + '/delete'" type="submit"
                                 th:value="#{view.workplace_detail.delete}"
                                 th:data-confirm-delete="#{view.workplace_detail.delete.confirm}"

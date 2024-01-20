@@ -171,84 +171,25 @@
                                id="exercise_sa" name="exercise_sa" th:field="*{exerciseRequired}">
                     </td>
                 </tr>
+
                 <tr>
-                    <td class="flex-duo">
+                    <td class="flex-duo" style="margin-bottom: 50px">
                         <input id="form-submit" class="course-detail-btn"
                                th:attr="onclick=|return empty('#{view.course_detail.submit.empty}')|"
-                               th:formaction="'/c/' + ${id} + '/edit'" type="submit"
+                               th:formaction="'/c/create'" type="submit"
                                th:value="#{view.course_detail.submit}">
-                        <!-- an delete button link -->
-                        <input id="form-delete" class="course-detail-btn"
-                               th:formaction="'/c/' + ${id} + '/delete'" type="submit"
-                               th:value="#{view.course_detail.delete}"
-                               th:data-confirm-delete="#{view.course_detail.delete.confirm}"
-                               onclick="if (!confirm(this.getAttribute('data-confirm-delete'))) return false">
                     </td>
                 </tr>
             </table>
         </form>
-    </div>
-    <div class="course-detail-table">
-        <div class="course-detail-tab-container">
-            <th:block th:each="year, yearStat: ${years}">
-                <div class="course-detail-button" th:id="${yearStat.index}" th:onclick="'showTab(' + ${yearStat.index} + ')'" th:text="${year}"></div>
-            </th:block>
-        </div>
-        <th:block th:each="count, countStat: ${counts}">
-            <table class="table course-detail-tab-content" th:id="${countStat.index} + 'Content'">
-                <thead>
-                <tr>
-                    <th scope="col" th:text="#{view.course_detail.table.name}"></th>
-                    <th scope="col" th:text="#{view.course_detail.table.role}"></th>
-                    <th scope="col" th:text="#{view.course_detail.table.hours_weekly}"></th>
-                    <th scope="col" th:text="#{view.course_detail.table.probability}"></th>
-                    <th scope="col" th:text="#{view.course_detail.table.description}"></th>
-                    <th scope="col"></th>
-                </tr>
-                </thead>
-                <tbody>
-                <th:block th:each="i : ${#numbers.sequence(0, count)}">
-                    <!-- Employee-->
-                    <tr>
-                        <td th:text="${allocations.get(i).getWorker().getLastName()}"></td>
-                        <td th:text="${allocations.get(i).getRole()}"></td>
-                        <td th:text="${allocations.get(i).getScopeInFTE()}"></td>
-                        <td th:text="${allocations.get(i).getIsCertain()}"></td>
-                        <td th:text="${allocations.get(i).getDescription()}"></td>
-                    </tr>
-                </th:block>
-                </tbody>
-            </table>
-        </th:block>
     </div>
 </div>
 
 <div th:replace="~{fragments/footer}">Footer</div>
 </body>
 <script th:inline="javascript">
-    function showTab(tabId) {
-        var tabContents = document.querySelectorAll('.course-detail-tab-content');
-        tabContents.forEach(function(tabContent) {
-            tabContent.classList.remove('active');
-        });
 
-        console.log(tabId);
-
-        var buttons = document.querySelectorAll('.course-detail-button');
-
-        buttons.forEach(function (button) {
-            button.classList.remove('course-detail-button-selected');
-        });
-
-        buttons[tabId].classList.add('course-detail-button-selected');
-
-        var selectedTabContent = document.getElementById(tabId + 'Content');
-        tabContents.forEach(function(tabContent) {
-            tabContent.classList.remove('active');
-        });
-        selectedTabContent.classList.add('active');
-    }
-
+    // Zkontroluje povinna pole detailu predmetu pri aktualizaci
     function empty(message) {
         var x;
         console.log(message);
@@ -258,6 +199,41 @@
             return false;
         }
         x = document.getElementById("name").value;
+        if (x === "") {
+            window.location.replace(location.protocol + '//' + location.host + location.pathname + '?edit=failure');
+            return false;
+        }
+        x = document.getElementById("workplace").value;
+        if (x === "") {
+            window.location.replace(location.protocol + '//' + location.host + location.pathname + '?edit=failure');
+            return false;
+        }
+        x = document.getElementById("term").value;
+        if (x === "") {
+            window.location.replace(location.protocol + '//' + location.host + location.pathname + '?edit=failure');
+            return false;
+        }
+        x = document.getElementById("lecture").value;
+        if (x === "") {
+            window.location.replace(location.protocol + '//' + location.host + location.pathname + '?edit=failure');
+            return false;
+        }
+        x = document.getElementById("exercise").value;
+        if (x === "") {
+            window.location.replace(location.protocol + '//' + location.host + location.pathname + '?edit=failure');
+            return false;
+        }
+        x = document.getElementById("from").value;
+        if (x === "") {
+            window.location.replace(location.protocol + '//' + location.host + location.pathname + '?edit=failure');
+            return false;
+        }
+        x = document.getElementById("until").value;
+        if (x === "") {
+            window.location.replace(location.protocol + '//' + location.host + location.pathname + '?edit=failure');
+            return false;
+        }
+        x = document.getElementById("students").value;
         if (x === "") {
             window.location.replace(location.protocol + '//' + location.host + location.pathname + '?edit=failure');
             return false;

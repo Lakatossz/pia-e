@@ -139,9 +139,10 @@ public class JdbcAllocationRepository implements IAllocationRepository {
     public long createAllocation(@NonNull Allocation allocation) {
         var sql = """
                 INSERT INTO assignment
-                (ass_enabled, ass_employee_id, ass_project_id, ass_course_id, ass_function_id, ass_active_from, ass_active_until, ass_scope, ass_description, ass_active)
+                (ass_enabled, ass_employee_id, ass_project_id, ass_course_id, ass_function_id, 
+                ass_active_from, ass_active_until, ass_scope, ass_description, ass_active, ass_role)
                 VALUES
-                (:isEnabled, :eId, :pId, :cId, :fId, :aFrom, :aUntil, :scope, :descr, :active)
+                (:isEnabled, :eId, :pId, :cId, :fId, :aFrom, :aUntil, :scope, :descr, :active, :role)
                 """;
 
         GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
@@ -208,6 +209,7 @@ public class JdbcAllocationRepository implements IAllocationRepository {
         params.addValue("aFrom", allocation.getDateFrom());
         params.addValue("aUntil", allocation.getDateUntil());
         params.addValue("scope", allocation.getAllocationScope());
+        params.addValue("role", allocation.getRole());
         params.addValue(ACTIVE, allocation.getActive());
         params.addValue("descr", allocation.getDescription());
 

@@ -21,8 +21,8 @@ public class JdbcUserRepository implements IUserRepository {
     @Override
     public long createNewUser(long employeeId, @NonNull String password) {
         var sql = """
-                INSERT INTO user (password, enabled, us_employee, us_is_temp)
-                VALUES (:pw, 1, :id, 1);
+                INSERT INTO user (password, enabled, us_employee, us_is_temp, role)
+                VALUES (:pw, 1, :id, 1, 'role');
                 """;
 
         var params = new MapSqlParameterSource();

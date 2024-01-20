@@ -23,238 +23,245 @@
 
 <div class="container-fluid employees-body">
     <!-- content -->
-    <div class="container">
+    <div class="my-container">
         <!-- alerts -->
-        <!-- alerts -->
-        <div class="row">
-            <div th:if="(${(param.edit != null)} or ${(param.create != null)} or ${(param.delete != null)} or ${(param.subordinate != null)})"
-                 class="alert alert-success alert-dismissible fade show" role="success">
-                <strong th:if="${(param.edit != null)}" th:text="#{view.employee.alert.edit}"></strong>
-                <strong th:if="${(param.create != null)}" th:text="#{view.employee.alert.create}"></strong>
-                <strong th:if="${(param.subordinate != null)}" th:text="#{view.employee.alert.subordinate}"></strong>
-                <strong th:if="${(param.delete != null)}" th:text="#{not-implemented}"></strong>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
+        <div th:if="(${(param.edit != null)} and ${(param.edit[0] == 'success')}
+        or ${(param.create != null)} and ${(param.create[0] == 'success')}
+        or ${(param.delete != null)} or ${(param.subordinate != null)})"
+             class="alert alert-success alert-dismissible fade show">
+            <strong th:if="${(param.edit != null)} and ${(param.edit[0] == 'success')}" th:text="#{view.employee.alert.edit.success}"></strong>
+            <strong th:if="${(param.create != null)}" th:text="#{view.employee.alert.create}"></strong>
+            <strong th:if="${(param.subordinate != null)}" th:text="#{view.employee.alert.subordinate}"></strong>
+            <strong th:if="${(param.delete != null)}" th:text="#{not-implemented}"></strong>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <div th:if="(${(param.edit != null)} and ${(param.edit[0] == 'failure')}
+        or ${(param.create != null)} and ${(param.create[0] == 'failure')})"
+             class="alert alert-danger alert-dismissible fade show">
+            <strong th:if="${(param.edit != null)} and ${(param.edit[0] == 'failure')}" th:text="#{view.employee.alert.edit.failure}"></strong>
+            <strong th:if="${(param.create != null)}" th:text="#{view.employee.alert.create}"></strong>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
 
         <h1 class="text-center mt-5" th:text="#{view.employee_detail.header} + ' ' + ${employee.getFirstName()} + ' ' + ${employee.getLastName()}"></h1>
 
+        <div class="employee-detail-collapsible-header" style="display: flex">
+            <h4>Detail</h4>
+        </div>
+
         <form   method="post"
-                th:action="@{'/e/create'}"
+                th:action="@{'/e/' + ${id} + '/edit'}"
                 th:object="${employee}" th:method="POST" novalidate>
             <table>
                 <tr>
                     <td class="employee-detail-div">
-                        <label class="employee-detail-label" for="first_name" th:text="#{view.employee_detail.first_name}"/>
-                        <input class="employee-detail-input" type="text" id="first_name" name="first_name" th:field="*{firstName}">
+                        <label class="employee-detail-label" for="first_name"
+                               th:text="#{view.employee_detail.first_name}" th:required="true"/>
+                        <input class="employee-detail-input" type="text"
+                               id="first_name" name="first_name" th:field="*{firstName}">
                     </td>
+                </tr>
+                <tr>
                     <td class="employee-detail-div">
-                        <label class="employee-detail-label" for="workplace" th:text="#{view.employee_detail.workplace}"/>
-                        <select class="employee-detail-input" id="workplace" name="workplace" th:field="*{workplaceId}">
-                            <option th:each="wrk : ${workplaces}" th:value="${wrk.getId()}" th:text="${wrk.getFullName()}">
+                        <label class="employee-detail-label" for="last_name"
+                               th:text="#{view.employee_detail.last_name}" th:required="true"/>
+                        <input class="employee-detail-input" type="text"
+                               id="last_name" name="last_name" th:field="*{lastName}">
+                    </td>
+                </tr>
+                <tr>
+                    <td class="employee-detail-div">
+                        <label class="employee-detail-label" for="orion_login"
+                               th:text="#{view.employee_detail.orion_login}" th:required="true"/>
+                        <input class="employee-detail-input" type="text"
+                               id="orion_login" name="orion_login" th:field="*{orionLogin}">
+                    </td>
+                </tr>
+                <tr>
+                    <td class="employee-detail-div">
+                        <label class="employee-detail-label" for="workplace"
+                               th:text="#{view.employee_detail.workplace}" th:required="true"/>
+                        <select class="employee-detail-input"
+                                id="workplace" name="workplace" th:field="*{workplaceId}">
+                            <option th:each="wrk : ${workplaces}"
+                                    th:value="${wrk.getId()}" th:text="${wrk.getFullName()}">
                             </option>
                         </select>
                     </td>
-                    <td th:rowspan="5" th:width="700px" class="employee-detail-div" style="align-items: center">
-                        <label class="employee-detail-label" for="description" th:text="#{view.employee_detail.description}"/>
-                        <textarea class="employee-detail-input" type="text"
-                                  th:rows="${employee.getDescription().length() / 100}" th:cols="100"
+                </tr>
+                <tr>
+                    <td class="employee-detail-div">
+                        <label class="employee-detail-label" for="email"
+                               th:text="#{view.employee_detail.email}" th:required="true"/>
+                        <input class="employee-detail-input" type="text"
+                               id="email" name="email" th:field="*{emailAddress}">
+                    </td>
+                </tr>
+                <tr>
+                    <td class="employee-detail-div">
+                        <label class="employee-detail-label" for="introduced"
+                               th:text="#{view.employee_detail.introduced}" th:required="true"/>
+                        <input class="employee-detail-input" type="date"
+                               id="introduced" name="introduced" th:field="${employee.dateCreated}">
+                    </td>
+                </tr>
+                <tr>
+                    <td class="employee-detail-div">
+                        <label class="employee-detail-label" for="description"
+                               th:text="#{view.employee_detail.description}"/>
+                        <textarea contenteditable class="employee-text-area" type="text"
+                                  th:rows="10" th:cols="100"
                                   id="description" name="description" th:field="*{description}"></textarea>
                     </td>
                 </tr>
                 <tr>
-                    <td class="employee-detail-div">
-                        <label class="employee-detail-label" for="last_name" th:text="#{view.employee_detail.last_name}"/>
-                        <input class="employee-detail-input" type="text" id="last_name" name="last_name" th:field="*{lastName}">
-                    </td>
-                    <td class="employee-detail-div">
-                        <label class="employee-detail-label" for="email" th:text="#{view.employee_detail.email}"/>
-                        <input class="employee-detail-input" type="text" id="email" name="email" th:field="*{emailAddress}">
-                    </td>
-                </tr>
-                <tr>
-                    <td class="employee-detail-div">
-                        <label class="employee-detail-label" for="orion_login" th:text="#{view.employee_detail.orion_login}"/>
-                        <input class="employee-detail-input" type="text" id="orion_login" name="orion_login" th:field="*{orionLogin}">
-                    </td>
-                    <td class="employee-detail-div">
-                        <label class="employee-detail-label" for="introduced" th:text="#{view.employee_detail.introduced}"/>
-                        <input class="employee-detail-input" type="date" id="introduced" name="introduced" th:field="${employee.dateCreated}">
-                    </td>
-                </tr>
-                <tr></tr>
-                <tr></tr>
-                <tr></tr>
-                <tr>
-                    <td th:colspan="3">
-                        <input id="form-submit" class="employee-detail-btn" type="submit"
+                    <td class="flex-duo" style="margin-bottom: 50px">
+                        <input id="form-submit" class="employee-detail-btn"
+                               th:attr="onclick=|return empty('#{view.employee_detail.submit.empty}')|"
+                               th:formaction="'/e/create'" type="submit"
                                th:value="#{view.employee_detail.submit}">
                     </td>
                 </tr>
             </table>
-        </form>
-    </div>
-</div>
-
-<div class="employees-body">
-    <h2 class="text-center mt-5" th:text="#{view.employee_detail.activity.header}"></h2>
-
-    <div class="row">
-        <table class="table">
-            <thead>
-            <tr>
-                <th scope="col" th:text="#{view.employee_detail.activity.projects_table.name}"></th>
-                <th scope="col" th:text="#{view.employee_detail.activity.projects_table.supervisor}"></th>
-                <th scope="col" th:text="#{view.employee_detail.activity.projects_table.role}"></th>
-                <th scope="col" th:text="#{view.employee_detail.activity.projects_table.from}"></th>
-                <th scope="col" th:text="#{view.employee_detail.activity.projects_table.until}"></th>
-                <th scope="col" th:text="#{view.employee_detail.activity.projects_table.current-time}"></th>
-                <th scope="col" th:text="#{view.employee_detail.activity.projects_table.certain}"></th>
-                <th scope="col" th:text="#{view.employee_detail.activity.projects_table.description}"></th>
-                <td></td>
-            </tr>
-            </thead>
-            <tbody>
-            <th:block th:each="pro, proStats: ${projects}">
-                <!-- Project-->
-                <tr>
-                    <td class="course-cell" th:rowspan="${pro.getProjectAllocations().size() + 1}" th:text="${pro.getName()}"></td>
-                    <td class="course-cell" th:rowspan="${pro.getProjectAllocations().size() + 1}" th:text="${pro.getProjectManager().getLastName()}"></td>
-                    <td class="course-cell" th:text="${firstProjectsAllocations.get(proStats.index).getWorker().getLastName()}"></td>
-                    <td class="course-cell" th:text="${firstProjectsAllocations.get(proStats.index).getRole()}"></td>
-                    <td class="course-cell" th:text="${firstProjectsAllocations.get(proStats.index).getDateFrom()}"></td>
-                    <td class="course-cell" th:text="${firstProjectsAllocations.get(proStats.index).getDateUntil()}"></td>
-                    <td class="course-cell" th:text="${firstProjectsAllocations.get(proStats.index).getTime()}"></td>
-                    <td class="course-cell" th:text="${firstProjectsAllocations.get(proStats.index).getIsCertain()}"></td>
-                    <td class="course-cell" th:text="${firstProjectsAllocations.get(proStats.index).getDescription()}"></td>
-                    <!--                    <td class="course-cell">-->
-                    <!--                        <button class="btn collapsible btn-edit" th:onclick="'editAllocation('+${firstAllocations.get(crsStats.index).getId()}+')'"></button>-->
-                    <!--                    </td>-->
-                </tr>
-                <th:block th:each="all, allStat : ${pro.getProjectAllocations()}">
-                    <tr>
-                        <td class="course-cell" th:text="${all.getRole()}"></td>
-                        <td class="course-cell" th:text="${all.getDateFrom()}"></td>
-                        <td class="course-cell" th:text="${all.getDateUntil()}"></td>
-                        <td class="course-cell" th:text="${all.getTime()}"></td>
-                        <td class="course-cell" th:text="${all.getIsCertain()}"></td>
-                        <td class="course-cell" th:text="${all.getDescription()}"></td>
-                        <!--                        <td class="course-cell">-->
-                        <!--                            <button class="btn collapsible btn-edit" th:onclick="'editAllocation('+${all.getId()}+')'"></button>-->
-                        <!--                        </td>-->
-                    </tr>
-                </th:block>
-            </th:block>
-            </tbody>
-        </table>
-    </div>
-
-    <div class="row">
-        <table class="table">
-            <thead>
-            <tr>
-                <th scope="col" th:text="#{view.employee_detail.activity.course_table.name}"></th>
-                <th scope="col" th:text="#{view.employee_detail.activity.course_table.supervisor}"></th>
-                <th scope="col" th:text="#{view.employee_detail.activity.course_table.role}"></th>
-                <th scope="col" th:text="#{view.employee_detail.activity.course_table.from}"></th>
-                <th scope="col" th:text="#{view.employee_detail.activity.course_table.until}"></th>
-                <th scope="col" th:text="#{view.employee_detail.activity.course_table.current-time}"></th>
-                <th scope="col" th:text="#{view.employee_detail.activity.course_table.certain}"></th>
-                <th scope="col" th:text="#{view.employee_detail.activity.course_table.description}"></th>
-                <td></td>
-            </tr>
-            </thead>
-            <tbody>
-            <th:block th:each="crs, crsStats: ${courses}">
-                <!-- Employee-->
-                <tr>
-                    <td class="course-cell" th:rowspan="${crs.getCourseAllocations().size() + 1}" th:text="${crs.getName()}"></td>
-                    <td class="course-cell" th:rowspan="${crs.getCourseAllocations().size() + 1}" th:text="${crs.getCourseManager().getLastName()}"></td>
-                    <td class="course-cell" th:text="${firstCoursesAllocations.get(crsStats.index).getRole()}"></td>
-                    <td class="course-cell" th:text="${firstCoursesAllocations.get(crsStats.index).getDateFrom()}"></td>
-                    <td class="course-cell" th:text="${firstCoursesAllocations.get(crsStats.index).getDateUntil()}"></td>
-                    <td class="course-cell" th:text="${firstCoursesAllocations.get(crsStats.index).getTime()}"></td>
-                    <td class="course-cell" th:text="${firstCoursesAllocations.get(crsStats.index).getIsCertain()}"></td>
-                    <td class="course-cell" th:text="${firstCoursesAllocations.get(crsStats.index).getDescription()}"></td>
-                    <!--                    <td class="course-cell">-->
-                    <!--                        <button class="btn collapsible btn-edit" th:onclick="'editAllocation('+${firstAllocations.get(crsStats.index).getId()}+')'"></button>-->
-                    <!--                    </td>-->
-                </tr>
-                <th:block th:each="all : ${crs.getCourseAllocations()}">
-                    <tr>
-                        <!--                        <td class="course-cell" th:text="${all.getWorker().getLastName()}"></td>-->
-                        <td class="course-cell" th:text="${all.getRole()}"></td>
-                        <td class="course-cell" th:text="${all.getDateFrom()}"></td>
-                        <td class="course-cell" th:text="${all.getDateUntil()}"></td>
-                        <td class="course-cell" th:text="${all.getTime()}"></td>
-                        <td class="course-cell" th:text="${all.getIsCertain()}"></td>
-                        <td class="course-cell" th:text="${all.getDescription()}"></td>
-                        <td class="course-cell">
-                            <button class="btn collapsible btn-edit" th:onclick="'editAllocation('+${all.getId()}+')'"></button>
-                        </td>
-                    </tr>
-                </th:block>
-            </th:block>
-            </tbody>
-        </table>
-    </div>
-
-    <div class="row">
-        <table class="table">
-            <thead>
-            <tr>
-                <th scope="col" th:text="#{view.employee_detail.activity.functions_table.name}"></th>
-                <th scope="col" th:text="#{view.employee_detail.activity.functions_table.supervisor}"></th>
-                <th scope="col" th:text="#{view.employee_detail.activity.functions_table.role}"></th>
-                <th scope="col" th:text="#{view.employee_detail.activity.functions_table.from}"></th>
-                <th scope="col" th:text="#{view.employee_detail.activity.functions_table.until}"></th>
-                <th scope="col" th:text="#{view.employee_detail.activity.functions_table.current-time}"></th>
-                <th scope="col" th:text="#{view.employee_detail.activity.functions_table.certain}"></th>
-                <th scope="col" th:text="#{view.employee_detail.activity.functions_table.description}"></th>
-                <td></td>
-            </tr>
-            </thead>
-            <tbody>
-            <th:block th:each="fnc, iStat : ${functions}">
-                <!-- Employee-->
-                <th:block th:if="${firstFunctionsAllocations.get(iStat.index).getTime >= 0}">
-                    <tr>
-                        <!--                        <td class="function-cell" th:rowspan="${fnc.getFunctionAllocations().size() + 1}">-->
-                        <!--                            <a type="button" class="btn collapsible btn-detail" th:href="@{/f/{FNC_ID}/detail(FNC_ID=${fnc.getId()})}"></a>-->
-                        <!--                        </td>-->
-                        <td th:rowspan="${fnc.getFunctionAllocations().size() + 1}" th:text="${fnc.getName()}"></td>
-                        <td th:rowspan="${fnc.getFunctionAllocations().size() + 1}" th:text="${fnc.getFunctionManager().getLastName()}"></td>
-                        <td th:text="${firstFunctionsAllocations.get(iStat.index).getWorker().getLastName()}"></td>
-                        <td th:text="${firstFunctionsAllocations.get(iStat.index).getRole()}"></td>
-                        <td th:text="${firstFunctionsAllocations.get(iStat.index).getDateFrom()}"></td>
-                        <td th:text="${firstFunctionsAllocations.get(iStat.index).getDateUntil()}"></td>
-                        <td th:text="${firstFunctionsAllocations.get(iStat.index).getTime()}"></td>
-                        <td th:text="${firstFunctionsAllocations.get(iStat.index).getIsCertain()}"></td>
-                        <td th:text="${firstFunctionsAllocations.get(iStat.index).getDescription()}"></td>
-                        <!--                        <td class="function-cell">-->
-                        <!--                            <button class="btn collapsible btn-edit" th:onclick="'editFunction('+${firstAllocations.get(iStat.index).getId()}+')'"></button>-->
-                        <!--                        </td>-->
-                    </tr>
-                    <th:block th:each="all, allStats : ${fnc.getFunctionAllocations()}">
-                        <tr>
-                            <td th:text="${all.getRole()}"></td>
-                            <td th:text="${all.getDateFrom()}"></td>
-                            <td th:text="${all.getDateUntil()}"></td>
-                            <td th:text="${all.getTime()}"></td>
-                            <td th:text="${all.getIsCertain()}"></td>
-                            <td th:text="${all.getDescription()}"></td>
-                            <td class="function-cell">
-                                <button class="btn collapsible btn-edit" th:onclick="'editFunction('+${all.getId()}+')'"></button>
-                            </td>
-                        </tr>
-                    </th:block>
-                </th:block>
-            </th:block>
-            </tbody>
-        </table>
+        </div>
     </div>
 </div>
 
 <div th:replace="~{fragments/footer}">Footer</div>
 </body>
+
+<script th:inline="javascript">
+    let employee = document.querySelectorAll(".employee-detail-collapsible-header");
+
+    Array.from(employee).forEach(function(div) {
+        let button = document.createElement("button");
+        button.className = "btn collapsible btn-dropdown employee-detail-collapse-btn";
+        button.addEventListener("click", function(evt) {
+            let collapse = document.getElementsByClassName("employee-detail-collapse");
+            if (collapse[0].style.visibility === "visible") {
+                collapse[0].style.visibility = "collapse";
+            } else {
+                collapse[0].style.visibility = "visible";
+            }
+            if (this.classList.contains("btn-dropdown")) {
+                this.classList.remove("btn-dropdown");
+                this.classList.add("btn-dropdown-clicked");
+            } else {
+                this.classList.add("btn-dropdown");
+                this.classList.remove("btn-dropdown-clicked");
+            }
+        });
+        div.append(button);
+    });
+</script>
+
+<script>
+    let employees = /*[[${employees}]]*/ 'default';
+    let projects_times = document.getElementsByClassName("employee-projects-times");
+    let courses_times = document.getElementsByClassName("employee-coures-times");
+    let functions_times = document.getElementsByClassName("employee-funtions-times");
+    let index = 0;
+    const opts = { minimumFractionDigits: 1 };
+    let year_offsets = {};
+    console.log('employees: ' + employees.length);
+    for (let i = 0; i < employees.length; ++i)
+        year_offsets[i] = 0;
+
+
+    Array.from(projects_times).forEach(function(trArray) {
+        if (employees.length > index && employees[index].projectsAllocationCells.length > 0) {
+            let last = employees[index].projectsAllocationCells[0][0].time;
+            for (let j = 0; j < 12; ++j) {
+                let td = document.createElement("td");
+                if (last !== employees[index].projectsAllocationCells[0][j].time) {
+                    last = employees[index].projectsAllocationCells[0][j].time;
+                    td.className = "project-cell-times-values project-cell-times-values-changed";
+                } else
+                    td.className = "project-cell-times-values";
+                td.innerHTML = (employees[index].projectsAllocationCells[0][j].time)
+                    .toLocaleString(undefined, opts).replace(',', '.');
+                trArray.append(td);
+            }
+            let td = document.createElement("td");
+            td.className = "project-detail-table-cell";
+            trArray.append(td);
+        }
+        index++;
+    });
+
+    let project_allocations = document.getElementsByClassName("project-allocations");
+    Array.from(project_allocations).forEach(function(trArray) {
+        let buttonsEdit = document.getElementsByClassName("btn-edit");
+        let buttonsConfirm = document.getElementsByClassName("btn-confirm");
+        let buttonsCancel = document.getElementsByClassName("btn-cancel");
+        for (let i = 0; i < buttonsEdit.length; ++i) {
+            buttonsEdit[i].addEventListener("click", function(evt) {
+                let tds = trArray.getElementsByClassName("project-allocations-input");
+                Array.from(tds).forEach(function(td) {
+                    td.removeAttribute("readonly");
+                    buttonsConfirm[i].style.visibility = "visible";
+                    buttonsCancel[i].style.visibility = "visible";
+                    buttonsEdit[i].style.visibility = "hidden";
+                });
+            });
+
+            buttonsConfirm[i].addEventListener("click", function(evt) {
+                let tds = trArray.getElementsByClassName("project-allocations-input");
+                Array.from(tds).forEach(function(td) {
+                    td.setAttribute('readonly', 'readonly');
+                    buttonsConfirm[i].style.visibility = 'hidden';
+                    buttonsCancel[i].style.visibility = 'hidden';
+                    buttonsEdit[i].style.visibility = 'visible';
+                });
+            });
+
+            buttonsCancel[i].addEventListener("click", function(evt) {
+                let tds = trArray.getElementsByClassName("project-allocations-input");
+                Array.from(tds).forEach(function(td) {
+                    td.setAttribute('readonly', 'readonly');
+                    buttonsConfirm[i].style.visibility = 'hidden';
+                    buttonsCancel[i].style.visibility = 'hidden';
+                    buttonsEdit[i].style.visibility = 'visible'
+                });
+            });
+        }
+    });
+
+    function empty(message) {
+        var x;
+        console.log(message);
+        x = document.getElementById("first_name").value;
+        if (x === "") {
+            window.location.replace(location.protocol + '//' + location.host + location.pathname + '?edit=failure');
+            return false;
+        }
+        x = document.getElementById("last_name").value;
+        if (x === "") {
+            window.location.replace(location.protocol + '//' + location.host + location.pathname + '?edit=failure');
+            return false;
+        }
+        x = document.getElementById("orion_login").value;
+        if (x === "") {
+            window.location.replace(location.protocol + '//' + location.host + location.pathname + '?edit=failure');
+            return false;
+        }
+        x = document.getElementById("from").value;
+        if (x === "") {
+            window.location.replace(location.protocol + '//' + location.host + location.pathname + '?edit=failure');
+            return false;
+        }
+        x = document.getElementById("workplace").value;
+        if (x === "") {
+            window.location.replace(location.protocol + '//' + location.host + location.pathname + '?edit=failure');
+            return false;
+        }
+        x = document.getElementById("email").value;
+        if (x === "") {
+            window.location.replace(location.protocol + '//' + location.host + location.pathname + '?edit=failure');
+            return false;
+        }
+    }
+</script>
+
 </html>

@@ -50,9 +50,9 @@
         </div>
 
         <form   method="post"
-                th:action="@{'/f/' + ${id} + '/edit'}"
+                th:action="@{'/f/create'}"
                 th:object="${function}" th:method="POST" novalidate>
-            <table class="function-detail-collapse">
+            <table>
                 <tr>
                     <td class="function-detail-div">
                         <label class="function-detail-label" for="shortcut"
@@ -119,173 +119,15 @@
                     </td>
                 </tr>
                 <tr>
-                    <td class="flex-duo">
+                    <td class="flex-duo" style="margin-bottom: 50px">
                         <input id="form-submit" class="employee-detail-btn"
                                th:attr="onclick=|return empty('#{view.function_detail.submit.empty}')|"
-                               th:formaction="'/f/' + ${id} + '/edit'" type="submit"
+                               th:formaction="'/f/create'" type="submit"
                                th:value="#{view.function_detail.submit}">
-                        <!-- an delete button link -->
-                        <input id="form-delete" class="employee-detail-btn"
-                               th:formaction="'/f/' + ${id} + '/delete'" type="submit"
-                               th:value="#{view.function_detail.delete}"
-                               th:data-confirm-delete="#{view.function_detail.delete.confirm}"
-                               onclick="if (!confirm(this.getAttribute('data-confirm-delete'))) return false">
                     </td>
                 </tr>
             </table>
         </form>
-
-        <div>
-            <!-- Members of project -->
-            <h4 th:text="#{view.project_detail.members.title}"/>
-            <div class="table">
-                <table class="table">
-                    <thead>
-                    <tr>
-                        <td class="function-allocation-header" th:text="#{view.project_detail.members.table.name}"></td>
-                        <td class="function-allocation-header" th:text="#{view.project_detail.members.table.role}"></td>
-                        <td class="function-allocation-header" th:text="#{view.project_detail.members.table.from}"></td>
-                        <td class="function-allocation-header" th:text="#{view.project_detail.members.table.until}"></td>
-                        <td class="function-allocation-header" th:text="#{view.project_detail.members.table.current-time}"></td>
-                        <td class="function-allocation-header" th:text="#{view.project_detail.members.table.average-time}"></td>
-                        <td class="function-allocation-header" th:text="#{view.project_detail.members.table.description}"></td>
-                        <td></td>
-                        <td></td>
-                        <td></td>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <th:block th:each="all, allStats : ${allocations}">
-                        <!-- Employee-->
-                        <form th:action="@{'/a/' + ${all.id} + '/edit'}">
-                            <th:block>
-                                <tr class="function-allocation" th:id="${allStats.index}">
-                                    <td class="function-allocation-cell">
-                                        <label>
-                                            <select class="function-allocations-select"
-                                                    th:name="director" field="*{employeeId}" disabled="true">
-                                                <option th:each="emp : ${employees}" th:selected="${emp.getId()}"
-                                                        th:value="${emp.getId()}"
-                                                        th:text="${emp.getLastName()} + ' ' + ${emp.getFirstName()}">
-                                                </option>
-                                            </select>
-                                        </label>
-                                    </td>
-                                    <td class="function-allocation-cell">
-                                        <label>
-                                            <input class="function-allocations-input" type="text" readonly="readonly"
-                                                   th:name="role" th:value="${all.role}">
-                                        </label>
-                                    </td>
-                                    <td class="function-allocation-cell">
-                                        <label>
-                                            <input class="function-allocations-input" type="text"
-                                                   th:name="dateFrom" readonly="readonly"
-                                                   th:value="${#dates.format(all.dateFrom, 'dd-MM-yyyy')}">
-                                        </label>
-                                    </td>
-                                    <td class="function-allocation-cell">
-                                        <label>
-                                            <input class="function-allocations-input" type="text"
-                                                   th:name="dateUntil" readonly="readonly"
-                                                   th:value="${#dates.format(all.dateUntil, 'dd-MM-yyyy')}">
-                                        </label>
-                                    </td>
-                                    <td class="function-allocation-cell">
-                                        <label>
-                                            <input class="function-allocations-input" type="text"
-                                                   th:name="time" readonly="readonly"
-                                                   th:value="${all.time}">
-                                        </label>
-                                    </td>
-                                    <td class="function-allocation-cell">
-                                        <label>
-                                            <input class="function-allocations-input" type="text"
-                                                   th:name="time" th:value="${all.time}" readonly="readonly">
-                                        </label>
-                                    </td>
-                                    <td class="function-allocation-cell">
-                                        <label>
-                                            <input class="function-allocations-input" type="text"
-                                                   th:name="description" readonly="readonly"
-                                                   th:value="${all.description}">
-                                        </label>
-                                    </td>
-                                    <td>
-                                        <button class="btn btn-confirm" type="submit" th:formaction="'/a/' + ${all.id} + '/edit'"></button>
-                                    </td>
-                                    <td>
-                                        <label>
-                                            <label>
-                                                <input type="text" name="functionId"  style="display : none"
-                                                       field="*{functionId}" th:value="${id}" disabled="true">
-                                            </label>
-                                        </label>
-                                    </td>
-                                    <td>
-                                        <button class="btn btn-cancel" type="button"></button>
-                                    </td>
-                                    <td>
-                                        <button class="btn btn-edit" type="button"></button>
-                                    </td>
-                                    <td>
-                                        <button class="btn btn-delete" type="button"></button>
-                                    </td>
-                                </tr>
-                            </th:block>
-                        </form>
-                    </th:block>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- Times per months -->
-        <h4 th:text="#{view.function_detail.members.title.times-per-months}"/>
-        <div class="table">
-            <table class="table">
-                <thead>
-                <tr class="function-row-header">
-                    <td style="text-align: left" th:text="#{view.function_detail.members.table.name}"></td>
-                    <td class="btn-left"></td>
-                    <td class="function-detail-table-cell" th:text="#{month.january}"></td>
-                    <td class="function-detail-table-cell" th:text="#{month.february}"></td>
-                    <td class="function-detail-table-cell" th:text="#{month.march}"></td>
-                    <td class="function-detail-table-cell" th:text="#{month.april}"></td>
-                    <td class="function-detail-table-cell" th:text="#{month.may}"></td>
-                    <td class="function-detail-table-cell" th:text="#{month.june}"></td>
-                    <td class="function-detail-table-cell" th:text="#{month.july}"></td>
-                    <td class="function-detail-table-cell" th:text="#{month.august}"></td>
-                    <td class="function-detail-table-cell" th:text="#{month.september}"></td>
-                    <td class="function-detail-table-cell" th:text="#{month.october}"></td>
-                    <td class="function-detail-table-cell" th:text="#{month.november}"></td>
-                    <td class="function-detail-table-cell" th:text="#{month.december}"></td>
-                    <td class="btn-right">
-
-                    </td>
-                </tr>
-                </thead>
-                <tbody>
-                <tr class="function-certain-times">
-                    <td class="function-detail-table-cell-name" th:text="#{view.function_detail.members.title.total}"></td>
-                    <td class="function-detail-table-cell"></td>
-                </tr>
-                <tr class="function-uncertain-times">
-                    <td class="function-detail-table-cell-name" th:text="#{view.function_detail.members.title.total-uncertain}"></td>
-                    <td class="function-detail-table-cell"></td>
-                </tr>
-                <th:block th:each="allList, allStats: ${monthlyAllocations}">
-                    <!-- Employee-->
-                    <th:block th:if="${allList.size() > 0}">
-                        <tr class="function-detail-times">
-                            <td class="function-detail-table-cell-name" th:text="${employees[allStats.index].getLastName()}"></td>
-                            <td class="function-detail-table-cell"></td>
-                        </tr>
-                    </th:block>
-                </th:block>
-                </tbody>
-            </table>
-        </div>
     </div>
 </div>
 

@@ -111,7 +111,7 @@
                         <label class="employee-detail-label" for="description"
                                th:text="#{view.employee_detail.description}"/>
                         <textarea contenteditable class="employee-text-area" type="text"
-                                  th:rows="${employee.getDescription().length() / 100}" th:cols="100"
+                                  th:rows="10" th:cols="100"
                                   id="description" name="description" th:field="*{description}"></textarea>
                     </td>
                 </tr>

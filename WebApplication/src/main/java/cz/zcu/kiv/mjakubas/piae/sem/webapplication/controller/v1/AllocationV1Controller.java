@@ -1,6 +1,10 @@
 package cz.zcu.kiv.mjakubas.piae.sem.webapplication.controller.v1;
 
+import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Allocation;
+import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Course;
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Employee;
+import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Function;
+import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Project;
 import cz.zcu.kiv.mjakubas.piae.sem.core.service.v1.AllocationService;
 import cz.zcu.kiv.mjakubas.piae.sem.core.service.v1.CourseService;
 import cz.zcu.kiv.mjakubas.piae.sem.core.service.v1.EmployeeService;
@@ -30,10 +34,17 @@ public class AllocationV1Controller {
 
     private static final String EMPLOYEES = "employees";
 
-    @PreAuthorize("@securityService.isProjectManager(#projectId) or @securityService.isWorkplaceManager(#projectId)")
-    @GetMapping("/create/{projectId}")
+    @PreAuthorize("@securityService.isProjectManager(#projectId)")
+    @PostMapping("/create/project/{projectId}")
     public String createAllocationForProject(Model model, @ModelAttribute AllocationVO allocationVO, @PathVariable long projectId) {
+
         var project = projectService.getProject(projectId);
+        allocationVO.setDateFrom(project.getDateFrom());
+        allocationVO.setDateUntil(project.getDateUntil());
+        allocationVO.setIsActive(true);
+
+        System.out.println("allocationVO: " + allocationVO);
+
         var employee = employeeService.getEmployee(allocationVO.getEmployeeId());
 
         var rules = allocationService.getProjectAllocationsRules(projectId, 1);
@@ -43,10 +54,17 @@ public class AllocationV1Controller {
         return String.format("redirect:/p/%s/detail?edit=success", projectId);
     }
 
-    @PreAuthorize("@securityService.isCourseManager(#courseId) or @securityService.isWorkplaceManager(#courseId)")
-    @GetMapping("/create/{courseId}")
+    @PreAuthorize("@securityService.isCourseManager(#courseId)")
+    @PostMapping("/create/course/{courseId}")
     public String createAllocationForCourse(Model model, @ModelAttribute AllocationVO allocationVO, @PathVariable long courseId) {
+        System.out.println("allocationVO: " + allocationVO);
+
         var course = courseService.getCourse(courseId);
+
+        allocationVO.setDateFrom(course.getDateFrom());
+        allocationVO.setDateUntil(course.getDateUntil());
+        allocationVO.setIsActive(true);
+
         var employee = employeeService.getEmployee(allocationVO.getEmployeeId());
 
         var rules = allocationService.getCourseAllocationsRules(courseId, 1);
@@ -56,8 +74,8 @@ public class AllocationV1Controller {
         return String.format("redirect:/c/%s/detail?edit=success", courseId);
     }
 
-    @PreAuthorize("@securityService.isFunctionManager(#functionId) or @securityService.isWorkplaceManager(#functionId)")
-    @GetMapping("/create/{functionId}")
+    @PreAuthorize("@securityService.isFunctionManager(#functionId)")
+    @PostMapping("/create/function/{functionId}")
     public String createAllocationForFunction(Model model, @ModelAttribute AllocationVO allocationVO, @PathVariable long functionId) {
         var function = functionService.getFunction(functionId);
         var employee = employeeService.getEmployee(allocationVO.getEmployeeId());
@@ -69,18 +87,89 @@ public class AllocationV1Controller {
         return String.format("redirect:/f/%s/detail?edit=success", functionId);
     }
 
-    @PreAuthorize("@securityService.isAtLeastProjectManager() or @securityService.isWorkplaceManager(#id)")
-    @PostMapping("{id}/edit")
-    public String editAllocation(Model model, @PathVariable long id,
-                                 @ModelAttribute AllocationVO allocationVO) {
-        allocationService.updateAllocation(allocationVO, id);
-        if (allocationVO.getProjectId() > 0) {
-            return String.format("redirect:/p/%s/detail?edit=success", allocationVO.getProjectId());
-        } else if (allocationVO.getCourseId() > 0) {
-            return String.format("redirect:/c/%s/detail?edit=success", allocationVO.getCourseId());
-        } else {
-            return String.format("redirect:/f/%s/detail?edit=success", allocationVO.getFunctionId());
-        }
+    @PreAuthorize("@securityService.isProjectManager(#projectId)")
+    @PostMapping("/{allocationId}/edit/p/{projectId}")
+    public String editProjectAllocation(Model model,
+                                        @ModelAttribute AllocationVO allocationVO,
+                                        @PathVariable long allocationId,
+                                        @PathVariable long projectId) {
+
+        Project project = projectService.getProject(projectId);
+        allocationVO.setDateFrom(project.getDateFrom());
+        allocationVO.setDateUntil(project.getDateUntil());
+        allocationVO.setId(allocationId);
+
+        System.out.println(allocationVO);
+
+        allocationService.updateAllocation(allocationVO, allocationId);
+
+        return String.format("redirect:/p/%s/detail?edit=success", allocationVO.getProjectId());
+    }
+
+    @PreAuthorize("@securityService.isCourseManager(#courseId)")
+    @PostMapping("/{allocationId}/edit/c/{courseId}")
+    public String editCourseAllocation(Model model,
+                                       @ModelAttribute AllocationVO allocationVO,
+                                       @PathVariable long allocationId,
+                                       @PathVariable long courseId) {
+
+        Course course = courseService.getCourse(courseId);
+        allocationVO.setDateFrom(course.getDateFrom());
+        allocationVO.setDateUntil(course.getDateUntil());
+        allocationVO.setId(allocationId);
+
+        System.out.println(allocationVO);
+
+        allocationService.updateAllocation(allocationVO, allocationId);
+
+        return String.format("redirect:/c/%s/detail?edit=success", allocationVO.getCourseId());
+    }
+
+    @PreAuthorize("@securityService.isFunctionManager(#functionId)")
+    @PostMapping("/{allocationId}/edit/f/{functionId}")
+    public String editFunctionAllocation(Model model,
+                                         @ModelAttribute AllocationVO allocationVO,
+                                         @PathVariable long allocationId,
+                                         @PathVariable long functionId) {
+
+        Function function = functionService.getFunction(functionId);
+        allocationVO.setDateFrom(function.getDateFrom());
+        allocationVO.setDateUntil(function.getDateUntil());
+        allocationVO.setId(allocationId);
+
+        System.out.println(allocationVO);
+
+        allocationService.updateAllocation(allocationVO, allocationId);
+
+        return String.format("redirect:/f/%s/detail?edit=success", allocationVO.getFunctionId());
+    }
+
+    @PreAuthorize("@securityService.isFunctionManager(#projectId)")
+    @PostMapping("/{allocationId}/delete/p/{projectId}")
+    public String deleteProjectAllocation(Model model, @PathVariable long projectId, @PathVariable long allocationId) {
+
+        System.out.println("Tady jsem");
+
+        allocationService.getAllocation(allocationId);
+
+        return String.format("redirect:/p/%s/detail?edit=success", projectId);
+    }
+
+
+    @PreAuthorize("@securityService.isCourseManager(#courseId)")
+    @PostMapping("/{allocationId}/delete/c/{courseId}")
+    public String deleteCourseAllocation(Model model, @PathVariable long courseId, @PathVariable long allocationId) {
+        return String.format("redirect:/c/%s/detail?edit=success", courseId);
+    }
+
+
+    @PreAuthorize("@securityService.isFunctionManager(#functionId)")
+    @PostMapping("/{allocationId}/delete/c/{functionId}")
+    public String deleteFunctionAllocation(Model model, @PathVariable long functionId, @PathVariable long allocationId) {
+
+        System.out.println("Tady jsem");
+
+        return String.format("redirect:/f/%s/detail?edit=success", functionId);
     }
 
     @PreAuthorize("@securityService.isAtLeastProjectManager()")

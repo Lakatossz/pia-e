@@ -41,10 +41,13 @@ public class WorkplaceV1Controller {
         var data = workplaceService.getWorkplaces();
         model.addAttribute("restrictions", data);
 
+        var employees = employeeService.getEmployees();
+        model.addAttribute("employees", employees);
+
         WorkplaceVO newWorkplace = new WorkplaceVO();
         newWorkplace.setName("Nové pracoviště");
 
-        model.addAttribute("workplaceVO", newWorkplace);
+        model.addAttribute("workplace", newWorkplace);
         return "forms/workplace/create_workplace_form";
     }
 
@@ -56,10 +59,10 @@ public class WorkplaceV1Controller {
                                   BindingResult errors, RedirectAttributes redirectAttributes) {
         long id = workplaceService.createWorkplace(workplaceVO);
         redirectAttributes.addAttribute("id", id);
-        return "redirect:/p/{id}/detail?create=success";
+        return "redirect:/w/{id}/detail?create=success";
     }
 
-    @GetMapping("/{id}/delete")
+    @PostMapping("/{id}/delete")
     @PreAuthorize("hasAnyAuthority(" +
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT, " +
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN)")

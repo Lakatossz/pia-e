@@ -89,7 +89,7 @@ public class EmployeeV1Controller {
         employeeVO.setFirstName("Nový");
         employeeVO.setLastName("Uživatel");
         employeeVO.setPassword(RandomStringUtils.random(7, true, false));
-        model.addAttribute(USER_VO, employeeVO);
+        model.addAttribute("employee", employeeVO);
         return "forms/employee/create_employee_form";
     }
 
@@ -101,6 +101,8 @@ public class EmployeeV1Controller {
                                  BindingResult errors, Model model,
                                  RedirectAttributes redirectAttributes) {
         long id = securityService.createUserAccount(employeeVO);
+
+        System.out.println("Jsem tu");
 
         redirectAttributes.addAttribute("id", id);
         return "redirect:/e/{id}/detail?create=success";

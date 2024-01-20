@@ -24,9 +24,9 @@
     <!-- content -->
     <div class="container">
         <h1 class="text-center mt-5" th:text="#{view.workplace.header}"></h1>
-        <input type="button" class="workplace-btn"
-           th:href="@{/w/create}" th:value="#{view.workplace.create}">
-        <div class="row">
+        <a type="button" class="workplace-btn"
+           th:href="@{/w/create}" th:text="#{view.workplace.create}"></a>
+        <div class="row"  style="margin-top: 40px; margin-bottom: 100px">
             <table class="table">
                 <thead>
                 <tr>

@@ -103,11 +103,11 @@ public class JdbcFunctionRepository implements IFunctionRepository {
     public long createFunction(@NonNull Function function) {
         var sql = """
                 INSERT INTO `function`
-                (fnc_enabled, fnc_name, fnc_manager_id, fnc_workplace_id,\s
+                (fnc_enabled, fnc_name, fnc_shortcut, fnc_manager_id, fnc_workplace_id,\s
                 fnc_date_from, fnc_date_until, fnc_description, fnc_probability, 
                 fnc_default_time)
                 VALUES
-                (:fnc_enabled, :fnc_name, :fnc_manager_id, :fnc_workplace_id,\s
+                (:fnc_enabled, :fnc_name, :fnc_shortcut, :fnc_manager_id, :fnc_workplace_id,\s
                 :fnc_date_from, :fnc_date_until, :fnc_description, :fnc_probability,
                 :fnc_default_time);
                 """;
@@ -144,7 +144,7 @@ public class JdbcFunctionRepository implements IFunctionRepository {
                 """;
 
         var params = new MapSqlParameterSource();
-        params.addValue("fnc_enabled", true);
+        params.addValue("fnc_enabled", 0);
         params.addValue(FUNCTION_ID, functionId);
         params.addValue(IS_ENABLED, true);
 
@@ -199,6 +199,7 @@ public class JdbcFunctionRepository implements IFunctionRepository {
         var params = new MapSqlParameterSource();
         params.addValue("fnc_enabled", 1);
         params.addValue("fnc_name", function.getName());
+        params.addValue("fnc_shortcut", function.getShortcut());
         params.addValue("fnc_manager_id", function.getFunctionManager().getId());
         params.addValue("fnc_workplace_id", function.getFunctionWorkplace().getId());
         params.addValue("fnc_date_from", function.getDateFrom());

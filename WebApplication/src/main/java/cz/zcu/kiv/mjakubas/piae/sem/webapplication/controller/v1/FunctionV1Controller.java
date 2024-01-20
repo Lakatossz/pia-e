@@ -7,6 +7,7 @@ import cz.zcu.kiv.mjakubas.piae.sem.core.service.v1.AllocationService;
 import cz.zcu.kiv.mjakubas.piae.sem.core.service.v1.EmployeeService;
 import cz.zcu.kiv.mjakubas.piae.sem.core.service.v1.FunctionService;
 import cz.zcu.kiv.mjakubas.piae.sem.core.service.v1.WorkplaceService;
+import cz.zcu.kiv.mjakubas.piae.sem.core.vo.AllocationVO;
 import cz.zcu.kiv.mjakubas.piae.sem.core.vo.EmployeeVO;
 import cz.zcu.kiv.mjakubas.piae.sem.core.vo.FunctionVO;
 import lombok.AllArgsConstructor;
@@ -22,6 +23,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -63,7 +66,10 @@ public class FunctionV1Controller {
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).FUNCTION_ADMIN, " +
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN)")
     public String createFunction(Model model) {
-        model.addAttribute("functionVO", new FunctionVO());
+        var function =  new FunctionVO();
+        function.setName("Nová funkce");
+
+        model.addAttribute("function", function);
 
         var functions = functionService.getFunctions();
         var employees = employeeService.getEmployees();
@@ -141,13 +147,16 @@ public class FunctionV1Controller {
         return "redirect:/f/{id}/detail?edit=success";
     }
 
-    @GetMapping("/{id}/delete")
+    @PostMapping("/{id}/delete")
     @PreAuthorize("hasAnyAuthority(" +
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT, " +
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).FUNCTION_ADMIN, " +
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN) " +
             " or @securityService.isFunctionManager(#id) or @securityService.isWorkplaceManager(#id)")
-    public String editFunction(Model model, @PathVariable long id) {
+    public String deleteFunction(Model model, @PathVariable long id) {
+
+        functionService.removeFunction(id);
+
         return "redirect:/f?delete=success";
     }
 
@@ -175,10 +184,28 @@ public class FunctionV1Controller {
                         .dateUntil(function.getDateUntil())
                         .description(function.getDescription()));
 
+        AllocationVO newAllocation = new AllocationVO();
+        newAllocation.setFunctionId(function.getId());
+        newAllocation.setRole("nový");
+        newAllocation.setIsCertain(1.0F);
+        newAllocation.setAllocationScope(1.0F);
+        newAllocation.setDateFrom(function.getDateFrom());
+        newAllocation.setDateUntil(function.getDateUntil());
+        newAllocation.setDescription("description");
+
+        model.addAttribute("newAllocation", newAllocation);
+
         List<List<AllocationCell>> allList = functionService.prepareFunctionsCells(allocations);
 
-        model.addAttribute("certainAllocations", functionService.prepareCertainFunctionsCells(allList));
-        model.addAttribute("uncertainAllocations", functionService.prepareUncertainFunctionsCells(allList));
+        List<AllocationCell> certainList = new LinkedList<>();
+        List<AllocationCell> uncertainList = new LinkedList<>();
+        if (!allList.isEmpty()) {
+            certainList = functionService.prepareCertainFunctionsCells(allList);
+            uncertainList = functionService.prepareUncertainFunctionsCells(allList);
+        }
+
+        model.addAttribute("certainAllocations", certainList);
+        model.addAttribute("uncertainAllocations", uncertainList);
         model.addAttribute("monthlyAllocations", allList);
 
         int i = 0;

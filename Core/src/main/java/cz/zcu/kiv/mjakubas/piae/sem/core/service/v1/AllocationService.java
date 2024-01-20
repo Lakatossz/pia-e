@@ -45,10 +45,10 @@ public class AllocationService {
     @Transactional
     public long createAllocation(AllocationVO allocationVO) {
         int scope = (int) (allocationVO.getAllocationScope() * 40 * 60); // fte to minutes
-        var allocationProject = projectRepository.fetchProject(allocationVO.getProjectId());
-        if (allocationVO.getDateFrom().before(allocationProject.getDateFrom())
-                || allocationVO.getDateUntil().after(allocationProject.getDateUntil()))
-            throw new ServiceException();
+//        var allocationProject = projectRepository.fetchProject(allocationVO.getProjectId());
+//        if (allocationVO.getDateFrom().before(allocationProject.getDateFrom())
+//                || allocationVO.getDateUntil().after(allocationProject.getDateUntil()))
+//            throw new ServiceException();
 
         Allocation allocation = new Allocation()
                 .worker(new Employee().id(allocationVO.getEmployeeId()))
@@ -59,17 +59,18 @@ public class AllocationService {
                 .allocationScope(scope)
                 .dateFrom(allocationVO.getDateFrom())
                 .dateUntil(allocationVO.getDateUntil())
-                .description(allocationVO.getDescription());
+                .description(allocationVO.getDescription())
+                .active(allocationVO.getIsActive());
 
-        var processedAllocations = processAllocations(getEmployeeAllocations(allocationVO.getEmployeeId()));
-        for (AllocationInterval interval : processedAllocations) {
-            if (interval.isFromInterval(allocation)) {
-                int sum = interval.getScopeOfPast() + interval.getScopeOfActive() + interval.getScopeOfUnrealized();
-                if ((sum + allocation.getAllocationScope()) > 40 * 60) {
-                    throw new ServiceException();
-                }
-            }
-        }
+//        var processedAllocations = processAllocations(getEmployeeAllocations(allocationVO.getEmployeeId()));
+//        for (AllocationInterval interval : processedAllocations) {
+//            if (interval.isFromInterval(allocation)) {
+//                int sum = interval.getScopeOfPast() + interval.getScopeOfActive() + interval.getScopeOfUnrealized();
+//                if ((sum + allocation.getAllocationScope()) > 40 * 60) {
+//                    throw new ServiceException();
+//                }
+//            }
+//        }
 
         long id = assignmentRepository.createAllocation(allocation);
 

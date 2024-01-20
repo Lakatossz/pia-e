@@ -246,21 +246,21 @@ footer {
 }
 
 .function-btn {
-    width: 200px;
-    background-color: #f5fbff;
-    align-content: end;
-    border: #0062FF solid 1px;
+    color: #000000;
+    border: #000000 solid 1px;
     border-radius: 8px;
-    margin-top: 20px;
-    margin-right: 30px;
+    padding: 10px;
+    margin-bottom: 30px;
+    text-decoration: none
 }
 
 .function-btn:hover {
-    width: 200px;
-    background-color: #ffffff;
-    align-content: end;
+    color: #000000;
     border: #0062FF solid 1px;
     border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 30px;
+    text-decoration: none;
 }
 
 .function-detail-btn {
@@ -362,21 +362,21 @@ footer {
 }
 
 .course-btn {
-    width: 200px;
-    background-color: #f5fbff;
-    align-content: end;
-    border: #0062FF solid 1px;
+    color: #000000;
+    border: #000000 solid 1px;
     border-radius: 8px;
-    margin-top: 20px;
-    margin-right: 30px;
+    padding: 10px;
+    margin-bottom: 30px;
+    text-decoration: none;
 }
 
 .course-btn:hover {
-    width: 200px;
-    background-color: #ffffff;
-    align-content: end;
+    color: #000000;
     border: #0062FF solid 1px;
     border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 30px;
+    text-decoration: none;
 }
 
 .course-detail-btn {
@@ -577,21 +577,21 @@ footer {
 }
 
 .project-btn {
-    width: 200px;
-    background-color: #f5fbff;
-    align-content: end;
-    border: #0062FF solid 1px;
+    color: #000000;
+    border: #000000 solid 1px;
     border-radius: 8px;
-    margin-top: 20px;
-    margin-right: 30px;
+    padding: 10px;
+    margin-bottom: 30px;
+    text-decoration: none;
 }
 
 .project-btn:hover {
-    width: 200px;
-    background-color: #ffffff;
-    align-content: end;
+    color: #000000;
     border: #0062FF solid 1px;
     border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 30px;
+    text-decoration: none;
 }
 
 .project-detail-btn {
@@ -731,21 +731,21 @@ footer {
 }
 
 .workplace-btn {
-    width: 200px;
-    background-color: #f5fbff;
-    align-content: end;
-    border: #0062FF solid 1px;
+    color: #000000;
+    border: #000000 solid 1px;
     border-radius: 8px;
-    margin-top: 20px;
-    margin-right: 30px;
+    padding: 10px;
+    margin-bottom: 30px;
+    text-decoration: none;
 }
 
 .workplace-btn:hover {
-    width: 200px;
-    background-color: #ffffff;
-    align-content: end;
+    color: #000000;
     border: #0062FF solid 1px;
     border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 30px;
+    text-decoration: none;
 }
 
 .workplace-detail-btn {
@@ -837,21 +837,21 @@ footer {
 }
 
 .employee-btn {
-    width: 200px;
-    background-color: #f5fbff;
-    align-content: end;
-    border: #0062FF solid 1px;
+    color: #000000;
+    border: #000000 solid 1px;
     border-radius: 8px;
-    margin-top: 20px;
-    margin-right: 30px;
+    padding: 10px;
+    margin-bottom: 40px;
+    text-decoration: none;
 }
 
 .employee-btn:hover {
-    width: 200px;
-    background-color: #ffffff;
-    align-content: end;
+    color: #000000;
     border: #0062FF solid 1px;
     border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 30px;
+    text-decoration: none;
 }
 
 .employee-detail-btn {
@@ -996,16 +996,18 @@ footer {
 }
 
 .main-row-name {
-    width: 15%;
+    width: 20%;
     max-width: 300px;
     border: 1px solid black;
-    text-align: center;
+    text-align: right;
+    margin-right: 10px;
 }
 
 .main-cell, .main-cell-times, .main-cell-times-values {
-    width:50px;
+    width:40px;
     border: 1px solid black;
     text-align: center;
+    margin: 10px;
 }
 
 .main-cell-certain-times-values,

@@ -26,9 +26,8 @@
     <div class="container">
         <!-- table -->
         <h1 class="text-center mt-5" th:text="#{view.project.header}"></h1>
-        <input type="button" class="project-btn"
-           th:href="@{/p/create}" th:value="#{view.project.create}">
-        <div class="row">
+        <a type="button" class="project-btn" th:href="@{/p/create}" th:text="#{view.project.create}"></a>
+        <div class="row" style="margin-top: 40px; margin-bottom: 100px">
             <table class="table">
                 <thead>
                 <tr>
@@ -53,8 +52,8 @@
                                 <a type="button" class="btn collapsible btn-detail" th:href="@{/p/{PRO_ID}/detail(PRO_ID=${pro.getId()})}"></a>
                             </td>
                             <td th:rowspan="${pro.getProjectAllocations().size() + 1}" th:text="${pro.getName()}"></td>
-                            <td th:rowspan="${pro.getProjectAllocations().size() + 1}" th:text="${pro.getProjectManager().getLastName()}"></td>
                             <td th:rowspan="${pro.getProjectAllocations().size() + 1}" th:text="${pro.getProjectWorkplace().getAbbreviation()}"></td>
+                            <td th:rowspan="${pro.getProjectAllocations().size() + 1}" th:text="${pro.getProjectManager().getLastName()}"></td>
                             <td th:text="${#dates.format(firstAllocations.get(iStat.index).getDateFrom(), 'dd-MM-yyyy')}"></td>
                             <td th:text="${#dates.format(firstAllocations.get(iStat.index).getDateUntil(), 'dd-MM-yyyy')}"></td>
                             <td th:text="${firstAllocations.get(iStat.index).getTime()}"></td>
@@ -84,8 +83,8 @@
                                 <a type="button" class="btn collapsible btn-detail" th:href="@{/p/{PRO_ID}/detail(PRO_ID=${pro.getId()})}"></a>
                             </td>
                             <td class="project-cell" th:text="${pro.getName()}"></td>
-                            <td class="project-cell" th:text="${pro.getProjectManager().getLastName()}"></td>
                             <td class="project-cell" th:text="${pro.getProjectWorkplace().getAbbreviation()}"></td>
+                            <td class="project-cell" th:text="${pro.getProjectManager().getLastName()}"></td>
                             <td class="project-cell" th:text="'-'"></td>
                             <td class="project-cell" th:text="'-'"></td>
                             <td class="project-cell" th:text="'-'"></td>

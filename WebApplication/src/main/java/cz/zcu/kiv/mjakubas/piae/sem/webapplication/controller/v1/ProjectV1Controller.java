@@ -26,6 +26,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -75,6 +76,8 @@ public class ProjectV1Controller {
         var employees = employeeService.getEmployees();
         var workplaces = workplaceService.getWorkplaces();
 
+        model.addAttribute("states", ProjectState.values());
+
         model.addAttribute(EMPLOYEES, employees);
         model.addAttribute("workplaces", workplaces);
         model.addAttribute(RESTRICTIONS, projects);
@@ -95,40 +98,40 @@ public class ProjectV1Controller {
         return "redirect:/p/{id}/detail?create=success";
     }
 
-    @PreAuthorize("hasAnyAuthority(" +
-            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT, " +
-            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).PROJECT_ADMIN, " +
-            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN) " +
-            " or @securityService.isProjectManager(#id) or @securityService.isWorkplaceManager(#id)")
-    @GetMapping("/{id}/edit")
-    public String editProject(Model model, @PathVariable long id,
-                              @RequestParam(required = false) Boolean manage) {
-        Project data = projectService.getProject(id);
-
-        model.addAttribute("project",
-                new ProjectVO()
-                        .name(data.getName())
-                        .projectManagerId(data.getProjectManager().getId())
-                        .projectManagerName(data.getProjectManager().getLastName())
-                        .workplaceId(data.getProjectWorkplace().getId())
-                        .dateFrom(data.getDateFrom())
-                        .dateUntil(data.getDateUntil())
-                        .description(data.getDescription())
-                        .budget(data.getBudget())
-                        .budgetParticipation(data.getBudgetParticipation())
-                        .totalTime(data.getTotalTime())
-                        .agency(data.getAgency())
-                        .grantTitle(data.getGrantTitle())
-                        .state(data.getState().getValue()));
-
-        model.addAttribute("states", ProjectState.values());
-        model.addAttribute(EMPLOYEES, employeeService.getEmployees());
-        model.addAttribute("workplaces", workplaceService.getWorkplaces());
-        model.addAttribute(RESTRICTIONS, projectService.getProjects());
-        model.addAttribute("manage", manage);
-
-        return "forms/project/edit_project_form";
-    }
+//    @PreAuthorize("hasAnyAuthority(" +
+//            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT, " +
+//            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).PROJECT_ADMIN, " +
+//            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN) " +
+//            " or @securityService.isProjectManager(#id) or @securityService.isWorkplaceManager(#id)")
+//    @GetMapping("/{id}/edit")
+//    public String editProject(Model model, @PathVariable long id,
+//                              @RequestParam(required = false) Boolean manage) {
+//        Project data = projectService.getProject(id);
+//
+//        model.addAttribute("project",
+//                new ProjectVO()
+//                        .name(data.getName())
+//                        .projectManagerId(data.getProjectManager().getId())
+//                        .projectManagerName(data.getProjectManager().getLastName())
+//                        .workplaceId(data.getProjectWorkplace().getId())
+//                        .dateFrom(data.getDateFrom())
+//                        .dateUntil(data.getDateUntil())
+//                        .description(data.getDescription())
+//                        .budget(data.getBudget())
+//                        .budgetParticipation(data.getBudgetParticipation())
+//                        .totalTime(data.getTotalTime())
+//                        .agency(data.getAgency())
+//                        .grantTitle(data.getGrantTitle())
+//                        .state(data.getState().getValue()));
+//
+//        model.addAttribute("states", ProjectState.values());
+//        model.addAttribute(EMPLOYEES, employeeService.getEmployees());
+//        model.addAttribute("workplaces", workplaceService.getWorkplaces());
+//        model.addAttribute(RESTRICTIONS, projectService.getProjects());
+//        model.addAttribute("manage", manage);
+//
+//        return "forms/project/edit_project_form";
+//    }
 
     @PreAuthorize("hasAnyAuthority(" +
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT, " +
@@ -138,7 +141,6 @@ public class ProjectV1Controller {
     @PostMapping("/{id}/edit")
     public String editProject(Model model, @PathVariable long id, @ModelAttribute ProjectVO projectVO,
                               BindingResult errors, @RequestParam(required = false) Boolean manage) {
-
         projectService.editProject(projectVO, id);
 
 //        if (Boolean.TRUE.equals(manage))
@@ -178,17 +180,13 @@ public class ProjectV1Controller {
                         .grantTitle(project.getGrantTitle())
                         .state(project.getState().getValue()));
 
-        Calendar cal = Calendar.getInstance();
-
         AllocationVO newAllocation = new AllocationVO();
         newAllocation.setProjectId(project.getId());
         newAllocation.setRole("nový");
         newAllocation.setIsCertain(1.0F);
         newAllocation.setAllocationScope(1.0F);
-        cal.set(2023, Calendar.JANUARY, 1);
-        newAllocation.setDateFrom(cal.getTime());
-        cal.set(2023, Calendar.DECEMBER, 31);
-        newAllocation.setDateUntil(cal.getTime());
+        newAllocation.setDateFrom(project.getDateFrom());
+        newAllocation.setDateUntil(project.getDateUntil());
         newAllocation.setDescription("description");
 
         model.addAttribute("newAllocation", newAllocation);
@@ -201,8 +199,15 @@ public class ProjectV1Controller {
 
         List<List<AllocationCell>> allList = projectService.prepareProjectsCells(allocations);
 
-        model.addAttribute("certainAllocations", projectService.prepareCertainProjectsCells(allList));
-        model.addAttribute("uncertainAllocations", projectService.prepareUncertainProjectsCells(allList));
+        List<AllocationCell> certainList = new LinkedList<>();
+        List<AllocationCell> uncertainList = new LinkedList<>();
+        if (!allList.isEmpty()) {
+            certainList = projectService.prepareCertainProjectsCells(allList);
+            uncertainList = projectService.prepareCertainProjectsCells(allList);
+        }
+
+        model.addAttribute("certainAllocations", certainList);
+        model.addAttribute("uncertainAllocations", uncertainList);
         model.addAttribute("monthlyAllocations", allList);
 
         model.addAttribute(EMPLOYEES, employees);
@@ -220,6 +225,7 @@ public class ProjectV1Controller {
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN) " +
             " or @securityService.isProjectManager(#id) or @securityService.isWorkplaceManager(#id)")
     public String deleteProject(Model model, @PathVariable long id) {
+        projectService.removeProject(id);
         return "redirect:/p?delete=success";
     }
 

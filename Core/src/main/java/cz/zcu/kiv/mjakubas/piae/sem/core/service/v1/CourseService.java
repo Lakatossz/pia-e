@@ -163,6 +163,11 @@ public class CourseService {
             throw new ServiceException();
     }
 
+    @Transactional
+    public boolean removeCourse(@NonNull long courseId) {
+        return courseRepository.removeCourse(courseId);
+    }
+
     /**
      * Updates existing course. Throws SQL or Service exception if course doesn't exist or data validation fails.
      *

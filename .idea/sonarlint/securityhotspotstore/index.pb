@@ -153,7 +153,5 @@ F
 terraform/variables.tf,0/1/01d84c99873568e2425a17dfd3c2507334c283f1
 å
 \WebApplication/src/main/java/cz/zcu/kiv/mjakubas/piae/sem/webapplication/SemApplication.java,b/9/b9699992d53c6e9698165143872e6dff5acdfaae
-Å
-QCore/src/main/java/cz/zcu/kiv/mjakubas/piae/sem/core/domain/AllocationDetail.java,0/3/03cac795f17c58aa39339518c808adb384ad3709
 â
 YCore/src/main/java/cz/zcu/kiv/mjakubas/piae/sem/core/domain/ActivityAllocationDetail.java,8/6/86335deba563bd4a8325edbbca2b07f9625a82d3

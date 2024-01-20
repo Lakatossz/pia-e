@@ -26,22 +26,22 @@
     <div class="container">
         <!-- table -->
         <h1 class="text-center mt-5" th:text="#{view.course.header}"></h1>
-        <input type="button" class="course-btn"
-           th:href="@{/c/create}" th:value="#{view.course.create}">
-        <div class="row">
+        <a type="button" class="course-btn"
+           th:href="@{/c/create}" th:text="#{view.course.create}"></a>
+        <div class="row"  style="margin-top: 40px; margin-bottom: 100px">
             <table class="table">
                 <thead>
                 <tr>
-                    <td></td>
-                    <th scope="col" th:text="#{view.course.table.shortcut}"></th>
-                    <th scope="col" th:text="#{view.course.table.students}"></th>
-                    <th scope="col" th:text="#{view.course.table.ra}"></th>
-                    <th scope="col" th:text="#{view.course.table.lecturer}"></th>
-                    <th scope="col" th:text="#{view.course.table.role}"></th>
-                    <th scope="col" th:text="#{view.course.table.lecture_hours}"></th>
-                    <th scope="col" th:text="#{view.course.table.exercise_hours}"></th>
-                    <th scope="col" th:text="#{view.course.table.others}"></th>
-                    <th scope="col" th:text="#{view.course.table.certain}"></th>
+                    <th scope="col" class="course-cell" ></th>
+                    <th scope="col" class="course-cell" th:text="#{view.course.table.shortcut}"></th>
+                    <th scope="col" class="course-cell" th:text="#{view.course.table.students}"></th>
+                    <th scope="col" class="course-cell" th:text="#{view.course.table.ra}"></th>
+                    <th scope="col" class="course-cell" th:text="#{view.course.table.lecturer}"></th>
+                    <th scope="col" class="course-cell" th:text="#{view.course.table.role}"></th>
+                    <th scope="col" class="course-cell" th:text="#{view.course.table.lecture_hours}"></th>
+                    <th scope="col" class="course-cell" th:text="#{view.course.table.exercise_hours}"></th>
+                    <th scope="col" class="course-cell" th:text="#{view.course.table.others}"></th>
+                    <th scope="col" class="course-cell" th:text="#{view.course.table.certain}"></th>
                     <td></td>
                 </tr>
                 </thead>
@@ -79,6 +79,25 @@
                                     </td>
                                 </tr>
                             </th:block>
+                        </th:block>
+                        <th:block th:if="${firstAllocations.get(crsStats.index).getTime() == -1}">
+                            <tr>
+                                <td class="course-cell">
+                                    <a type="button" class="btn collapsible btn-detail" th:href="@{/c/{CRS_ID}/detail(CRS_ID=${crs.getId()})}"></a>
+                                </td>
+                                <td class="course-cell" th:text="${crs.getShortcut()}"></td>
+                                <td class="course-cell" th:text="${crs.getNumberOfStudents()}"></td>
+                                <td class="course-cell" th:text="${crs.getCredits()}"></td>
+                                <td class="course-cell" th:text="'-'"></td>
+                                <td class="course-cell" th:text="'-'"></td>
+                                <td class="course-cell" th:text="'-'"></td>
+                                <td class="course-cell" th:text="'-'"></td>
+                                <td class="course-cell" th:text="'-'"></td>
+                                <td class="course-cell" th:text="'-'"></td>
+                                <td class="course-cell">
+                                    <!--                                    <button class="btn collapsible btn-edit" th:onclick="'editAllocation('+${firstAllocations.get(crsStats.index).getId()}+')'"></button>-->
+                                </td>
+                            </tr>
                         </th:block>
                     </th:block>
                 </tbody>

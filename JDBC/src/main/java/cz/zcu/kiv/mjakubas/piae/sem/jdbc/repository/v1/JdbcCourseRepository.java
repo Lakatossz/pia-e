@@ -104,14 +104,13 @@ public class JdbcCourseRepository implements ICourseRepository {
     public long createCourse(@NonNull Course course) {
         var sql = """
                 INSERT INTO course 
-                (course_id, crs_name, crs_number_of_students, crs_term,
+                (crs_enabled, crs_name, crs_number_of_students, crs_term, crs_lecture, crs_exercise,
                 crs_lecture_length, crs_exercise_length, crs_credits, crs_date_from,
                 crs_date_until, crs_probability, crs_manager_id, crs_workplace_id)
-                VALUES (
-                (:course_id, :crs_name, :crs_number_of_students, :crs_term,
+                VALUES
+                (:crs_enabled, :crs_name, :crs_number_of_students, :crs_term, :crs_lecture, :crs_exercise
                 :crs_lecture_length, :crs_exercise_length, :crs_credits, :crs_date_from,
                 :crs_date_until, :crs_probability, :crs_manager_id, :crs_workplace_id);
-                
                 """;
 
         GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
@@ -146,7 +145,7 @@ public class JdbcCourseRepository implements ICourseRepository {
                 """;
 
         var params = new MapSqlParameterSource();
-        params.addValue("crs_enabled", true);
+        params.addValue("crs_enabled", 0);
         params.addValue(COURSE_ID, courseId);
         params.addValue(IS_ENABLED, true);
 
@@ -183,7 +182,7 @@ public class JdbcCourseRepository implements ICourseRepository {
                 """;
 
         var params = new MapSqlParameterSource();
-        params.addValue("ass_enabled", false);
+        params.addValue("ass_enabled", 0);
         params.addValue(COURSE_ID, courseId);
         params.addValue(IS_ENABLED, true);
         params.addValue("employee_id", employeeId);
@@ -203,6 +202,8 @@ public class JdbcCourseRepository implements ICourseRepository {
         params.addValue("crs_name", course.getName());
         params.addValue("crs_number_of_students", course.getNumberOfStudents());
         params.addValue("crs_term", course.getTerm());
+        params.addValue("crs_lecture", 5);
+        params.addValue("crs_exercise", 5);
         params.addValue("crs_lecture_length", course.getLectureLength());
         params.addValue("crs_exercise_length", course.getExerciseLength());
         params.addValue("crs_credits", course.getCredits());

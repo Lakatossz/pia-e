@@ -29,10 +29,10 @@
         <h1 class="text-center mt-5" th:text="#{view.function.header}"></h1>
 
 
-        <input type="button" class="function-btn"
-           th:href="@{/f/create}" th:value="#{view.function.create}">
+        <a type="button" class="function-btn"
+           th:href="@{/f/create}" th:text="#{view.function.create}"></a>
         <div class="row">
-            <table class="table">
+            <table class="table" style="margin-top: 40px; margin-bottom: 100px">
                 <thead>
                 <tr>
                     <th scope="col"></th>
@@ -77,6 +77,20 @@
 <!--                                </td>-->
                             </tr>
                         </th:block>
+                    </th:block>
+                    <th:block th:if="${firstAllocations.get(iStat.index).getTime == -1}">
+                        <tr>
+                            <td class="function-cell">
+                                <a type="button" class="btn btn-detail" th:href="@{/f/{FNC_ID}/detail(FNC_ID=${fnc.getId()})}"></a>
+                            </td>
+                            <td th:text="${fnc.getName()}"></td>
+                            <td th:text="'-'"></td>
+                            <td th:text="'-'"></td>
+                            <td th:text="'-'"></td>
+                            <td th:text="'-'"></td>
+                            <td th:text="'-'"></td>
+                            <td th:text="'-'"></td>
+                        </tr>
                     </th:block>
                 </th:block>
                 </tbody>

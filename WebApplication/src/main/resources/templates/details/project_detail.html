@@ -147,8 +147,8 @@
                 </tr>
                 <tr>
                     <td class="project-detail-div">
-                    <h4 th:text="#{view.project_detail.finance}"/>
-                </td>
+                        <h4 th:text="#{view.project_detail.finance}"/>
+                    </td>
                 </tr>
                 <tr>
                     <td class="project-detail-div">
@@ -162,7 +162,7 @@
                     <td class="project-detail-div">
                         <label class="project-detail-label" for="budget_participation"
                                th:text="#{view.project_detail.budget_participation}"/>
-                        <input class="project-detail-input" type="text"
+                        <input class="project-detail-input" type="number"
                                id="budget_participation" name="budget_participation" th:field="*{budgetParticipation}">
                     </td>
                 </tr>
@@ -171,7 +171,7 @@
                         <label class="workplace-detail-label" for="description"
                                th:text="#{view.project_detail.description}"/>
                         <textarea contenteditable class="project-text-area" type="text"
-                                  th:rows="${project.getDescription().length() / 100}" th:cols="100"
+                                  th:rows="10" th:cols="100"
                                   id="description" name="description" th:field="*{description}"></textarea>
                     </td>
                 </tr>
@@ -225,19 +225,20 @@
                                 <div>
                                     <tr class="project-allocations" th:id="${allStats.index}">
                                         <td class="project-allocations-cell project-allocations-cell-name">
-<!--                                            <label>-->
-<!--                                                <select class="project-allocations-select" id="employeeId"-->
-<!--                                                        th:name="director" th:field="${all.worker.id}" disabled="disabled">-->
-<!--                                                    <option th:each="emp : ${employees}" th:value="${emp.getId()}"-->
-<!--                                                            th:text="${emp.getLastName()} + ' ' + ${emp.getFirstName()}">-->
-<!--                                                    </option>-->
-<!--                                                </select>-->
-<!--                                            </label>-->
+                                            <label>
+                                                <select class="project-allocations-select" id="employeeId"
+                                                        th:name="director" field="${employeeId}" disabled="disabled">
+                                                    <option th:each="emp : ${employees}" th:selected="${emp.getId()}"
+                                                            th:value="${emp.getId()}"
+                                                            th:text="${emp.getLastName()} + ' ' + ${emp.getFirstName()}">
+                                                    </option>
+                                                </select>
+                                            </label>
                                         </td>
                                         <td class="project-allocations-cell">
                                             <label>
                                                 <input class="project-allocations-input" type="text" readonly="readonly"
-                                                       th:name="role" th:field="${all.role}">
+                                                       th:name="role" th:value="${all.role}">
                                             </label>
                                         </td>
                                         <td class="project-allocations-cell">
@@ -439,17 +440,19 @@
     // Udrzuje hodnotu, zda-li je pridavana nova alokace - zobrazen radek pro vyplneni
     let allocation_being_added = false;
 
+    let project = [[${project}]];
+
     // Konstanty pro naplneni defaultniho pole nove alokace
     const default_role = 'nový';
-    const default_date_from = '01-01-2023';
-    const default_date_until = '12-31-2023';
+    const default_date_from = project.dateFrom;
+    const default_date_until = project.dateUntil;
     const default_time = 1.0;
     const default_time_av = 1.0;
     const default_description = 'description';
 
     // Tlacitko pro collapse detailu
-    let project = document.querySelectorAll(".project-detail-collapsible-header");
-    Array.from(project).forEach(function (div) {
+    let project_collapse = document.querySelectorAll(".project-detail-collapsible-header");
+    Array.from(project_collapse).forEach(function (div) {
         let button = document.createElement("button");
         button.className = "btn collapsible btn-dropdown project-detail-collapse-btn";
         button.addEventListener("click", function (evt) {
@@ -486,6 +489,7 @@
             if (!allocation_being_added) {
                 allocation_being_added = true;
                 Array.from(new_allocation).forEach(function (allocation) {
+                    console.log('Tady jsem');
                     allocation.classList.remove('project-allocation-new-hidden');
                     allocation.classList.add('project-allocation-new-display');
                 });
@@ -579,18 +583,6 @@
             });
         }
     });
-
-    function clearRow(tr) {
-        let select = tr.getElementsByClassName('project-allocations-select');
-        select.value = employees[0].id;
-        let input = tr.getElementsByClassName('project-allocations-input');
-        input[0].value = default_role;
-        input[1].value = default_date_from;
-        input[2].value = default_date_until;
-        input[3].value = default_time;
-        input[4].value = default_time_av;
-        input[5].value = default_description;
-    }
 
     // Handling table with month allocation of every worker
 
@@ -747,6 +739,18 @@
             window.location.replace(location.protocol + '//' + location.host + location.pathname + '?edit=failure');
             return false;
         }
+    }
+
+    function clearRow(tr) {
+        let select = tr.getElementsByClassName('project-allocations-select');
+        select.value = employees[0].id;
+        let input = tr.getElementsByClassName('project-allocations-input');
+        input[0].value = default_role;
+        input[1].value = default_date_from;
+        input[2].value = default_date_until;
+        input[3].value = default_time;
+        input[4].value = default_time_av;
+        input[5].value = default_description;
     }
 
 </script>

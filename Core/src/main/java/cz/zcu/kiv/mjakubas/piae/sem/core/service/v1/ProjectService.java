@@ -157,7 +157,7 @@ public class ProjectService {
                 .budgetParticipation(projectVO.getBudgetParticipation())
                 .agency(projectVO.getAgency())
                 .grantTitle(projectVO.getGrantTitle())
-                .state(ProjectState.valueOf(projectVO.getState()))
+                .state(ProjectState.NOVY)
                 .totalTime(projectVO.getTotalTime());
 
         long id = projectRepository.createProject(project);
@@ -166,6 +166,11 @@ public class ProjectService {
             return id;
         else
             throw new ServiceException();
+    }
+
+    @Transactional
+    public boolean removeProject(@NonNull long projectId) {
+        return projectRepository.removeProject(projectId);
     }
 
     /**
@@ -180,11 +185,11 @@ public class ProjectService {
         if (projectVO.getDateUntil() != null && (projectVO.getDateFrom().after(projectVO.getDateUntil())))
                 {throw new ServiceException();
         }
-        var processed = allocationService.processAllocations(allocationService.getProjectAllocations(id).getAllocations());
-        if (!processed.isEmpty() && (processed.get(0).getFrom().before(projectVO.getDateFrom())
-                    || processed.get(processed.size() - 1).getUntil().after(projectVO.getDateUntil())))
-                {throw new ServiceException();
-        }
+//        var processed = allocationService.processAllocations(allocationService.getProjectAllocations(id).getAllocations());
+//        if (!processed.isEmpty() && (processed.get(0).getFrom().before(projectVO.getDateFrom())
+//                    || processed.get(processed.size() - 1).getUntil().after(projectVO.getDateUntil())))
+//                {throw new ServiceException();
+//        }
 
         Project project = new Project()
                 .id(id)
@@ -486,8 +491,6 @@ public class ProjectService {
                     totalNumberOfYears = o.numberOfYears + (o.firstYear - totalFirstYear);
                 }
             }
-
-            System.out.println("f:" + totalFirstYear + " " + "n: " + totalNumberOfYears);
 
             list = prepareAllocationCells(allocationsByActivityAndRole, (int) totalFirstYear, (int) totalNumberOfYears);
         }

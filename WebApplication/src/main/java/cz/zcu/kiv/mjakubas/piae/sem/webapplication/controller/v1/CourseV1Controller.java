@@ -67,7 +67,7 @@ public class CourseV1Controller {
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).COURSE_SUPERVISOR, " +
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN)")
     public String createCourse(Model model) {
-        CourseVO newCourse = new CourseVO().name("Nový projekt");
+        CourseVO newCourse = new CourseVO().name("Nový předmět");
         model.addAttribute("course", newCourse);
 
         var courses = courseService.getCourses();
@@ -147,14 +147,17 @@ public class CourseV1Controller {
         return "redirect:/c/{id}/detail?edit=success";
     }
 
-    @GetMapping("/{id}/delete")
+    @PostMapping("/{id}/delete")
     @PreAuthorize("hasAnyAuthority(" +
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT, " +
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).COURSE_SCHEDULER, " +
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).COURSE_SUPERVISOR, " +
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN) " +
             " or @securityService.isCourseManager(#id) or @securityService.isWorkplaceManager(#id)")
-    public String editCourse(Model model, @PathVariable long id) {
+    public String deleteCourse(Model model, @PathVariable long id) {
+
+        courseService.removeCourse(id);
+
         return "redirect:/c?delete=success";
     }
 
@@ -177,7 +180,7 @@ public class CourseV1Controller {
             for (Allocation all : allList) {
                 var allVO = new AllocationVO();
                 allVO.setId(all.getId());
-                allVO.setCourseId(all.getCourse().getId());
+                allVO.setCourseId(id);
                 allVO.setEmployeeId(all.getWorker().getId());
                 allVO.setAllocationScope(all.getAllocationScope());
                 allVO.setDateFrom(all.getDateFrom());

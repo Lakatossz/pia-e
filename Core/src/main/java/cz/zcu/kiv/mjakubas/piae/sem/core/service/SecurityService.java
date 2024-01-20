@@ -240,7 +240,7 @@ public class SecurityService {
     @Transactional
     public long createUserAccount(@NonNull EmployeeVO employeeVO) {
         long id = employeeService.createEmployee(employeeVO);
-        createUser(employeeVO.getOrionLogin(), employeeVO.getPassword());
+        createUser(employeeVO.getOrionLogin(), "heslo");
         return id;
     }
 }

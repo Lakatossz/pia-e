@@ -103,14 +103,14 @@ public class JdbcProjectRepository implements IProjectRepository {
     public long createProject(@NonNull Project project) {
         var sql = """
                 INSERT INTO project
-                (pro_enabled, pro_name, pro_manager_id, pro_workplace_id,\s
+                (pro_enabled, pro_name, pro_manager_id, pro_workplace_id,
                 pro_date_from, pro_date_until, pro_description, pro_probability, 
-                pro_budget, pro_budget_participation, pro_total_time, 
+                pro_budget, pro_budget_participation, pro_total_time, pro_state, 
                 pro_shortcut, pro_agency, pro_grant_title)
                 VALUES
-                (:pro_enabled, :pro_name, :pro_manager_id, :pro_workplace_id,\s
+                (:pro_enabled, :pro_name, :pro_manager_id, :pro_workplace_id,
                 :pro_date_from, :pro_date_until, :pro_description, :pro_probability,
-                :pro_budget, :pro_budget_participation, :pro_total_time, pro_state = :pro_state,
+                :pro_budget, :pro_budget_participation, :pro_total_time, :pro_state,
                 :pro_shortcut, :pro_agency, :pro_grant_title);
                 """;
 

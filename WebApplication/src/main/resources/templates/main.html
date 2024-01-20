@@ -89,21 +89,21 @@
                                         <tr class="main-row-header">
                                             <!-- Labels -->
                                             <td class="main-row-name" th:text="#{view.main.table.activity.name}"></td>
-                                            <td class="main-cell" th:text="#{view.main.table.activity.certain}"></td>
-                                            <td class="main-cell btn-left"></td>
-                                            <td class="main-cell" th:text="#{month.january}"></td>
-                                            <td class="main-cell" th:text="#{month.february}"></td>
-                                            <td class="main-cell" th:text="#{month.march}"></td>
-                                            <td class="main-cell" th:text="#{month.april}"></td>
-                                            <td class="main-cell" th:text="#{month.may}"></td>
-                                            <td class="main-cell" th:text="#{month.june}"></td>
-                                            <td class="main-cell" th:text="#{month.july}"></td>
-                                            <td class="main-cell" th:text="#{month.august}"></td>
-                                            <td class="main-cell" th:text="#{month.september}"></td>
-                                            <td class="main-cell" th:text="#{month.october}"></td>
-                                            <td class="main-cell" th:text="#{month.november}"></td>
-                                            <td class="main-cell" th:text="#{month.december}"></td>
-                                            <td class="main-cell btn-right"></td>
+                                            <td class="main-cell-times" th:text="#{view.main.table.activity.certain}"></td>
+                                            <td class="main-cell-times btn-left"></td>
+                                            <td class="main-cell-times" th:text="#{month.january}"></td>
+                                            <td class="main-cell-times" th:text="#{month.february}"></td>
+                                            <td class="main-cell-times" th:text="#{month.march}"></td>
+                                            <td class="main-cell-times" th:text="#{month.april}"></td>
+                                            <td class="main-cell-times" th:text="#{month.may}"></td>
+                                            <td class="main-cell-times" th:text="#{month.june}"></td>
+                                            <td class="main-cell-times" th:text="#{month.july}"></td>
+                                            <td class="main-cell-times" th:text="#{month.august}"></td>
+                                            <td class="main-cell-times" th:text="#{month.september}"></td>
+                                            <td class="main-cell-times" th:text="#{month.october}"></td>
+                                            <td class="main-cell-times" th:text="#{month.november}"></td>
+                                            <td class="main-cell-times" th:text="#{month.december}"></td>
+                                            <td class="main-cell-times btn-right"></td>
                                         </tr>
                                         </thead>
                                         <tbody>
@@ -139,7 +139,7 @@
                                         <th:block th:each="project, projectStats : ${emp.getProjectOverviewAllocations()}">
                                             <tr class="main-projects-times" th:id="${projectStats.index}">
                                                 <td class="main-row-name" th:text="${project.getActivityName()}"></td>
-                                                <td class="main-cell" th:text="${project.getActivityRole()}"></td>
+                                                <td class="main-cell-times" th:text="${project.getActivityCertain()}"></td>
                                                 <td class="main-cell-times"></td>
                                             </tr>
                                         </th:block>
@@ -165,7 +165,7 @@
                                             <th:block th:each="course, courseStats : ${emp.getCourseOverviewAllocations()}">
                                                 <tr class="main-courses-times" th:id="${courseStats.index}">
                                                     <td class="main-row-name" th:text="${course.getActivityName()}"></td>
-                                                    <td class="main-cell" th:text="${course.getActivityRole()}"></td>
+                                                    <td class="main-cell-times" th:text="${course.getActivityCertain()}"></td>
                                                     <td class="main-cell-times"></td>
                                                 </tr>
                                             </th:block>
@@ -191,7 +191,7 @@
                                         <th:block th:each="function, functionStats : ${emp.getFunctionOverviewAllocations()}">
                                             <tr class="main-functions-times" th:id="${functionStats.index}">
                                                 <td class="main-row-name" th:text="${function.getActivityName()}"></td>
-                                                <td class="main-cell" th:text="${function.getActivityRole()}"></td>
+                                                <td class="main-cell-times" th:text="${function.getActivityCertain()}"></td>
                                                 <td class="main-cell-times"></td>
                                             </tr>
                                         </th:block>
@@ -394,6 +394,7 @@
         left_btns[i].classList.add("btn");
         left_btns[i].addEventListener("click", function(evt) {
             if (current_index > 0 && current_index !== undefined) {
+                console.log('left');
                 let project_rows = projects_times[i].getElementsByClassName("main-projects-times");
                 let courses_rows = courses_times[i].getElementsByClassName("main-courses-times");
                 let function_rows = functions_times[i].getElementsByClassName("main-functions-times");
@@ -412,6 +413,7 @@
         right_btns[i].classList.add("btn");
         right_btns[i].addEventListener("click", function(evt) {
             if ((current_index + 1) < numberOfYears[i] && current_index !== undefined) {
+                console.log('right');
                 let project_rows = projects_times[i].getElementsByClassName("main-projects-times");
                 let courses_rows = courses_times[i].getElementsByClassName("main-courses-times");
                 let function_rows = functions_times[i].getElementsByClassName("main-functions-times");

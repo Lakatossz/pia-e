@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" lang="">
 <head>
     <meta charset="UTF-8">
-    <title th:text="#{form.create-allocation.title}"></title>
+    <title th:text="#{view.workplace_detail.title} + ' ' + ${workplace.getName()}"></title>
 
     <link rel="stylesheet" th:href="@{/css/color.css}">
     <link rel="stylesheet" th:href="@{/css/common.css}">
@@ -18,52 +18,107 @@
     <!-- jquery -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 </head>
-<body class="d-flex flex-column min-vh-100">
+<body>
 <div th:replace="~{fragments/navbar}">Navbar</div>
+
 <div class="container-fluid">
     <!-- content -->
-    <div class="text-center mt-5"><h1 th:text="#{form.create-workplace.title}"></h1></div>
-    <div class="d-flex justify-content-center">
-        <form method="post" th:action="@{/w/create}" th:object="${workplaceVO}" th:method="POST"
-              class="border needs-validation m-5 mt-0 was-validated" novalidate>
-            <div class="row m-3">
-                <div class="col">
-                    <label for="workplace_abbreviation" class="form-label"
-                           th:text="#{form.create-workplace.label.abbreviation}"></label>
-                    <input th:field="*{abbreviation}" type="text" id="workplace_abbreviation"
-                           name="workplace_abbreviation"
-                           class="form-control common-border-radius" required>
-                    <div class="invalid-feedback" th:text="#{form.create-workplace.invalid.abbreviation}"></div>
-                </div>
-            </div>
-            <div class="row m-3">
-                <div class="col">
-                    <label for="workplace_name" class="form-label"
-                           th:text="#{form.create-workplace.label.fname}"></label>
-                    <input th:field="*{name}" type="text" id="workplace_name"
-                           name="workplace_name"
-                           class="form-control common-border-radius" required>
-                    <div class="invalid-feedback" th:text="#{form.create-workplace.invalid.fname}"></div>
-                </div>
-            </div>
-            <div class="row m-3 justify-content-center">
-                <div class="col">
-                    <input class="btn btn-outline-primary w-100 common-border-radius" type="submit"
-                           th:value="#{form.create-workplace.submit}">
-                </div>
-            </div>
+    <div class="container">
+        <!-- alerts -->
+        <div th:if="(${(param.edit != null)} and ${(param.edit[0] == 'success')}
+        or ${(param.create != null)} and ${(param.create[0] == 'success')}
+        or ${(param.delete != null)} or ${(param.subordinate != null)})"
+             class="alert alert-success alert-dismissible fade show">
+            <strong th:if="${(param.edit != null)} and ${(param.edit[0] == 'success')}" th:text="#{view.workplace.alert.edit.success}"></strong>
+            <strong th:if="${(param.create != null)}" th:text="#{view.workplace.alert.create}"></strong>
+            <strong th:if="${(param.delete != null)}" th:text="#{not-implemented}"></strong>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <div th:if="(${(param.edit != null)} and ${(param.edit[0] == 'failure')}
+        or ${(param.create != null)} and ${(param.create[0] == 'failure')})"
+             class="alert alert-danger alert-dismissible fade show">
+            <strong th:if="${(param.edit != null)} and ${(param.edit[0] == 'failure')}" th:text="#{view.workplace.alert.edit.failure}"></strong>
+            <strong th:if="${(param.create != null)}" th:text="#{view.workplace.alert.create}"></strong>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <h1 class="text-center mt-5" th:text="#{view.workplace_detail.header} + ' ' + ${workplace.getName()}"></h1>
+
+        <form   method="post"
+                th:action="@{'/w/create'}"
+                th:object="${workplace}" th:method="POST" novalidate>
+            <table>
+                <tr>
+                    <td class="workplace-detail-div">
+                        <label class="workplace-detail-label" for="shortcut"
+                               th:text="#{view.workplace_detail.shortcut}" th:required="true"/>
+                        <input class="workplace-detail-input" type="text"
+                               id="shortcut" name="shortcut" th:field="*{abbreviation}">
+                    </td>
+                </tr>
+                <tr>
+                    <td class="workplace-detail-div">
+                        <label class="workplace-detail-label" for="name"
+                               th:text="#{view.workplace_detail.name}" th:required="true"/>
+                        <input class="workplace-detail-input" type="text"
+                               id="name" name="name" th:field="*{name}">
+                    </td>
+                </tr>
+                <tr>
+                    <td class="workplace-detail-div">
+                        <label class="workplace-detail-label" for="supervisor"
+                               th:text="#{view.workplace_detail.supervisor}" th:required="true"/>
+                        <select class="workplace-detail-input"
+                                id="supervisor" name="supervisor" th:field="*{manager}">
+                            <option th:each="mng : ${employees}" th:value="${mng.getId()}"
+                                    th:text="${mng.getLastName()} + ' ' + ${mng.getFirstName()}">
+                            </option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="workplace-detail-div">
+                        <label class="workplace-detail-label" for="description"
+                               th:text="#{view.workplace_detail.table.description}"/>
+                        <textarea contenteditable class="workplace-text-area" type="text"
+                                  th:rows="10" th:cols="100"
+                                  id="description" name="description" th:field="*{description}"></textarea>
+                    </td>
+                </tr>
+                <tr style="margin-top: 40px">
+                    <td class="flex-duo">
+                        <input id="form-submit" class="workplace-detail-btn"
+                               th:attr="onclick=|return empty('#{view.workplace_detail.submit.empty}')|"
+                               th:formaction="'/w/create'" type="submit"
+                               th:value="#{view.workplace_detail.submit}">
+                    </td>
+                </tr>
+            </table>
         </form>
     </div>
+
 </div>
+
 <div th:replace="~{fragments/footer}">Footer</div>
-<script type="text/javascript" th:src="@{/js/form_validation.js}"></script>
-<script type="text/javascript" th:src="@{/js/validation/workplace_form_validation.js}"></script>
-<script type="text/javascript" th:inline="javascript">
-    let restrictions = [];
-    /*[# th:each="n : ${restrictions}"]*/
-    restrictions.push(new WorkplaceRestrictions("[(${n.abbreviation})]", "[(${n.fullName})]"))
-    /*[/]*/
-    let wv = new WorkplaceValidation(restrictions, 'workplace_abbreviation', 'workplace_name');
-</script>
 </body>
+
+<script>
+    function empty(message) {
+        var x;
+        console.log(message);
+        x = document.getElementById("shortcut").value;
+        if (x === "") {
+            window.location.replace(location.protocol + '//' + location.host + location.pathname + '?edit=failure');
+            return false;
+        }
+        x = document.getElementById("name").value;
+        if (x === "") {
+            window.location.replace(location.protocol + '//' + location.host + location.pathname + '?edit=failure');
+            return false;
+        }
+    }
+
+</script>
+
 </html>

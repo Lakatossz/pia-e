@@ -29,9 +29,9 @@ public class AllocationVO {
     private long courseId;
     private long functionId;
     private float allocationScope;  // in x/FTE
-    @DateTimeFormat(pattern = "dd-MM-yyyy")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date dateFrom;
-    @DateTimeFormat(pattern = "dd-MM-yyyy")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date dateUntil;
     private String description;
     private String role;

@@ -141,12 +141,14 @@ public class FunctionService {
 
         Function function = new Function()
                 .name(functionVO.getName())
+                .shortcut(functionVO.getShortcut())
                 .dateFrom(functionVO.getDateFrom())
                 .dateUntil(functionVO.getDateUntil() != null ? functionVO.getDateUntil() : Date.from(
                         Instant.from(LocalDate.of(9999, 9, 9))))
                 .probability(functionVO.getProbability())
                 .functionManager(manager)
                 .functionWorkplace(Workplace.builder().id(functionVO.getFunctionWorkplace()).build())
+                .description(functionVO.getDescription())
                 .defaultTime(functionVO.getDefaultTime());
 
         long id = functionRepository.createFunction(function);
@@ -155,6 +157,11 @@ public class FunctionService {
             return id;
         else
             throw new ServiceException();
+    }
+
+    @Transactional
+    public boolean removeFunction(@NonNull long functionId) {
+        return functionRepository.removeFunction(functionId);
     }
 
     /**
@@ -412,12 +419,6 @@ public class FunctionService {
         date.setTime(dateFrom);
         int startIndex = (date.get(Calendar.YEAR) - firstYear) * 12 + date.get(Calendar.MONTH);
 
-        System.out.println("startIndex: " + startIndex);
-        System.out.println("firstYear: " + firstYear);
-        System.out.println("yearsDiff: " + yearsDiff);
-        System.out.println("monthsDiff: " + monthsDiff);
-        System.out.println("time: " + allocation.getTime());
-
         for (int i = 0; i < monthsDiff; ++i) {
             cellsList.set(startIndex + i, new AllocationCell(allocation.getTime(), allocation.getIsCertain()));
         }
@@ -430,7 +431,6 @@ public class FunctionService {
         for (MergingObject object : allocationsByActivityAndRole) {
 //            Pripravim cele pole
             int cellsSize = (12 * totalNumberOfYears);
-            System.out.println(cellsSize);
             List<AllocationCell> cellsList = new java.util.ArrayList<>(Collections.nCopies(cellsSize, new AllocationCell()));
             object.allocations.forEach(allocation -> addAllocationsPerMonth(allocation, cellsList, totalFirstYear));
             list.add(cellsList);
@@ -456,8 +456,6 @@ public class FunctionService {
                 }
             }
 
-            System.out.println("f:" + totalFirstYear + " " + "n: " + totalNumberOfYears);
-
             list = prepareAllocationCells(allocationsByActivityAndRole, (int) totalFirstYear, (int) totalNumberOfYears);
         }
 
@@ -476,12 +474,6 @@ public class FunctionService {
         long firstYear;
         long numberOfYears;
         List<Allocation> allocations = new LinkedList<>();
-
-        public MergingObject(long activityId, String role, Allocation allocation) {
-            this.activityId = activityId;
-            this.role = role;
-            this.allocations.add(allocation);
-        }
 
         public MergingObject(String role, long employeeId, Allocation allocation) {
             this.employeeId = employeeId;

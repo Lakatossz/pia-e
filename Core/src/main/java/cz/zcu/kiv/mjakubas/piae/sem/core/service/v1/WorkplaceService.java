@@ -63,6 +63,8 @@ public class WorkplaceService {
         Workplace workplace = Workplace.builder()
                 .abbreviation(workplaceVO.getAbbreviation())
                 .fullName(workplaceVO.getName())
+                .manager(employeeService.getEmployee(workplaceVO.getManager()))
+                .description(workplaceVO.getDescription())
                 .build();
 
         long id = workplaceRepository.createWorkplace(workplace);
@@ -96,7 +98,6 @@ public class WorkplaceService {
      */
     @Transactional
     public void removeWorkplace(long workplaceId) {
-
+        workplaceRepository.removeWorkplace(workplaceId);
     }
-
 }

@@ -108,14 +108,14 @@
                                         </thead>
                                         <tbody>
                                         <tr class="main-certain-times">
-                                            <td class="main-row-name" th:text="#{view.project_detail.members.title.total}"></td>
-                                            <td class="main-cell-certain-times-values"></td>
-                                            <td class="main-cell-times" th:text="#{view.employee.table.certain-time}"></td>
+                                            <td class="main-row-name certain-highlight" th:text="#{view.project_detail.members.title.total}"></td>
+                                            <td class="main-cell-times certain-highlight"></td>
+                                            <td class="main-cell-times certain-highlight" th:text="#{view.employee.table.certain-time}"></td>
                                         </tr>
                                         <tr class="main-uncertain-times">
-                                            <td class="main-row-name"></td>
-                                            <td class="main-cell-uncertain-times-values"></td>
-                                            <td class="main-cell-times" th:text="#{view.employee.table.uncertain-time}"></td>
+                                            <td class="main-row-name uncertain-highlight"></td>
+                                            <td class="main-cell-times uncertain-highlight"></td>
+                                            <td class="main-cell-times uncertain-highlight" th:text="#{view.employee.table.uncertain-time}"></td>
                                         </tr>
                                         </tbody>
                                     </table>
@@ -130,15 +130,17 @@
                                     <table class="main-row-table projects-table" th:id="${iStat.index}">
                                         <thead>
                                         <!-- Projects header -->
-                                        <tr class="main-row-title">
-                                            <td th:colspan="16" class="main-row-title" th:text="#{view.main.table.activity.projects}"></td>
+                                        <tr class="main-row-title projects-highlight-background">
+                                            <td th:colspan="16" class="main-row-title projects-highlight" th:text="#{view.main.table.activity.projects}"></td>
                                         </tr>
                                         </thead>
                                         <tbody>
                                         <!-- Projects values -->
                                         <th:block th:each="project, projectStats : ${emp.getProjectOverviewAllocations()}">
                                             <tr class="main-projects-times" th:id="${projectStats.index}">
-                                                <td class="main-row-name" th:text="${project.getActivityName()}"></td>
+                                                <td class="main-row-name">
+                                                    <a th:text="${project.getActivityName()}" th:href="@{/p/{PRO_ID}/detail(PRO_ID=${project.activityId})}"></a>
+                                                </td>
                                                 <td class="main-cell-times" th:text="${project.getActivityCertain()}"></td>
                                                 <td class="main-cell-times"></td>
                                             </tr>
@@ -156,15 +158,17 @@
                                     <table class="main-row-table courses-table" th:id="${iStat.index}">
                                         <thead>
                                         <!-- Courses header -->
-                                        <tr class="main-row-title">
-                                            <td th:colspan="16" class="main-row-title" th:text="#{view.main.table.activity.courses}"></td>
+                                        <tr class="main-row-title courses-highlight-background">
+                                            <td th:colspan="16" class="main-row-title courses-highlight" th:text="#{view.main.table.activity.courses}"></td>
                                         </tr>
                                         </thead>
                                         <tbody>
                                             <!-- Courses values -->
                                             <th:block th:each="course, courseStats : ${emp.getCourseOverviewAllocations()}">
                                                 <tr class="main-courses-times" th:id="${courseStats.index}">
-                                                    <td class="main-row-name" th:text="${course.getActivityName()}"></td>
+                                                    <td class="main-row-name">
+                                                        <a th:text="${course.getActivityName()}" th:href="@{/p/{CRS_ID}/detail(CRS_ID=${course.activityId})}"></a>
+                                                    </td>
                                                     <td class="main-cell-times" th:text="${course.getActivityCertain()}"></td>
                                                     <td class="main-cell-times"></td>
                                                 </tr>
@@ -182,15 +186,17 @@
                                     <table class="main-row-table functions-table">
                                         <thead>
                                         <!-- Functions header -->
-                                        <tr class="main-row-title">
-                                            <td th:colspan="16" class="main-row-title" th:text="#{view.main.table.activity.functions}"></td>
+                                        <tr class="main-row-title functions-highlight-background">
+                                            <td th:colspan="16" class="main-row-title functions-highlight" th:text="#{view.main.table.activity.functions}"></td>
                                         </tr>
                                         </thead>
                                         <tbody>
                                         <!-- Functions values -->
                                         <th:block th:each="function, functionStats : ${emp.getFunctionOverviewAllocations()}">
                                             <tr class="main-functions-times" th:id="${functionStats.index}">
-                                                <td class="main-row-name" th:text="${function.getActivityName()}"></td>
+                                                <td class="main-row-name">
+                                                    <a th:text="${function.getActivityName()}" th:href="@{/p/{FNC_ID}/detail(FNC_ID=${function.activityId})}"></a>
+                                                </td>
                                                 <td class="main-cell-times" th:text="${function.getActivityCertain()}"></td>
                                                 <td class="main-cell-times"></td>
                                             </tr>
@@ -273,7 +279,7 @@
             && employees[index].totalCertainAllocationCells.length > 0) {
             for (let j = 0; j < 12; ++j) {
                 let td = document.createElement("td");
-                td.className = "main-cell-certain-times-values";
+                td.className = "main-cell-certain-times-values certain-highlight";
                 td.innerHTML = (employees[index].totalCertainAllocationCells[j].time)
                     .toLocaleString(undefined, opts).replace(',', '.');
                 trArray.append(td);
@@ -292,7 +298,7 @@
             && employees[index].totalUncertainAllocationCells.length > 0) {
             for (let j = 0; j < 12; ++j) {
                 let td = document.createElement("td");
-                td.className = "main-cell-uncertain-times-values";
+                td.className = "main-cell-uncertain-times-values uncertain-highlight";
                 td.innerHTML = (employees[index].totalUncertainAllocationCells[j].time)
                     .toLocaleString(undefined, opts).replace(',', '.');
                 trArray.append(td);

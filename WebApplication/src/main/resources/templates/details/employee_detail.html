@@ -21,7 +21,7 @@
 <body>
 <div th:replace="~{fragments/navbar}">Navbar</div>
 
-<div class="container-fluid employees-body">
+<div class="container-fluid content my_page employees-body">
     <!-- content -->
     <div class="my-container">
         <!-- alerts -->
@@ -149,14 +149,15 @@
                             <td class="employee-cell" th:text="#{view.employee_detail.activity.projects_table.current-time}"></td>
                             <td class="employee-cell" th:text="#{view.employee_detail.activity.projects_table.certain}"></td>
                             <td class="employee-cell employee-detail-table-description" th:text="#{view.employee_detail.activity.projects_table.description}"></td>
-                            <td></td>
                         </tr>
                         </thead>
                         <tbody>
                         <th:block th:each="pro, proStats: ${projects}">
                             <!-- Project-->
                             <tr class="employee-detail-tr employee-projects-times">
-                                <td class="employee-name" th:rowspan="${pro.getProjectAllocations().size() + 1}" th:text="${pro.getName()}"></td>
+                                <td class="employee-name" th:rowspan="${pro.getProjectAllocations().size() + 1}">
+                                    <a th:text="${pro.getName()}" th:href="@{/p/{PRO_ID}/detail(PRO_ID=${pro.getId()})}"></a>
+                                </td>
                                 <td class="employee-cell" th:rowspan="${pro.getProjectAllocations().size() + 1}" th:text="${pro.getProjectManager().getLastName()}"></td>
                                 <th:block>
                                     <form method="post"
@@ -200,18 +201,6 @@
                                                 </label>
                                             </td>
                                         </th:block>
-                                        <td>
-                                            <button class="btn btn-confirm" th:formaction="'/a/' + ${id} + '/edit'"></button>
-                                        </td>
-                                        <td>
-                                            <button class="btn btn-edit" type="button"></button>
-                                        </td>
-                                        <td>
-                                            <button class="btn btn-cancel" type="button"></button>
-                                        </td>
-                                        <td>
-                                            <button class="btn btn-delete" type="button"></button>
-                                        </td>
                                     </form>
                                 </th:block>
                             </tr>
@@ -259,18 +248,6 @@
                                                     </label>
                                                 </td>
                                             </th:block>
-                                            <td>
-                                                <button class="btn btn-confirm" th:formaction="'/a/' + ${id} + '/edit'"></button>
-                                            </td>
-                                            <td>
-                                                <button class="btn btn-edit" type="button"></button>
-                                            </td>
-                                            <td>
-                                                <button class="btn btn-cancel" type="button"></button>
-                                            </td>
-                                            <td>
-                                                <button class="btn btn-delete" type="button"></button>
-                                            </td>
                                         </form>
                                     </th:block>
                                 </tr>
@@ -294,14 +271,15 @@
                             <td class="employee-cell" th:text="#{view.employee_detail.activity.course_table.current-time}"></td>
                             <td class="employee-cell" th:text="#{view.employee_detail.activity.course_table.certain}"></td>
                             <td class="employee-cell employee-detail-table-description" th:text="#{view.employee_detail.activity.course_table.description}"></td>
-                            <td></td>
                         </tr>
                         </thead>
                         <tbody>
                         <th:block th:each="crs, crsStats: ${courses}">
                             <!-- Employee-->
                             <tr class="employee-detail-tr employee-courses-times">
-                                <td class="employee-name" th:rowspan="${crs.getCourseAllocations().size() + 1}" th:text="${crs.getName()}"></td>
+                                <td class="employee-name" th:rowspan="${crs.getCourseAllocations().size() + 1}">
+                                    <a th:text="${crs.getName()}" th:href="@{/c/{CRS_ID}/detail(CRS_ID=${crs.getId()})}"></a>
+                                </td>
                                 <td class="employee-cell" th:rowspan="${crs.getCourseAllocations().size() + 1}" th:text="${crs.getCourseManager().getLastName()}"></td>
                                 <th:block>
                                     <form method="post"
@@ -345,18 +323,6 @@
                                                 </label>
                                             </td>
                                         </th:block>
-                                        <td>
-                                            <button class="btn btn-confirm" th:formaction="'/a/' + ${id} + '/edit'"></button>
-                                        </td>
-                                        <td>
-                                            <button class="btn btn-edit" type="button"></button>
-                                        </td>
-                                        <td>
-                                            <button class="btn btn-cancel" type="button"></button>
-                                        </td>
-                                        <td>
-                                            <button class="btn btn-delete" type="button"></button>
-                                        </td>
                                     </form>
                                 </th:block>
                             </tr>
@@ -407,18 +373,6 @@
                                                     </label>
                                                 </td>
                                             </th:block>
-                                            <td>
-                                                <button class="btn btn-confirm" th:formaction="'/a/' + ${id} + '/edit'"></button>
-                                            </td>
-                                            <td>
-                                                <button class="btn btn-edit" type="button"></button>
-                                            </td>
-                                            <td>
-                                                <button class="btn btn-cancel" type="button"></button>
-                                            </td>
-                                            <td>
-                                                <button class="btn btn-delete" type="button"></button>
-                                            </td>
                                         </form>
                                     </th:block>
                                 </tr>
@@ -442,7 +396,6 @@
                             <td class="employee-cell" th:text="#{view.employee_detail.activity.functions_table.current-time}"></td>
                             <td class="employee-cell" th:text="#{view.employee_detail.activity.functions_table.certain}"></td>
                             <td class="employee-cell employee-detail-table-description" th:text="#{view.employee_detail.activity.functions_table.description}"></td>
-                            <td></td>
                         </tr>
                         </thead>
                         <tbody>
@@ -450,7 +403,9 @@
                             <!-- Employee-->
                             <th:block th:if="${firstFunctionsAllocations.get(iStat.index).getTime >= 0}">
                                 <tr class="employee-detail-tr employee-functions-times">
-                                    <td class="employee-name" th:rowspan="${fnc.getFunctionAllocations().size() + 1}" th:text="${fnc.getName()}"></td>
+                                    <td class="employee-name" th:rowspan="${fnc.getFunctionAllocations().size() + 1}">
+                                        <a th:text="${fnc.getName()}" th:href="@{/f/{FNC_ID}/detail(FNC_ID=${fnc.getId()})}"></a>
+                                    </td>
                                     <td class="employee-cell" th:rowspan="${fnc.getFunctionAllocations().size() + 1}" th:text="${fnc.getFunctionManager().getLastName()}"></td>
                                     <th:block>
                                         <form method="post"
@@ -494,18 +449,6 @@
                                                     </label>
                                                 </td>
                                             </th:block>
-                                            <td>
-                                                <button class="btn btn-confirm" th:formaction="'/a/' + ${id} + '/edit'"></button>
-                                            </td>
-                                            <td>
-                                                <button class="btn btn-edit" type="button"></button>
-                                            </td>
-                                            <td>
-                                                <button class="btn btn-cancel" type="button"></button>
-                                            </td>
-                                            <td>
-                                                <button class="btn btn-delete" type="button"></button>
-                                            </td>
                                         </form>
                                     </th:block>
                                 </tr>
@@ -553,25 +496,6 @@
                                                         <input class="project-allocations-input" type="text"
                                                                readonly="readonly" th:name="description"
                                                                th:value="${all.description}">
-                                                    </label>
-                                                </td>
-                                                <td>
-                                                    <button class="btn btn-confirm" type="submit"
-                                                            th:formaction="'/a/' + ${id} + '/edit'"></button>
-                                                </td>
-                                                <td>
-                                                    <button class="btn btn-edit" th:id="${allStats.index}" type="button"></button>
-                                                </td>
-                                                <td>
-                                                    <button class="btn btn-cancel" th:id="${allStats.index}" type="button"></button>
-                                                </td>
-                                                <td>
-                                                    <button class="btn btn-delete" type="button"></button>
-                                                </td>
-                                                <td>
-                                                    <label>
-                                                        <input class="course-table-detail-input" style="display : none"
-                                                               th:id="${allStats.index}" th:name="employeeId" th:value="${employee.id}">
                                                     </label>
                                                 </td>
                                             </tr>

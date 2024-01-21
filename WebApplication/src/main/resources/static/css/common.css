@@ -245,6 +245,10 @@ footer {
     outline: none; /* Remove default outline on focus */
 }
 
+.function-allocation-new-hidden {
+    display: none;
+}
+
 .function-btn {
     color: #000000;
     border: #000000 solid 1px;
@@ -976,14 +980,14 @@ footer {
 
 .main-row-header-cell {
     width:50px;
-    border: 1px solid black;
+    /*border: 1px solid black;*/
     text-align: center;
     margin: 10px;
 }
 
 .main-row-header-eye {
     width: 10%;
-    border: 1px solid black;
+    /*border: 1px solid black;*/
     text-align: right;
 }
 
@@ -998,16 +1002,49 @@ footer {
 .main-row-name {
     width: 20%;
     max-width: 300px;
-    border: 1px solid black;
+    /*border: 1px solid black;*/
     text-align: right;
     margin-right: 10px;
 }
 
 .main-cell, .main-cell-times, .main-cell-times-values {
     width:40px;
-    border: 1px solid black;
+    min-width:40px;
+    max-width:40px;
+    /*border: 1px solid black;*/
     text-align: center;
-    margin: 10px;
+}
+
+.certain-highlight {
+    color: #2471a3;
+}
+
+.uncertain-highlight {
+    color: darkorange;
+}
+
+.projects-highlight {
+    color: indigo;
+}
+
+.projects-highlight-background {
+    background-color: rgba(75, 0, 130, 0.5);
+}
+
+.courses-highlight {
+    color: #165a3d;
+}
+
+.courses-highlight-background {
+    background-color: rgba(22, 90, 61, 0.5);
+}
+
+.functions-highlight {
+    color: goldenrod;
+}
+
+.functions-highlight-background {
+    background-color: rgba(218, 165, 32, 0.5);
 }
 
 .main-cell-certain-times-values,
@@ -1016,13 +1053,13 @@ footer {
 .main-cell-course-times-values,
 .main-cell-function-times-values {
     width:50px;
-    border: 1px solid black;
+    /*border: 1px solid black;*/
     text-align: center;
 }
 
 .main-cell-times-values-changed {
     width:50px;
-    border: 1px solid black;
+    /*border: 1px solid black;*/
     text-align: center;
     background-color: darkgoldenrod;
 }

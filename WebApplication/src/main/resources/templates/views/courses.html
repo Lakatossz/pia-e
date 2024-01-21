@@ -42,7 +42,6 @@
                     <th scope="col" class="course-cell" th:text="#{view.course.table.exercise_hours}"></th>
                     <th scope="col" class="course-cell" th:text="#{view.course.table.others}"></th>
                     <th scope="col" class="course-cell" th:text="#{view.course.table.certain}"></th>
-                    <td></td>
                 </tr>
                 </thead>
                 <tbody>
@@ -62,9 +61,6 @@
                                 <td class="course-cell" th:text="${firstAllocations.get(crsStats.index).getTime()}"></td>
                                 <td class="course-cell" th:text="${firstAllocations.get(crsStats.index).getIsCertain()}"></td>
                                 <td class="course-cell" th:text="${firstAllocations.get(crsStats.index).getIsCertain()}"></td>
-                                <td class="course-cell">
-<!--                                    <button class="btn collapsible btn-edit" th:onclick="'editAllocation('+${firstAllocations.get(crsStats.index).getId()}+')'"></button>-->
-                                </td>
                             </tr>
                             <th:block th:each="all : ${crs.getCourseAllocations()}">
                                 <tr>
@@ -74,9 +70,6 @@
                                     <td class="course-cell" th:text="${all.getTime()}"></td>
                                     <td class="course-cell" th:text="${all.getIsCertain()}"></td>
                                     <td class="course-cell" th:text="${all.getIsCertain()}"></td>
-                                    <td class="course-cell">
-<!--                                        <button class="btn collapsible btn-edit" th:onclick="'editAllocation('+${all.getId()}+')'"></button>-->
-                                    </td>
                                 </tr>
                             </th:block>
                         </th:block>
@@ -94,9 +87,6 @@
                                 <td class="course-cell" th:text="'-'"></td>
                                 <td class="course-cell" th:text="'-'"></td>
                                 <td class="course-cell" th:text="'-'"></td>
-                                <td class="course-cell">
-                                    <!--                                    <button class="btn collapsible btn-edit" th:onclick="'editAllocation('+${firstAllocations.get(crsStats.index).getId()}+')'"></button>-->
-                                </td>
                             </tr>
                         </th:block>
                     </th:block>

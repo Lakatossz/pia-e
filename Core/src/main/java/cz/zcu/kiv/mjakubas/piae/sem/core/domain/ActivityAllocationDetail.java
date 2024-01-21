@@ -21,6 +21,7 @@ import java.util.List;
 public class ActivityAllocationDetail {
 
     private List<AllocationCell> activityAllocationCells = new LinkedList<>();
+    private long activityId;
     private String activityName;
     private float activityCertain;
     private String activityRole;

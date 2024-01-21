@@ -448,14 +448,17 @@ public class EmployeeService {
             object.allocations.forEach(allocation -> addAllocationsPerMonth(allocation, cellsList, totalFirstYear));
             allocationDetail.setActivityAllocationCells(cellsList);
             if (object.allocations.get(0).getProject().getId() > 0) {
+                allocationDetail.setActivityId(object.allocations.get(0).getProject().getId());
                 allocationDetail.setActivityName(object.allocations.get(0).getProject().getName());
                 allocationDetail.setActivityCertain(object.allocations.get(0).getProject().getProbability()); // TODO mozna prumer?
                 allocationDetail.setActivityRole(object.allocations.get(0).getRole());
             } else if (object.allocations.get(0).getCourse().getId() > 0) {
+                allocationDetail.setActivityId(object.allocations.get(0).getCourse().getId());
                 allocationDetail.setActivityName(object.allocations.get(0).getCourse().getShortcut());
                 allocationDetail.setActivityCertain(object.allocations.get(0).getCourse().getProbability());
                 allocationDetail.setActivityRole(object.allocations.get(0).getRole());
             } else {
+                allocationDetail.setActivityId(object.allocations.get(0).getFunction().getId());
                 allocationDetail.setActivityName(object.allocations.get(0).getFunction().getName());
                 allocationDetail.setActivityCertain(object.allocations.get(0).getFunction().getProbability());
                 allocationDetail.setActivityRole(object.allocations.get(0).getRole());

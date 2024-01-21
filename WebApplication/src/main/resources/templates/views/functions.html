@@ -43,7 +43,6 @@
                     <th scope="col" th:text="#{view.function.table.current-time}"></th>
                     <th scope="col" th:text="#{view.function.table.certain}"></th>
                     <th scope="col" th:text="#{view.function.table.description}"></th>
-                    <th scope="col"></th>
                 </tr>
                 </thead>
                 <tbody>
@@ -61,9 +60,6 @@
                             <td th:text="${firstAllocations.get(iStat.index).getTime()}"></td>
                             <td th:text="${firstAllocations.get(iStat.index).getIsCertain()}"></td>
                             <td th:text="${firstAllocations.get(iStat.index).getDescription()}"></td>
-<!--                            <td class="function-cell">-->
-<!--                                <button class="btn collapsible btn-edit" th:onclick="'editFunction('+${firstAllocations.get(iStat.index).getId()}+')'"></button>-->
-<!--                            </td>-->
                         </tr>
                         <th:block th:each="all, allStats : ${fnc.getFunctionAllocations()}">
                             <tr>
@@ -72,9 +68,6 @@
                                 <td th:text="${all.getTime()}"></td>
                                 <td th:text="${all.getIsCertain()}"></td>
                                 <td th:text="${all.getDescription()}"></td>
-<!--                                <td class="function-cell">-->
-<!--                                    <button class="btn collapsible btn-edit" th:onclick="'editFunction('+${all.getId()}+')'"></button>-->
-<!--                                </td>-->
                             </tr>
                         </th:block>
                     </th:block>

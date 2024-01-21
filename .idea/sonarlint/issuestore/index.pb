@@ -155,3 +155,7 @@ F
 \WebApplication/src/main/java/cz/zcu/kiv/mjakubas/piae/sem/webapplication/SemApplication.java,b/9/b9699992d53c6e9698165143872e6dff5acdfaae
 ‰
 YCore/src/main/java/cz/zcu/kiv/mjakubas/piae/sem/core/domain/ActivityAllocationDetail.java,8/6/86335deba563bd4a8325edbbca2b07f9625a82d3
+M
+docker/mysql/mysql.dockerfile,c/3/c3bb2fc4ca59a76fa4898f2cf96f4455e497b97f
+J
+docker/mysql/init/init.sql,1/5/159d7b646680d93ffb26dce82223e691089d1dec

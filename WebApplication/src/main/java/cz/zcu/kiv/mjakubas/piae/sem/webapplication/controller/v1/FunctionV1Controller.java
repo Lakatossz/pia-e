@@ -208,19 +208,6 @@ public class FunctionV1Controller {
         model.addAttribute("uncertainAllocations", uncertainList);
         model.addAttribute("monthlyAllocations", allList);
 
-        int i = 0;
-
-        for (List<AllocationCell> list : allList) {
-            for (AllocationCell cell : list) {
-                ++i;
-                System.out.print(cell.getTime() + " ");
-                if (i == 12) {
-                    i = 0;
-                    System.out.println();
-                }
-            }
-            System.out.println();
-        }
 
         model.addAttribute(EMPLOYEES, employeeService.getEmployees());
         model.addAttribute("workplaces", workplaceService.getWorkplaces());

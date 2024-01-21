@@ -139,8 +139,13 @@
             <!-- Members of project -->
             <h4 th:text="#{view.project_detail.members.title}"/>
             <div class="table">
-                <table class="table">
+                <table class="table table-add">
                     <thead>
+                    <tr align="right">
+                        <td colspan="15" align="right">
+                            <button class="btn btn-add" type="button"></button>
+                        </td>
+                    </tr>
                     <tr>
                         <td class="function-allocation-header" th:text="#{view.project_detail.members.table.name}"></td>
                         <td class="function-allocation-header" th:text="#{view.project_detail.members.table.role}"></td>
@@ -156,8 +161,9 @@
                     </thead>
                     <tbody>
                     <th:block th:each="all, allStats : ${allocations}">
-                        <!-- Employee-->
-                        <form th:action="@{'/a/' + ${all.id} + '/edit'}">
+                        <!-- Allocations-->
+                        <form th:action="@{'/a/' + ${all.id} + '/edit'}"
+                              th:object="${all}" th:method="POST" novalidate>
                             <th:block>
                                 <tr class="function-allocation" th:id="${allStats.index}">
                                     <td class="function-allocation-cell">
@@ -235,6 +241,85 @@
                             </th:block>
                         </form>
                     </th:block>
+                    <!-- New allocation -->
+                    <form th:action="@{'/a/create' + ${id}}">
+                        <th:block>
+                            <tr class="function-allocation-new function-allocation-new-hidden function-allocation">
+                                <td class="function-allocation-cell">
+                                    <label>
+                                        <select class="function-allocations-select"
+                                                th:name="director" field="*{employeeId}" disabled="true">
+                                            <option th:each="emp : ${employees}" th:selected="${emp.getId()}"
+                                                    th:value="${emp.getId()}"
+                                                    th:text="${emp.getLastName()} + ' ' + ${emp.getFirstName()}">
+                                            </option>
+                                        </select>
+                                    </label>
+                                </td>
+                                <td class="function-allocation-cell">
+                                    <label>
+                                        <input class="function-allocations-input" type="text"
+                                               th:name="role" th:value="${newAllocation.role}">
+                                    </label>
+                                </td>
+                                <td class="function-allocation-cell">
+                                    <label>
+                                        <input class="function-allocations-input" type="text"
+                                               th:name="dateFrom"
+                                               th:value="${#dates.format(newAllocation.dateFrom, 'dd-MM-yyyy')}">
+                                    </label>
+                                </td>
+                                <td class="function-allocation-cell">
+                                    <label>
+                                        <input class="function-allocations-input" type="text"
+                                               th:name="dateUntil"
+                                               th:value="${#dates.format(newAllocation.dateUntil, 'dd-MM-yyyy')}">
+                                    </label>
+                                </td>
+                                <td class="function-allocation-cell">
+                                    <label>
+                                        <input class="function-allocations-input" type="text"
+                                               th:name="time"
+                                               th:value="${newAllocation.allocationScope}">
+                                    </label>
+                                </td>
+                                <td class="function-allocation-cell">
+                                    <label>
+                                        <input class="function-allocations-input" type="text"
+                                               th:name="time" th:value="${newAllocation.allocationScope}">
+                                    </label>
+                                </td>
+                                <td class="function-allocation-cell">
+                                    <label>
+                                        <input class="function-allocations-input" type="text"
+                                               th:name="description"
+                                               th:value="${newAllocation.description}">
+                                    </label>
+                                </td>
+                                <td>
+                                    <button class="btn btn-confirm-new-all" type="submit"
+                                            style="visibility: visible" th:formaction="'/a/create/' + ${id}"></button>
+                                </td>
+                                <td>
+                                    <label>
+                                        <label>
+                                            <input type="text" name="functionId"  style="display : none"
+                                                   field="*{functionId}" th:value="${id}" disabled="true">
+                                        </label>
+                                    </label>
+                                </td>
+                                <td>
+                                    <button class="btn btn-cancel-new-all" style="visibility: visible" type="button"></button>
+                                </td>
+                                <td>
+                                    <button class="btn" style="visibility: hidden" type="button"></button>
+                                </td>
+                                <td>
+                                    <button class="btn" style="visibility: hidden" type="button"></button>
+                                </td>
+                            </tr>
+                        </th:block>
+                    </form>
                     </tbody>
                 </table>
             </div>
@@ -296,6 +381,19 @@
 
     let current_index = 0;
 
+    // Udrzuje hodnotu, zda-li je pridavana nova alokace - zobrazen radek pro vyplneni
+    let allocation_being_added = false;
+
+    let function_ = [[${function}]];
+
+    // Konstanty pro naplneni defaultniho pole nove alokace
+    const default_role = 'nový';
+    const default_date_from = function_.dateFrom;
+    const default_date_until = function_.dateUntil;
+    const default_time = 1.0;
+    const default_time_av = 1.0;
+    const default_description = 'description';
+
     let func = document.querySelectorAll(".function-detail-collapsible-header");
 
     Array.from(func).forEach(function(div) {
@@ -319,47 +417,66 @@
         div.append(button);
     });
 
-    function empty(message) {
-        var x;
-        console.log(message);
-        x = document.getElementById("shortcut").value;
-        if (x === "") {
-            window.location.replace(location.protocol + '//' + location.host + location.pathname + '?edit=failure');
-            return false;
-        }
-        x = document.getElementById("name").value;
-        if (x === "") {
-            window.location.replace(location.protocol + '//' + location.host + location.pathname + '?edit=failure');
-            return false;
-        }
-        x = document.getElementById("director").value;
-        if (x === "") {
-            window.location.replace(location.protocol + '//' + location.host + location.pathname + '?edit=failure');
-            return false;
-        }
-        x = document.getElementById("from").value;
-        if (x === "") {
-            window.location.replace(location.protocol + '//' + location.host + location.pathname + '?edit=failure');
-            return false;
-        }
-        x = document.getElementById("until").value;
-        if (x === "") {
-            window.location.replace(location.protocol + '//' + location.host + location.pathname + '?edit=failure');
-            return false;
-        }
-        x = document.getElementById("workplace").value;
-        if (x === "") {
-            window.location.replace(location.protocol + '//' + location.host + location.pathname + '?edit=failure');
-            return false;
-        }
 
-    }
+    // Pole uzivatelu
+    let employees = [[${employees}]];
 
-    let function_allocations = document.getElementsByClassName("function-allocation");
+    // Radek nove alokace
+    let new_allocation = document.getElementsByClassName("function-allocation-new");
+
+    // Tlacitko pro zobrazeni radku pro vyplneni nove alokace
+    let add_button = document.getElementsByClassName("btn-add");
+    Array.from(add_button).forEach(function (button) {
+        button.addEventListener('click', function () {
+            if (!allocation_being_added) {
+                allocation_being_added = true;
+                Array.from(new_allocation).forEach(function (allocation) {
+                    allocation.classList.remove('function-allocation-new-hidden');
+                    allocation.classList.add('function-allocation-new-display');
+                });
+            }
+        })
+    });
+
+    let function_allocations = document.getElementsByClassName("table-add");
     Array.from(function_allocations).forEach(function(trArray) {
         let buttonsEdit = document.getElementsByClassName("btn-edit");
         let buttonsConfirm = document.getElementsByClassName("btn-confirm");
+        let buttonsConfirmNewAll = document.getElementsByClassName("btn-confirm-new-all");
         let buttonsCancel = document.getElementsByClassName("btn-cancel");
+        let buttonsCancelNewAll = document.getElementsByClassName("btn-cancel-new-all");
+        let trs = document.getElementsByClassName("function-allocation");
+        console.log('trs: ' + trs.length)
+
+        for (let i = 0; i < buttonsConfirmNewAll.length; ++i) {
+            let select = trs[i].getElementsByClassName("function-allocations-select");
+            Array.from(select).forEach(function (td) {
+                td.removeAttribute('disabled');
+            });
+
+            buttonsConfirmNewAll[i].addEventListener("click", function (evt) {
+                if (allocation_being_added)
+                    allocation_being_added = false;
+
+                Array.from(new_allocation).forEach(function (allocation) {
+                    clearRow(allocation);
+                    allocation.classList.remove('function-allocation-new-display');
+                    allocation.classList.add('function-allocation-new-hidden');
+                });
+            });
+
+            buttonsCancelNewAll[i].addEventListener("click", function (evt) {
+                if (allocation_being_added)
+                    allocation_being_added = false;
+
+                Array.from(new_allocation).forEach(function (allocation) {
+                    clearRow(allocation);
+                    allocation.classList.remove('function-allocation-new-display');
+                    allocation.classList.add('function-allocation-new-hidden');
+                });
+            });
+        }
+
         for (let i = 0; i < buttonsEdit.length; ++i) {
             buttonsEdit[i].addEventListener("click", function(evt) {
                 let select = function_allocations[i].getElementsByClassName("function-allocations-select");
@@ -420,7 +537,7 @@
 
     let index = 0;
     const opts = { minimumFractionDigits: 1 };
-    let numberOfYears = monthlyAllocations[0].length / 12;
+    let numberOfYears = monthlyAllocations.length > 0 ? monthlyAllocations[0].length / 12 : 0;
 
     Array.from(certain_times).forEach(function(trArray) {
         if (certainAllocations.length > index && certainAllocations.length > 0) {
@@ -519,6 +636,53 @@
                     .toLocaleString(undefined, opts).replace(',', '.');
             }
         }
+    }
+
+    function empty(message) {
+        var x;
+        console.log(message);
+        x = document.getElementById("shortcut").value;
+        if (x === "") {
+            window.location.replace(location.protocol + '//' + location.host + location.pathname + '?edit=failure');
+            return false;
+        }
+        x = document.getElementById("name").value;
+        if (x === "") {
+            window.location.replace(location.protocol + '//' + location.host + location.pathname + '?edit=failure');
+            return false;
+        }
+        x = document.getElementById("director").value;
+        if (x === "") {
+            window.location.replace(location.protocol + '//' + location.host + location.pathname + '?edit=failure');
+            return false;
+        }
+        x = document.getElementById("from").value;
+        if (x === "") {
+            window.location.replace(location.protocol + '//' + location.host + location.pathname + '?edit=failure');
+            return false;
+        }
+        x = document.getElementById("until").value;
+        if (x === "") {
+            window.location.replace(location.protocol + '//' + location.host + location.pathname + '?edit=failure');
+            return false;
+        }
+        x = document.getElementById("workplace").value;
+        if (x === "") {
+            window.location.replace(location.protocol + '//' + location.host + location.pathname + '?edit=failure');
+            return false;
+        }
+    }
+
+    function clearRow(tr) {
+        let select = tr.getElementsByClassName('function-allocations-select');
+        select.value = employees[0].id;
+        let input = tr.getElementsByClassName('function-allocations-input');
+        input[0].value = default_role;
+        input[1].value = default_date_from;
+        input[2].value = default_date_until;
+        input[3].value = default_time;
+        input[4].value = default_time_av;
+        input[5].value = default_description;
     }
 
 </script>

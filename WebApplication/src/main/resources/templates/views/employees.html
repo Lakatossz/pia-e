@@ -53,13 +53,19 @@
                             <td th:rowspan="${emp.getAllocations().size() + 1}" th:text="${emp.getFirstName()}"></td>
                             <td th:rowspan="${emp.getAllocations().size() + 1}" th:text="${emp.getLastName()}"></td>
                             <th:block th:if="${firstAllocations.get(iStat.index).getProject().getId()} > 0">
-                                <td class="employee-activity-name" th:text="${firstAllocations.get(iStat.index).getProject().getName()}"></td>
+                                <td class="employee-name">
+                                    <a th:text="${firstAllocations.get(iStat.index).getProject().getName()}" th:href="@{/p/{PRO_ID}/detail(PRO_ID=${firstAllocations.get(iStat.index).getProject().getId()})}"></a>
+                                </td>
                             </th:block>
                             <th:block th:if="${firstAllocations.get(iStat.index).getCourse().getId()} > 0">
-                                <td class="employee-activity-name" th:text="${firstAllocations.get(iStat.index).getCourse().getName()}"></td>
+                                <td class="employee-name">
+                                    <a th:text="${firstAllocations.get(iStat.index).getCourse().getName()}" th:href="@{/c/{CRS_ID}/detail(CRS_ID=${firstAllocations.get(iStat.index).getCourse().getId()})}"></a>
+                                </td>
                             </th:block>
                             <th:block th:if="${firstAllocations.get(iStat.index).getFunction().getId()} > 0">
-                                <td class="employee-activity-name" th:text="${firstAllocations.get(iStat.index).getFunction().getName()}"></td>
+                                <td class="employee-name">
+                                    <a th:text="${firstAllocations.get(iStat.index).getFunction().getName()}" th:href="@{/f/{FNC_ID}/detail(FNC_ID=${firstAllocations.get(iStat.index).getFunction().getId()})}"></a>
+                                </td>
                             </th:block>
                             <td th:text="${#dates.format(firstAllocations.get(iStat.index).getDateFrom(), 'dd-MM-yyyy')}"></td>
                             <td th:text="${#dates.format(firstAllocations.get(iStat.index).getDateFrom(), 'dd-MM-yyyy')}"></td>
@@ -70,13 +76,19 @@
                         <th:block th:each="all, allStats : ${emp.getAllocations()}" th:id="'all_' + ${all.getId()}">
                             <tr>
                                 <th:block th:if="${all.getProject().getId()} > 0">
-                                    <td class="employee-activity-name" th:text="${all.getProject().getName()}"></td>
+                                    <td class="employee-name">
+                                        <a th:text="${all.getProject().getName()}" th:href="@{/p/{PRO_ID}/detail(PRO_ID=${all.getProject().getId()})}"></a>
+                                    </td>
                                 </th:block>
                                 <th:block th:if="${all.getCourse().getId()} > 0">
-                                    <td class="employee-activity-name" th:text="${all.getCourse().getName()}"></td>
+                                    <td class="employee-name">
+                                        <a th:text="${all.getCourse().getName()}" th:href="@{/c/{CRS_ID}/detail(CRS_ID=${all.getCourse().getId()})}"></a>
+                                    </td>
                                 </th:block>
                                 <th:block th:if="${all.getFunction().getId()} > 0">
-                                    <td class="employee-activity-name" th:text="${all.getFunction().getName()}"></td>
+                                    <td class="employee-name">
+                                        <a th:text="${all.getFunction().getName()}" th:href="@{/f/{FNC_ID}/detail(FNC_ID=${all.getFunction().getId()})}"></a>
+                                    </td>
                                 </th:block>
                                 <td th:text="${#dates.format(all.getDateFrom(), 'dd-MM-yyyy')}"></td>
                                 <td th:text="${#dates.format(all.getDateUntil(), 'dd-MM-yyyy')}"></td>

@@ -217,7 +217,7 @@
                     </thead>
                     <tbody>
                     <th:block th:each="all, allStats : ${allocations}">
-                        <!-- Employee-->
+                        <!-- Allocations-->
                         <form method="post"
                               th:action="@{'/a/' + ${all.id} + '/edit'}"
                               th:object="${all}" th:method="POST" novalidate>
@@ -489,7 +489,6 @@
             if (!allocation_being_added) {
                 allocation_being_added = true;
                 Array.from(new_allocation).forEach(function (allocation) {
-                    console.log('Tady jsem');
                     allocation.classList.remove('project-allocation-new-hidden');
                     allocation.classList.add('project-allocation-new-display');
                 });
@@ -596,7 +595,7 @@
 
     let index = 0;
     const opts = {minimumFractionDigits: 1};
-    let numberOfYears = monthlyAllocations[0].length / 12;
+    let numberOfYears = monthlyAllocations.length > 0 ? monthlyAllocations[0].length / 12 : 0;
 
     Array.from(certain_times).forEach(function (trArray) {
         if (certainAllocations.length > index && certainAllocations.length > 0) {

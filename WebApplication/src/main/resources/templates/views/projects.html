@@ -40,7 +40,6 @@
                     <th scope="col" th:text="#{view.project.table.current-time}"></th>
                     <th scope="col" th:text="#{view.project.table.certain}"></th>
                     <th scope="col" th:text="#{view.project.table.description}"></th>
-                    <th scope="col"></th>
                 </tr>
                 </thead>
                 <tbody>
@@ -59,9 +58,6 @@
                             <td th:text="${firstAllocations.get(iStat.index).getTime()}"></td>
                             <td th:text="${firstAllocations.get(iStat.index).getIsCertain()}"></td>
                             <td th:text="${firstAllocations.get(iStat.index).getDescription()}"></td>
-<!--                            <td class="project-cell">-->
-<!--                                <button class="btn collapsible btn-edit" th:onclick="'editFunction('+${firstAllocations.get(iStat.index).getId()}+')'"></button>-->
-<!--                            </td>-->
                         </tr>
                         <!-- Employees -->
                         <th:block th:each="all, allStats : ${pro.getProjectAllocations()}">
@@ -71,9 +67,6 @@
                                 <td th:text="${all.getTime()}"></td>
                                 <td th:text="${all.getIsCertain()}"></td>
                                 <td th:text="${all.getDescription()}"></td>
-<!--                                <td class="project-cell">-->
-<!--                                    <button class="btn collapsible btn-edit" th:onclick="'editFunction('+${all.getId()}+')'"></button>-->
-<!--                                </td>-->
                             </tr>
                         </th:block>
                     </th:block>
@@ -82,17 +75,14 @@
                             <td class="project-cell" th:rowspan="${pro.getProjectAllocations().size() + 1}">
                                 <a type="button" class="btn collapsible btn-detail" th:href="@{/p/{PRO_ID}/detail(PRO_ID=${pro.getId()})}"></a>
                             </td>
-                            <td class="project-cell" th:text="${pro.getName()}"></td>
-                            <td class="project-cell" th:text="${pro.getProjectWorkplace().getAbbreviation()}"></td>
-                            <td class="project-cell" th:text="${pro.getProjectManager().getLastName()}"></td>
-                            <td class="project-cell" th:text="'-'"></td>
-                            <td class="project-cell" th:text="'-'"></td>
-                            <td class="project-cell" th:text="'-'"></td>
-                            <td class="project-cell" th:text="'-'"></td>
-                            <td class="project-cell" th:text="'-'"></td>
-                            <td class="project-cell">
-                                <button class="btn collapsible btn-edit"></button>
-                            </td>
+                            <td th:text="${pro.getName()}"></td>
+                            <td th:text="${pro.getProjectWorkplace().getAbbreviation()}"></td>
+                            <td th:text="${pro.getProjectManager().getLastName()}"></td>
+                            <td th:text="'-'"></td>
+                            <td th:text="'-'"></td>
+                            <td th:text="'-'"></td>
+                            <td th:text="'-'"></td>
+                            <td th:text="'-'"></td>
                         </tr>
                     </th:block>
                 </th:block>

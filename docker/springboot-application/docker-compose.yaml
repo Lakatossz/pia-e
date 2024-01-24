@@ -1,0 +1,10 @@
+# cat docker-compose.yml
+version: '3.5'
+services:
+  springboot-application:
+    image: springboot-application
+    container_name: springboot-application
+    ports:
+      - "8080:8080"
+    build:
+      dockerfile: ../springboot-application/springboot-application.dockerfile

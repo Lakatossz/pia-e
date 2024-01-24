@@ -1,0 +1,41 @@
+# cat docker-compose.yml
+version: '3.5'
+services:
+  ### MySQL Container
+  pia-db:
+    image: pia-db
+    container_name: pia-db
+    environment:
+      MYSQL_USER: user
+      MYSQL_PASSWORD: heslo
+      MYSQL_DATABASE: piae_v1_db
+      MYSQL_ROOT_PASSWORD: heslo
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      timeout: 20s
+      retries: 10
+    ports:
+      - "3306:3306"
+    networks:
+      - pia_bridge
+    command: --skip-ssl
+    build:
+      dockerfile: mysql/mysql.dockerfile
+  #    volumes:
+  #      - eess-pg-data:/var/lib/postgresql/data
+
+  springboot-application:
+    image: springboot-application
+    container_name: springboot-application
+    ports:
+      - "8080:8080"
+    networks:
+      - pia_bridge
+    build:
+      context: ./
+      dockerfile: springboot-application/springboot-application.dockerfile
+
+networks:
+  pia_bridge:
+    name: pia_bridge
+    driver: bridge

@@ -21,7 +21,7 @@
 </head>
 <body class="d-flex flex-column min-vh-100">
 <div th:replace="~{fragments/navbar}">Navbar</div>
-<div class="container-fluid content my_page">
+<div class="container-fluid main-content my_page">
     <!-- content -->
     <div class="container">
         <a th:href="'a/of/employee/' + ${me.id}" class="btn btn-primary" th:text="#{index.my-allocations}"></a>
@@ -84,7 +84,7 @@
                                         <!-- Header -->
                                         <tr class="main-row-header">
                                             <!-- Labels -->
-                                            <td class="main-row-year" th:colspan="16" th:text="2023" th:id="${iStat.index}"></td>
+                                            <td class="main-row-year" th:colspan="16" th:id="${iStat.index}"></td>
                                         </tr>
                                         <tr class="main-row-header">
                                             <!-- Labels -->

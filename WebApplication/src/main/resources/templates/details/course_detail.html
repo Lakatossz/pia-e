@@ -50,7 +50,7 @@
         </div>
 
         <form   method="post"
-                th:action="@{'/c/' + ${id}}"
+                th:action="@{'/c/' + ${id} + '/edit'}"
                 th:object="${course}" th:method="POST" novalidate>
             <table class="course-detail-collapse">
                 <tr>
@@ -91,14 +91,6 @@
                                     th:text="${mng.getLastName()} + ' ' + ${mng.getFirstName()}">
                             </option>
                         </select>
-                    </td>
-                </tr>
-                <tr>
-                    <td class="course-detail-div">
-                        <label class="course-detail-label" for="term"
-                               th:text="#{view.course_detail.term}" th:required="true"/>
-                        <input class="course-detail-input" type="text"
-                               id="term" name="term" th:field="*{term}">
                     </td>
                 </tr>
                 <tr>
@@ -156,29 +148,28 @@
                                id="students" name="students" th:field="*{numberOfStudents}">
                     </td>
                 </tr>
-                <tr>
-                    <td class="course-detail-div">
-                        <h5 th:text="#{view.course_detail.sa_required}"/>
-                    </td>
-                </tr>
-                <tr>
-                    <td class="course-detail-div">
-                        <label class="course-detail-label" for="lecture_sa"
-                               th:text="#{view.course_detail.lecture}"/>
-                        <input class="course-detail-input" type="number"
-                               id="lecture_sa" name="lecture_sa" th:field="*{lectureRequired}">
-                    </td>
-                    <td class="course-detail-div">
-                        <label class="course-detail-label" for="exercise_sa"
-                               th:text="#{view.course_detail.exercise}"/>
-                        <input class="course-detail-input" type="number"
-                               id="exercise_sa" name="exercise_sa" th:field="*{exerciseRequired}">
-                    </td>
-                </tr>
+<!--                <tr>-->
+<!--                    <td class="course-detail-div">-->
+<!--                        <h5 th:text="#{view.course_detail.sa_required}"/>-->
+<!--                    </td>-->
+<!--                </tr>-->
+<!--                <tr>-->
+<!--                    <td class="course-detail-div">-->
+<!--                        <label class="course-detail-label" for="lecture_sa"-->
+<!--                               th:text="#{view.course_detail.lecture}"/>-->
+<!--                        <input class="course-detail-input" type="number"-->
+<!--                               id="lecture_sa" name="lecture_sa" th:field="*{lectureRequired}">-->
+<!--                    </td>-->
+<!--                    <td class="course-detail-div">-->
+<!--                        <label class="course-detail-label" for="exercise_sa"-->
+<!--                               th:text="#{view.course_detail.exercise}"/>-->
+<!--                        <input class="course-detail-input" type="number"-->
+<!--                               id="exercise_sa" name="exercise_sa" th:field="*{exerciseRequired}">-->
+<!--                    </td>-->
+<!--                </tr>-->
                 <tr>
                     <td class="flex-duo">
-                        <input id="form-submit" class="course-detail-btn"
-                               th:attr="onclick=|return empty('#{view.course_detail.submit.empty}')|"
+                        <input id="form-submit" class="course-detail-btn submit-btn"
                                th:formaction="'/c/' + ${id} + '/edit'" type="submit"
                                th:value="#{view.course_detail.submit}">
                         <!-- an delete button link -->
@@ -193,7 +184,7 @@
         </form>
     </div>
     <div class="course-detail-allocations">
-        <div class="course-detail-collapsible-header" style="display: flex">
+        <div style="display: flex">
             <h4>Alokace</h4>
         </div>
         <th:block th:each="year, yearStats : ${course.getYears()}">
@@ -207,11 +198,12 @@
             <table style="width: 1400px" class="course-detail-tab-content" th:id="${allListStats.index} + 'Content'">
                 <thead>
                     <tr class="course-table-detail-row">
-                        <td class="course-table-detail-cell" th:text="#{view.course_detail.table.name}"></td>
-                        <td class="course-table-detail-cell" th:text="#{view.course_detail.table.role}"></td>
-                        <td class="course-table-detail-cell" th:text="#{view.course_detail.table.hours_weekly}"></td>
-                        <td class="course-table-detail-cell" th:text="#{view.course_detail.table.probability}"></td>
-                        <td class="course-table-detail-cell" th:text="#{view.course_detail.table.description}"></td>
+                        <td class="course-allocations-header" th:text="#{view.course_detail.table.name}"></td>
+                        <td class="course-allocations-header" th:text="#{view.course_detail.table.role}"></td>
+                        <td class="course-allocations-header" th:text="#{view.course_detail.table.term}"></td>
+                        <td class="course-allocations-header" th:text="#{view.course_detail.table.hours_weekly}"></td>
+                        <td class="course-allocations-header" th:text="#{view.course_detail.table.probability}"></td>
+                        <td class="course-allocations-header" th:text="#{view.course_detail.table.description}"></td>
                         <td></td>
                     </tr>
                 </thead>
@@ -219,15 +211,17 @@
                     <th:block th:each="all, allStats: ${allList}">
                         <!-- Allocation-->
                         <form method="post"
-                              th:action="@{'/a/' + ${all.id} + '/edit/c/' + ${id}}">
+                              th:action="@{'/a/' + ${all.id} + '/edit/c/' + ${id}}"
+                              th:object="${all}" th:method="POST" novalidate>
                             <th:block>
                                 <tr class="course-allocation"  th:id="${allStats.index}">
                                     <td class="course-table-detail-cell">
                                         <label>
                                             <select class="course-table-detail-select"
-                                                    th:name="employeeId" disabled="true" th:selected="${all.employeeId}">
+                                                    th:id="'allocationSelect' + ${all.id}" th:name="employeeId" disabled="disabled">
                                                 <option th:each="emp : ${employees}" th:value="${emp.getId()}"
-                                                        th:text="${emp.getLastName()} + ' ' + ${emp.getFirstName()}">
+                                                        th:text="${emp.getLastName()} + ' ' + ${emp.getFirstName()}"
+                                                        th:selected="${emp.getId() eq all.workerId}">
                                                 </option>
                                             </select>
                                         </label>
@@ -235,30 +229,42 @@
                                     <td class="course-table-detail-cell">
                                         <label>
                                             <input class="course-table-detail-input" type="text" readonly="readonly"
-                                                   th:name="role" th:value="${all.role}">
+                                                   th:name="role" th:value="*{role}">
+                                        </label>
+                                    </td>
+                                    <td class="course-table-detail-cell">
+                                        <label>
+                                            <select class="course-table-detail-select"
+                                                    th:name="term" th:value="*{term}">
+                                                <option th:each="term : ${terms}"
+                                                        th:value="${term.value}"
+                                                        th:text="${term.value}"
+                                                        th:selected="${term.value eq all.term}">
+                                                </option>
+                                            </select>
                                         </label>
                                     </td>
                                     <td class="course-table-detail-cell">
                                         <label>
                                             <input class="course-table-detail-input" type="text" readonly="readonly"
-                                                   th:name="allocationScope" th:value="${all.allocationScope}">
+                                                   th:name="allocationScope" th:value="*{allocationScope}">
                                         </label>
                                     </td>
                                     <td class="course-table-detail-cell">
                                         <label>
                                             <input class="course-table-detail-input" type="text" readonly="readonly"
-                                                   th:name="isCertain" th:value="${all.isCertain}">
+                                                   th:name="isCertain" th:value="*{isCertain}">
                                         </label>
                                     </td>
                                     <td class="course-table-detail-cell">
                                         <label>
                                             <input class="course-table-detail-input" type="text" readonly="readonly"
-                                                   th:name="description" th:value="${all.description}">
+                                                   th:name="description" th:value="*{description}">
                                         </label>
                                     </td>
                                     <td>
                                         <button class="btn btn-confirm" type="submit"
-                                                th:formaction="'/a/' + ${all.id} + '/edit/c/' + ${id}"></button>
+                                                th:formaction="'/a/' + ${all.id} + '/edit/c/' + ${id} + '/' + ${all.workerId} + '/' + ${all.term}"></button>
                                     </td>
                                     <td>
                                         <button class="btn btn-cancel" th:id="${allStats.index}" type="button"></button>
@@ -267,10 +273,10 @@
                                         <button class="btn btn-edit" th:id="${allStats.index}" type="button"></button>
                                     </td>
                                     <td>
-                                        <form th:action="${all.id} + '/delete/c/' + ${id}" method="post" th:method="POST" >
-                                            <button class="btn btn-delete" type="submit"
-                                                    th:formaction="${all.id} + '/delete/c/' + ${id}"></button>
-                                        </form>
+                                        <button class="btn btn-delete" type="submit"
+                                                th:formaction="'/a/' + ${all.id} + '/delete/c/' + ${id}"
+                                                th:data-confirm-delete="#{view.course_detail.delete_allocation.confirm}"
+                                                onclick="if (!confirm(this.getAttribute('data-confirm-delete'))) return false"></button>
                                     </td>
                                     <td>
                                         <label>
@@ -291,7 +297,7 @@
                                 <td class="course-table-detail-cell">
                                     <label>
                                         <select class="course-table-detail-select"
-                                                th:name="employeeId" th:field="*{newAllocation.employeeId}">
+                                                th:name="employeeId" th:field="*{newAllocation.workerId}">
                                             <option th:each="emp : ${employees}" th:selected="${emp.getId()}"
                                                     th:value="${emp.getId()}"
                                                     th:text="${emp.getLastName()} + ' ' + ${emp.getFirstName()}">
@@ -303,6 +309,18 @@
                                     <label>
                                         <input class="course-table-detail-input" type="text"
                                                th:name="role" th:value="${newAllocation.role}">
+                                    </label>
+                                </td>
+                                <td class="course-table-detail-cell">
+                                    <label>
+                                        <select class="course-table-detail-select"
+                                                th:name="term" th:field="${newAllocation.term}">
+                                            <option th:each="term : ${terms}"
+                                                    th:value="${term.value}"
+                                                    th:text="${term.value}"
+                                                    th:selected="${term.value eq newAllocation.term}">
+                                            </option>
+                                        </select>
                                     </label>
                                 </td>
                                 <td class="course-table-detail-cell">
@@ -325,7 +343,7 @@
                                 </td>
                                 <td>
                                     <button class="btn btn-confirm-new-all" type="submit"
-                                            style="visibility: visible" th:formaction="'/a/create/course/' + ${id}"></button>
+                                            style="visibility: visible" th:formaction="'/a/create/course/' + ${id} + '/' + ${newAllocation.workerId} + '/' + ${newAllocation.term}"></button>
                                 </td>
                                 <td>
                                     <button class="btn btn-cancel-new-all"
@@ -363,6 +381,8 @@
     let course = [[${course}]];
     // Pole uzivatelu
     let employees = [[${employees}]];
+
+    let allocations = [[${allocations}]];
 
     // Konstanty pro naplneni defaultniho pole nove alokace
     const default_role = 'nový';
@@ -422,10 +442,9 @@
         let buttonsConfirmNewAll = document.getElementsByClassName("btn-confirm-new-all");
         let buttonsCancel = document.getElementsByClassName("btn-cancel");
         let buttonsCancelNewAll = document.getElementsByClassName("btn-cancel-new-all");
-        let trs = document.getElementsByClassName("course-allocation");
 
         for (let i = 0; i < buttonsConfirmNewAll.length; ++i) {
-            let select = trs[i].getElementsByClassName("course-allocations-select");
+            let select = new_allocation.getElementsByClassName("course-allocations-select");
             Array.from(select).forEach(function (td) {
                 td.removeAttribute('disabled');
             });
@@ -532,57 +551,6 @@
         }
     }
 
-    // Zkontroluje povinna pole detailu predmetu pri aktualizaci
-    function empty(message) {
-        var x;
-        console.log(message);
-        x = document.getElementById("shortcut").value;
-        if (x === "") {
-            window.location.replace(location.protocol + '//' + location.host + location.pathname + '?edit=failure');
-            return false;
-        }
-        x = document.getElementById("name").value;
-        if (x === "") {
-            window.location.replace(location.protocol + '//' + location.host + location.pathname + '?edit=failure');
-            return false;
-        }
-        x = document.getElementById("workplace").value;
-        if (x === "") {
-            window.location.replace(location.protocol + '//' + location.host + location.pathname + '?edit=failure');
-            return false;
-        }
-        x = document.getElementById("term").value;
-        if (x === "") {
-            window.location.replace(location.protocol + '//' + location.host + location.pathname + '?edit=failure');
-            return false;
-        }
-        x = document.getElementById("lecture").value;
-        if (x === "") {
-            window.location.replace(location.protocol + '//' + location.host + location.pathname + '?edit=failure');
-            return false;
-        }
-        x = document.getElementById("exercise").value;
-        if (x === "") {
-            window.location.replace(location.protocol + '//' + location.host + location.pathname + '?edit=failure');
-            return false;
-        }
-        x = document.getElementById("from").value;
-        if (x === "") {
-            window.location.replace(location.protocol + '//' + location.host + location.pathname + '?edit=failure');
-            return false;
-        }
-        x = document.getElementById("until").value;
-        if (x === "") {
-            window.location.replace(location.protocol + '//' + location.host + location.pathname + '?edit=failure');
-            return false;
-        }
-        x = document.getElementById("students").value;
-        if (x === "") {
-            window.location.replace(location.protocol + '//' + location.host + location.pathname + '?edit=failure');
-            return false;
-        }
-    }
-
     function clearRow(tr) {
         let select = tr.getElementsByClassName('course-table-detail-select');
         select.value = employees[0].id;
@@ -591,6 +559,84 @@
         input[1].value = default_time;
         input[2].value = default_certain;
         input[3].value = default_description;
+    }
+
+    let requiredDetailNotFilled = 0;
+
+    function onRequiredDetailChange(element) {
+        let btn = document.getElementsByClassName('form-submit');
+        if (element.value === '') {
+            if (requiredDetailNotFilled === 0)
+                btn[0].disabled = true;
+            requiredDetailNotFilled++;
+            element.classList.add('project-detail-input-empty');
+            return false;
+        } else {
+            element.classList.remove('project-detail-input-empty');
+            requiredDetailNotFilled--;
+            if (requiredDetailNotFilled === 0)
+                btn[0].disabled = false;
+        }
+    }
+
+    let newTrs = document.getElementsByClassName("course-allocation-new");
+    let requiredAllocationNotFilled = new Array(course_allocations.length);
+    for (let i = 0; i < course_allocations.length; ++i)
+        requiredAllocationNotFilled[i] = 0;
+
+    function onRequiredAllocationChange(element, allIndex) {
+        let btn = course_allocations[allIndex].getElementsByClassName('btn-confirm');
+        if (element.value === '') {
+            if (requiredAllocationNotFilled[allIndex] === 0)
+                btn[0].disabled = true;
+            requiredAllocationNotFilled[allIndex]++;
+            element.classList.add('course-allocations-input-empty');
+            return false;
+        } else {
+            element.classList.remove('course-allocations-input-empty');
+            requiredAllocationNotFilled[allIndex]--;
+            if (requiredAllocationNotFilled[allIndex] === 0)
+                btn[0].disabled = false;
+        }
+    }
+
+    let requiredNewAllocationNotFilled = 0;
+
+    function onRequiredNewAllocationChange(element) {
+        let btn = document.getElementsByClassName('submit-btn');
+        if (element.value === '') {
+            if (requiredNewAllocationNotFilled === 0)
+                btn[0].disabled = true;
+            requiredNewAllocationNotFilled++;
+            element.classList.add('course-allocations-input-empty');
+            return false;
+        } else {
+            element.classList.remove('course-allocations-input-empty');
+            requiredNewAllocationNotFilled--;
+            if (requiredNewAllocationNotFilled === 0)
+                btn[0].disabled = false;
+        }
+    }
+
+    // Zkontroluje povinna pole detailu projektu pri aktualizaci
+    function checkAllocation(allocationId) {
+        let trs = document.getElementsByClassName("course-allocations");
+        let select = trs[allocationId].getElementsByClassName("course-allocations-select");
+        Array.from(select).forEach(function (td) {
+            td.setAttribute('disabled', 'disabled');
+        });
+
+        let tds = trs[allocationId].getElementsByClassName("course-allocations-input");
+        Array.from(tds).forEach(function (td) {
+            if (td.value === '') {
+                td.classList.add('course-allocations-input-empty');
+                return false;
+            }
+        });
+
+        select = document.getElementById('allocationSelect' + allocationId);
+        let realInput = document.getElementById('workerId' + allocationId);
+        realInput.value = select.options[select.selectedIndex].value;
     }
 
 </script>

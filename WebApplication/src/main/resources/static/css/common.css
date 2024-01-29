@@ -124,6 +124,10 @@ table {
     overflow: hidden;
 }
 
+.main-content {
+    padding-bottom: 250px
+}
+
 .content {
     padding-bottom: 50px
 }
@@ -226,8 +230,18 @@ footer {
     border-radius: 4px;
 }
 
+.function-detail-input-empty {
+    border-color: red;
+    border-radius: 4px;
+}
+
 .function-allocations-header {
     width: 150px;
+}
+
+.function-allocations-header[required]::after {
+    content: "*";
+    color: red;
 }
 
 .function-allocations {
@@ -236,6 +250,11 @@ footer {
 
 .function-allocations-input, .function-allocations-select {
     max-width: 150px;
+}
+
+.function-allocations-input-empty {
+    border-color: red;
+    border-radius: 4px;
 }
 
 .function-allocations-input:read-only {
@@ -360,8 +379,22 @@ footer {
 
 }
 
+.course-allocations-header {
+
+}
+
+.course-allocations-header[required]::after {
+    content: "*";
+    color: red;
+}
+
 .course-detail-input {
     width: 200px;
+    border-radius: 4px;
+}
+
+.course-detail-input-empty {
+    border-color: red;
     border-radius: 4px;
 }
 
@@ -580,6 +613,11 @@ footer {
     border-radius: 4px;
 }
 
+.project-detail-input-empty {
+    border-color: red;
+    border-radius: 4px;
+}
+
 .project-btn {
     color: #000000;
     border: #000000 solid 1px;
@@ -668,6 +706,11 @@ footer {
     width: 150px;
 }
 
+.project-allocations-header[required]::after {
+    content: "*";
+    color: red;
+}
+
 .project-allocations-cell-name {
     width: 400px;
 }
@@ -705,6 +748,11 @@ footer {
     outline: none; /* Remove default outline on focus */
 }
 
+.project-allocations-input-empty {
+    border-color: red;
+    border-radius: 4px;
+}
+
 /* End of styles for project */
 
 /* Start of styles for workplace */
@@ -731,6 +779,11 @@ footer {
 
 .workplace-detail-input {
     width: 200px;
+    border-radius: 4px;
+}
+
+.workplace-detail-input-empty {
+    border-color: red;
     border-radius: 4px;
 }
 
@@ -837,6 +890,11 @@ footer {
 
 .employee-detail-input {
     width: 200px;
+    border-radius: 4px;
+}
+
+.employee-detail-input-empty {
+    border-color: red;
     border-radius: 4px;
 }
 
@@ -949,7 +1007,7 @@ footer {
 }
 
 .my_page {
-    height: 90%;
+    height: 80%;
 }
 
 .main-row-employee {

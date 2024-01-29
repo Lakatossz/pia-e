@@ -159,3 +159,21 @@ M
 docker/mysql/mysql.dockerfile,c/3/c3bb2fc4ca59a76fa4898f2cf96f4455e497b97f
 J
 docker/mysql/init/init.sql,1/5/159d7b646680d93ffb26dce82223e691089d1dec
+P
+ docker/mysql/docker-compose.yaml,7/6/76bdf2adc5323395f0833799d494d121c636469a
+o
+?docker/springboot-application/springboot-application.dockerfile,5/a/5a09b65946cb54e539be57843374be560d8918bc
+J
+docker/docker-compose.yaml,7/a/7af4da9a4193d42f3d9d71da112b58d728e70329
+a
+1docker/springboot-application/docker-compose.yaml,2/1/21a96588273d8c66278e80f0e194d4d2739cf256
+z
+JCore/src/main/java/cz/zcu/kiv/mjakubas/piae/sem/core/domain/TermState.java,6/6/66708a866f87a5b45e4946dca2e9bc69a1169048
+y
+ICore/src/main/java/cz/zcu/kiv/mjakubas/piae/sem/core/service/MyUtils.java,9/4/9431541802901d85b5efd2405a09e76d074bb437
+~
+NCore/src/main/java/cz/zcu/kiv/mjakubas/piae/sem/core/domain/MergingObject.java,e/5/e57e0900d212959b7f29a09d869fee6954a4687f
+†
+VCore/src/main/java/cz/zcu/kiv/mjakubas/piae/sem/core/exceptions/SecurityException.java,3/0/30610f17fac051fee293cb9dbdeb5d450a86e75b
+…
+UCore/src/main/java/cz/zcu/kiv/mjakubas/piae/sem/core/exceptions/ServiceException.java,7/9/799bd309bfe0e8ab25ffee474d2bb6df91d43b03

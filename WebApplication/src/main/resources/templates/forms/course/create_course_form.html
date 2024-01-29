@@ -18,10 +18,10 @@
     <!-- jquery -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 </head>
-<body>
+<body onload="pageLoaded()">
 <div th:replace="~{fragments/navbar}">Navbar</div>
 
-<div class="container-fluid">
+<div class="container-fluid  content">
     <!-- content -->
     <div class="container">
         <!-- alerts -->
@@ -54,6 +54,7 @@
                         <label class="course-detail-label" for="shortcut"
                                th:text="#{view.course_detail.shortcut}" th:required="true"/>
                         <input class="course-detail-input" type="text"
+                               onchange="onRequiredDetailChange(this)" th:required="true"
                                id="shortcut" name="shortcut" th:field="*{shortcut}">
                     </td>
                 </tr>
@@ -62,6 +63,7 @@
                         <label class="course-detail-label" for="name"
                                th:text="#{view.course_detail.name}" th:required="true"/>
                         <input class="course-detail-input" type="text"
+                               onchange="onRequiredDetailChange(this)" th:required="true"
                                id="name" name="name" th:field="*{name}">
                     </td>
                 </tr>
@@ -91,14 +93,6 @@
                 </tr>
                 <tr>
                     <td class="course-detail-div">
-                        <label class="course-detail-label" for="term"
-                               th:text="#{view.course_detail.term}" th:required="true"/>
-                        <input class="course-detail-input" type="text"
-                               id="term" name="term" th:field="*{term}">
-                    </td>
-                </tr>
-                <tr>
-                    <td class="course-detail-div">
                         <h4 th:text="#{view.course_detail.scope}"/>
                     </td>
                 </tr>
@@ -108,6 +102,7 @@
                             <label class="course-detail-label" for="lecture"
                                    th:text="#{view.course_detail.lecture}" th:required="true"/>
                             <input class="course-detail-input" type="number"
+                                   onchange="onRequiredDetailChange(this)" th:required="true"
                                    id="lecture" name="lecture" th:field="*{lectureLength}">
                         </div>
                     </td>
@@ -116,6 +111,7 @@
                             <label class="course-detail-label" for="exercise"
                                    th:text="#{view.course_detail.exercise}" th:required="true"/>
                             <input class="course-detail-input" type="number"
+                                   onchange="onRequiredDetailChange(this)" th:required="true"
                                    id="exercise" name="exercise" th:field="*{exerciseLength}">
                         </div>
                     </td>
@@ -125,6 +121,7 @@
                         <label class="course-detail-label" for="from"
                                th:text="#{view.course_detail.from}" th:required="true"/>
                         <input class="course-detail-input" type="date"
+                               onchange="onRequiredDetailChange(this)" th:required="true"
                                id="from" name="from" th:field="*{dateFrom}">
                     </td>
                 </tr>
@@ -133,6 +130,7 @@
                         <label class="course-detail-label" for="until"
                                th:text="#{view.course_detail.until}" th:required="true"/>
                         <input class="course-detail-input" type="date"
+                               onchange="onRequiredDetailChange(this)" th:required="true"
                                id="until" name="until" th:field="*{dateUntil}">
                     </td>
                 </tr>
@@ -149,33 +147,33 @@
                         <label class="course-detail-label" for="students"
                                th:text="#{view.course_detail.students}" th:required="true"/>
                         <input class="course-detail-input" type="number"
+                               onchange="onRequiredDetailChange(this)" th:required="true"
                                id="students" name="students" th:field="*{numberOfStudents}">
                     </td>
                 </tr>
-                <tr>
-                    <td class="course-detail-div">
-                        <h4 th:text="#{view.course_detail.sa_required}"/>
-                    </td>
-                </tr>
-                <tr>
-                    <td class="course-detail-div">
-                        <label class="course-detail-label" for="lecture_sa"
-                               th:text="#{view.course_detail.lecture}"/>
-                        <input class="course-detail-input" type="number"
-                               id="lecture_sa" name="lecture_sa" th:field="*{lectureRequired}">
-                    </td>
-                    <td class="course-detail-div">
-                        <label class="course-detail-label" for="exercise_sa"
-                               th:text="#{view.course_detail.exercise}"/>
-                        <input class="course-detail-input" type="number"
-                               id="exercise_sa" name="exercise_sa" th:field="*{exerciseRequired}">
-                    </td>
-                </tr>
+<!--                <tr>-->
+<!--                    <td class="course-detail-div">-->
+<!--                        <h4 th:text="#{view.course_detail.sa_required}"/>-->
+<!--                    </td>-->
+<!--                </tr>-->
+<!--                <tr>-->
+<!--                    <td class="course-detail-div">-->
+<!--                        <label class="course-detail-label" for="lecture_sa"-->
+<!--                               th:text="#{view.course_detail.lecture}"/>-->
+<!--                        <input class="course-detail-input" type="number"-->
+<!--                               id="lecture_sa" name="lecture_sa" th:field="*{lectureRequired}">-->
+<!--                    </td>-->
+<!--                    <td class="course-detail-div">-->
+<!--                        <label class="course-detail-label" for="exercise_sa"-->
+<!--                               th:text="#{view.course_detail.exercise}"/>-->
+<!--                        <input class="course-detail-input" type="number"-->
+<!--                               id="exercise_sa" name="exercise_sa" th:field="*{exerciseRequired}">-->
+<!--                    </td>-->
+<!--                </tr>-->
 
                 <tr>
                     <td class="flex-duo" style="margin-bottom: 50px">
-                        <input id="form-submit" class="course-detail-btn"
-                               th:attr="onclick=|return empty('#{view.course_detail.submit.empty}')|"
+                        <input id="form-submit" class="course-detail-btn form-submit"
                                th:formaction="'/c/create'" type="submit"
                                th:value="#{view.course_detail.submit}">
                     </td>
@@ -189,55 +187,42 @@
 </body>
 <script th:inline="javascript">
 
-    // Zkontroluje povinna pole detailu predmetu pri aktualizaci
-    function empty(message) {
-        var x;
-        console.log(message);
-        x = document.getElementById("shortcut").value;
-        if (x === "") {
-            window.location.replace(location.protocol + '//' + location.host + location.pathname + '?edit=failure');
+    // Pole uzivatelu
+    let employees = [[${employees}]];
+
+    let requiredDetailNotFilled = 0;
+
+    function onRequiredDetailChange(element) {
+        let btn = document.getElementsByClassName('form-submit');
+        console.log('element.value:' + element.value);
+        if (element.value === '') {
+            if (requiredDetailNotFilled === 0)
+                btn[0].disabled = true;
+            requiredDetailNotFilled++;
+            element.classList.add('course-detail-input-empty');
             return false;
-        }
-        x = document.getElementById("name").value;
-        if (x === "") {
-            window.location.replace(location.protocol + '//' + location.host + location.pathname + '?edit=failure');
-            return false;
-        }
-        x = document.getElementById("workplace").value;
-        if (x === "") {
-            window.location.replace(location.protocol + '//' + location.host + location.pathname + '?edit=failure');
-            return false;
-        }
-        x = document.getElementById("term").value;
-        if (x === "") {
-            window.location.replace(location.protocol + '//' + location.host + location.pathname + '?edit=failure');
-            return false;
-        }
-        x = document.getElementById("lecture").value;
-        if (x === "") {
-            window.location.replace(location.protocol + '//' + location.host + location.pathname + '?edit=failure');
-            return false;
-        }
-        x = document.getElementById("exercise").value;
-        if (x === "") {
-            window.location.replace(location.protocol + '//' + location.host + location.pathname + '?edit=failure');
-            return false;
-        }
-        x = document.getElementById("from").value;
-        if (x === "") {
-            window.location.replace(location.protocol + '//' + location.host + location.pathname + '?edit=failure');
-            return false;
-        }
-        x = document.getElementById("until").value;
-        if (x === "") {
-            window.location.replace(location.protocol + '//' + location.host + location.pathname + '?edit=failure');
-            return false;
-        }
-        x = document.getElementById("students").value;
-        if (x === "") {
-            window.location.replace(location.protocol + '//' + location.host + location.pathname + '?edit=failure');
-            return false;
+        } else {
+            element.classList.remove('course-detail-input-empty');
+            requiredDetailNotFilled--;
+            if (requiredDetailNotFilled === 0)
+                btn[0].disabled = false;
         }
     }
+
+    function pageLoaded() {
+        let btn = document.getElementsByClassName('form-submit');
+        let inputs = document.getElementsByClassName('course-detail-input');
+        for (let i = 0; i < inputs.length; ++i) {
+            if (inputs[i].required === true) {
+                if (inputs[i].value === '') {
+                    if (requiredDetailNotFilled === 0)
+                        btn[0].disabled = true;
+                    requiredDetailNotFilled++;
+                    inputs[i].classList.add('course-detail-input-empty');
+                }
+            }
+        }
+    }
+
 </script>
 </html>

@@ -3,34 +3,30 @@ package cz.zcu.kiv.mjakubas.piae.sem.core.service.v1;
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Allocation;
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.AllocationCell;
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Employee;
+import cz.zcu.kiv.mjakubas.piae.sem.core.domain.MergingObject;
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Project;
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.ProjectState;
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Workplace;
+import cz.zcu.kiv.mjakubas.piae.sem.core.exceptions.SecurityException;
 import cz.zcu.kiv.mjakubas.piae.sem.core.repository.IEmployeeRepository;
 import cz.zcu.kiv.mjakubas.piae.sem.core.repository.IProjectRepository;
 import cz.zcu.kiv.mjakubas.piae.sem.core.repository.IWorkplaceRepository;
-import cz.zcu.kiv.mjakubas.piae.sem.core.service.ServiceException;
+import cz.zcu.kiv.mjakubas.piae.sem.core.service.SecurityService;
+import cz.zcu.kiv.mjakubas.piae.sem.core.exceptions.ServiceException;
 import cz.zcu.kiv.mjakubas.piae.sem.core.vo.EmployeeVO;
 import cz.zcu.kiv.mjakubas.piae.sem.core.vo.ProjectVO;
 import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.NonNull;
-import lombok.Setter;
-import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.Period;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashSet;
@@ -51,6 +47,7 @@ public class ProjectService {
     private final IWorkplaceRepository workplaceRepository;
 
     private final AllocationService allocationService;
+    private final SecurityService securityService;
 
 
     /**
@@ -168,49 +165,67 @@ public class ProjectService {
             throw new ServiceException();
     }
 
+    /**
+     * Removes project and its allocations.
+     * Can be done only by project manager.
+     *
+     * @param projectId id of removed project.
+     */
     @Transactional
-    public boolean removeProject(@NonNull long projectId) {
-        return projectRepository.removeProject(projectId);
+    public void removeProject(long projectId) {
+        if (securityService.isProjectManager(projectId)) {
+            var project = getProject(projectId);
+            for (Allocation allocation : project.getProjectAllocations())
+                allocationService.removeAllocation(allocation.getId());
+            if (!projectRepository.removeProject(projectId))
+                throw new ServiceException();
+        } else
+            throw new SecurityException();
     }
 
     /**
-     * Updates existing project. Throws SQL or Service exception if project doesn't exists or data validation fails.
+     * Updates existing project.
+     * Throws SQL or Service exception if project doesn't exists or data validation fails.
+     * Throws SQL or Security exception if user is not manager.
      *
      * @param projectVO project data
      * @param id        project id
      */
     @Transactional
     public void editProject(@NonNull ProjectVO projectVO, long id) {
-        var manager = employeeRepository.fetchEmployee(projectVO.getProjectManagerId());
-        if (projectVO.getDateUntil() != null && (projectVO.getDateFrom().after(projectVO.getDateUntil())))
-                {throw new ServiceException();
-        }
+        if (securityService.isProjectManager(id)) {
+            var manager = employeeRepository.fetchEmployee(projectVO.getProjectManagerId());
+            if (projectVO.getDateUntil() != null && (projectVO.getDateFrom().after(projectVO.getDateUntil()))) {
+                throw new ServiceException();
+            }
 //        var processed = allocationService.processAllocations(allocationService.getProjectAllocations(id).getAllocations());
 //        if (!processed.isEmpty() && (processed.get(0).getFrom().before(projectVO.getDateFrom())
 //                    || processed.get(processed.size() - 1).getUntil().after(projectVO.getDateUntil())))
 //                {throw new ServiceException();
 //        }
 
-        Project project = new Project()
-                .id(id)
-                .name(projectVO.getName())
-                .shortcut(projectVO.getShortcut())
-                .dateFrom(projectVO.getDateFrom())
-                .dateUntil(projectVO.getDateUntil() != null ? projectVO.getDateUntil() : Date.from(
-                        Instant.from(LocalDate.of(9999, 9, 9))))
-                .probability(projectVO.getProbability())
-                .projectManager(manager)
-                .projectWorkplace(Workplace.builder().id(projectVO.getWorkplaceId()).build())
-                .description(projectVO.getDescription())
-                .budget(projectVO.getBudget())
-                .budgetParticipation(projectVO.getBudgetParticipation())
-                .totalTime(projectVO.getTotalTime())
-                .agency(projectVO.getAgency())
-                .state(ProjectState.getByValue(projectVO.getState()))
-                .grantTitle(projectVO.getGrantTitle());
+            Project project = new Project()
+                    .id(id)
+                    .name(projectVO.getName())
+                    .shortcut(projectVO.getShortcut())
+                    .dateFrom(projectVO.getDateFrom())
+                    .dateUntil(projectVO.getDateUntil() != null ? projectVO.getDateUntil() : Date.from(
+                            Instant.from(LocalDate.of(9999, 9, 9))))
+                    .probability(projectVO.getProbability())
+                    .projectManager(manager)
+                    .projectWorkplace(Workplace.builder().id(projectVO.getWorkplaceId()).build())
+                    .description(projectVO.getDescription())
+                    .budget(projectVO.getBudget())
+                    .budgetParticipation(projectVO.getBudgetParticipation())
+                    .totalTime(projectVO.getTotalTime())
+                    .agency(projectVO.getAgency())
+                    .state(ProjectState.getByValue(projectVO.getState()))
+                    .grantTitle(projectVO.getGrantTitle());
 
-        if (!projectRepository.updateProject(project, id))
-            throw new ServiceException();
+            if (!projectRepository.updateProject(project, id))
+                throw new ServiceException();
+        } else
+            throw new SecurityException();
     }
 
     /**
@@ -275,6 +290,12 @@ public class ProjectService {
         return myProjects;
     }
 
+    /**
+     * Returns list of first allocation for each project.
+     *
+     * @param projects list of projects.
+     * @return list of first allocations if any exists, otherwise empty list.
+     */
     public List<Allocation> prepareFirst(List<Project> projects) {
         List<Allocation> firstAllocations = new LinkedList<>();
         projects.forEach(project -> {
@@ -300,6 +321,13 @@ public class ProjectService {
         return firstAllocations;
     }
 
+    /**
+     *
+     *
+     * @param project
+     * @param projectAllocations
+     * @return
+     */
     public List<Float> averageAllocation(Project project, List<Allocation> projectAllocations) {
         List<Float> averages = new LinkedList<>();
 
@@ -309,23 +337,21 @@ public class ProjectService {
     }
 
     /**
-     * Prepares allocations times for using.
+     * Prepares allocations times for allocations overview.
+     *
      * @param allocations allocations
      * @return list of allocations
      */
     private List<Float> prepareAllocations(List<Allocation> allocations) {
         List<Float> yearAllocations = new LinkedList<>(Collections.nCopies(12, (float) 0));
-
         List<Allocation> thisYearsAllocations = new LinkedList<>();
-        allocations.forEach(allocation -> {
-            if (isThisYearAllocation(allocation))
-                thisYearsAllocations.add(allocation);
-        });
 
         int allocationsIndex = 0;
 
         Calendar dateFrom = new GregorianCalendar();
         Calendar dateUntil = new GregorianCalendar();
+
+        allocations.stream().filter(this::isThisYearAllocation).forEach(thisYearsAllocations::add);
 
         if (!thisYearsAllocations.isEmpty()) {
             Allocation allocation = thisYearsAllocations.get(allocationsIndex);
@@ -335,14 +361,8 @@ public class ProjectService {
 
 //        Here I will go through every month of the year and add to list 0 or time for project.
             for (int i = 1; i < 13; i++) {
-                if ((dateFrom.get(Calendar.MONTH) <= i
-                        && dateUntil.get(Calendar.MONTH) >= i)
-                        || (i == 1 && isThisYearAllocation(allocation)
-                        && dateFrom.get(Calendar.YEAR) < LocalDate.now().getYear())
-                        || (i == 12 && isThisYearAllocation(allocation)
-                        && dateUntil.get(Calendar.YEAR) > LocalDate.now().getYear())) {
+                if (fitsDate(dateFrom, dateUntil, i, allocation))
                     yearAllocations.set(i - 1, allocation.getTime());
-                }
                 else {
                     if (dateUntil.get(Calendar.MONTH) == i)
                         allocation = thisYearsAllocations.get(allocationsIndex++);
@@ -350,19 +370,38 @@ public class ProjectService {
                         yearAllocations.set(i - 1, (float) 0);
                 }
             }
-            return yearAllocations;
-        }
 
-        return new LinkedList<>();
+            return yearAllocations;
+        } else
+            return new LinkedList<>();
     }
 
+    /**
+     *
+     *
+     * @param dateFrom
+     * @param dateUntil
+     * @param i
+     * @param allocation
+     * @return
+     */
+    private boolean fitsDate(Calendar dateFrom, Calendar dateUntil, int i, Allocation allocation) {
+        return (dateFrom.get(Calendar.MONTH) <= i && dateUntil.get(Calendar.MONTH) >= i)
+                || (i == 1 && isThisYearAllocation(allocation) && dateFrom.get(Calendar.YEAR) < LocalDate.now().getYear())
+                || (i == 12 && isThisYearAllocation(allocation) && dateUntil.get(Calendar.YEAR) > LocalDate.now().getYear());
+    }
+
+    /**
+     *
+     * @param allocation
+     * @return
+     */
     private boolean isThisYearAllocation(Allocation allocation) {
         Calendar dateFrom = new GregorianCalendar();
         Calendar dateUntil = new GregorianCalendar();
         dateFrom.setTime(allocation.getDateFrom());
         dateUntil.setTime(allocation.getDateUntil());
-        return dateFrom.get(Calendar.YEAR) == LocalDate.now().getYear()
-                || dateUntil.get(Calendar.YEAR) == LocalDate.now().getYear();
+        return dateFrom.get(Calendar.YEAR) == LocalDate.now().getYear() || dateUntil.get(Calendar.YEAR) == LocalDate.now().getYear();
     }
 
     /**
@@ -376,33 +415,27 @@ public class ProjectService {
         return prepareActivityCells(allocationsByProjectAndRole);
     }
 
-    public List<AllocationCell>  prepareCertainProjectsCells(List<List<AllocationCell>> list) {
-        List<AllocationCell> cellList = new java.util.ArrayList<>(Collections.nCopies(list.get(0).size(), new AllocationCell()));
-
-        for (List<AllocationCell> l : list) {
+    /**
+     *
+     * @param allocations
+     * @param certainList
+     * @param uncertainList
+     */
+    public void prepareProjectsCells(List<List<AllocationCell>> allocations,
+                                     List<AllocationCell> certainList,
+                                     List<AllocationCell> uncertainList) {
+        for (List<AllocationCell> l : allocations) {
             for (int i = 0; i < l.size(); ++i) {
-                if (l.get(i).getCertain() == 1) {
-                    cellList.set(i, new AllocationCell(cellList.get(i).getTime() + l.get(i).getTime(), (float) 1.0));
-                }
+                if (l.get(i).getCertain() == 1)
+                    certainList.set(i,
+                            new AllocationCell(certainList.get(i).getTime() + l.get(i).getTime(), 1L));
+                else
+                    uncertainList.set(i,
+                            new AllocationCell(uncertainList.get(i).getTime() + l.get(i).getTime(), 1L));
             }
         }
-
-        return cellList;
     }
 
-    public List<AllocationCell>  prepareUncertainProjectsCells(List<List<AllocationCell>> list) {
-        List<AllocationCell> cellList = new java.util.ArrayList<>(Collections.nCopies(list.get(0).size(), new AllocationCell()));
-
-        for (List<AllocationCell> l : list) {
-            for (int i = 0; i < l.size(); ++i) {
-                if (l.get(i).getCertain() != 1) {
-                    cellList.set(i, new AllocationCell(cellList.get(i).getTime() + l.get(i).getTime(), (float) 1.0));
-                }
-            }
-        }
-
-        return cellList;
-    }
 
     /**
      * Projdu vsechny alokace a spojim ty se stejnou roli a projektem
@@ -437,12 +470,23 @@ public class ProjectService {
         return allocationsByActivityAndRole;
     }
 
+    /**
+     *
+     * @param dateToConvert
+     * @return
+     */
     public LocalDate convertToLocalDateTime(Date dateToConvert) {
         return dateToConvert.toInstant()
                 .atZone(ZoneId.systemDefault())
                 .toLocalDate();
     }
 
+    /**
+     *
+     * @param allocation
+     * @param cellsList
+     * @param firstYear
+     */
     private void addAllocationsPerMonth(Allocation allocation,
                                         List<AllocationCell> cellsList,
                                         int firstYear) {
@@ -460,6 +504,13 @@ public class ProjectService {
         }
     }
 
+    /**
+     *
+     * @param allocationsByActivityAndRole
+     * @param totalFirstYear
+     * @param totalNumberOfYears
+     * @return
+     */
     private List<List<AllocationCell>> prepareAllocationCells(List<MergingObject> allocationsByActivityAndRole,
                                                               int totalFirstYear,
                                                               int totalNumberOfYears) {
@@ -468,13 +519,18 @@ public class ProjectService {
 //            Pripravim cele pole
             int cellsSize = (12 * totalNumberOfYears);
             List<AllocationCell> cellsList = new java.util.ArrayList<>(Collections.nCopies(cellsSize, new AllocationCell()));
-            object.allocations.forEach(allocation -> addAllocationsPerMonth(allocation, cellsList, totalFirstYear));
+            object.getAllocations().forEach(allocation -> addAllocationsPerMonth(allocation, cellsList, totalFirstYear));
             list.add(cellsList);
         }
 
         return list;
     }
 
+    /**
+     *
+     * @param allocationsByActivityAndRole
+     * @return
+     */
     public List<List<AllocationCell>> prepareActivityCells(List<MergingObject> allocationsByActivityAndRole) {
 
         List<List<AllocationCell>> list = new ArrayList<>();
@@ -485,10 +541,10 @@ public class ProjectService {
             long totalNumberOfYears = 0;
 
             for (MergingObject o : allocationsByActivityAndRole) {
-                if (o.firstYear < totalFirstYear)
-                    totalFirstYear = o.firstYear;
-                if (o.numberOfYears + (o.firstYear - totalFirstYear) > totalNumberOfYears) {
-                    totalNumberOfYears = o.numberOfYears + (o.firstYear - totalFirstYear);
+                if (o.getFirstYear() < totalFirstYear)
+                    totalFirstYear = o.getFirstYear();
+                if (o.getNumberOfYears() + (o.getFirstYear() - totalFirstYear) > totalNumberOfYears) {
+                    totalNumberOfYears = o.getNumberOfYears() + (o.getFirstYear() - totalFirstYear);
                 }
             }
 
@@ -496,45 +552,5 @@ public class ProjectService {
         }
 
         return list;
-    }
-
-    @Data
-    @Getter
-    @Setter
-    @AllArgsConstructor
-    @NoArgsConstructor
-    private class MergingObject {
-        long activityId;
-        long employeeId;
-        String role;
-        long firstYear;
-        long numberOfYears;
-        List<Allocation> allocations = new LinkedList<>();
-
-        public MergingObject(long activityId, String role, Allocation allocation) {
-            this.activityId = activityId;
-            this.role = role;
-            this.allocations.add(allocation);
-        }
-
-        public MergingObject(String role, long employeeId, Allocation allocation) {
-            this.employeeId = employeeId;
-            this.role = role;
-            this.allocations.add(allocation);
-        }
-
-        public MergingObject allocations(Allocation allocations) {
-            this.allocations.add(allocations);
-            return this;
-        }
-
-        public void sortAllocationsByDate() {
-            this.allocations.sort(Comparator.comparing(Allocation::getDateFrom));
-            Calendar date = new GregorianCalendar();
-            date.setTime(allocations.get(0).getDateFrom());
-            this.firstYear = date.get(Calendar.YEAR);
-            date.setTime(allocations.get(allocations.size() - 1).getDateUntil());
-            this.numberOfYears = (date.get(Calendar.YEAR) - this.firstYear) + 1;
-        }
     }
 }

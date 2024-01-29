@@ -8,7 +8,7 @@ public enum ProjectState {
     BEZI("běží"),
     DOKONCENY("dokončený");
 
-    private String value;
+    private final String value;
 
     ProjectState(String value) {
         this.value = value;
@@ -20,9 +20,5 @@ public enum ProjectState {
             case "běží" -> ProjectState.BEZI;
             default -> ProjectState.DOKONCENY;
         };
-    }
-
-    public void setValue(String value) {
-        this.value = value;
     }
 }

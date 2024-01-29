@@ -5,6 +5,7 @@ import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Course;
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Employee;
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Function;
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Project;
+import cz.zcu.kiv.mjakubas.piae.sem.core.domain.TermState;
 import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;
@@ -21,6 +22,7 @@ public class AllocationMapper implements RowMapper<Allocation> {
         var functionId = rs.getLong("ass_function_id");
         Date activeFrom = rs.getObject("ass_active_from", Date.class);
         Date activeUntil = rs.getObject("ass_active_until", Date.class);
+        String term = rs.getString("ass_term");
         var scope = rs.getInt("ass_scope");
         var description = rs.getString("ass_description");
         var active = rs.getBoolean("ass_active");
@@ -40,6 +42,7 @@ public class AllocationMapper implements RowMapper<Allocation> {
                 .function(function)
                 .dateFrom(activeFrom)
                 .dateUntil(activeUntil)
+                .term(TermState.getByValue(term))
                 .allocationScope(scope)
                 .description(description)
                 .time(time)

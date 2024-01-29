@@ -104,11 +104,13 @@ public class JdbcCourseRepository implements ICourseRepository {
     public long createCourse(@NonNull Course course) {
         var sql = """
                 INSERT INTO course 
-                (crs_enabled, crs_name, crs_number_of_students, crs_term, crs_lecture, crs_exercise,
+                (crs_enabled, crs_name, crs_shortcut, crs_number_of_students, crs_term, crs_lecture, crs_exercise,
+                crs_lecture_required, crs_exercise_required,
                 crs_lecture_length, crs_exercise_length, crs_credits, crs_date_from,
                 crs_date_until, crs_probability, crs_manager_id, crs_workplace_id)
                 VALUES
-                (:crs_enabled, :crs_name, :crs_number_of_students, :crs_term, :crs_lecture, :crs_exercise
+                (:crs_enabled, :crs_name, :crs_shortcut, :crs_number_of_students, :crs_term, :crs_lecture, :crs_exercise,
+                :crs_lecture_required, :crs_exercise_required,
                 :crs_lecture_length, :crs_exercise_length, :crs_credits, :crs_date_from,
                 :crs_date_until, :crs_probability, :crs_manager_id, :crs_workplace_id);
                 """;
@@ -123,8 +125,9 @@ public class JdbcCourseRepository implements ICourseRepository {
     public boolean updateCourse(@NonNull Course course, long courseId) {
         var sql = """
                 UPDATE course
-                SET crs_name = :crs_name, crs_number_of_students = :crs_number_of_students, crs_term = :crs_term,
+                SET crs_name = :crs_name, crs_shortcut = :crs_shortcut, crs_number_of_students = :crs_number_of_students, crs_term = :crs_term,
                 crs_lecture_length = :crs_lecture_length, crs_exercise_length = :crs_exercise_length, crs_credits = :crs_credits,
+                crs_lecture_required = :crs_lecture_required, crs_exercise_require = :crs_exercise_require,
                 crs_date_until = :crs_date_until, crs_probability = :crs_probability, crs_manager_id = :crs_manager_id,
                 crs_workplace_id = :crs_workplace_id
                 WHERE course_id = :course_id
@@ -200,12 +203,15 @@ public class JdbcCourseRepository implements ICourseRepository {
         var params = new MapSqlParameterSource();
         params.addValue("crs_enabled", 1);
         params.addValue("crs_name", course.getName());
+        params.addValue("crs_shortcut", course.getShortcut());
         params.addValue("crs_number_of_students", course.getNumberOfStudents());
         params.addValue("crs_term", course.getTerm());
         params.addValue("crs_lecture", 5);
         params.addValue("crs_exercise", 5);
         params.addValue("crs_lecture_length", course.getLectureLength());
         params.addValue("crs_exercise_length", course.getExerciseLength());
+        params.addValue("crs_lecture_required", 1);
+        params.addValue("crs_exercise_required", 1);
         params.addValue("crs_credits", course.getCredits());
         params.addValue("crs_date_from", course.getDateFrom());
         params.addValue("crs_date_until", course.getDateUntil());

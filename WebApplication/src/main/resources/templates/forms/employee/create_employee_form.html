@@ -18,10 +18,10 @@
     <!-- jquery -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 </head>
-<body>
+<body onload="pageLoaded()">
 <div th:replace="~{fragments/navbar}">Navbar</div>
 
-<div class="container-fluid employees-body">
+<div class="container-fluid employees-body content">
     <!-- content -->
     <div class="my-container">
         <!-- alerts -->
@@ -59,6 +59,7 @@
                         <label class="employee-detail-label" for="first_name"
                                th:text="#{view.employee_detail.first_name}" th:required="true"/>
                         <input class="employee-detail-input" type="text"
+                               onchange="onRequiredDetailChange(this)" th:required="true"
                                id="first_name" name="first_name" th:field="*{firstName}">
                     </td>
                 </tr>
@@ -67,6 +68,7 @@
                         <label class="employee-detail-label" for="last_name"
                                th:text="#{view.employee_detail.last_name}" th:required="true"/>
                         <input class="employee-detail-input" type="text"
+                               onchange="onRequiredDetailChange(this)" th:required="true"
                                id="last_name" name="last_name" th:field="*{lastName}">
                     </td>
                 </tr>
@@ -75,6 +77,7 @@
                         <label class="employee-detail-label" for="orion_login"
                                th:text="#{view.employee_detail.orion_login}" th:required="true"/>
                         <input class="employee-detail-input" type="text"
+                               onchange="onRequiredDetailChange(this)" th:required="true"
                                id="orion_login" name="orion_login" th:field="*{orionLogin}">
                     </td>
                 </tr>
@@ -95,6 +98,7 @@
                         <label class="employee-detail-label" for="email"
                                th:text="#{view.employee_detail.email}" th:required="true"/>
                         <input class="employee-detail-input" type="text"
+                               onchange="onRequiredDetailChange(this)" th:required="true"
                                id="email" name="email" th:field="*{emailAddress}">
                     </td>
                 </tr>
@@ -103,6 +107,7 @@
                         <label class="employee-detail-label" for="introduced"
                                th:text="#{view.employee_detail.introduced}" th:required="true"/>
                         <input class="employee-detail-input" type="date"
+                               onchange="onRequiredDetailChange(this)" th:required="true"
                                id="introduced" name="introduced" th:field="${employee.dateCreated}">
                     </td>
                 </tr>
@@ -117,8 +122,7 @@
                 </tr>
                 <tr>
                     <td class="flex-duo" style="margin-bottom: 50px">
-                        <input id="form-submit" class="employee-detail-btn"
-                               th:attr="onclick=|return empty('#{view.employee_detail.submit.empty}')|"
+                        <input id="form-submit" class="employee-detail-btn form-submit"
                                th:formaction="'/e/create'" type="submit"
                                th:value="#{view.employee_detail.submit}">
                     </td>
@@ -157,111 +161,52 @@
 </script>
 
 <script>
-    let employees = /*[[${employees}]]*/ 'default';
-    let projects_times = document.getElementsByClassName("employee-projects-times");
-    let courses_times = document.getElementsByClassName("employee-coures-times");
-    let functions_times = document.getElementsByClassName("employee-funtions-times");
-    let index = 0;
-    const opts = { minimumFractionDigits: 1 };
-    let year_offsets = {};
-    console.log('employees: ' + employees.length);
-    for (let i = 0; i < employees.length; ++i)
-        year_offsets[i] = 0;
+    let requiredDetailNotFilled = 0;
 
-
-    Array.from(projects_times).forEach(function(trArray) {
-        if (employees.length > index && employees[index].projectsAllocationCells.length > 0) {
-            let last = employees[index].projectsAllocationCells[0][0].time;
-            for (let j = 0; j < 12; ++j) {
-                let td = document.createElement("td");
-                if (last !== employees[index].projectsAllocationCells[0][j].time) {
-                    last = employees[index].projectsAllocationCells[0][j].time;
-                    td.className = "project-cell-times-values project-cell-times-values-changed";
-                } else
-                    td.className = "project-cell-times-values";
-                td.innerHTML = (employees[index].projectsAllocationCells[0][j].time)
-                    .toLocaleString(undefined, opts).replace(',', '.');
-                trArray.append(td);
+    function onRequiredDetailChange(element) {
+        let btn = document.getElementsByClassName('form-submit');
+        if (element.value === '') {
+            if (requiredDetailNotFilled === 0)
+                btn[0].disabled = true;
+            requiredDetailNotFilled++;
+            element.classList.add('employee-detail-input-empty');
+            return false;
+        } else if (element.id === 'email') {
+            var emailPattern = new RegExp("^(.+)@(.+)$");
+            if (!emailPattern.test(element.value)) {
+                if (requiredDetailNotFilled === 0)
+                    btn[0].disabled = true;
+                requiredDetailNotFilled++;
+                element.classList.add('employee-detail-input-empty');
+            } else {
+                element.classList.remove('employee-detail-input-empty');
+                requiredDetailNotFilled--;
+                if (requiredDetailNotFilled === 0)
+                    btn[0].disabled = false;
             }
-            let td = document.createElement("td");
-            td.className = "project-detail-table-cell";
-            trArray.append(td);
-        }
-        index++;
-    });
-
-    let project_allocations = document.getElementsByClassName("project-allocations");
-    Array.from(project_allocations).forEach(function(trArray) {
-        let buttonsEdit = document.getElementsByClassName("btn-edit");
-        let buttonsConfirm = document.getElementsByClassName("btn-confirm");
-        let buttonsCancel = document.getElementsByClassName("btn-cancel");
-        for (let i = 0; i < buttonsEdit.length; ++i) {
-            buttonsEdit[i].addEventListener("click", function(evt) {
-                let tds = trArray.getElementsByClassName("project-allocations-input");
-                Array.from(tds).forEach(function(td) {
-                    td.removeAttribute("readonly");
-                    buttonsConfirm[i].style.visibility = "visible";
-                    buttonsCancel[i].style.visibility = "visible";
-                    buttonsEdit[i].style.visibility = "hidden";
-                });
-            });
-
-            buttonsConfirm[i].addEventListener("click", function(evt) {
-                let tds = trArray.getElementsByClassName("project-allocations-input");
-                Array.from(tds).forEach(function(td) {
-                    td.setAttribute('readonly', 'readonly');
-                    buttonsConfirm[i].style.visibility = 'hidden';
-                    buttonsCancel[i].style.visibility = 'hidden';
-                    buttonsEdit[i].style.visibility = 'visible';
-                });
-            });
-
-            buttonsCancel[i].addEventListener("click", function(evt) {
-                let tds = trArray.getElementsByClassName("project-allocations-input");
-                Array.from(tds).forEach(function(td) {
-                    td.setAttribute('readonly', 'readonly');
-                    buttonsConfirm[i].style.visibility = 'hidden';
-                    buttonsCancel[i].style.visibility = 'hidden';
-                    buttonsEdit[i].style.visibility = 'visible'
-                });
-            });
-        }
-    });
-
-    function empty(message) {
-        var x;
-        console.log(message);
-        x = document.getElementById("first_name").value;
-        if (x === "") {
-            window.location.replace(location.protocol + '//' + location.host + location.pathname + '?edit=failure');
-            return false;
-        }
-        x = document.getElementById("last_name").value;
-        if (x === "") {
-            window.location.replace(location.protocol + '//' + location.host + location.pathname + '?edit=failure');
-            return false;
-        }
-        x = document.getElementById("orion_login").value;
-        if (x === "") {
-            window.location.replace(location.protocol + '//' + location.host + location.pathname + '?edit=failure');
-            return false;
-        }
-        x = document.getElementById("from").value;
-        if (x === "") {
-            window.location.replace(location.protocol + '//' + location.host + location.pathname + '?edit=failure');
-            return false;
-        }
-        x = document.getElementById("workplace").value;
-        if (x === "") {
-            window.location.replace(location.protocol + '//' + location.host + location.pathname + '?edit=failure');
-            return false;
-        }
-        x = document.getElementById("email").value;
-        if (x === "") {
-            window.location.replace(location.protocol + '//' + location.host + location.pathname + '?edit=failure');
-            return false;
+        } else {
+            element.classList.remove('employee-detail-input-empty');
+            requiredDetailNotFilled--;
+            if (requiredDetailNotFilled === 0)
+                btn[0].disabled = false;
         }
     }
+
+    function pageLoaded() {
+        let btn = document.getElementsByClassName('form-submit');
+        let inputs = document.getElementsByClassName('employee-detail-input');
+        for (let i = 0; i < inputs.length; ++i) {
+            if (inputs[i].required === true) {
+                if (inputs[i].value === '') {
+                    if (requiredDetailNotFilled === 0)
+                        btn[0].disabled = true;
+                    requiredDetailNotFilled++;
+                    inputs[i].classList.add('employee-detail-input-empty');
+                }
+            }
+        }
+    }
+
 </script>
 
 </html>

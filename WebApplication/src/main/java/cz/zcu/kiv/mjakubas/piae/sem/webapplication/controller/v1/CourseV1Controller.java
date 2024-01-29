@@ -2,6 +2,9 @@ package cz.zcu.kiv.mjakubas.piae.sem.webapplication.controller.v1;
 
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Allocation;
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Course;
+import cz.zcu.kiv.mjakubas.piae.sem.core.domain.TermState;
+import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Workplace;
+import cz.zcu.kiv.mjakubas.piae.sem.core.service.MyUtils;
 import cz.zcu.kiv.mjakubas.piae.sem.core.service.v1.AllocationService;
 import cz.zcu.kiv.mjakubas.piae.sem.core.service.v1.CourseService;
 import cz.zcu.kiv.mjakubas.piae.sem.core.service.v1.EmployeeService;
@@ -9,7 +12,9 @@ import cz.zcu.kiv.mjakubas.piae.sem.core.service.v1.WorkplaceService;
 import cz.zcu.kiv.mjakubas.piae.sem.core.vo.AllocationVO;
 import cz.zcu.kiv.mjakubas.piae.sem.core.vo.CourseVO;
 import cz.zcu.kiv.mjakubas.piae.sem.core.vo.EmployeeVO;
+import cz.zcu.kiv.mjakubas.piae.sem.core.vo.WorkplaceVO;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -23,8 +28,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -39,11 +44,13 @@ public class CourseV1Controller {
     private final CourseService courseService;
     private final EmployeeService employeeService;
     private final WorkplaceService workplaceService;
-
     private final AllocationService allocationService;
+    private final MyUtils utils;
 
     private static final String EMPLOYEES = "employees";
     private static final String RESTRICTIONS = "restrictions";
+    private static final String COURSE = "course";
+    private static final String WORKPLACES = "workplaces";
 
     @GetMapping()
     @PreAuthorize("hasAnyAuthority(" +
@@ -68,14 +75,13 @@ public class CourseV1Controller {
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN)")
     public String createCourse(Model model) {
         CourseVO newCourse = new CourseVO().name("Nový předmět");
-        model.addAttribute("course", newCourse);
+        model.addAttribute(COURSE, newCourse);
 
         var courses = courseService.getCourses();
         var employees = employeeService.getEmployees();
-        var workplaces = workplaceService.getWorkplaces();
 
         model.addAttribute(EMPLOYEES, employees);
-        model.addAttribute("workplaces", workplaces);
+        model.addAttribute(WORKPLACES, workplaceService.getWorkplaces());
         model.addAttribute(RESTRICTIONS, courses);
 
         return "forms/course/create_course_form";
@@ -90,6 +96,9 @@ public class CourseV1Controller {
     public String createCourse(@ModelAttribute CourseVO courseVO,
                                BindingResult bindingResult, Model model,
                                RedirectAttributes redirectAttributes) {
+
+        System.out.println(courseVO);
+
         long id = courseService.createCourse(courseVO);
 
         redirectAttributes.addAttribute("id", id);
@@ -107,23 +116,24 @@ public class CourseV1Controller {
                               @RequestParam(required = false) Boolean manage) {
         Course course = courseService.getCourse(id);
 
-        model.addAttribute("courseVO",
-                new CourseVO()
-                        .id(course.getId())
-                        .name(course.getName())
-                        .shortcut(course.getShortcut())
-                        .courseManagerId(course.getCourseManager().getId())
-                        .courseManagerName(course.getCourseManager().getLastName())
-                        .courseWorkplace(course.getCourseWorkplace().getId())
-                        .dateFrom(course.getDateFrom())
-                        .dateUntil(course.getDateUntil())
-                        .introduced(course.getIntroduced())
-                        .term(course.getTerm())
-                        .lectureRequired(course.getLectureRequired())
-                        .exerciseRequired(course.getExerciseRequired()));
+        CourseVO courseVO = new CourseVO()
+                .id(course.getId())
+                .name(course.getName())
+                .shortcut(course.getShortcut())
+                .courseManagerId(course.getCourseManager().getId())
+                .courseManagerName(course.getCourseManager().getLastName())
+                .courseWorkplace(course.getCourseWorkplace().getId())
+                .dateFrom(course.getDateFrom())
+                .dateUntil(course.getDateUntil())
+                .introduced(course.getIntroduced())
+                .term(course.getTerm())
+                .lectureRequired(course.getLectureRequired())
+                .exerciseRequired(course.getExerciseRequired());
+
+        model.addAttribute(COURSE, courseVO);
 
         model.addAttribute(EMPLOYEES, employeeService.getEmployees());
-        model.addAttribute("workplaces", workplaceService.getWorkplaces());
+        model.addAttribute(WORKPLACES, workplaceService.getWorkplaces());
         model.addAttribute(RESTRICTIONS, courseService.getCourses());
         model.addAttribute("manage", manage);
 
@@ -139,10 +149,12 @@ public class CourseV1Controller {
             " or @securityService.isCourseManager(#id) or @securityService.isWorkplaceManager(#id)")
     public String editCourse(Model model, @PathVariable long id, @ModelAttribute CourseVO courseVO,
                               BindingResult errors, @RequestParam(required = false) Boolean manage) {
-        courseService.editCourse(courseVO, id);
 
-        if (Boolean.TRUE.equals(manage))
-            return String.format("redirect:/c/%s/manage?edit=success", id);
+        System.out.println(courseVO);
+
+        System.out.println("courseVO.getCourseWorkplace(): " + courseVO.getCourseWorkplace());
+
+        courseService.editCourse(courseVO, id);
 
         return "redirect:/c/{id}/detail?edit=success";
     }
@@ -155,9 +167,7 @@ public class CourseV1Controller {
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN) " +
             " or @securityService.isCourseManager(#id) or @securityService.isWorkplaceManager(#id)")
     public String deleteCourse(Model model, @PathVariable long id) {
-
         courseService.removeCourse(id);
-
         return "redirect:/c?delete=success";
     }
 
@@ -171,69 +181,39 @@ public class CourseV1Controller {
     public String detailCourse(Model model, @PathVariable long id,
                                @RequestParam(required = false) Boolean manage) {
         Course course = courseService.getCourse(id);
+
         var allocations = allocationService.getCourseAllocations(id).getAllocations();
-        model.addAttribute("allocations", allocations);
+        model.addAttribute("allocations", mapAllocations(allocations));
 
         List<List<AllocationVO>> allocationsByEars = new ArrayList<>();
         for (List<Allocation> allList : course.getAllocationsByYears()) {
-            List<AllocationVO> list = new ArrayList<>();
-            for (Allocation all : allList) {
-                var allVO = new AllocationVO();
-                allVO.setId(all.getId());
-                allVO.setCourseId(id);
-                allVO.setEmployeeId(all.getWorker().getId());
-                allVO.setAllocationScope(all.getAllocationScope());
-                allVO.setDateFrom(all.getDateFrom());
-                allVO.setDateUntil(all.getDateUntil());
-                allVO.setRole(all.getRole());
-                allVO.setDescription(all.getDescription());
-                allVO.setIsCertain(all.getIsCertain());
-                list.add(allVO);
-            }
-            allocationsByEars.add(list);
+            allocationsByEars.add(mapAllocations(allList));
         }
 
-        model.addAttribute("course",
-                new CourseVO()
-                        .name(course.getName())
-                        .shortcut(course.getShortcut())
-                        .courseManagerId(course.getCourseManager().getId())
-                        .courseManagerName(course.getCourseManager().getLastName())
-                        .courseWorkplace(course.getCourseWorkplace().getId())
-                        .dateFrom(course.getDateFrom())
-                        .dateUntil(course.getDateUntil())
-                        .introduced(new Date())
-                        .term(course.getTerm())
-                        .lectureRequired(course.getLectureRequired())
-                        .exerciseRequired(course.getExerciseRequired())
-                        .allocationsByYears(allocationsByEars)
-                        .years(course.getYears()));
+        CourseVO courseVO = new CourseVO()
+                .name(course.getName())
+                .shortcut(course.getShortcut())
+                .courseManagerId(course.getCourseManager().getId())
+                .courseManagerName(course.getCourseManager().getLastName())
+                .courseWorkplace(course.getCourseWorkplace().getId())
+                .dateFrom(course.getDateFrom())
+                .dateUntil(course.getDateUntil())
+                .introduced(new Date())
+                .term(course.getTerm())
+                .lectureRequired(course.getLectureRequired())
+                .exerciseRequired(course.getExerciseRequired())
+                .allocationsByYears(allocationsByEars)
+                .years(course.getYears());
 
-        Calendar cal = Calendar.getInstance();
+        model.addAttribute(COURSE, courseVO);
 
-        AllocationVO newAllocation = new AllocationVO();
-        newAllocation.setCourseId(course.getId());
-        newAllocation.setRole("nový");
-        newAllocation.setIsCertain(1.0F);
-        newAllocation.setAllocationScope(1.0F);
-        cal.set(2023, Calendar.JANUARY, 1);
-        newAllocation.setDateFrom(cal.getTime());
-        cal.set(2023, Calendar.DECEMBER, 31);
-        newAllocation.setDateUntil(cal.getTime());
-        newAllocation.setDescription("description");
-
-        model.addAttribute("newAllocation", newAllocation);
-
-        var employees = employeeService.getEmployees();
-
-//        employees.forEach(employeeService::prepareProjectsCells); // TODO potrebuju to?
-//        employees.forEach(employeeService::prepareTotalCells);
-
+        model.addAttribute("terms", TermState.values());
+        model.addAttribute("newAllocation", newCourseAllocation(course));
         model.addAttribute("allocationsByYears", allocationsByEars);
 
+        var employees = employeeService.getEmployees();
         model.addAttribute(EMPLOYEES, employees);
-        model.addAttribute("workplaces", workplaceService.getWorkplaces());
-        model.addAttribute(RESTRICTIONS, courseService.getCourses());
+        model.addAttribute(WORKPLACES, workplaceService.getWorkplaces());
         model.addAttribute("manage", manage);
 
         return "details/course_detail";
@@ -284,5 +264,36 @@ public class CourseV1Controller {
         model.addAttribute("courses", payload.getAssignmentsCourses());
         model.addAttribute(EMPLOYEES, payload.getAllocationsEmployees());
         return "views/course_management";
+    }
+
+    private AllocationVO newCourseAllocation(Course course) {
+        AllocationVO newAllocation = new AllocationVO();
+        newAllocation.setCourseId(course.getId());
+        newAllocation.setRole("nový");
+        newAllocation.setIsCertain(1.0F);
+        newAllocation.setAllocationScope(1.0F);
+        newAllocation.setDateFrom(utils.convertToLocalDateTime(course.getDateFrom()));
+        newAllocation.setDateUntil(utils.convertToLocalDateTime(course.getDateUntil()));
+        newAllocation.setDescription("description");
+        return newAllocation;
+    }
+
+    private List<AllocationVO> mapAllocations(List<Allocation> allocations) {
+        List<AllocationVO> allocationsVO = new LinkedList<>();
+        for (Allocation allocation : allocations) {
+            AllocationVO allocationVO = new AllocationVO();
+            allocationVO.setId(allocation.getId());
+            allocationVO.setCourseId(allocation.getCourse().getId());
+            allocationVO.setWorkerId(allocation.getWorker().getId());
+            allocationVO.setRole(allocation.getRole());
+            allocationVO.setDateFrom(utils.convertToLocalDateTime(allocation.getDateFrom()));
+            allocationVO.setDateUntil(utils.convertToLocalDateTime(allocation.getDateUntil()));
+            allocationVO.setAllocationScope(allocation.getTime());
+            allocationVO.setIsCertain(allocation.getIsCertain());
+            allocationVO.setDescription(allocation.getDescription());
+            allocationsVO.add(allocationVO);
+        }
+
+        return allocationsVO;
     }
 }

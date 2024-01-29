@@ -21,7 +21,7 @@
 <body>
 <div th:replace="~{fragments/navbar}">Navbar</div>
 
-<div class="container-fluid">
+<div class="container-fluid content">
     <!-- content -->
     <div class="container">
         <!-- alerts -->
@@ -57,7 +57,7 @@
                     <td class="function-detail-div">
                         <label class="function-detail-label" for="shortcut"
                                th:text="#{view.function_detail.shortcut}" th:required="true"/>
-                        <input class="function-detail-input" type="text"
+                        <input class="function-detail-input" type="text" onchange="onRequiredDetailChange(this)"
                                id="shortcut" name="shortcut" th:field="*{shortcut}">
                     </td>
                 </tr>
@@ -65,7 +65,7 @@
                     <td class="function-detail-div">
                         <label class="function-detail-label" th:required="true"
                                for="name" th:text="#{view.function_detail.name}"/>
-                        <input class="function-detail-input" type="text"
+                        <input class="function-detail-input" type="text" onchange="onRequiredDetailChange(this)"
                                id="name" name="name" th:field="*{name}">
                     </td>
                 </tr>
@@ -85,7 +85,7 @@
                     <td class="function-detail-div">
                         <label class="function-detail-label" for="from"
                                th:text="#{view.function_detail.from}" th:required="true"/>
-                        <input class="function-detail-input" th:type="date"
+                        <input class="function-detail-input" th:type="date" onchange="onRequiredDetailChange(this)"
                                id="from" name="from" th:field="*{dateFrom}">
                     </td>
                 </tr>
@@ -93,7 +93,7 @@
                     <td class="function-detail-div">
                         <label class="function-detail-label" th:required="true"
                                for="until" th:text="#{view.function_detail.until}"/>
-                        <input class="function-detail-input" type="date"
+                        <input class="function-detail-input" type="date" onchange="onRequiredDetailChange(this)"
                                id="until" name="until" th:field="*{dateUntil}">
                     </td>
                 </tr>
@@ -120,8 +120,7 @@
                 </tr>
                 <tr>
                     <td class="flex-duo">
-                        <input id="form-submit" class="employee-detail-btn"
-                               th:attr="onclick=|return empty('#{view.function_detail.submit.empty}')|"
+                        <input id="form-submit" class="employee-detail-btn form-submit"
                                th:formaction="'/f/' + ${id} + '/edit'" type="submit"
                                th:value="#{view.function_detail.submit}">
                         <!-- an delete button link -->
@@ -152,7 +151,7 @@
                         <td class="function-allocation-header" th:text="#{view.project_detail.members.table.from}"></td>
                         <td class="function-allocation-header" th:text="#{view.project_detail.members.table.until}"></td>
                         <td class="function-allocation-header" th:text="#{view.project_detail.members.table.current-time}"></td>
-                        <td class="function-allocation-header" th:text="#{view.project_detail.members.table.average-time}"></td>
+                        <td class="function-allocation-header" th:text="#{view.project_detail.members.table.probability}"></td>
                         <td class="function-allocation-header" th:text="#{view.project_detail.members.table.description}"></td>
                         <td></td>
                         <td></td>
@@ -162,17 +161,18 @@
                     <tbody>
                     <th:block th:each="all, allStats : ${allocations}">
                         <!-- Allocations-->
-                        <form th:action="@{'/a/' + ${all.id} + '/edit'}"
+                        <form th:action="@{'/a/' + ${all.id} + '/edit/c/' + ${id}}"
                               th:object="${all}" th:method="POST" novalidate>
                             <th:block>
                                 <tr class="function-allocation" th:id="${allStats.index}">
                                     <td class="function-allocation-cell">
                                         <label>
                                             <select class="function-allocations-select"
-                                                    th:name="director" field="*{employeeId}" disabled="true">
-                                                <option th:each="emp : ${employees}" th:selected="${emp.getId()}"
-                                                        th:value="${emp.getId()}"
-                                                        th:text="${emp.getLastName()} + ' ' + ${emp.getFirstName()}">
+                                                    th:name="director" field="*{employeeId}"
+                                                    th:id="'allocationSelect' + ${all.id}" disabled="disabled">
+                                                <option th:each="emp : ${employees}" th:value="${emp.getId()}"
+                                                        th:text="${emp.getLastName()} + ' ' + ${emp.getFirstName()}"
+                                                        th:selected="${emp.getId() eq all.getWorkerId}">
                                                 </option>
                                             </select>
                                         </label>
@@ -180,52 +180,64 @@
                                     <td class="function-allocation-cell">
                                         <label>
                                             <input class="function-allocations-input" type="text" readonly="readonly"
-                                                   th:name="role" th:value="${all.role}">
+                                                   th:name="role" th:value="*{role}"
+                                                   th:onchange="'onRequiredAllocationChange(this, ' + ${allStats.index} + ')'">
                                         </label>
                                     </td>
                                     <td class="function-allocation-cell">
                                         <label>
-                                            <input class="function-allocations-input" type="text"
-                                                   th:name="dateFrom" readonly="readonly"
-                                                   th:value="${#dates.format(all.dateFrom, 'dd-MM-yyyy')}">
+                                            <input class="function-allocations-input" type="date"
+                                                   th:name="dateFrom" readonly="readonly" th:value="*{dateFrom}"
+                                                   th:onchange="'onRequiredAllocationChange(this, ' + ${allStats.index} + ')'">
                                         </label>
                                     </td>
                                     <td class="function-allocation-cell">
                                         <label>
-                                            <input class="function-allocations-input" type="text"
+                                            <input class="function-allocations-input" type="date"
                                                    th:name="dateUntil" readonly="readonly"
-                                                   th:value="${#dates.format(all.dateUntil, 'dd-MM-yyyy')}">
+                                                   th:value="*{dateUntil}"
+                                                   th:onchange="'onRequiredAllocationChange(this, ' + ${allStats.index} + ')'">
                                         </label>
                                     </td>
                                     <td class="function-allocation-cell">
                                         <label>
                                             <input class="function-allocations-input" type="text"
                                                    th:name="time" readonly="readonly"
-                                                   th:value="${all.time}">
+                                                   th:value="*{allocationScope}"
+                                                   th:onchange="'onRequiredAllocationChange(this, ' + ${allStats.index} + ')'">
                                         </label>
                                     </td>
                                     <td class="function-allocation-cell">
                                         <label>
                                             <input class="function-allocations-input" type="text"
-                                                   th:name="time" th:value="${all.time}" readonly="readonly">
+                                                   th:name="isCertain" th:value="*{isCertain}" readonly="readonly"
+                                                   th:onchange="'onRequiredAllocationChange(this, ' + ${allStats.index} + ')'">
                                         </label>
                                     </td>
                                     <td class="function-allocation-cell">
                                         <label>
                                             <input class="function-allocations-input" type="text"
                                                    th:name="description" readonly="readonly"
-                                                   th:value="${all.description}">
+                                                   th:value="*{description}">
                                         </label>
                                     </td>
                                     <td>
-                                        <button class="btn btn-confirm" type="submit" th:formaction="'/a/' + ${all.id} + '/edit'"></button>
+                                        <button class="btn btn-confirm"
+                                                th:attr="onclick=|return checkAllocation('${allStats.index}')|"
+                                                th:formaction="'/a/' + ${all.id} + '/edit/p/' + ${id} + '/' + ${all.workerId}"></button>
                                     </td>
                                     <td>
                                         <label>
                                             <label>
                                                 <input type="text" name="functionId"  style="display : none"
-                                                       field="*{functionId}" th:value="${id}" disabled="true">
+                                                       field="*{functionId}" th:value="${id}" disabled="disabled">
                                             </label>
+                                        </label>
+                                    </td>
+                                    <td>
+                                        <label>
+                                            <input type="number" th:id="'workerId' + ${all.id}" name="workerId" style="display : none"
+                                                   th:value="*{workerId}" disabled="disabled">
                                         </label>
                                     </td>
                                     <td>
@@ -235,22 +247,26 @@
                                         <button class="btn btn-edit" type="button"></button>
                                     </td>
                                     <td>
-                                        <button class="btn btn-delete" type="button"></button>
+                                        <input class="btn btn-delete" type="button"
+                                               th:formaction="'/a/' + ${all.id} + '/delete/f/' + ${id}"
+                                               th:data-confirm-delete="#{view.function_detail.delete_allocation.confirm}"
+                                               onclick="if (!confirm(this.getAttribute('data-confirm-delete'))) return false">
                                     </td>
                                 </tr>
                             </th:block>
                         </form>
                     </th:block>
                     <!-- New allocation -->
-                    <form th:action="@{'/a/create' + ${id}}">
+                    <form   method="post"
+                            th:action="@{'/a/create/function' + ${id} + '/' + ${newAllocation.workerId}}"
+                            th:object="${newAllocation}" th:method="POST" novalidate>
                         <th:block>
                             <tr class="function-allocation-new function-allocation-new-hidden function-allocation">
                                 <td class="function-allocation-cell">
                                     <label>
-                                        <select class="function-allocations-select"
-                                                th:name="director" field="*{employeeId}" disabled="true">
-                                            <option th:each="emp : ${employees}" th:selected="${emp.getId()}"
-                                                    th:value="${emp.getId()}"
+                                        <select class="function-allocations-select" th:field="*{workerId}"
+                                                disabled="disabled" id="workerId" name="workerId">
+                                            <option th:each="emp : ${employees}" th:value="${emp.getId()}"
                                                     th:text="${emp.getLastName()} + ' ' + ${emp.getFirstName()}">
                                             </option>
                                         </select>
@@ -259,52 +275,54 @@
                                 <td class="function-allocation-cell">
                                     <label>
                                         <input class="function-allocations-input" type="text"
-                                               th:name="role" th:value="${newAllocation.role}">
+                                               th:name="role" th:field="*{role}"
+                                               onchange="onRequiredNewAllocationChange(this)">
+                                    </label>
+                                </td>
+                                <td class="function-allocation-cell">
+                                    <label>
+                                        <input class="function-allocations-input" type="date"
+                                               th:name="dateFrom" th:field="*{dateFrom}"
+                                               onchange="onRequiredNewAllocationChange(this)">
+                                    </label>
+                                </td>
+                                <td class="function-allocation-cell">
+                                    <label>
+                                        <input class="function-allocations-input" type="date"
+                                               th:name="dateUntil" th:field="*{dateUntil}"
+                                               onchange="onRequiredNewAllocationChange(this)">
                                     </label>
                                 </td>
                                 <td class="function-allocation-cell">
                                     <label>
                                         <input class="function-allocations-input" type="text"
-                                               th:name="dateFrom"
-                                               th:value="${#dates.format(newAllocation.dateFrom, 'dd-MM-yyyy')}">
+                                               th:name="time" th:field="*{allocationScope}"
+                                               onchange="onRequiredNewAllocationChange(this)">
                                     </label>
                                 </td>
                                 <td class="function-allocation-cell">
                                     <label>
                                         <input class="function-allocations-input" type="text"
-                                               th:name="dateUntil"
-                                               th:value="${#dates.format(newAllocation.dateUntil, 'dd-MM-yyyy')}">
+                                               th:name="isCertain" th:field="*{isCertain}"
+                                               onchange="onRequiredNewAllocationChange(this)">
                                     </label>
                                 </td>
                                 <td class="function-allocation-cell">
                                     <label>
                                         <input class="function-allocations-input" type="text"
-                                               th:name="time"
-                                               th:value="${newAllocation.allocationScope}">
-                                    </label>
-                                </td>
-                                <td class="function-allocation-cell">
-                                    <label>
-                                        <input class="function-allocations-input" type="text"
-                                               th:name="time" th:value="${newAllocation.allocationScope}">
-                                    </label>
-                                </td>
-                                <td class="function-allocation-cell">
-                                    <label>
-                                        <input class="function-allocations-input" type="text"
-                                               th:name="description"
-                                               th:value="${newAllocation.description}">
+                                               th:name="description" th:field="*{description}"
+                                               onchange="onRequiredNewAllocationChange(this)">
                                     </label>
                                 </td>
                                 <td>
                                     <button class="btn btn-confirm-new-all" type="submit"
-                                            style="visibility: visible" th:formaction="'/a/create/' + ${id}"></button>
+                                            style="visibility: visible" th:formaction="'/a/create/function/' + ${id} + '/' + ${newAllocation.workerId}"></button>
                                 </td>
                                 <td>
                                     <label>
                                         <label>
                                             <input type="text" name="functionId"  style="display : none"
-                                                   field="*{functionId}" th:value="${id}" disabled="true">
+                                                   field="*{functionId}" th:value="${id}" disabled="disabled">
                                         </label>
                                     </label>
                                 </td>
@@ -331,6 +349,10 @@
             <table class="table">
                 <thead>
                 <tr class="function-row-header">
+                    <!-- Labels -->
+                    <td class="function-row-year" th:colspan="16" th:id="${0}"></td>
+                </tr>
+                <tr class="function-row-header">
                     <td style="text-align: left" th:text="#{view.function_detail.members.table.name}"></td>
                     <td class="btn-left"></td>
                     <td class="function-detail-table-cell" th:text="#{month.january}"></td>
@@ -345,9 +367,7 @@
                     <td class="function-detail-table-cell" th:text="#{month.october}"></td>
                     <td class="function-detail-table-cell" th:text="#{month.november}"></td>
                     <td class="function-detail-table-cell" th:text="#{month.december}"></td>
-                    <td class="btn-right">
-
-                    </td>
+                    <td class="btn-right"></td>
                 </tr>
                 </thead>
                 <tbody>
@@ -420,6 +440,7 @@
 
     // Pole uzivatelu
     let employees = [[${employees}]];
+    let allocations = [[${allocations}]];
 
     // Radek nove alokace
     let new_allocation = document.getElementsByClassName("function-allocation-new");
@@ -446,13 +467,12 @@
         let buttonsCancel = document.getElementsByClassName("btn-cancel");
         let buttonsCancelNewAll = document.getElementsByClassName("btn-cancel-new-all");
         let trs = document.getElementsByClassName("function-allocation");
-        console.log('trs: ' + trs.length)
 
         for (let i = 0; i < buttonsConfirmNewAll.length; ++i) {
             let select = trs[i].getElementsByClassName("function-allocations-select");
-            Array.from(select).forEach(function (td) {
-                td.removeAttribute('disabled');
-            });
+            // Array.from(select).forEach(function (td) {
+            //     td.removeAttribute('disabled');
+            // });
 
             buttonsConfirmNewAll[i].addEventListener("click", function (evt) {
                 if (allocation_being_added)
@@ -512,6 +532,7 @@
                 let select = function_allocations[i].getElementsByClassName("function-allocations-select");
                 Array.from(select).forEach(function(td) {
                     td.setAttribute('disabled', 'disabled');
+                    select.value = allocations[i].workerId;
                 });
 
                 let tds = function_allocations[i].getElementsByClassName("function-allocations-input");
@@ -521,6 +542,13 @@
                     buttonsCancel[i].style.visibility = 'hidden';
                     buttonsEdit[i].style.visibility = 'visible'
                 });
+
+                tds[0].value = allocations[i].role;
+                tds[1].value = allocations[i].dateFrom;
+                tds[2].value = allocations[i].dateUntil
+                tds[3].value = allocations[i].allocationScope;
+                tds[4].value = allocations[i].isCertain;
+                tds[5].value = allocations[i].description;
             });
         }
     });
@@ -638,41 +666,6 @@
         }
     }
 
-    function empty(message) {
-        var x;
-        console.log(message);
-        x = document.getElementById("shortcut").value;
-        if (x === "") {
-            window.location.replace(location.protocol + '//' + location.host + location.pathname + '?edit=failure');
-            return false;
-        }
-        x = document.getElementById("name").value;
-        if (x === "") {
-            window.location.replace(location.protocol + '//' + location.host + location.pathname + '?edit=failure');
-            return false;
-        }
-        x = document.getElementById("director").value;
-        if (x === "") {
-            window.location.replace(location.protocol + '//' + location.host + location.pathname + '?edit=failure');
-            return false;
-        }
-        x = document.getElementById("from").value;
-        if (x === "") {
-            window.location.replace(location.protocol + '//' + location.host + location.pathname + '?edit=failure');
-            return false;
-        }
-        x = document.getElementById("until").value;
-        if (x === "") {
-            window.location.replace(location.protocol + '//' + location.host + location.pathname + '?edit=failure');
-            return false;
-        }
-        x = document.getElementById("workplace").value;
-        if (x === "") {
-            window.location.replace(location.protocol + '//' + location.host + location.pathname + '?edit=failure');
-            return false;
-        }
-    }
-
     function clearRow(tr) {
         let select = tr.getElementsByClassName('function-allocations-select');
         select.value = employees[0].id;
@@ -683,6 +676,85 @@
         input[3].value = default_time;
         input[4].value = default_time_av;
         input[5].value = default_description;
+    }
+
+    let requiredDetailNotFilled = 0;
+
+    function onRequiredDetailChange(element) {
+        let btn = document.getElementsByClassName('form-submit');
+        console.log('Jsem tu');
+        if (element.value === '') {
+            if (requiredDetailNotFilled === 0)
+                btn[0].disabled = true;
+            requiredDetailNotFilled++;
+            element.classList.add('function-allocations-input-empty');
+            return false;
+        } else {
+            element.classList.remove('function-allocations-input-empty');
+            requiredDetailNotFilled--;
+            if (requiredDetailNotFilled === 0)
+                btn[0].disabled = false;
+        }
+    }
+
+    let trs = document.getElementsByClassName("function-allocation");
+    let requiredAllocationNotFilled = new Array(trs.length);
+    for (let i = 0; i < function_allocations.length; ++i)
+        requiredAllocationNotFilled[i] = 0;
+
+    function onRequiredAllocationChange(element, allIndex) {
+        let btn = trs[allIndex].getElementsByClassName('btn-confirm');
+        if (element.value === '') {
+            if (requiredAllocationNotFilled[allIndex] === 0)
+                btn[0].disabled = true;
+            requiredAllocationNotFilled[allIndex]++;
+            element.classList.add('function-allocations-input-empty');
+            return false;
+        } else {
+            element.classList.remove('function-allocations-input-empty');
+            requiredAllocationNotFilled[allIndex]--;
+            if (requiredAllocationNotFilled[allIndex] === 0)
+                btn[0].disabled = false;
+        }
+    }
+
+    let requiredNewAllocationNotFilled = 0;
+
+    function onRequiredNewAllocationChange(element) {
+        let btn = document.getElementsByClassName('submit-btn');
+        if (element.value === '') {
+            if (requiredNewAllocationNotFilled === 0)
+                btn[0].disabled = true;
+            requiredNewAllocationNotFilled++;
+            element.classList.add('function-allocations-input-empty');
+            return false;
+        } else {
+            element.classList.remove('function-allocations-input-empty');
+            requiredNewAllocationNotFilled--;
+            if (requiredNewAllocationNotFilled === 0)
+                btn[0].disabled = false;
+        }
+    }
+
+    // Zkontroluje povinna pole detailu funkce pri aktualizaci
+    function checkAllocation(allocationId) {
+        let trs = document.getElementsByClassName("function-allocation");
+        let select = trs[allocationId].getElementsByClassName("function-allocations-select");
+        Array.from(select).forEach(function (td) {
+            td.setAttribute('disabled', 'disabled');
+        });
+
+        let tds = trs[allocationId].getElementsByClassName("function-allocations-input");
+        Array.from(tds).forEach(function (td) {
+            if (td.value === '') {
+                td.classList.add('function-allocations-input-empty');
+                return false;
+            }
+        });
+
+        select = document.getElementById('allocationSelect' + allocationId);
+        let realInput = document.getElementById('workerId' + allocationId);
+        realInput.value = select.options[select.selectedIndex].value;
     }
 
 </script>

@@ -111,7 +111,8 @@ public class JdbcEmployeeRepository implements IEmployeeRepository {
         var sql = """
                 UPDATE employee
                 SET emp_enabled = :emp_enabled, emp_workplace_id = :emp_workplace_id, emp_first_name = :emp_first_name,
-                 emp_last_name = :emp_last_name, emp_orion_login = :emp_orion_login, emp_email = :emp_email, emp_description = :emp_description
+                 emp_last_name = :emp_last_name, emp_orion_login = :emp_orion_login, emp_email = :emp_email, 
+                 emp_description = :emp_description
                 WHERE emp_enabled=:emp_enabled AND employee_id = :employee_id
                 """;
 
@@ -132,7 +133,7 @@ public class JdbcEmployeeRepository implements IEmployeeRepository {
         var params = new MapSqlParameterSource();
         params.addValue(IS_ENABLED, 1);
         params.addValue(EMPLOYEE_ID, employeeId);
-        params.addValue("remove", true);
+        params.addValue("remove", false);
 
         var allocations = allocationRepository.fetchEmployeeAllocations(employeeId);
         allocations.forEach(allocation -> allocationRepository.removeAllocation(employeeId));

@@ -196,6 +196,7 @@ public class JdbcFunctionRepository implements IFunctionRepository {
     }
 
     private MapSqlParameterSource prepareParams(Function function) {
+
         var params = new MapSqlParameterSource();
         params.addValue("fnc_enabled", 1);
         params.addValue("fnc_name", function.getName());

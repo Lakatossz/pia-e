@@ -16,6 +16,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.time.Instant;
+import java.util.Date;
+import java.time.LocalDate;
+
 @RunWith(SpringRunner.class)
 @AutoConfigureMockMvc
 @SpringBootTest
@@ -30,8 +34,19 @@ public class UserManagementTest {
     @Test
     public void test_create_user_if_unique() {
         String rng = RandomStringUtils.random(5, true, false);
-//        employeeService.createEmployee(new EmployeeVO(rng, rng, rng + "@email.com", rng, 1L, "test"));
-//        Assertions.assertDoesNotThrow(() -> securityService.createUser(rng, "test"));
+        employeeService.createEmployee(new EmployeeVO(
+                0,
+                rng,
+                rng,
+                rng,
+                rng + "@email.com",
+                1L,
+                rng,
+                Date.from(Instant.from(LocalDate.now())),
+                1L,
+                1L,
+                "test"));
+        Assertions.assertDoesNotThrow(() -> securityService.createUser(rng, "test"));
     }
 
     @Test
@@ -42,9 +57,20 @@ public class UserManagementTest {
     @Test
     public void test_update_user_password_if_exists() {
         String rng = RandomStringUtils.random(5, true, false);
-//        employeeService.createEmployee(new EmployeeVO(rng, rng, rng + "@email.com", rng, 1L, "test"));
-//        securityService.createUser(rng, "test");
-//        Assertions.assertDoesNotThrow(() -> securityService.updateUserPassword(rng, "test"));
+        employeeService.createEmployee(new EmployeeVO(
+                0,
+                rng,
+                rng,
+                rng,
+                rng + "@email.com",
+                1L,
+                rng,
+                Date.from(Instant.from(LocalDate.now())),
+                1L,
+                1L,
+                "test"));
+        securityService.createUser(rng, "test");
+        Assertions.assertDoesNotThrow(() -> securityService.updateUserPassword(rng, "test"));
     }
 
     @Test
@@ -55,18 +81,40 @@ public class UserManagementTest {
     @Test
     public void test_if_user_has_temporary_password() {
         String rng = RandomStringUtils.random(5, true, false);
-//        employeeService.createEmployee(new EmployeeVO(rng, rng, rng + "@email.com", rng, 1L, "test"));
-//        securityService.createUser(rng, "test");
-//        Assertions.assertTrue(securityService.isTemporary(rng));
+        employeeService.createEmployee(new EmployeeVO(
+                0,
+                rng,
+                rng,
+                rng,
+                rng + "@email.com",
+                1L,
+                rng,
+                Date.from(Instant.from(LocalDate.now())),
+                1L,
+                1L,
+                "test"));
+        securityService.createUser(rng, "test");
+        Assertions.assertTrue(securityService.isTemporary(rng));
     }
 
     @Test
     public void test_if_user_does_not_have_temporary_password() {
         String rng = RandomStringUtils.random(5, true, false);
-//        employeeService.createEmployee(new EmployeeVO(rng, rng, rng + "@email.com", rng, 1L, "test"));
-//        securityService.createUser(rng, "test");
-//        securityService.updateUserPassword(rng, "test");
-//        Assertions.assertFalse(securityService.isTemporary(rng));
+        employeeService.createEmployee(new EmployeeVO(
+                0,
+                rng,
+                rng,
+                rng,
+                rng + "@email.com",
+                1L,
+                rng,
+                Date.from(Instant.from(LocalDate.now())),
+                1L,
+                1L,
+                "test"));
+        securityService.createUser(rng, "test");
+        securityService.updateUserPassword(rng, "test");
+        Assertions.assertFalse(securityService.isTemporary(rng));
     }
 
     @WithMockUser("admin")

@@ -5,6 +5,7 @@ import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Course;
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Employee;
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Function;
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Project;
+import cz.zcu.kiv.mjakubas.piae.sem.core.domain.TermState;
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.payload.AllocationPayload;
 import cz.zcu.kiv.mjakubas.piae.sem.core.repository.IAllocationRepository;
 import cz.zcu.kiv.mjakubas.piae.sem.core.repository.ICourseRepository;
@@ -13,21 +14,21 @@ import cz.zcu.kiv.mjakubas.piae.sem.core.repository.IFunctionRepository;
 import cz.zcu.kiv.mjakubas.piae.sem.core.repository.IProjectRepository;
 import cz.zcu.kiv.mjakubas.piae.sem.core.rules.AllocationInterval;
 import cz.zcu.kiv.mjakubas.piae.sem.core.rules.AllocationRule;
-import cz.zcu.kiv.mjakubas.piae.sem.core.service.ServiceException;
+import cz.zcu.kiv.mjakubas.piae.sem.core.service.MyUtils;
+import cz.zcu.kiv.mjakubas.piae.sem.core.exceptions.ServiceException;
 import cz.zcu.kiv.mjakubas.piae.sem.core.vo.AllocationVO;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.util.*;
 
 /**
  * Service for working with allocations.
  */
 @Service
-@Transactional(readOnly = true)
+@Transactional()
 @AllArgsConstructor
 public class AllocationService {
 
@@ -36,6 +37,7 @@ public class AllocationService {
     private final ICourseRepository courseRepository;
     private final IFunctionRepository functionRepository;
     private final IEmployeeRepository employeeRepository;
+    private final MyUtils utils = new MyUtils();
 
     /**
      * Creates new assignment. Throws SQL or Service exceptions if data validity fails.
@@ -51,14 +53,15 @@ public class AllocationService {
 //            throw new ServiceException();
 
         Allocation allocation = new Allocation()
-                .worker(new Employee().id(allocationVO.getEmployeeId()))
+                .worker(new Employee().id(allocationVO.getWorkerId()))
                 .project(new Project().id(allocationVO.getProjectId()))
                 .course(new Course().id(allocationVO.getCourseId()))
                 .function(new Function().id(allocationVO.getFunctionId()))
                 .role(allocationVO.getRole())
                 .allocationScope(scope)
-                .dateFrom(allocationVO.getDateFrom())
-                .dateUntil(allocationVO.getDateUntil())
+                .dateFrom(utils.convertToDate(allocationVO.getDateFrom()))
+                .dateUntil(utils.convertToDate(allocationVO.getDateUntil()))
+                .term(TermState.getByValue(allocationVO.getTerm()))
                 .description(allocationVO.getDescription())
                 .active(allocationVO.getIsActive());
 
@@ -91,22 +94,28 @@ public class AllocationService {
 
         Allocation allocation = assignmentRepository.fetchAllocation(id);
 
-        allocation.worker(new Employee().id(allocationVO.getEmployeeId()))
+        allocation = allocation.worker(new Employee().id(allocationVO.getWorkerId()))
                 .role(allocationVO.getRole())
                 .allocationScope(scope)
                 .description(allocationVO.getDescription())
                 .active(Boolean.TRUE);
 
         if (allocationVO.getDateFrom() != null && allocationVO.getDateUntil() != null) {
-            allocation.dateFrom(allocationVO.getDateFrom()).dateUntil(allocationVO.getDateUntil());
+            allocation
+                    .dateFrom(utils.convertToDate(allocationVO.getDateFrom()))
+                    .dateUntil(utils.convertToDate(allocationVO.getDateUntil()));
         }
 
+        allocation = allocation
+                .dateFrom(utils.convertToDate(allocationVO.getDateFrom()))
+                .dateUntil(utils.convertToDate(allocationVO.getDateUntil()));
+
         if (allocationVO.getProjectId() > 0) {
-            allocation.project(projectRepository.fetchProject(allocationVO.getProjectId()));
+            allocation = allocation.project(projectRepository.fetchProject(allocationVO.getProjectId()));
         } else if (allocationVO.getCourseId() > 0) {
-            allocation.course(courseRepository.fetchCourse(allocationVO.getCourseId()));
+            allocation = allocation.course(courseRepository.fetchCourse(allocationVO.getCourseId()));
         } else {
-            allocation.function(functionRepository.fetchFunction(allocationVO.getFunctionId()));
+            allocation = allocation.function(functionRepository.fetchFunction(allocationVO.getFunctionId()));
         }
 
 //        if (Boolean.TRUE.equals(allocationVO.getIsActive())) {
@@ -539,6 +548,7 @@ public class AllocationService {
                     .id(a.getId())
                     .dateFrom(a.getDateFrom())
                     .dateUntil(a.getDateUntil())
+                    .term(a.getTerm())
                     .worker(worker)
                     .project(a.getProject())
                     .course(a.getCourse())
@@ -562,5 +572,9 @@ public class AllocationService {
      */
     public Allocation getAllocation(long id) {
         return assignmentRepository.fetchAllocation(id);
+    }
+
+    public boolean removeAllocation(long id) {
+       return assignmentRepository.removeAllocation(id);
     }
 }

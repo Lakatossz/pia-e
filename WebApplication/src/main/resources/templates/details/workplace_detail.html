@@ -21,7 +21,7 @@
 <body>
 <div th:replace="~{fragments/navbar}">Navbar</div>
 
-<div class="container-fluid">
+<div class="container-fluid content">
     <!-- content -->
     <div class="container">
         <!-- alerts -->
@@ -54,6 +54,7 @@
                         <label class="workplace-detail-label" for="shortcut"
                                th:text="#{view.workplace_detail.shortcut}" th:required="true"/>
                         <input class="workplace-detail-input" type="text"
+                               onchange="onRequiredDetailChange(this)" th:required="true"
                                id="shortcut" name="shortcut" th:field="*{abbreviation}">
                     </td>
                 </tr>
@@ -62,6 +63,7 @@
                         <label class="workplace-detail-label" for="name"
                                th:text="#{view.workplace_detail.name}" th:required="true"/>
                         <input class="workplace-detail-input" type="text"
+                               onchange="onRequiredDetailChange(this)" th:required="true"
                                id="name" name="name" th:field="*{name}">
                     </td>
                 </tr>
@@ -88,8 +90,7 @@
                 </tr>
                 <tr>
                     <td class="flex-duo">
-                        <input id="form-submit" class="workplace-detail-btn"
-                               th:attr="onclick=|return empty('#{view.workplace_detail.submit.empty}')|"
+                        <input id="form-submit" class="workplace-detail-btn form-submit"
                                th:formaction="'/w/' + ${id} + '/edit'" type="submit"
                                th:value="#{view.workplace_detail.submit}">
                         <!-- an delete button link -->
@@ -111,18 +112,21 @@
 </body>
 
 <script>
-    function empty(message) {
-        var x;
-        console.log(message);
-        x = document.getElementById("shortcut").value;
-        if (x === "") {
-            window.location.replace(location.protocol + '//' + location.host + location.pathname + '?edit=failure');
+    let requiredDetailNotFilled = 0;
+
+    function onRequiredDetailChange(element) {
+        let btn = document.getElementsByClassName('form-submit');
+        if (element.value === '') {
+            if (requiredDetailNotFilled === 0)
+                btn[0].disabled = true;
+            requiredDetailNotFilled++;
+            element.classList.add('workplace-detail-input-empty');
             return false;
-        }
-        x = document.getElementById("name").value;
-        if (x === "") {
-            window.location.replace(location.protocol + '//' + location.host + location.pathname + '?edit=failure');
-            return false;
+        } else {
+            element.classList.remove('workplace-detail-input-empty');
+            requiredDetailNotFilled--;
+            if (requiredDetailNotFilled === 0)
+                btn[0].disabled = false;
         }
     }
 

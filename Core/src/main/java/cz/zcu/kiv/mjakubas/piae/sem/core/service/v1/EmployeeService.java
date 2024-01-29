@@ -5,17 +5,14 @@ import cz.zcu.kiv.mjakubas.piae.sem.core.domain.ActivityAllocationDetail;
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Allocation;
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.AllocationCell;
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Employee;
+import cz.zcu.kiv.mjakubas.piae.sem.core.domain.MergingObject;
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Workplace;
 import cz.zcu.kiv.mjakubas.piae.sem.core.repository.IAllocationRepository;
 import cz.zcu.kiv.mjakubas.piae.sem.core.repository.IEmployeeRepository;
-import cz.zcu.kiv.mjakubas.piae.sem.core.service.ServiceException;
+import cz.zcu.kiv.mjakubas.piae.sem.core.exceptions.ServiceException;
 import cz.zcu.kiv.mjakubas.piae.sem.core.vo.EmployeeVO;
 import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.NonNull;
-import lombok.Setter;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,7 +21,6 @@ import java.time.Period;
 import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.LinkedList;
@@ -115,6 +111,7 @@ public class EmployeeService {
                 .orionLogin(employeeVO.getOrionLogin())
                 .emailAddress(employeeVO.getEmailAddress())
                 .description(employeeVO.getDescription())
+                .dateCreated(employeeVO.getDateCreated())
                 .workplace(Workplace.builder()
                         .id(employeeVO.getWorkplaceId())
                         .build());
@@ -147,6 +144,7 @@ public class EmployeeService {
                 .orionLogin(employeeVO.getOrionLogin())
                 .emailAddress(employeeVO.getEmailAddress())
                 .description(employeeVO.getDescription())
+                .dateCreated(employeeVO.getDateCreated())
                 .workplace(Workplace.builder()
                         .id(employeeVO.getWorkplaceId())
                         .build());
@@ -155,9 +153,18 @@ public class EmployeeService {
             throw new ServiceException();
     }
 
+    /**
+     *
+     * @param id
+     */
     @Transactional
     public void removeEmployee(long id) {
-        return;
+        var allocations = allocationRepository.fetchEmployeeAllocations(id);
+        for (Allocation allocation : allocations) {
+            allocationRepository.removeAllocation(allocation.getId()); // TODO Tohle by mel jen admin
+        }
+
+        employeeRepository.removeEmployee(id);
     }
 
     /**
@@ -181,6 +188,11 @@ public class EmployeeService {
             throw new ServiceException();
     }
 
+    /**
+     *
+     * @param employees
+     * @return
+     */
     public List<Allocation> prepareFirst(List<Employee> employees) {
         List<Allocation> firstAllocations = new LinkedList<>();
         employees.forEach(employee -> {
@@ -199,6 +211,10 @@ public class EmployeeService {
         return firstAllocations;
     }
 
+    /**
+     *
+     * @param employee
+     */
     public void prepareAllocationsCells(Employee employee) {
         List<Allocation> projectAllocations = employee.getProjectsAllocations();
         List<MergingObject> projectAllocationsByFunctionAndRole = splitByRoleAndEmployeeId(projectAllocations, employee, Allocation::getProject);
@@ -218,6 +234,13 @@ public class EmployeeService {
         prepareTotalCells(employee);
     }
 
+    /**
+     *
+     * @param employee
+     * @param projectAllocationsByFunctionAndRole
+     * @param courseAllocationsByFunctionAndRole
+     * @param functionAllocationsByFunctionAndRole
+     */
     private void setFirstAndTotalByActitvitiesAllocations(Employee employee,
                                                           List<MergingObject> projectAllocationsByFunctionAndRole,
                                                           List<MergingObject> courseAllocationsByFunctionAndRole,
@@ -227,6 +250,11 @@ public class EmployeeService {
         setFirstAndTotal(employee, functionAllocationsByFunctionAndRole);
     }
 
+    /**
+     *
+     * @param employee
+     * @param allocationsByFunctionAndRole
+     */
     private void setFirstAndTotal(Employee employee, List<MergingObject> allocationsByFunctionAndRole) {
         for (MergingObject o : allocationsByFunctionAndRole) {
             if (employee.getNumberOfYears() == 0 && employee.getFirstYear() == Integer.MAX_VALUE) {
@@ -243,6 +271,12 @@ public class EmployeeService {
         }
     }
 
+    /**
+     *
+     * @param activitiesList
+     * @param certains
+     * @param uncertains
+     */
     private void addToTotal(ActivityAllocationDetail activitiesList,
                             List<AllocationCell> certains,
                             List<AllocationCell> uncertains) {
@@ -257,6 +291,10 @@ public class EmployeeService {
         }
     }
 
+    /**
+     *
+     * @param employee
+     */
     private void prepareTotalCells(Employee employee) {
         List<AllocationCell> certains = new java.util.ArrayList<>(Collections.nCopies(
                 (int)employee.getNumberOfYears() * 12, new AllocationCell()));
@@ -264,114 +302,17 @@ public class EmployeeService {
         List<AllocationCell> uncertains = new java.util.ArrayList<>(Collections.nCopies(
                 (int)employee.getNumberOfYears() * 12, new AllocationCell()));
 
-        for (ActivityAllocationDetail a : employee.getProjectOverviewAllocations()) {
+        for (ActivityAllocationDetail a : employee.getProjectOverviewAllocations())
             addToTotal(a, certains, uncertains);
-        }
 
-        for (ActivityAllocationDetail a : employee.getCourseOverviewAllocations()) {
+        for (ActivityAllocationDetail a : employee.getCourseOverviewAllocations())
             addToTotal(a, certains, uncertains);
-        }
 
-        for (ActivityAllocationDetail a : employee.getFunctionOverviewAllocations()) {
+        for (ActivityAllocationDetail a : employee.getFunctionOverviewAllocations())
             addToTotal(a, certains, uncertains);
-        }
-
-//        employee.getProjectOverviewAllocations().forEach(activityAllocationDetail
-//                -> addToTotal(activityAllocationDetail, certains, uncertains));
-//
-//        employee.getCourseOverviewAllocations().forEach(activityAllocationDetail
-//                -> addToTotal(activityAllocationDetail, certains, uncertains));
-//
-//        employee.getFunctionOverviewAllocations().forEach(activityAllocationDetail
-//                -> addToTotal(activityAllocationDetail, certains, uncertains));
-
-//        for (ActivityAllocationDetail activitiesList : employee.getCourseOverviewAllocations()) {
-//            for (int i = 0; i < activitiesList.getActivityAllocationCells().size(); ++i) {
-//                if (activitiesList.getActivityAllocationCells().get(i).getCertain() == 1) {
-//                    certains.set(i, new AllocationCell(
-//                            certains.get(i).getTime() + activitiesList.getActivityAllocationCells().get(i).getTime(), (float) 1.0));
-//                } else {
-//                    uncertains.set(i, new AllocationCell(
-//                            uncertains.get(i).getTime() + activitiesList.getActivityAllocationCells().get(i).getTime(), (float) 1.0));
-//                }
-//            }
-//        }
-//
-//        for (ActivityAllocationDetail activitiesList : employee.getProjectOverviewAllocations()) {
-//            for (int i = 0; i < activitiesList.getActivityAllocationCells().size(); ++i) {
-//                if (activitiesList.getActivityAllocationCells().get(i).getCertain() == 1) {
-//                    certains.set(i, new AllocationCell(
-//                            certains.get(i).getTime() + activitiesList.getActivityAllocationCells().get(i).getTime(), (float) 1.0));
-//                } else {
-//                    uncertains.set(i, new AllocationCell(
-//                            uncertains.get(i).getTime() + activitiesList.getActivityAllocationCells().get(i).getTime(), (float) 1.0));
-//                }
-//            }
-//        }
-//
-//        for (List<AllocationCell> l : employee.getCoursesAllocationCells()) {
-//            for (int i = 0; i < l.size(); ++i) {
-//                if (l.get(i).getCertain() == 1) {
-//                    certains.set(i, new AllocationCell(
-//                            certains.get(i).getTime() + l.get(i).getTime(), (float) 1.0));
-//                } else {
-//                    uncertains.set(i, new AllocationCell(
-//                            uncertains.get(i).getTime() + l.get(i).getTime(), (float) 1.0));
-//                }
-//            }
-//        }
-//
-//        for (List<AllocationCell> l : employee.getFunctionsAllocationCells()) {
-//            for (int i = 0; i < l.size(); ++i) {
-//                if (l.get(i).getCertain() == 1) {
-//                    certains.set(i, new AllocationCell(
-//                            certains.get(i).getTime() + l.get(i).getTime(), (float) 1.0));
-//                } else {
-//                    uncertains.set(i, new AllocationCell(
-//                            uncertains.get(i).getTime() + l.get(i).getTime(), (float) 1.0));
-//                }
-//            }
-//        }
 
         employee.totalCertainAllocationCells(certains);
         employee.totalUncertainAllocationCells(uncertains);
-        System.out.println("Employee: " + employee.getFirstName() + " certain: ");
-        for (AllocationCell cell : employee.getTotalCertainAllocationCells()) {
-            System.out.print(cell.getTime() + " ");
-        }
-
-        System.out.println();
-
-        System.out.println("Employee: " + employee.getFirstName() + " uncertain: ");
-        for (AllocationCell cell : employee.getTotalUncertainAllocationCells()) {
-            System.out.print(cell.getTime() + " ");
-        }
-
-        System.out.println();
-
-        System.out.println("Employee: " + employee.getFirstName() + " projects: ");
-        for (ActivityAllocationDetail activity : employee.getProjectOverviewAllocations()) {
-            System.out.println("Projekt: " + activity.getActivityName() + ", Role: " + activity.getActivityRole());
-            for (AllocationCell cell : activity.getActivityAllocationCells())
-                System.out.print(cell.getTime() + " ");
-            System.out.println();
-        }
-
-        System.out.println("Employee: " + employee.getFirstName() + " projects: ");
-        for (ActivityAllocationDetail activity : employee.getCourseOverviewAllocations()) {
-            System.out.println("Predmet: " + activity.getActivityName() + ", Role: " + activity.getActivityRole());
-            for (AllocationCell cell : activity.getActivityAllocationCells())
-                System.out.print(cell.getTime() + " ");
-            System.out.println();
-        }
-
-        System.out.println("Employee: " + employee.getFirstName() + " projects: ");
-        for (ActivityAllocationDetail activity : employee.getFunctionOverviewAllocations()) {
-            System.out.println("Funkce: " + activity.getActivityName() + ", Role: " + activity.getActivityRole());
-            for (AllocationCell cell : activity.getActivityAllocationCells())
-                System.out.print(cell.getTime() + " ");
-            System.out.println();
-        }
     }
 
     /**
@@ -387,17 +328,12 @@ public class EmployeeService {
         List<MergingObject> allocationsByActivityAndRole = new LinkedList<>();
 
         for (Allocation allocation : current) {
-            System.out.println("id: " + attributeSelector.apply(allocation).getId());
-            System.out.println("role: " + allocation.getRole());
-            System.out.println("time: " + allocation.getTime());
-            if (allocation.getProject().getName() != null)
-                System.out.println("nazev: " + allocation.getProject().getName());
             List<MergingObject> objects = allocationsByActivityAndRole.stream().filter(o ->
-                    o.getActivityId() == attributeSelector.apply(allocation).getId() && o.role.equals(allocation.getRole())).toList();
+                    o.getActivityId() == attributeSelector.apply(allocation).getId()
+                            && o.getRole().equals(allocation.getRole())).toList();
             if (objects.size() == 1) {
                 int index = allocationsByActivityAndRole.indexOf(objects.get(0));
                 allocationsByActivityAndRole.set(index, allocationsByActivityAndRole.get(index).allocations(allocation));
-                System.out.println("allocationsByActivityAndRole: " + allocationsByActivityAndRole.get(index).getAllocations().size());
             } else {
                 allocationsByActivityAndRole.add(
                         new MergingObject()
@@ -414,12 +350,23 @@ public class EmployeeService {
         return allocationsByActivityAndRole;
     }
 
+    /**
+     *
+     * @param dateToConvert
+     * @return
+     */
     public LocalDate convertToLocalDateTime(Date dateToConvert) {
         return dateToConvert.toInstant()
                 .atZone(ZoneId.systemDefault())
                 .toLocalDate();
     }
 
+    /**
+     *
+     * @param allocation
+     * @param cellsList
+     * @param firstYear
+     */
     private void addAllocationsPerMonth(Allocation allocation,
                                         List<AllocationCell> cellsList,
                                         int firstYear) {
@@ -437,6 +384,13 @@ public class EmployeeService {
         }
     }
 
+    /**
+     *
+     * @param allocationsByActivityAndRole
+     * @param totalFirstYear
+     * @param totalNumberOfYears
+     * @return
+     */
     private List<ActivityAllocationDetail> prepareAllocationCells(List<MergingObject> allocationsByActivityAndRole,
                                                               int totalFirstYear,
                                                               int totalNumberOfYears) {
@@ -445,23 +399,23 @@ public class EmployeeService {
             ActivityAllocationDetail allocationDetail = new ActivityAllocationDetail();
             int cellsSize = (12 * totalNumberOfYears);
             List<AllocationCell> cellsList = new java.util.ArrayList<>(Collections.nCopies(cellsSize, new AllocationCell()));
-            object.allocations.forEach(allocation -> addAllocationsPerMonth(allocation, cellsList, totalFirstYear));
+            object.getAllocations().forEach(allocation -> addAllocationsPerMonth(allocation, cellsList, totalFirstYear));
             allocationDetail.setActivityAllocationCells(cellsList);
-            if (object.allocations.get(0).getProject().getId() > 0) {
-                allocationDetail.setActivityId(object.allocations.get(0).getProject().getId());
-                allocationDetail.setActivityName(object.allocations.get(0).getProject().getName());
-                allocationDetail.setActivityCertain(object.allocations.get(0).getProject().getProbability()); // TODO mozna prumer?
-                allocationDetail.setActivityRole(object.allocations.get(0).getRole());
-            } else if (object.allocations.get(0).getCourse().getId() > 0) {
-                allocationDetail.setActivityId(object.allocations.get(0).getCourse().getId());
-                allocationDetail.setActivityName(object.allocations.get(0).getCourse().getShortcut());
-                allocationDetail.setActivityCertain(object.allocations.get(0).getCourse().getProbability());
-                allocationDetail.setActivityRole(object.allocations.get(0).getRole());
+            if (object.getAllocations().get(0).getProject().getId() > 0) {
+                allocationDetail.setActivityId(object.getAllocations().get(0).getProject().getId());
+                allocationDetail.setActivityName(object.getAllocations().get(0).getProject().getName());
+                allocationDetail.setActivityCertain(object.getAllocations().get(0).getProject().getProbability()); // TODO mozna prumer?
+                allocationDetail.setActivityRole(object.getAllocations().get(0).getRole());
+            } else if (object.getAllocations().get(0).getCourse().getId() > 0) {
+                allocationDetail.setActivityId(object.getAllocations().get(0).getCourse().getId());
+                allocationDetail.setActivityName(object.getAllocations().get(0).getCourse().getShortcut());
+                allocationDetail.setActivityCertain(object.getAllocations().get(0).getCourse().getProbability());
+                allocationDetail.setActivityRole(object.getAllocations().get(0).getRole());
             } else {
-                allocationDetail.setActivityId(object.allocations.get(0).getFunction().getId());
-                allocationDetail.setActivityName(object.allocations.get(0).getFunction().getName());
-                allocationDetail.setActivityCertain(object.allocations.get(0).getFunction().getProbability());
-                allocationDetail.setActivityRole(object.allocations.get(0).getRole());
+                allocationDetail.setActivityId(object.getAllocations().get(0).getFunction().getId());
+                allocationDetail.setActivityName(object.getAllocations().get(0).getFunction().getName());
+                allocationDetail.setActivityCertain(object.getAllocations().get(0).getFunction().getProbability());
+                allocationDetail.setActivityRole(object.getAllocations().get(0).getRole());
             }
             activityAllocationDetailList.add(allocationDetail);
         }
@@ -469,6 +423,12 @@ public class EmployeeService {
         return activityAllocationDetailList;
     }
 
+    /**
+     *
+     * @param employee
+     * @param allocationsByActivityAndRole
+     * @return
+     */
     public List<ActivityAllocationDetail> prepareActivityCells(Employee employee,
                                                            List<MergingObject> allocationsByActivityAndRole) {
 
@@ -478,6 +438,11 @@ public class EmployeeService {
                 (int) employee.getNumberOfYears());
     }
 
+    /**
+     *
+     * @param employee
+     * @param firstAllocations
+     */
     private void setProjectFirst(Employee employee, List<Allocation> firstAllocations) {
         if (employee.getProjectsAllocations().size() == 1) {
             firstAllocations.add(employee.getProjectsAllocations().remove(0));
@@ -490,6 +455,11 @@ public class EmployeeService {
         }
     }
 
+    /**
+     *
+     * @param employee
+     * @param firstAllocations
+     */
     private void setCourseFirst(Employee employee, List<Allocation> firstAllocations) {
         if (employee.getCoursesAllocations().size() == 1) {
             firstAllocations.add(employee.getCoursesAllocations().remove(0));
@@ -501,6 +471,11 @@ public class EmployeeService {
         }
     }
 
+    /**
+     *
+     * @param employee
+     * @param firstAllocations
+     */
     private void setFunctionFirst(Employee employee, List<Allocation> firstAllocations) {
         if (employee.getFunctionsAllocations().size() == 1) {
             firstAllocations.add(employee.getFunctionsAllocations().remove(0));
@@ -511,6 +486,10 @@ public class EmployeeService {
         }
     }
 
+    /**
+     *
+     * @param employee
+     */
     private void setAllocations(Employee employee) {
         List<Allocation> projectAllocations = new LinkedList<>(allocationRepository.fetchEmployeeAllocations(
                 employee.getId()).stream().filter(allocation -> allocation.getProject().getId() != 0
@@ -541,56 +520,18 @@ public class EmployeeService {
         employee.setFunctionsAllocations(functionAllocations);
     }
 
+    /**
+     *
+     * @param employee
+     * @return
+     */
     private float sumTime(Employee employee) {
 
-        return 1.0F;
-    }
+        float sum = 0;
 
-    @Data
-    @Getter
-    @Setter
-    @AllArgsConstructor
-    @NoArgsConstructor
-    private class MergingObject {
-        long activityId;
-        long employeeId;
-        String role;
-        long firstYear;
-        long numberOfYears;
-        List<Allocation> allocations = new LinkedList<>();
-        public MergingObject(String role, long employeeId, Allocation allocation) {
-            this.employeeId = employeeId;
-            this.role = role;
-            this.allocations.add(allocation);
-        }
+        for (Allocation allocation : employee.getAllocations())
+            sum += allocation.getTime();
 
-        public MergingObject allocations(Allocation allocations) {
-            this.allocations.add(allocations);
-            return this;
-        }
-
-        public MergingObject role(String role) {
-            this.role = role;
-            return this;
-        }
-
-        public MergingObject employeeId(long employeeId) {
-            this.employeeId = employeeId;
-            return this;
-        }
-
-        public MergingObject activityId(long activityId) {
-            this.activityId = activityId;
-            return this;
-        }
-
-        public void sortAllocationsByDate() {
-            allocations.sort(Comparator.comparing(Allocation::getDateFrom));
-            Calendar date = new GregorianCalendar();
-            date.setTime(allocations.get(0).getDateFrom());
-            firstYear = date.get(Calendar.YEAR);
-            date.setTime(allocations.get(allocations.size() - 1).getDateUntil());
-            numberOfYears = (date.get(Calendar.YEAR) - firstYear) + 1;
-        }
+        return sum;
     }
 }

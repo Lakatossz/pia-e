@@ -147,7 +147,7 @@ public class JdbcProjectRepository implements IProjectRepository {
                 """;
 
         var params = new MapSqlParameterSource();
-        params.addValue("pro_enabled", true);
+        params.addValue("pro_enabled", false);
         params.addValue(PROJECT_ID, projectId);
         params.addValue(IS_ENABLED, true);
 

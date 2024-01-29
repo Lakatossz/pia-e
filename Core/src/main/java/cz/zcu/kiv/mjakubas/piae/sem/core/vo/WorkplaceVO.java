@@ -19,6 +19,7 @@ import lombok.Setter;
 @Data
 public class WorkplaceVO {
 
+    private long id;
     private String name;
     private String abbreviation;
     private long manager;      // manager orion login

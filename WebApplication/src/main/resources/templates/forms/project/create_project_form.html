@@ -18,7 +18,7 @@
     <!-- jquery -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 </head>
-<body>
+<body onload="pageLoaded()">
 <div th:replace="~{fragments/navbar}">Navbar</div>
 
 <div class="container-fluid content">
@@ -45,7 +45,7 @@
 
         <h1 class="text-center mt-5" th:text="#{view.project_detail.header} + ' ' + ${project.getName()}"></h1>
 
-        <div class="project-detail-collapsible-header" style="display: flex">
+        <div>
             <h4>Detail</h4>
         </div>
 
@@ -58,6 +58,7 @@
                         <label class="project-detail-label" for="name"
                                th:text="#{view.project_detail.name}" th:required="true"/>
                         <input class="project-detail-input" type="text"
+                               onchange="onRequiredDetailChange(this)" th:required="true"
                                id="name" name="name" th:field="*{name}">
                     </td>
                 </tr>
@@ -78,6 +79,7 @@
                         <label class="project-detail-label" for="from"
                                th:text="#{view.project_detail.from}" th:required="true"/>
                         <input class="project-detail-input" type="date"
+                               onchange="onRequiredDetailChange(this)" th:required="true"
                                id="from" name="from" th:field="*{dateFrom}">
                     </td>
                 </tr>
@@ -86,6 +88,7 @@
                         <label class="project-detail-label" for="until"
                                th:text="#{view.project_detail.until}" th:required="true"/>
                         <input class="project-detail-input" type="date"
+                               onchange="onRequiredDetailChange(this)" th:required="true"
                                id="until" name="until" th:field="*{dateUntil}">
                     </td>
                 </tr>
@@ -118,6 +121,7 @@
                         <label class="project-detail-label" for="total_time"
                                th:text="#{view.project_detail.total_time}" th:required="true"/>
                         <input class="project-detail-input" type="number"
+                               onchange="onRequiredDetailChange(this)" th:required="true"
                                id="total_time" name="total_time" th:field="*{totalTime}">
                     </td>
                 </tr>
@@ -154,7 +158,7 @@
                     <td class="project-detail-div">
                         <label class="project-detail-label" for="budget"
                                th:text="#{view.project_detail.budget}"/>
-                        <input class="project-detail-input" type="text"
+                        <input class="project-detail-input" type="number"
                                id="budget" name="budget" th:field="*{budget}">
                     </td>
                 </tr>
@@ -177,8 +181,7 @@
                 </tr>
                 <tr>
                     <td class="flex-duo">
-                        <input id="form-submit" class="project-detail-btn"
-                               th:attr="onclick=|return empty('#{view.project_detail.submit.empty}')|"
+                        <input id="form-submit" class="project-detail-btn form-submit"
                                th:formaction="'/p/create'" type="submit"
                                th:value="#{view.project_detail.submit}">
                     </td>
@@ -193,323 +196,41 @@
 
 <script th:inline="javascript">
 
-    // Promenna pro zapis alokaci uzivatelu
-    let current_index = 0;
-
-    // Udrzuje hodnotu, zda-li je pridavana nova alokace - zobrazen radek pro vyplneni
-    let allocation_being_added = false;
-
-    let project = [[${project}]];
-
-    // Konstanty pro naplneni defaultniho pole nove alokace
-    const default_role = 'nový';
-    const default_date_from = project.dateFrom;
-    const default_date_until = project.dateUntil;
-    const default_time = 1.0;
-    const default_time_av = 1.0;
-    const default_description = 'description';
-
-    // Tlacitko pro collapse detailu
-    let project_collapse = document.querySelectorAll(".project-detail-collapsible-header");
-    Array.from(project_collapse).forEach(function (div) {
-        let button = document.createElement("button");
-        button.className = "btn collapsible btn-dropdown project-detail-collapse-btn";
-        button.addEventListener("click", function (evt) {
-            let collapse = document.getElementsByClassName("project-detail-collapse");
-            if (collapse[0].style.visibility === "visible") {
-                collapse[0].style.visibility = "collapse";
-            } else {
-                collapse[0].style.visibility = "visible";
-            }
-            if (this.classList.contains("btn-dropdown")) {
-                this.classList.remove("btn-dropdown");
-                this.classList.add("btn-dropdown-clicked");
-            } else {
-                this.classList.add("btn-dropdown");
-                this.classList.remove("btn-dropdown-clicked");
-            }
-        });
-        div.append(button);
-    });
-
     // Pole uzivatelu
     let employees = [[${employees}]];
 
-    // Tabulka alokaci projektu
-    let project_allocations = document.getElementsByClassName("table-add");
+    let requiredDetailNotFilled = 0;
 
-    // Radek nove alokace
-    let new_allocation = document.getElementsByClassName("project-allocation-new");
-
-    // Tlacitko pro zobrazeni radku pro vyplneni nove alokace
-    let add_button = document.getElementsByClassName("btn-add");
-    Array.from(add_button).forEach(function (button) {
-        button.addEventListener('click', function () {
-            if (!allocation_being_added) {
-                allocation_being_added = true;
-                Array.from(new_allocation).forEach(function (allocation) {
-                    console.log('Tady jsem');
-                    allocation.classList.remove('project-allocation-new-hidden');
-                    allocation.classList.add('project-allocation-new-display');
-                });
-            }
-        })
-    });
-
-    Array.from(project_allocations).forEach(function (trArray) {
-        let buttonsEdit = document.getElementsByClassName("btn-edit");
-        let buttonsConfirm = document.getElementsByClassName("btn-confirm");
-        let buttonsConfirmNewAll = document.getElementsByClassName("btn-confirm-new-all");
-        let buttonsCancel = document.getElementsByClassName("btn-cancel");
-        let buttonsCancelNewAll = document.getElementsByClassName("btn-cancel-new-all");
-        let trs = document.getElementsByClassName("project-allocations");
-        for (let i = 0; i < buttonsConfirmNewAll.length; ++i) {
-            let select = trs[i].getElementsByClassName("project-allocations-select");
-            Array.from(select).forEach(function (td) {
-                td.removeAttribute('disabled');
-            });
-
-            buttonsConfirmNewAll[i].addEventListener("click", function (evt) {
-                if (allocation_being_added)
-                    allocation_being_added = false;
-
-                Array.from(new_allocation).forEach(function (allocation) {
-                    clearRow(allocation);
-                    allocation.classList.remove('project-allocation-new-display');
-                    allocation.classList.add('project-allocation-new-hidden');
-                });
-            });
-
-            buttonsCancelNewAll[i].addEventListener("click", function (evt) {
-                if (allocation_being_added)
-                    allocation_being_added = false;
-
-                Array.from(new_allocation).forEach(function (allocation) {
-                    clearRow(allocation);
-                    allocation.classList.remove('project-allocation-new-display');
-                    allocation.classList.add('project-allocation-new-hidden');
-                });
-            });
+    function onRequiredDetailChange(element) {
+        let btn = document.getElementsByClassName('form-submit');
+        console.log('element.value:' + element.value);
+        if (element.value === '') {
+            if (requiredDetailNotFilled === 0)
+                btn[0].disabled = true;
+            requiredDetailNotFilled++;
+            element.classList.add('project-detail-input-empty');
+            return false;
+        } else {
+            element.classList.remove('project-detail-input-empty');
+            requiredDetailNotFilled--;
+            if (requiredDetailNotFilled === 0)
+                btn[0].disabled = false;
         }
+    }
 
-        for (let i = 0; i < buttonsEdit.length; ++i) {
-            buttonsEdit[i].addEventListener("click", function (evt) {
-                let select = trs[i].getElementsByClassName("project-allocations-select");
-                Array.from(select).forEach(function (td) {
-                    td.removeAttribute('disabled');
-                });
-
-                let tds = trs[i].getElementsByClassName("project-allocations-input");
-                Array.from(tds).forEach(function (td) {
-                    td.removeAttribute("readonly");
-                    buttonsConfirm[i].style.visibility = "visible";
-                    buttonsCancel[i].style.visibility = "visible";
-                    buttonsEdit[i].style.visibility = "hidden";
-                });
-            });
-
-            buttonsConfirm[i].addEventListener("click", function (evt) {
-                // if (allocation_being_added)
-                //     allocation_being_added = false;
-
-                let select = trs[i].getElementsByClassName("project-allocations-select");
-                Array.from(select).forEach(function (td) {
-                    td.setAttribute('disabled', 'disabled');
-                });
-
-                let tds = trs[i].getElementsByClassName("project-allocations-input");
-                Array.from(tds).forEach(function (td) {
-                    td.setAttribute('readonly', 'readonly');
-                    buttonsConfirm[i].style.visibility = 'hidden';
-                    buttonsCancel[i].style.visibility = 'hidden';
-                    buttonsEdit[i].style.visibility = 'visible';
-                });
-            });
-
-            buttonsCancel[i].addEventListener("click", function (evt) {
-                let select = trs[i].getElementsByClassName("project-allocations-select");
-                Array.from(select).forEach(function (td) {
-                    td.setAttribute('disabled', 'disabled');
-                });
-
-                let tds = trs[i].getElementsByClassName("project-allocations-input");
-                Array.from(tds).forEach(function (td) {
-                    td.setAttribute('readonly', 'readonly');
-                    buttonsConfirm[i].style.visibility = 'hidden';
-                    buttonsCancel[i].style.visibility = 'hidden';
-                    buttonsEdit[i].style.visibility = 'visible'
-                });
-            });
-        }
-    });
-
-    // Handling table with month allocation of every worker
-
-    let monthlyAllocations = [[${monthlyAllocations}]];
-    let certainAllocations = [[${certainAllocations}]];
-    let uncertainAllocations = [[${uncertainAllocations}]];
-
-    let certain_times = document.getElementsByClassName("project-certain-times");
-    let uncertain_times = document.getElementsByClassName("project-uncertain-times");
-    let projects_times = document.getElementsByClassName("project-detail-times");
-
-    let index = 0;
-    const opts = {minimumFractionDigits: 1};
-    let numberOfYears = monthlyAllocations[0].length / 12;
-
-    Array.from(certain_times).forEach(function (trArray) {
-        if (certainAllocations.length > index && certainAllocations.length > 0) {
-            for (let j = 0; j < 12; ++j) {
-                let td = document.createElement("td");
-                td.className = "main-cell-times-values-certain project-cell-times-values";
-                td.innerHTML = (certainAllocations[j].time).toLocaleString(undefined, opts).replace(',', '.');
-                trArray.append(td);
-            }
-            let td = document.createElement("td");
-            td.className = "project-detail-table-cell";
-            trArray.append(td);
-        }
-        index++;
-    });
-
-    index = 0;
-
-    Array.from(uncertain_times).forEach(function (trArray) {
-        if (uncertainAllocations.length > index && uncertainAllocations.length > 0) {
-            for (let j = 0; j < 12; ++j) {
-                let td = document.createElement("td");
-                td.className = "main-cell-times-values-uncertain project-cell-times-values";
-                td.innerHTML = (uncertainAllocations[j].time).toLocaleString(undefined, opts).replace(',', '.');
-                trArray.append(td);
-            }
-            let td = document.createElement("td");
-            trArray.append(td);
-        }
-        index++;
-    });
-
-    index = 0;
-
-    Array.from(projects_times).forEach(function (trArray) {
-        if (monthlyAllocations.length > index && monthlyAllocations[index].length > 0) {
-            let last = monthlyAllocations[index][0].time;
-            for (let j = 0; j < 12; ++j) {
-                let td = document.createElement("td");
-                if (last !== monthlyAllocations[index][j].time) {
-                    last = monthlyAllocations[index][j].time;
-                    td.style.backgroundColor = "darkgoldenrod";
-                } else
-                    td.style.backgroundColor = "white";
-                td.className = "project-detail-project-times project-cell-times-values";
-                td.innerHTML = (monthlyAllocations[index][j].time)
-                    .toLocaleString(undefined, opts).replace(',', '.');
-                trArray.append(td);
-            }
-            let td = document.createElement("td");
-            trArray.append(td);
-        }
-        index++;
-    });
-
-    let left_btns = document.getElementsByClassName("btn-left");
-    left_btns[0].classList.add("btn");
-    left_btns[0].addEventListener("click", function (evt) {
-        if (current_index > 0 && current_index !== undefined) {
-            current_index--;
-            renderTimes(certain_times, uncertain_times, projects_times);
-        }
-    });
-
-    let right_btns = document.getElementsByClassName("btn-right");
-    right_btns[0].classList.add("btn");
-    right_btns[0].addEventListener("click", function (evt) {
-        if ((current_index + 1) < numberOfYears && current_index !== undefined) {
-            current_index++;
-            renderTimes(certain_times, uncertain_times, projects_times);
-        }
-    });
-
-    //
-
-    function renderTimes(certain_times, uncertain_times, projects_times) {
-        let certain_times_tds = certain_times[0].getElementsByClassName("main-cell-times-values-certain");
-        let uncertain_times_tds = uncertain_times[0].getElementsByClassName("main-cell-times-values-uncertain");
-        for (let j = 0; j < 12; ++j) {
-            certain_times_tds[j].innerHTML = (certainAllocations[current_index * 12 + j].time)
-                .toLocaleString(undefined, opts).replace(',', '.');
-            uncertain_times_tds[j].innerHTML = (uncertainAllocations[current_index * 12 + j].time)
-                .toLocaleString(undefined, opts).replace(',', '.');
-        }
-
-        for (let i = 0; i < projects_times.length; ++i) {
-            let indexOfLast = ((current_index - 1) * 12 + 11 > 0) ? (current_index - 1) * 12 + 11 : 0;
-            let last = monthlyAllocations[i][indexOfLast].time;
-            let projects_times_tds = projects_times[i].getElementsByClassName("project-detail-project-times");
-            for (let j = 0; j < 12; ++j) {
-                if (last !== monthlyAllocations[i][current_index * 12 + j].time) {
-                    last = monthlyAllocations[i][current_index * 12 + j].time;
-                    projects_times_tds[j].style.backgroundColor = "darkgoldenrod";
-                } else {
-                    projects_times_tds[j].style.backgroundColor = "white";
+    function pageLoaded() {
+        let btn = document.getElementsByClassName('form-submit');
+        let inputs = document.getElementsByClassName('project-detail-input');
+        for (let i = 0; i < inputs.length; ++i) {
+            if (inputs[i].required === true) {
+                if (inputs[i].value === '') {
+                    if (requiredDetailNotFilled === 0)
+                        btn[0].disabled = true;
+                    requiredDetailNotFilled++;
+                    inputs[i].classList.add('project-detail-input-empty');
                 }
-                projects_times_tds[j].innerHTML = (monthlyAllocations[i][current_index * 12 + j].time)
-                    .toLocaleString(undefined, opts).replace(',', '.');
             }
         }
-    }
-
-
-    // Zkontroluje povinna pole detailu projektu pri aktualizaci
-    function empty(message) {
-        let x;
-        console.log(message);
-        x = document.getElementById("name").value;
-        if (x === "") {
-            window.location.replace(location.protocol + '//' + location.host + location.pathname + '?edit=failure');
-            return false;
-        }
-        x = document.getElementById("state").value;
-        if (x === "") {
-            window.location.replace(location.protocol + '//' + location.host + location.pathname + '?edit=failure');
-            return false;
-        }
-        x = document.getElementById("from").value;
-        if (x === "") {
-            window.location.replace(location.protocol + '//' + location.host + location.pathname + '?edit=failure');
-            return false;
-        }
-        x = document.getElementById("until").value;
-        if (x === "") {
-            window.location.replace(location.protocol + '//' + location.host + location.pathname + '?edit=failure');
-            return false;
-        }
-        x = document.getElementById("director").value;
-        if (x === "") {
-            window.location.replace(location.protocol + '//' + location.host + location.pathname + '?edit=failure');
-            return false;
-        }
-        x = document.getElementById("workplace").value;
-        if (x === "") {
-            window.location.replace(location.protocol + '//' + location.host + location.pathname + '?edit=failure');
-            return false;
-        }
-        x = document.getElementById("total_time").value;
-        if (x === "") {
-            window.location.replace(location.protocol + '//' + location.host + location.pathname + '?edit=failure');
-            return false;
-        }
-    }
-
-    function clearRow(tr) {
-        let select = tr.getElementsByClassName('project-allocations-select');
-        select.value = employees[0].id;
-        let input = tr.getElementsByClassName('project-allocations-input');
-        input[0].value = default_role;
-        input[1].value = default_date_from;
-        input[2].value = default_date_until;
-        input[3].value = default_time;
-        input[4].value = default_time_av;
-        input[5].value = default_description;
     }
 
 </script>

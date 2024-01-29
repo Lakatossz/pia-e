@@ -1,4 +1,4 @@
-package cz.zcu.kiv.mjakubas.piae.sem.core.service;
+package cz.zcu.kiv.mjakubas.piae.sem.core.exceptions;
 
 /**
  * Represents generic service error -> most (if not all) possible errors are handled in fronted, thus

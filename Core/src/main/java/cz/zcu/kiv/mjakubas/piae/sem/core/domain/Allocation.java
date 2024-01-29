@@ -26,6 +26,7 @@ public class Allocation {
     private Date dateFrom;
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date dateUntil;
+    private TermState term;
     private String role;
     private String description;
     private Boolean active;
@@ -110,6 +111,11 @@ public class Allocation {
         return this;
     }
 
+    public Allocation term(TermState term) {
+        this.term = term;
+        return this;
+    }
+
     public Allocation description(String description) {
         this.description = description;
         return this;
@@ -144,6 +150,7 @@ public class Allocation {
                 ", isCertain=" + isCertain +
                 ", dateFrom=" + dateFrom +
                 ", dateUntil=" + dateUntil +
+                ", term=" + term +
                 ", description='" + description + '\'' +
                 ", active=" + active +
                 ", role=" + role +

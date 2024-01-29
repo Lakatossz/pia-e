@@ -88,7 +88,7 @@ public class WorkplaceV1Controller {
 //            vis = String.format("%s %s (%s)", wm.getFirstName(), wm.getLastName(), wm.getOrionLogin());
 
         model.addAttribute("workplaceVO",
-                new WorkplaceVO(workplace.getFullName(), workplace.getAbbreviation(), workplace.getManager().getId(), workplace.getDescription()));
+                new WorkplaceVO(workplace.getId(), workplace.getFullName(), workplace.getAbbreviation(), workplace.getManager().getId(), workplace.getDescription()));
         return "forms/workplace/edit_workplace_form";
     }
 
@@ -123,7 +123,7 @@ public class WorkplaceV1Controller {
         Workplace data = workplaceService.getWorkplace(id);
 
         model.addAttribute("workplace",
-                new WorkplaceVO(data.getFullName(), data.getAbbreviation(), data.getManager().getId(), data.getDescription()));
+                new WorkplaceVO(data.getId(), data.getFullName(), data.getAbbreviation(), data.getManager().getId(), data.getDescription()));
 
         model.addAttribute("employees", employeeService.getEmployees());
         model.addAttribute("manage", manage);

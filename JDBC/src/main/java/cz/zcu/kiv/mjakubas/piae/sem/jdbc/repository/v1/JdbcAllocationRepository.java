@@ -140,9 +140,9 @@ public class JdbcAllocationRepository implements IAllocationRepository {
         var sql = """
                 INSERT INTO assignment
                 (ass_enabled, ass_employee_id, ass_project_id, ass_course_id, ass_function_id, 
-                ass_active_from, ass_active_until, ass_scope, ass_description, ass_active, ass_role)
+                ass_active_from, ass_active_until, ass_term, ass_scope, ass_description, ass_active, ass_role)
                 VALUES
-                (:isEnabled, :eId, :pId, :cId, :fId, :aFrom, :aUntil, :scope, :descr, :active, :role)
+                (:isEnabled, :eId, :pId, :cId, :fId, :aFrom, :aUntil, :aTerm, :scope, :descr, :active, :role)
                 """;
 
         GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
@@ -156,8 +156,8 @@ public class JdbcAllocationRepository implements IAllocationRepository {
         var sql = """
                 UPDATE assignment
                 SET ass_enabled=:isEnabled, ass_employee_id=:eId, ass_project_id=:pId, 
-                ass_course_id=:cId, ass_function_id=:fId, ass_active_from=:aFrom, 
-                ass_active_until=:aUntil, ass_scope=:scope, ass_description=:descr, ass_active=:active
+                ass_course_id=:cId, ass_function_id=:fId, ass_active_from=:aFrom, ass_active_until=:aUntil, 
+                ass_term=:aTerm, ass_scope=:scope, ass_description=:descr, ass_active=:active
                 WHERE assignment_id=:id
                 """;
 
@@ -193,7 +193,7 @@ public class JdbcAllocationRepository implements IAllocationRepository {
 
         var params = new MapSqlParameterSource();
 
-        params.addValue(ACTIVE, true);
+        params.addValue(ACTIVE, 0);
         params.addValue(ID, allocationId);
 
         return jdbcTemplate.update(sql, params) == 1;
@@ -208,6 +208,7 @@ public class JdbcAllocationRepository implements IAllocationRepository {
         params.addValue("fId", allocation.getFunction() != null ? allocation.getFunction().getId() : null);
         params.addValue("aFrom", allocation.getDateFrom());
         params.addValue("aUntil", allocation.getDateUntil());
+        params.addValue("aTerm", allocation.getTerm().getValue());
         params.addValue("scope", allocation.getAllocationScope());
         params.addValue("role", allocation.getRole());
         params.addValue(ACTIVE, allocation.getActive());

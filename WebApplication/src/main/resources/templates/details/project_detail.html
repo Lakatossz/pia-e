@@ -57,7 +57,7 @@
                     <td class="project-detail-div">
                         <label class="project-detail-label" for="name"
                                th:text="#{view.project_detail.name}" th:required="true"/>
-                        <input class="project-detail-input" type="text"
+                        <input class="project-detail-input" type="text" onchange="onRequiredDetailChange(this)"
                                id="name" name="name" th:field="*{name}">
                     </td>
                 </tr>
@@ -77,7 +77,7 @@
                     <td class="project-detail-div">
                         <label class="project-detail-label" for="from"
                                th:text="#{view.project_detail.from}" th:required="true"/>
-                        <input class="project-detail-input" type="date"
+                        <input class="project-detail-input" type="date" onchange="onRequiredDetailChange(this)"
                                id="from" name="from" th:field="*{dateFrom}">
                     </td>
                 </tr>
@@ -85,16 +85,16 @@
                     <td class="project-detail-div">
                         <label class="project-detail-label" for="until"
                                th:text="#{view.project_detail.until}" th:required="true"/>
-                        <input class="project-detail-input" type="date"
+                        <input class="project-detail-input" type="date" onchange="onRequiredDetailChange(this)"
                                id="until" name="until" th:field="*{dateUntil}">
                     </td>
                 </tr>
                 <tr>
                     <td class="project-detail-div">
-                        <label class="project-detail-label" for="director"
+                        <label class="project-detail-label" for="manager"
                                th:text="#{view.project_detail.director}" th:required="true"/>
                         <select class="project-detail-input"
-                                id="director" name="director" th:field="*{projectManagerId}">
+                                id="manager" name="manager" th:field="*{projectManagerId}">
                             <option th:each="mng : ${employees}" th:value="${mng.getId()}"
                                     th:text="${mng.getLastName()} + ' ' + ${mng.getFirstName()}">
                             </option>
@@ -105,8 +105,8 @@
                     <td class="project-detail-div">
                         <label class="project-detail-label" for="workplace"
                                th:text="#{view.project_detail.workplace}" th:required="true"/>
-                        <select class="project-detail-input" id="workplace"
-                                name="workplace" th:field="*{workplaceId}">
+                        <select class="project-detail-input"
+                                id="workplace" name="workplace" th:field="*{workplaceId}">
                             <option th:each="wrk : ${workplaces}" th:value="${wrk.getId()}"
                                     th:text="${wrk.getFullName()}">
                             </option>
@@ -117,7 +117,7 @@
                     <td class="project-detail-div">
                         <label class="project-detail-label" for="total_time"
                                th:text="#{view.project_detail.total_time}" th:required="true"/>
-                        <input class="project-detail-input" type="number"
+                        <input class="project-detail-input" type="number" onchange="onRequiredDetailChange(this)"
                                id="total_time" name="total_time" th:field="*{totalTime}">
                     </td>
                 </tr>
@@ -141,7 +141,7 @@
                     <td class="project-detail-div">
                         <label class="project-detail-label" for="call_year"
                                th:text="#{view.project_detail.call_year}"/>
-                        <input class="project-detail-input" type="text"
+                        <input class="project-detail-input" type="text" onchange="onRequiredDetailChange(this)"
                                id="call_year" name="call_year" th:value="*{#dates.year(dateFrom)}">
                     </td>
                 </tr>
@@ -154,7 +154,7 @@
                     <td class="project-detail-div">
                         <label class="project-detail-label" for="budget"
                                th:text="#{view.project_detail.budget}"/>
-                        <input class="project-detail-input" type="text"
+                        <input class="project-detail-input" type="number"
                                id="budget" name="budget" th:field="*{budget}">
                     </td>
                 </tr>
@@ -168,7 +168,7 @@
                 </tr>
                 <tr>
                     <td class="project-detail-div">
-                        <label class="workplace-detail-label" for="description"
+                        <label class="project-detail-label" for="description"
                                th:text="#{view.project_detail.description}"/>
                         <textarea contenteditable class="project-text-area" type="text"
                                   th:rows="10" th:cols="100"
@@ -177,8 +177,7 @@
                 </tr>
                 <tr>
                     <td class="flex-duo">
-                        <input id="form-submit" class="project-detail-btn"
-                               th:attr="onclick=|return empty('#{view.project_detail.submit.empty}')|"
+                        <input id="form-submit" class="project-detail-btn form-submit"
                                th:formaction="'/p/' + ${id} + '/edit'" type="submit"
                                th:value="#{view.project_detail.submit}">
                         <!-- an delete button link -->
@@ -191,6 +190,7 @@
                 </tr>
             </table>
         </form>
+
         <div>
             <!-- Members of project -->
             <h4 th:text="#{view.project_detail.members.title}"/>
@@ -203,13 +203,20 @@
                         </td>
                     </tr>
                     <tr>
-                        <td class="project-allocations-header project-allocations-cell-name" th:text="#{view.project_detail.members.table.name}"></td>
-                        <td class="project-allocations-header" th:text="#{view.project_detail.members.table.role}"></td>
-                        <td class="project-allocations-header" th:text="#{view.project_detail.members.table.from}"></td>
-                        <td class="project-allocations-header" th:text="#{view.project_detail.members.table.until}"></td>
-                        <td class="project-allocations-header" th:text="#{view.project_detail.members.table.current-time}"></td>
-                        <td class="project-allocations-header" th:text="#{view.project_detail.members.table.average-time}"></td>
-                        <td class="project-allocations-header" th:text="#{view.project_detail.members.table.description}"></td>
+                        <td class="project-allocations-header project-allocations-cell-name"
+                            th:text="#{view.project_detail.members.table.name}" required="required"></td>
+                        <td class="project-allocations-header"
+                            th:text="#{view.project_detail.members.table.role}" required="required"></td>
+                        <td class="project-allocations-header"
+                            th:text="#{view.project_detail.members.table.from}" required="required"></td>
+                        <td class="project-allocations-header"
+                            th:text="#{view.project_detail.members.table.until}" required="required"></td>
+                        <td class="project-allocations-header"
+                            th:text="#{view.project_detail.members.table.current-time}" required="required"></td>
+                        <td class="project-allocations-header"
+                            th:text="#{view.project_detail.members.table.probability}" required="required"></td>
+                        <td class="project-allocations-header"
+                            th:text="#{view.project_detail.members.table.description}"></td>
                         <td></td>
                         <td></td>
                         <td></td>
@@ -219,69 +226,79 @@
                     <th:block th:each="all, allStats : ${allocations}">
                         <!-- Allocations-->
                         <form method="post"
-                              th:action="@{'/a/' + ${all.id} + '/edit'}"
+                              th:action="@{'/a/' + ${all.id} + '/edit/p/' + ${id}}"
                               th:object="${all}" th:method="POST" novalidate>
                             <th:block>
                                 <div>
                                     <tr class="project-allocations" th:id="${allStats.index}">
-                                        <td class="project-allocations-cell project-allocations-cell-name">
+                                        <td class="project-allocations-cell project-allocations-cell-name project-allocations-select-empty">
                                             <label>
-                                                <select class="project-allocations-select" id="employeeId"
-                                                        th:name="director" field="${employeeId}" disabled="disabled">
-                                                    <option th:each="emp : ${employees}" th:selected="${emp.getId()}"
-                                                            th:value="${emp.getId()}"
-                                                            th:text="${emp.getLastName()} + ' ' + ${emp.getFirstName()}">
+                                                <select class="project-allocations-select" disabled='disabled'
+                                                        th:id="'allocationSelect' + ${allStats.index}">
+                                                    <option th:each="emp : ${employees}" th:value="${emp.getId()}"
+                                                            th:text="${emp.getLastName()} + ' ' + ${emp.getFirstName()}"
+                                                            th:selected="${emp.getId() eq all.getWorkerId}">
                                                     </option>
                                                 </select>
                                             </label>
                                         </td>
                                         <td class="project-allocations-cell">
                                             <label>
-                                                <input class="project-allocations-input" type="text" readonly="readonly"
-                                                       th:name="role" th:value="${all.role}">
+                                                <input class="project-allocations-input"
+                                                       type="text" readonly="readonly" th:onchange="'onRequiredAllocationChange(this, ' + ${allStats.index} + ')'"
+                                                       th:name="role" th:value="*{role}">
                                             </label>
                                         </td>
                                         <td class="project-allocations-cell">
                                             <label>
                                                 <input class="project-allocations-input" type="date"
                                                        th:name="dateFrom" readonly="readonly"
-                                                       th:value="${all.dateFrom}">
+                                                       th:value="*{dateFrom}" th:onchange="'onRequiredAllocationChange(this, ' + ${allStats.index} + ')'">
                                             </label>
                                         </td>
                                         <td class="project-allocations-cell">
                                             <label>
                                                 <input class="project-allocations-input" type="date"
                                                        th:name="dateUntil" readonly="readonly"
-                                                       th:value="${all.dateUntil}">
+                                                       th:value="*{dateUntil}" th:onchange="'onRequiredAllocationChange(this, ' + ${allStats.index} + ')'">
                                             </label>
                                         </td>
                                         <td class="project-allocations-cell">
                                             <label>
                                                 <input class="project-allocations-input" type="text"
                                                        th:name="time" readonly="readonly"
-                                                       th:value="${all.time}">
+                                                       th:value="*{allocationScope}" th:onchange="'onRequiredAllocationChange(this, ' + ${allStats.index} + ')'">
                                             </label>
                                         </td>
                                         <td class="project-allocations-cell">
                                             <label>
                                                 <input class="project-allocations-input" type="text"
-                                                       th:name="time" th:value="${all.time}" readonly="readonly">
+                                                       th:name="isCertain" th:value="*{isCertain}"
+                                                       readonly="readonly" th:onchange="'onRequiredAllocationChange(this, ' + ${allStats.index} + ')'">
                                             </label>
                                         </td>
                                         <td class="project-allocations-cell">
                                             <label>
                                                 <input class="project-allocations-input" type="text"
                                                        th:name="description" readonly="readonly"
-                                                       th:value="${all.description}">
+                                                       th:value="*{description}">
                                             </label>
                                         </td>
                                         <td>
-                                            <button class="btn btn-confirm" type="submit" th:formaction="'/a/' + ${all.id} + '/edit'"></button>
+                                            <button class="btn btn-confirm"
+                                                    th:attr="onclick=|return checkAllocation('${allStats.index}')|"
+                                                    type="submit" th:formaction="'/a/' + ${all.id} + '/edit/p/' + ${id} + '/' + ${all.workerId}"></button>
                                         </td>
                                         <td>
                                             <label>
                                                 <input type="text" name="projectId"  style="display : none"
-                                                       field="*{projectId}" th:field="${id}" disabled="disabled">
+                                                       th:value="*{id}" disabled="disabled">
+                                            </label>
+                                        </td>
+                                        <td>
+                                            <label>
+                                                <input type="number" th:id="'workerId' + ${allStats.index}" name="workerId" style="display : none"
+                                                       th:value="*{workerId}" disabled="disabled">
                                             </label>
                                         </td>
                                         <td>
@@ -291,7 +308,10 @@
                                             <button class="btn btn-edit" type="button"></button>
                                         </td>
                                         <td>
-                                            <button class="btn btn-delete" type="button"></button>
+                                            <button class="btn btn-delete" type="submit"
+                                                   th:formaction="'/a/' + ${all.id} + '/delete/p/' + ${id}"
+                                                   th:data-confirm-delete="#{view.project_detail.delete_allocation.confirm}"
+                                                    onclick="if (!confirm(this.getAttribute('data-confirm-delete'))) return false"></button>
                                         </td>
                                     </tr>
                                 </div>
@@ -299,81 +319,83 @@
                         </form>
                     </th:block>
                     <!-- Newly added allocation-->
-                    <form th:action="@{'/a/create/' + ${id}}">
+                    <form method="post"
+                          th:action="@{'/a/create/project' + ${id} + '/' + ${newAllocation.workerId}}"
+                          th:object="${newAllocation}" th:method="POST" novalidate>
                         <th:block>
-                            <div>
-                                <tr class="project-allocation-new project-allocation-new-hidden">
-                                    <td class="project-allocations-cell project-allocations-cell-name">
-                                        <label>
-                                            <select class="project-allocations-select" disabled="disabled"
-                                                    th:name="employee" field="*{employeeId}">
-                                                <option th:each="emp : ${employees}" th:selected="${emp.getId()}"
-                                                        th:value="${emp.getId()}"
-                                                        th:text="${emp.getLastName()} + ' ' + ${emp.getFirstName()}">
-                                                </option>
-                                            </select>
-                                        </label>
-                                    </td>
-                                    <td class="project-allocations-cell">
-                                        <label>
-                                            <input class="project-allocations-input" type="text"
-                                                   th:name="role" th:field="${newAllocation.role}">
-                                        </label>
-                                    </td>
-                                    <td class="project-allocations-cell">
-                                        <label>
-                                            <input class="project-allocations-input" type="date"
-                                                   th:name="dateFrom" th:field="${newAllocation.dateFrom}">
-                                        </label>
-                                    </td>
-                                    <td class="project-allocations-cell">
-                                        <label>
-                                            <input class="project-allocations-input" type="date"
-                                                   th:name="dateUntil"
-                                                   th:value="${newAllocation.dateUntil}">
-                                        </label>
-                                    </td>
-                                    <td class="project-allocations-cell">
-                                        <label>
-                                            <input class="project-allocations-input" type="text"
-                                                   th:name="allocationScope"
-                                                   th:value="${newAllocation.allocationScope}">
-                                        </label>
-                                    </td>
-                                    <td class="project-allocations-cell">
-                                        <label>
-                                            <input class="project-allocations-input" type="text"
-                                                   th:name="allocationScope" th:value="${newAllocation.allocationScope}">
-                                        </label>
-                                    </td>
-                                    <td class="project-allocations-cell">
-                                        <label>
-                                            <input class="project-allocations-input" type="text"
-                                                   th:name="description"
-                                                   th:value="${newAllocation.description}">
-                                        </label>
-                                    </td>
-                                    <td>
-                                        <button class="btn btn-confirm-new-all" type="submit"
-                                                style="visibility: visible" th:formaction="'/a/create/' + ${id}"></button>
-                                    </td>
-                                    <td>
-                                        <label>
-                                            <input type="text" name="projectId"  style="display : none"
-                                                   field="*{projectId}" th:value="${id}" disabled="true">
-                                        </label>
-                                    </td>
-                                    <td>
-                                        <button class="btn btn-cancel-new-all" style="visibility: visible" type="button"></button>
-                                    </td>
-                                    <td>
-                                        <button class="btn" style="visibility: hidden" type="button"></button>
-                                    </td>
-                                    <td>
-                                        <button class="btn" style="visibility: hidden" type="button"></button>
-                                    </td>
-                                </tr>
-                            </div>
+                            <tr class="project-allocation-new project-allocation-new-hidden">
+                                <td class="project-allocations-cell project-allocations-cell-name">
+                                    <label>
+                                        <select class="project-allocations-select" th:field="*{workerId}"
+                                                disabled="disabled" id="workerId" name="workerId">
+                                            <option th:each="emp : ${employees}" th:value="${emp.getId()}"
+                                                    th:text="${emp.getLastName()} + ' ' + ${emp.getFirstName()}">
+                                            </option>
+                                        </select>
+                                    </label>
+                                </td>
+                                <td class="project-allocations-cell">
+                                    <label>
+                                        <input class="project-allocations-input"
+                                               type="text" onchange="onRequiredNewAllocationChange(this)"
+                                               th:name="role" th:field="*{role}">
+                                    </label>
+                                </td>
+                                <td class="project-allocations-cell">
+                                    <label>
+                                        <input class="project-allocations-input"
+                                               type="date" onchange="onRequiredNewAllocationChange(this)"
+                                               th:name="dateFrom" th:field="*{dateFrom}">
+                                    </label>
+                                </td>
+                                <td class="project-allocations-cell">
+                                    <label>
+                                        <input class="project-allocations-input"
+                                               type="date" onchange="onRequiredNewAllocationChange(this)"
+                                               th:name="dateUntil" th:field="*{dateUntil}">
+                                    </label>
+                                </td>
+                                <td class="project-allocations-cell">
+                                    <label>
+                                        <input class="project-allocations-input" type="text"
+                                               th:name="allocationScope" onchange="onRequiredNewAllocationChange(this)"
+                                               th:field="*{allocationScope}">
+                                    </label>
+                                </td>
+                                <td class="project-allocations-cell">
+                                    <label>
+                                        <input class="project-allocations-input"
+                                               type="text" onchange="onRequiredNewAllocationChange(this)"
+                                               th:name="isCertain" th:field="*{isCertain}">
+                                    </label>
+                                </td>
+                                <td class="project-allocations-cell">
+                                    <label>
+                                        <input class="project-allocations-input" type="text"
+                                               th:name="description"
+                                               th:field="*{description}">
+                                    </label>
+                                </td>
+                                <td>
+                                    <button class="btn btn-confirm-new-all" type="submit"
+                                            style="visibility: visible" th:formaction="'/a/create/project/' + ${id} + '/' + ${newAllocation.workerId}"></button>
+                                </td>
+                                <td>
+                                    <label>
+                                        <input type="text" name="projectId"  style="display : none"
+                                               field="*{projectId}" th:value="${id}" disabled="disabled">
+                                    </label>
+                                </td>
+                                <td>
+                                    <button class="btn btn-cancel-new-all" style="visibility: visible" type="button"></button>
+                                </td>
+                                <td>
+                                    <button class="btn" style="visibility: hidden" type="button"></button>
+                                </td>
+                                <td>
+                                    <button class="btn" style="visibility: hidden" type="button"></button>
+                                </td>
+                            </tr>
                         </th:block>
                     </form>
                     </tbody>
@@ -385,6 +407,10 @@
         <div class="table">
             <table class="table">
                 <thead>
+                <tr class="project-row-header">
+                    <!-- Labels -->
+                    <td class="project-row-year" th:colspan="16" th:id="${0}"></td>
+                </tr>
                 <tr class="project-row-header">
                     <td style="text-align: left" th:text="#{view.project_detail.members.table.name}"></td>
                     <td class="btn-left"></td>
@@ -400,9 +426,7 @@
                     <td class="project-detail-table-cell" th:text="#{month.october}"></td>
                     <td class="project-detail-table-cell" th:text="#{month.november}"></td>
                     <td class="project-detail-table-cell" th:text="#{month.december}"></td>
-                    <td class="btn-right">
-
-                    </td>
+                    <td class="btn-right"></td>
                 </tr>
                 </thead>
                 <tbody>
@@ -441,14 +465,6 @@
     let allocation_being_added = false;
 
     let project = [[${project}]];
-
-    // Konstanty pro naplneni defaultniho pole nove alokace
-    const default_role = 'nový';
-    const default_date_from = project.dateFrom;
-    const default_date_until = project.dateUntil;
-    const default_time = 1.0;
-    const default_time_av = 1.0;
-    const default_description = 'description';
 
     // Tlacitko pro collapse detailu
     let project_collapse = document.querySelectorAll(".project-detail-collapsible-header");
@@ -496,15 +512,30 @@
         })
     });
 
+    let trs = document.getElementsByClassName("project-allocations");
+    if (trs.length > 0) {
+        let select = trs[0].getElementsByClassName("project-allocations-select");
+        Array.from(select).forEach(function (td) {
+            td.setAttribute('disabled', 'disabled');
+        });
+
+        let tds = trs[0].getElementsByClassName("project-allocations-input");
+        Array.from(tds).forEach(function (td) {
+            td.setAttribute('readonly', 'readonly');
+        });
+    }
+
+    let allocations = [[${allocations}]];
     Array.from(project_allocations).forEach(function (trArray) {
         let buttonsEdit = document.getElementsByClassName("btn-edit");
         let buttonsConfirm = document.getElementsByClassName("btn-confirm");
         let buttonsConfirmNewAll = document.getElementsByClassName("btn-confirm-new-all");
         let buttonsCancel = document.getElementsByClassName("btn-cancel");
         let buttonsCancelNewAll = document.getElementsByClassName("btn-cancel-new-all");
-        let trs = document.getElementsByClassName("project-allocations");
-        for (let i = 0; i < buttonsConfirmNewAll.length; ++i) {
-            let select = trs[i].getElementsByClassName("project-allocations-select");
+        let newTr = document.getElementsByClassName("project-allocation-new");
+        console.log(newTr.length)
+        for (let i = 0; i < newTr.length; ++i) {
+            let select = newTr[i].getElementsByClassName("project-allocations-select");
             Array.from(select).forEach(function (td) {
                 td.removeAttribute('disabled');
             });
@@ -521,6 +552,8 @@
             });
 
             buttonsCancelNewAll[i].addEventListener("click", function (evt) {
+                console.log('Jsem v cancel.');
+
                 if (allocation_being_added)
                     allocation_being_added = false;
 
@@ -532,7 +565,7 @@
             });
         }
 
-        for (let i = 0; i < buttonsEdit.length; ++i) {
+        for (let i = 0; i < trs.length; ++i) {
             buttonsEdit[i].addEventListener("click", function (evt) {
                 let select = trs[i].getElementsByClassName("project-allocations-select");
                 Array.from(select).forEach(function (td) {
@@ -549,9 +582,6 @@
             });
 
             buttonsConfirm[i].addEventListener("click", function (evt) {
-                // if (allocation_being_added)
-                //     allocation_being_added = false;
-
                 let select = trs[i].getElementsByClassName("project-allocations-select");
                 Array.from(select).forEach(function (td) {
                     td.setAttribute('disabled', 'disabled');
@@ -570,6 +600,7 @@
                 let select = trs[i].getElementsByClassName("project-allocations-select");
                 Array.from(select).forEach(function (td) {
                     td.setAttribute('disabled', 'disabled');
+                    select.value = allocations[i].workerId;
                 });
 
                 let tds = trs[i].getElementsByClassName("project-allocations-input");
@@ -578,13 +609,27 @@
                     buttonsConfirm[i].style.visibility = 'hidden';
                     buttonsCancel[i].style.visibility = 'hidden';
                     buttonsEdit[i].style.visibility = 'visible'
+                    buttonsConfirm[i].disabled = false;
                 });
+
+                tds[0].value = allocations[i].role;
+                tds[0].classList.remove('project-allocations-input-empty');
+                tds[1].value = allocations[i].dateFrom;
+                tds[1].classList.remove('project-allocations-input-empty');
+                tds[2].value = allocations[i].dateUntil;
+                tds[2].classList.remove('project-allocations-input-empty');
+                tds[3].value = allocations[i].allocationScope;
+                tds[3].classList.remove('project-allocations-input-empty');
+                tds[4].value = allocations[i].isCertain;
+                tds[4].classList.remove('project-allocations-input-empty');
+                tds[5].value = allocations[i].description;
             });
         }
     });
 
     // Handling table with month allocation of every worker
 
+    let years = document.getElementsByClassName("main-row-year");
     let monthlyAllocations = [[${monthlyAllocations}]];
     let certainAllocations = [[${certainAllocations}]];
     let uncertainAllocations = [[${uncertainAllocations}]];
@@ -596,6 +641,10 @@
     let index = 0;
     const opts = {minimumFractionDigits: 1};
     let numberOfYears = monthlyAllocations.length > 0 ? monthlyAllocations[0].length / 12 : 0;
+
+    Array.from(years).forEach(function(year) {
+        year.textContent = employees[year.id].firstYear;
+    });
 
     Array.from(certain_times).forEach(function (trArray) {
         if (certainAllocations.length > index && certainAllocations.length > 0) {
@@ -698,58 +747,95 @@
         }
     }
 
-
-    // Zkontroluje povinna pole detailu projektu pri aktualizaci
-    function empty(message) {
-        let x;
-        console.log(message);
-        x = document.getElementById("name").value;
-        if (x === "") {
-            window.location.replace(location.protocol + '//' + location.host + location.pathname + '?edit=failure');
-            return false;
-        }
-        x = document.getElementById("state").value;
-        if (x === "") {
-            window.location.replace(location.protocol + '//' + location.host + location.pathname + '?edit=failure');
-            return false;
-        }
-        x = document.getElementById("from").value;
-        if (x === "") {
-            window.location.replace(location.protocol + '//' + location.host + location.pathname + '?edit=failure');
-            return false;
-        }
-        x = document.getElementById("until").value;
-        if (x === "") {
-            window.location.replace(location.protocol + '//' + location.host + location.pathname + '?edit=failure');
-            return false;
-        }
-        x = document.getElementById("director").value;
-        if (x === "") {
-            window.location.replace(location.protocol + '//' + location.host + location.pathname + '?edit=failure');
-            return false;
-        }
-        x = document.getElementById("workplace").value;
-        if (x === "") {
-            window.location.replace(location.protocol + '//' + location.host + location.pathname + '?edit=failure');
-            return false;
-        }
-        x = document.getElementById("total_time").value;
-        if (x === "") {
-            window.location.replace(location.protocol + '//' + location.host + location.pathname + '?edit=failure');
-            return false;
-        }
-    }
-
+    let newAllocation = [[${newAllocation}]];
     function clearRow(tr) {
         let select = tr.getElementsByClassName('project-allocations-select');
         select.value = employees[0].id;
         let input = tr.getElementsByClassName('project-allocations-input');
-        input[0].value = default_role;
-        input[1].value = default_date_from;
-        input[2].value = default_date_until;
-        input[3].value = default_time;
-        input[4].value = default_time_av;
-        input[5].value = default_description;
+        input[0].value = newAllocation.role;
+        input[1].value = newAllocation.dateFrom;
+        input[2].value = newAllocation.dateUntil
+        input[3].value = newAllocation.allocationScope;
+        input[4].value = newAllocation.isCertain;
+        input[5].value = newAllocation.description;
+    }
+
+    let requiredDetailNotFilled = 0;
+
+    function onRequiredDetailChange(element) {
+        let btn = document.getElementsByClassName('form-submit');
+        if (element.value === '') {
+            if (requiredDetailNotFilled === 0)
+                btn[0].disabled = true;
+            requiredDetailNotFilled++;
+            element.classList.add('project-detail-input-empty');
+            return false;
+        } else {
+            element.classList.remove('project-detail-input-empty');
+            requiredDetailNotFilled--;
+            if (requiredDetailNotFilled === 0)
+                btn[0].disabled = false;
+        }
+    }
+
+    // let trs = document.getElementsByClassName("project-allocations");
+    let requiredAllocationNotFilled = new Array(trs.length);
+    for (let i = 0; i < project_allocations.length; ++i)
+        requiredAllocationNotFilled[i] = 0;
+
+    function onRequiredAllocationChange(element, allIndex) {
+        let btn = trs[allIndex].getElementsByClassName('btn-confirm');
+        if (element.value === '') {
+            if (requiredAllocationNotFilled[allIndex] === 0)
+                btn[0].disabled = true;
+            requiredAllocationNotFilled[allIndex]++;
+            element.classList.add('project-allocations-input-empty');
+            return false;
+        } else {
+            element.classList.remove('project-allocations-input-empty');
+            requiredAllocationNotFilled[allIndex]--;
+            if (requiredAllocationNotFilled[allIndex] === 0)
+                btn[0].disabled = false;
+        }
+    }
+
+    let requiredNewAllocationNotFilled = 0;
+
+    function onRequiredNewAllocationChange(element) {
+        let btn = document.getElementsByClassName('submit-btn');
+        if (element.value === '') {
+            if (requiredNewAllocationNotFilled === 0)
+                btn[0].disabled = true;
+            requiredNewAllocationNotFilled++;
+            element.classList.add('project-allocations-input-empty');
+            return false;
+        } else {
+            element.classList.remove('project-allocations-input-empty');
+            requiredNewAllocationNotFilled--;
+            if (requiredNewAllocationNotFilled === 0)
+                btn[0].disabled = false;
+        }
+    }
+
+    // Zkontroluje povinna pole detailu projektu pri aktualizaci
+    function checkAllocation(allocationId) {
+        let trs = document.getElementsByClassName("project-allocations");
+        let select = trs[allocationId].getElementsByClassName("project-allocations-select");
+        Array.from(select).forEach(function (td) {
+            td.setAttribute('disabled', 'disabled');
+        });
+
+        let tds = trs[allocationId].getElementsByClassName("project-allocations-input");
+        Array.from(tds).forEach(function (td) {
+            if (td.value === '') {
+                td.classList.add('project-allocations-input-empty');
+                return false;
+            }
+        });
+
+        select = document.getElementById('allocationSelect' + allocationId);
+        let realInput = document.getElementById('workerId' + allocationId);
+        realInput.value = select.options[select.selectedIndex].value;
     }
 
 </script>

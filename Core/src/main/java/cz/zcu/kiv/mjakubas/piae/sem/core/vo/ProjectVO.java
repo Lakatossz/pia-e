@@ -20,7 +20,6 @@ import java.util.Date;
 @AllArgsConstructor
 @Setter
 @Getter
-@Data
 public class ProjectVO {
 
     private String name;
@@ -95,10 +94,6 @@ public class ProjectVO {
 
     public ProjectVO budgetParticipation(Integer budgetParticipation) {
         this.budgetParticipation = budgetParticipation;
-        return this;
-    }
-
-    public ProjectVO participation(Integer participation) {
         return this;
     }
 

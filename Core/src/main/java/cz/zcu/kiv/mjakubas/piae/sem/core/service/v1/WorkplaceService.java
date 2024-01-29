@@ -1,9 +1,12 @@
 package cz.zcu.kiv.mjakubas.piae.sem.core.service.v1;
 
+import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Allocation;
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Employee;
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Workplace;
+import cz.zcu.kiv.mjakubas.piae.sem.core.repository.IAllocationRepository;
 import cz.zcu.kiv.mjakubas.piae.sem.core.repository.IWorkplaceRepository;
-import cz.zcu.kiv.mjakubas.piae.sem.core.service.ServiceException;
+import cz.zcu.kiv.mjakubas.piae.sem.core.service.SecurityService;
+import cz.zcu.kiv.mjakubas.piae.sem.core.exceptions.ServiceException;
 import cz.zcu.kiv.mjakubas.piae.sem.core.vo.WorkplaceVO;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
@@ -22,7 +25,10 @@ public class WorkplaceService {
 
     private final IWorkplaceRepository workplaceRepository;
 
+    private final IAllocationRepository allocationRepository;
+
     private final EmployeeService employeeService;
+    private final SecurityService securityService;
 
     /**
      * Gets workplace given its id.
@@ -98,6 +104,18 @@ public class WorkplaceService {
      */
     @Transactional
     public void removeWorkplace(long workplaceId) {
-        workplaceRepository.removeWorkplace(workplaceId);
+        var allocations = allocationRepository.fetchWorkplaceAllocations(workplaceId);
+        for (Allocation allocation : allocations) {
+            if (allocation.getProject().getId() > 0
+                    && securityService.isProjectManager(allocation.getProject().getId()) ||
+                    allocation.getCourse().getId() > 0
+                            && securityService.isCourseManager(allocation.getCourse().getId()) ||
+                    allocation.getFunction().getId() > 0
+                            && securityService.isFunctionManager(allocation.getFunction().getId()))
+                allocationRepository.removeAllocation(allocation.getId());
+        }
+
+        if (!securityService.isWorkplaceManager((int) workplaceId) || !workplaceRepository.removeWorkplace(workplaceId))
+            throw new ServiceException();
     }
 }

@@ -4,7 +4,13 @@ import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Course;
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Employee;
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Function;
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Project;
+import cz.zcu.kiv.mjakubas.piae.sem.core.exceptions.ServiceException;
+import cz.zcu.kiv.mjakubas.piae.sem.core.repository.ICourseRepository;
+import cz.zcu.kiv.mjakubas.piae.sem.core.repository.IEmployeeRepository;
+import cz.zcu.kiv.mjakubas.piae.sem.core.repository.IFunctionRepository;
+import cz.zcu.kiv.mjakubas.piae.sem.core.repository.IProjectRepository;
 import cz.zcu.kiv.mjakubas.piae.sem.core.repository.IUserRepository;
+import cz.zcu.kiv.mjakubas.piae.sem.core.repository.IWorkplaceRepository;
 import cz.zcu.kiv.mjakubas.piae.sem.core.service.v1.CourseService;
 import cz.zcu.kiv.mjakubas.piae.sem.core.service.v1.EmployeeService;
 import cz.zcu.kiv.mjakubas.piae.sem.core.service.v1.FunctionService;
@@ -28,11 +34,11 @@ import org.springframework.transaction.annotation.Transactional;
 public class SecurityService {
 
     private IUserRepository userRepository;
-    private EmployeeService employeeService;
-    private ProjectService projectService;
-    private CourseService courseService;
-    private FunctionService functionService;
-    private WorkplaceService workplaceService;
+    private IEmployeeRepository employeeRepository;
+    private IProjectRepository projectRepository;
+    private ICourseRepository courseRepository;
+    private IFunctionRepository functionRepository;
+    private IWorkplaceRepository workplaceRepository;
 
     private PasswordEncoder passwordEncoder;
 
@@ -43,7 +49,7 @@ public class SecurityService {
      * @param password   plaintext password
      */
     public void createUser(@NonNull String orionLogin, @NonNull String password) {
-        var employee = employeeService.getEmployee(orionLogin);
+        var employee = employeeRepository.fetchEmployee(orionLogin);
         createUserUser(employee.getId(), password);
         createUserRole(employee.getOrionLogin());
     }
@@ -86,7 +92,7 @@ public class SecurityService {
      */
     @Transactional
     public void updateUserPassword(@NonNull String orionLogin, @NonNull String password) {
-        var employee = employeeService.getEmployee(orionLogin);
+        var employee = employeeRepository.fetchEmployee(orionLogin);
 
         var pw = passwordEncoder.encode(password);
         if (!userRepository.updatePassword(employee.getId(), pw)) {
@@ -112,8 +118,7 @@ public class SecurityService {
      */
     public boolean isUserView(Long id) {
         var auth = SecurityContextHolder.getContext().getAuthentication();
-        var employee = employeeService.getEmployee(id);
-
+        var employee = employeeRepository.fetchEmployee(id);
 
         return auth.getName().equals(employee.getOrionLogin());
     }
@@ -126,7 +131,7 @@ public class SecurityService {
      */
     public boolean isSuperiorView(Long id) {
         var auth = SecurityContextHolder.getContext().getAuthentication();
-        var employee = employeeService.getEmployee(id);
+        var employee = employeeRepository.fetchEmployee(id);
 
         return auth.getName().equals(employee.getOrionLogin()) && !employee.getSubordinates().isEmpty();
     }
@@ -139,8 +144,8 @@ public class SecurityService {
      */
     public boolean isProjectManager(Long projectId) {
         var auth = SecurityContextHolder.getContext().getAuthentication();
-        var employee = employeeService.getEmployee(auth.getName());
-        var project = projectService.getProject(projectId);
+        var employee = employeeRepository.fetchEmployee(auth.getName());
+        var project = projectRepository.fetchProject(projectId);
 
         return project.getProjectManager().getId() == employee.getId();
     }
@@ -153,8 +158,8 @@ public class SecurityService {
      */
     public boolean isCourseManager(Long courseId) {
         var auth = SecurityContextHolder.getContext().getAuthentication();
-        var employee = employeeService.getEmployee(auth.getName());
-        var course = courseService.getCourse(courseId);
+        var employee = employeeRepository.fetchEmployee(auth.getName());
+        var course = courseRepository.fetchCourse(courseId);
 
         return course.getCourseManager().getId() == employee.getId();
     }
@@ -167,8 +172,8 @@ public class SecurityService {
      */
     public boolean isFunctionManager(Long functionId) {
         var auth = SecurityContextHolder.getContext().getAuthentication();
-        var employee = employeeService.getEmployee(auth.getName());
-        var function = functionService.getFunction(functionId);
+        var employee = employeeRepository.fetchEmployee(auth.getName());
+        var function = functionRepository.fetchFunction(functionId);
 
         return function.getFunctionManager().getId() == employee.getId();
     }
@@ -179,7 +184,7 @@ public class SecurityService {
      * @return true if yes, otherwise false
      */
     public boolean isAtLeastProjectManager() {
-        var projects = projectService.getProjects();
+        var projects = projectRepository.fetchProjects();
         for (Project p : projects) {
             if (isProjectManager(p.getId()))
                 return true;
@@ -194,7 +199,7 @@ public class SecurityService {
      * @return true if yes, otherwise false
      */
     public boolean isAtLeastCourseManager() {
-        var courses = courseService.getCourses();
+        var courses = courseRepository.fetchCourses();
         for (Course c : courses) {
             if (isCourseManager(c.getId()))
                 return true;
@@ -209,7 +214,7 @@ public class SecurityService {
      * @return true if yes, otherwise false
      */
     public boolean isAtLeastFunctionManager() {
-        var functions = functionService.getFunctions();
+        var functions = functionRepository.fetchFunctions();
         for (Function f : functions) {
             if (isFunctionManager(f.getId()))
                 return true;
@@ -226,8 +231,8 @@ public class SecurityService {
      */
     public boolean isWorkplaceManager(int projectId) {
         var auth = SecurityContextHolder.getContext().getAuthentication();
-        var employee = employeeService.getEmployee(auth.getName());
-        var workplace = workplaceService.getWorkplace(projectId);
+        var employee = employeeRepository.fetchEmployee(auth.getName());
+        var workplace = workplaceRepository.fetchWorkplace(projectId);
 
         return workplace.getManager().getId() == employee.getId();
     }
@@ -235,12 +240,12 @@ public class SecurityService {
     /**
      * Creates new user account
      *
-     * @param employeeVO employee VO
+     * @param employee employee
      */
     @Transactional
-    public long createUserAccount(@NonNull EmployeeVO employeeVO) {
-        long id = employeeService.createEmployee(employeeVO);
-        createUser(employeeVO.getOrionLogin(), "heslo");
+    public long createUserAccount(@NonNull Employee employee) {
+        long id = employeeRepository.createEmployee(employee);
+        createUser(employee.getOrionLogin(), "heslo");
         return id;
     }
 }

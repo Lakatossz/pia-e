@@ -2,9 +2,10 @@ package cz.zcu.kiv.mjakubas.piae.sem.webapplication.controller.v1;
 
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Allocation;
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.AllocationCell;
-import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Employee;
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Project;
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.ProjectState;
+import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Workplace;
+import cz.zcu.kiv.mjakubas.piae.sem.core.service.MyUtils;
 import cz.zcu.kiv.mjakubas.piae.sem.core.service.v1.AllocationService;
 import cz.zcu.kiv.mjakubas.piae.sem.core.service.v1.EmployeeService;
 import cz.zcu.kiv.mjakubas.piae.sem.core.service.v1.ProjectService;
@@ -12,8 +13,8 @@ import cz.zcu.kiv.mjakubas.piae.sem.core.service.v1.WorkplaceService;
 import cz.zcu.kiv.mjakubas.piae.sem.core.vo.AllocationVO;
 import cz.zcu.kiv.mjakubas.piae.sem.core.vo.EmployeeVO;
 import cz.zcu.kiv.mjakubas.piae.sem.core.vo.ProjectVO;
+import cz.zcu.kiv.mjakubas.piae.sem.core.vo.WorkplaceVO;
 import lombok.AllArgsConstructor;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -21,11 +22,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -41,11 +38,13 @@ public class ProjectV1Controller {
     private final ProjectService projectService;
     private final EmployeeService employeeService;
     private final WorkplaceService workplaceService;
-
     private final AllocationService allocationService;
+    private final MyUtils utils;
 
     private static final String EMPLOYEES = "employees";
     private static final String RESTRICTIONS = "restrictions";
+
+    private static final String PROJECT = "project";
 
     @GetMapping()
     @PreAuthorize("hasAnyAuthority(" +
@@ -69,8 +68,7 @@ public class ProjectV1Controller {
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).PROJECT_ADMIN, " +
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN)")
     public String createProject(Model model) {
-        ProjectVO newProject = new ProjectVO().name("Nový projekt");
-        model.addAttribute("project", newProject);
+        model.addAttribute(PROJECT, newProject());
 
         var projects = projectService.getProjects();
         var employees = employeeService.getEmployees();
@@ -98,41 +96,6 @@ public class ProjectV1Controller {
         return "redirect:/p/{id}/detail?create=success";
     }
 
-//    @PreAuthorize("hasAnyAuthority(" +
-//            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT, " +
-//            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).PROJECT_ADMIN, " +
-//            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN) " +
-//            " or @securityService.isProjectManager(#id) or @securityService.isWorkplaceManager(#id)")
-//    @GetMapping("/{id}/edit")
-//    public String editProject(Model model, @PathVariable long id,
-//                              @RequestParam(required = false) Boolean manage) {
-//        Project data = projectService.getProject(id);
-//
-//        model.addAttribute("project",
-//                new ProjectVO()
-//                        .name(data.getName())
-//                        .projectManagerId(data.getProjectManager().getId())
-//                        .projectManagerName(data.getProjectManager().getLastName())
-//                        .workplaceId(data.getProjectWorkplace().getId())
-//                        .dateFrom(data.getDateFrom())
-//                        .dateUntil(data.getDateUntil())
-//                        .description(data.getDescription())
-//                        .budget(data.getBudget())
-//                        .budgetParticipation(data.getBudgetParticipation())
-//                        .totalTime(data.getTotalTime())
-//                        .agency(data.getAgency())
-//                        .grantTitle(data.getGrantTitle())
-//                        .state(data.getState().getValue()));
-//
-//        model.addAttribute("states", ProjectState.values());
-//        model.addAttribute(EMPLOYEES, employeeService.getEmployees());
-//        model.addAttribute("workplaces", workplaceService.getWorkplaces());
-//        model.addAttribute(RESTRICTIONS, projectService.getProjects());
-//        model.addAttribute("manage", manage);
-//
-//        return "forms/project/edit_project_form";
-//    }
-
     @PreAuthorize("hasAnyAuthority(" +
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT, " +
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).PROJECT_ADMIN, " +
@@ -141,6 +104,9 @@ public class ProjectV1Controller {
     @PostMapping("/{id}/edit")
     public String editProject(Model model, @PathVariable long id, @ModelAttribute ProjectVO projectVO,
                               BindingResult errors, @RequestParam(required = false) Boolean manage) {
+
+        System.out.println(projectVO);
+
         projectService.editProject(projectVO, id);
 
 //        if (Boolean.TRUE.equals(manage))
@@ -162,34 +128,28 @@ public class ProjectV1Controller {
 
         var allocationAverage = projectService.averageAllocation(project, allocations);
 
-        model.addAttribute("allocations", allocations);
-        model.addAttribute("project",
-                new ProjectVO()
-                        .name(project.getName())
-                        .projectManagerId(project.getProjectManager().getId())
-                        .projectManagerName(project.getProjectManager().getLastName())
-                        .workplaceId(project.getProjectWorkplace().getId())
-                        .dateFrom(project.getDateFrom())
-                        .dateUntil(project.getDateUntil())
-                        .description(project.getDescription())
-                        .budget(project.getBudget())
-                        .probability(project.getProbability())
-                        .budgetParticipation(project.getBudgetParticipation())
-                        .totalTime(project.getTotalTime())
-                        .agency(project.getAgency())
-                        .grantTitle(project.getGrantTitle())
-                        .state(project.getState().getValue()));
+        System.out.println("project.getProjectWorkplace().getId(): " + project.getProjectWorkplace().getId());
 
-        AllocationVO newAllocation = new AllocationVO();
-        newAllocation.setProjectId(project.getId());
-        newAllocation.setRole("nový");
-        newAllocation.setIsCertain(1.0F);
-        newAllocation.setAllocationScope(1.0F);
-        newAllocation.setDateFrom(project.getDateFrom());
-        newAllocation.setDateUntil(project.getDateUntil());
-        newAllocation.setDescription("description");
+        ProjectVO projectVO = new ProjectVO()
+                .name(project.getName())
+                .projectManagerId(project.getProjectManager().getId())
+                .projectManagerName(project.getProjectManager().getLastName())
+                .workplaceId(project.getProjectWorkplace().getId())
+                .dateFrom(project.getDateFrom())
+                .dateUntil(project.getDateUntil())
+                .description(project.getDescription())
+                .budget(project.getBudget())
+                .probability(project.getProbability())
+                .budgetParticipation(project.getBudgetParticipation())
+                .totalTime(project.getTotalTime())
+                .agency(project.getAgency())
+                .grantTitle(project.getGrantTitle())
+                .state(project.getState().getValue());
 
-        model.addAttribute("newAllocation", newAllocation);
+        model.addAttribute("allocations", mapAllocations(allocations));
+        model.addAttribute(PROJECT, projectVO);
+
+        model.addAttribute("newAllocation", newProjectAllocation(project));
 
         model.addAttribute("states", ProjectState.values());
 
@@ -198,12 +158,12 @@ public class ProjectV1Controller {
                 employee.getSubordinates().addAll(employeeService.getSubordinates(employee.getId())));
 
         List<List<AllocationCell>> allList = projectService.prepareProjectsCells(allocations);
-
-        List<AllocationCell> certainList = new LinkedList<>();
-        List<AllocationCell> uncertainList = new LinkedList<>();
+        List<AllocationCell> certainList =
+                !allList.isEmpty() ? new java.util.ArrayList<>(Collections.nCopies(allList.get(0).size(), new AllocationCell())) : new LinkedList<>();
+        List<AllocationCell> uncertainList =
+                !allList.isEmpty() ? new java.util.ArrayList<>(Collections.nCopies(allList.get(0).size(), new AllocationCell())) : new LinkedList<>();
         if (!allList.isEmpty()) {
-            certainList = projectService.prepareCertainProjectsCells(allList);
-            uncertainList = projectService.prepareCertainProjectsCells(allList);
+            projectService.prepareProjectsCells(allList, certainList, uncertainList);
         }
 
         model.addAttribute("certainAllocations", certainList);
@@ -211,14 +171,14 @@ public class ProjectV1Controller {
         model.addAttribute("monthlyAllocations", allList);
 
         model.addAttribute(EMPLOYEES, employees);
-        model.addAttribute("workplaces", workplaceService.getWorkplaces());
-        model.addAttribute(RESTRICTIONS, projectService.getProjects());
+        List<Workplace> workplaces = workplaceService.getWorkplaces();
+        model.addAttribute("workplaces", workplaces);
         model.addAttribute("manage", manage);
 
         return "details/project_detail";
     }
 
-    @GetMapping("/{id}/delete")
+    @PostMapping("/{id}/delete")
     @PreAuthorize("hasAnyAuthority(" +
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT, " +
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).PROJECT_ADMIN, " +
@@ -238,7 +198,6 @@ public class ProjectV1Controller {
         model.addAttribute("userVO", new EmployeeVO());
 
         var project = projectService.getProject(id);
-
         var restrictions = projectService.getProjectEmployees(project.getId());
 
         model.addAttribute(RESTRICTIONS, restrictions);
@@ -282,7 +241,47 @@ public class ProjectV1Controller {
         model.addAttribute("projects", payload.getAssignmentsProjects());
         model.addAttribute(EMPLOYEES, payload.getAllocationsEmployees());
 
-        model.addAttribute("project", project);
+        model.addAttribute(PROJECT, project);
         return "views/project_management";
+    }
+
+    private ProjectVO newProject() {
+        ProjectVO projectVO = new ProjectVO();
+        projectVO.setState(ProjectState.NOVY.getValue());
+        projectVO.setName("Nový projekt");
+        return projectVO;
+    }
+
+    private AllocationVO newProjectAllocation(Project project) {
+        AllocationVO newAllocation = new AllocationVO();
+        newAllocation.setProjectId(project.getId());
+        newAllocation.setWorkerId(1);
+        newAllocation.setRole("nový");
+        newAllocation.setIsCertain(1.0F);
+        newAllocation.setAllocationScope(15);
+        newAllocation.setDateFrom(utils.convertToLocalDateTime(project.getDateFrom()));
+        newAllocation.setDateUntil(utils.convertToLocalDateTime(project.getDateUntil()));
+        newAllocation.setDescription("description");
+
+        return newAllocation;
+    }
+
+    private List<AllocationVO> mapAllocations(List<Allocation> allocations) {
+        List<AllocationVO> allocationsVO = new LinkedList<>();
+        for (Allocation allocation : allocations) {
+            AllocationVO allocationVO = new AllocationVO();
+            allocationVO.setId(allocation.getId());
+            allocationVO.setProjectId(allocation.getProject().getId());
+            allocationVO.setWorkerId(allocation.getWorker().getId());
+            allocationVO.setRole(allocation.getRole());
+            allocationVO.setDateFrom(utils.convertToLocalDateTime(allocation.getDateFrom()));
+            allocationVO.setDateUntil(utils.convertToLocalDateTime(allocation.getDateUntil()));
+            allocationVO.setAllocationScope(allocation.getTime());
+            allocationVO.setIsCertain(allocation.getIsCertain());
+            allocationVO.setDescription(allocation.getDescription());
+            allocationsVO.add(allocationVO);
+        }
+
+        return allocationsVO;
     }
 }

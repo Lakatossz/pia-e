@@ -9,7 +9,6 @@ import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
-import java.util.Date;
 
 /**
  * Value object for representing {@link Allocation}.
@@ -24,17 +23,18 @@ import java.util.Date;
 public class AllocationVO {
 
     private long id;
-    private long employeeId;
+    private long workerId;
     private long projectId;
     private long courseId;
     private long functionId;
     private float allocationScope;  // in x/FTE
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private Date dateFrom;
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private Date dateUntil;
+    @DateTimeFormat(pattern = "dd.MM.yyyy")
+    private LocalDate dateFrom;
+    @DateTimeFormat(pattern = "dd.MM.yyyy")
+    private LocalDate dateUntil;
     private String description;
     private String role;
+    private String term;
     private float isCertain;
 
     private Boolean isActive = true;

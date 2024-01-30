@@ -58,6 +58,7 @@
                         <label class="course-detail-label" for="shortcut"
                                th:text="#{view.course_detail.shortcut}" th:required="true"/>
                         <input class="course-detail-input" type="text"
+                               onchange="onRequiredDetailChange(this)"
                                id="shortcut" name="shortcut" th:field="*{shortcut}">
                     </td>
                 </tr>
@@ -66,6 +67,7 @@
                         <label class="course-detail-label" for="name"
                                th:text="#{view.course_detail.name}" th:required="true"/>
                         <input class="course-detail-input" type="text"
+                               onchange="onRequiredDetailChange(this)"
                                id="name" name="name" th:field="*{name}">
                     </td>
                 </tr>
@@ -104,6 +106,7 @@
                             <label class="course-detail-label" for="lecture"
                                    th:text="#{view.course_detail.lecture}" th:required="true"/>
                             <input class="course-detail-input" type="number"
+                                   onchange="onRequiredDetailChange(this)"
                                    id="lecture" name="lecture" th:field="*{lectureLength}">
                         </div>
                     </td>
@@ -112,6 +115,7 @@
                             <label class="course-detail-label" for="exercise"
                                    th:text="#{view.course_detail.exercise}" th:required="true"/>
                             <input class="course-detail-input" type="number"
+                                   onchange="onRequiredDetailChange(this)"
                                    id="exercise" name="exercise" th:field="*{exerciseLength}">
                         </div>
                     </td>
@@ -121,6 +125,7 @@
                         <label class="course-detail-label" for="from"
                                th:text="#{view.course_detail.from}" th:required="true"/>
                         <input class="course-detail-input" type="date"
+                               onchange="onRequiredDetailChange(this)"
                                id="from" name="from" th:field="*{dateFrom}">
                     </td>
                 </tr>
@@ -129,6 +134,7 @@
                         <label class="course-detail-label" for="until"
                                th:text="#{view.course_detail.until}" th:required="true"/>
                         <input class="course-detail-input" type="date"
+                               onchange="onRequiredDetailChange(this)"
                                id="until" name="until" th:field="*{dateUntil}">
                     </td>
                 </tr>
@@ -145,6 +151,7 @@
                         <label class="course-detail-label" for="students"
                                th:text="#{view.course_detail.students}" th:required="true"/>
                         <input class="course-detail-input" type="number"
+                               onchange="onRequiredDetailChange(this)"
                                id="students" name="students" th:field="*{numberOfStudents}">
                     </td>
                 </tr>
@@ -198,12 +205,18 @@
             <table style="width: 1400px" class="course-detail-tab-content" th:id="${allListStats.index} + 'Content'">
                 <thead>
                     <tr class="course-table-detail-row">
-                        <td class="course-allocations-header" th:text="#{view.course_detail.table.name}"></td>
-                        <td class="course-allocations-header" th:text="#{view.course_detail.table.role}"></td>
-                        <td class="course-allocations-header" th:text="#{view.course_detail.table.term}"></td>
-                        <td class="course-allocations-header" th:text="#{view.course_detail.table.hours_weekly}"></td>
-                        <td class="course-allocations-header" th:text="#{view.course_detail.table.probability}"></td>
-                        <td class="course-allocations-header" th:text="#{view.course_detail.table.description}"></td>
+                        <td class="course-allocations-header"
+                            th:text="#{view.course_detail.table.name}" required="required"></td>
+                        <td class="course-allocations-header"
+                            th:text="#{view.course_detail.table.role}" required="required"></td>
+                        <td class="course-allocations-header"
+                            th:text="#{view.course_detail.table.term}" required="required"></td>
+                        <td class="course-allocations-header"
+                            th:text="#{view.course_detail.table.hours_weekly}" required="required"></td>
+                        <td class="course-allocations-header"
+                            th:text="#{view.course_detail.table.probability}" required="required"></td>
+                        <td class="course-allocations-header"
+                            th:text="#{view.course_detail.table.description}"></td>
                         <td></td>
                     </tr>
                 </thead>
@@ -218,10 +231,11 @@
                                     <td class="course-table-detail-cell">
                                         <label>
                                             <select class="course-table-detail-select"
-                                                    th:id="'allocationSelect' + ${all.id}" th:name="employeeId" disabled="disabled">
+                                                    th:id="'allocationSelect' + ${all.id}"
+                                                    th:name="employeeId" disabled="disabled">
                                                 <option th:each="emp : ${employees}" th:value="${emp.getId()}"
                                                         th:text="${emp.getLastName()} + ' ' + ${emp.getFirstName()}"
-                                                        th:selected="${emp.getId() eq all.workerId}">
+                                                        th:selected="${emp.getId() eq all.worker.id}">
                                                 </option>
                                             </select>
                                         </label>
@@ -229,15 +243,15 @@
                                     <td class="course-table-detail-cell">
                                         <label>
                                             <input class="course-table-detail-input" type="text" readonly="readonly"
+                                                   th:onchange="'onRequiredAllocationChange(this, ' + ${allStats.index} + ')'"
                                                    th:name="role" th:value="*{role}">
                                         </label>
                                     </td>
                                     <td class="course-table-detail-cell">
                                         <label>
                                             <select class="course-table-detail-select"
-                                                    th:name="term" th:value="*{term}">
-                                                <option th:each="term : ${terms}"
-                                                        th:value="${term.value}"
+                                                    th:name="term" th:id="term" disabled="disabled">
+                                                <option th:each="term : ${terms}" th:value="${term.value}"
                                                         th:text="${term.value}"
                                                         th:selected="${term.value eq all.term}">
                                                 </option>
@@ -247,12 +261,14 @@
                                     <td class="course-table-detail-cell">
                                         <label>
                                             <input class="course-table-detail-input" type="text" readonly="readonly"
-                                                   th:name="allocationScope" th:value="*{allocationScope}">
+                                                   th:onchange="'onRequiredAllocationChange(this, ' + ${allStats.index} + ')'"
+                                                   th:name="time" th:value="*{time}">
                                         </label>
                                     </td>
                                     <td class="course-table-detail-cell">
                                         <label>
                                             <input class="course-table-detail-input" type="text" readonly="readonly"
+                                                   th:onchange="'onRequiredAllocationChange(this, ' + ${allStats.index} + ')'"
                                                    th:name="isCertain" th:value="*{isCertain}">
                                         </label>
                                     </td>
@@ -264,7 +280,7 @@
                                     </td>
                                     <td>
                                         <button class="btn btn-confirm" type="submit"
-                                                th:formaction="'/a/' + ${all.id} + '/edit/c/' + ${id} + '/' + ${all.workerId} + '/' + ${all.term}"></button>
+                                                th:formaction="'/a/' + ${all.id} + '/edit/c/' + ${id} + '/' + ${all.worker.id} + '/' + ${all.term}"></button>
                                     </td>
                                     <td>
                                         <button class="btn btn-cancel" th:id="${allStats.index}" type="button"></button>
@@ -281,7 +297,7 @@
                                     <td>
                                         <label>
                                             <input class="course-table-detail-input" style="display : none"
-                                                   th:id="${allStats.index}" th:name="courseId" th:value="${all.courseId}">
+                                                   th:id="${allStats.index}" th:name="courseId" th:value="${id}">
                                         </label>
                                     </td>
                                 </tr>
@@ -297,7 +313,7 @@
                                 <td class="course-table-detail-cell">
                                     <label>
                                         <select class="course-table-detail-select"
-                                                th:name="employeeId" th:field="*{newAllocation.workerId}">
+                                                th:name="employeeId" th:field="*{newAllocation.worker.id}">
                                             <option th:each="emp : ${employees}" th:selected="${emp.getId()}"
                                                     th:value="${emp.getId()}"
                                                     th:text="${emp.getLastName()} + ' ' + ${emp.getFirstName()}">
@@ -307,7 +323,8 @@
                                 </td>
                                 <td class="course-table-detail-cell">
                                     <label>
-                                        <input class="course-table-detail-input" type="text"
+                                        <input class="course-table-detail-input"
+                                               type="text" onchange="onRequiredNewAllocationChange(this)"
                                                th:name="role" th:value="${newAllocation.role}">
                                     </label>
                                 </td>
@@ -325,13 +342,15 @@
                                 </td>
                                 <td class="course-table-detail-cell">
                                     <label>
-                                        <input class="course-table-detail-input" type="text"
-                                               th:name="allocationScope" th:value="${newAllocation.allocationScope}">
+                                        <input class="course-table-detail-input"
+                                               type="text" onchange="onRequiredNewAllocationChange(this)"
+                                               th:name="time" th:value="${newAllocation.time}">
                                     </label>
                                 </td>
                                 <td class="course-table-detail-cell">
                                     <label>
-                                        <input class="course-table-detail-input" type="text"
+                                        <input class="course-table-detail-input"
+                                               type="text" onchange="onRequiredNewAllocationChange(this)"
                                                th:name="isCertain" th:value="${newAllocation.isCertain}">
                                     </label>
                                 </td>
@@ -343,7 +362,7 @@
                                 </td>
                                 <td>
                                     <button class="btn btn-confirm-new-all" type="submit"
-                                            style="visibility: visible" th:formaction="'/a/create/course/' + ${id} + '/' + ${newAllocation.workerId} + '/' + ${newAllocation.term}"></button>
+                                            style="visibility: visible" th:formaction="'/a/create/course/' + ${id} + '/' + ${newAllocation.worker.id} + '/' + ${newAllocation.term}"></button>
                                 </td>
                                 <td>
                                     <button class="btn btn-cancel-new-all"
@@ -383,6 +402,8 @@
     let employees = [[${employees}]];
 
     let allocations = [[${allocations}]];
+
+    let newAllocation = [[${newAllocation}]];
 
     // Konstanty pro naplneni defaultniho pole nove alokace
     const default_role = 'nový';
@@ -424,10 +445,14 @@
 
     // Tlacitko pro zobrazeni radku pro vyplneni nove alokace
     let add_button = document.getElementsByClassName("btn-add");
+    console.log('add_button: ' + add_button.length)
     Array.from(add_button).forEach(function (button) {
         button.addEventListener('click', function () {
             if (!allocation_being_added) {
                 allocation_being_added = true;
+
+                console.log('Kliknul jsem');
+
                 Array.from(new_allocation).forEach(function (allocation) {
                     allocation.classList.remove('course-allocation-new-hidden');
                     allocation.classList.add('course-allocation-new-display');
@@ -444,7 +469,7 @@
         let buttonsCancelNewAll = document.getElementsByClassName("btn-cancel-new-all");
 
         for (let i = 0; i < buttonsConfirmNewAll.length; ++i) {
-            let select = new_allocation.getElementsByClassName("course-allocations-select");
+            let select = new_allocation[i].getElementsByClassName("course-allocations-select");
             Array.from(select).forEach(function (td) {
                 td.removeAttribute('disabled');
             });
@@ -468,6 +493,10 @@
                     clearRow(allocation);
                     allocation.classList.remove('course-allocation-new-display');
                     allocation.classList.add('course-allocation-new-hidden');
+                    let inputs = allocation.getElementsByClassName('course-allocations-input')
+                    Array.from(inputs).forEach(function (input) {
+                        input.classList.remove('course-table-detail-input-empty');
+                    });
                 });
             });
         }
@@ -507,6 +536,7 @@
                 let select = course_allocations[i].getElementsByClassName("course-table-detail-select");
                 Array.from(select).forEach(function(td) {
                     td.setAttribute('disabled', 'disabled');
+                    select.value = allocations[i].workerId;
                 });
 
                 let tds = course_allocations[i].getElementsByClassName("course-table-detail-input");
@@ -516,6 +546,17 @@
                     buttonsCancel[i].style.visibility = 'hidden';
                     buttonsEdit[i].style.visibility = 'visible';
                 });
+
+                tds[0].value = allocations[i].role;
+                tds[0].classList.remove('course-table-detail-input-empty');
+                tds[1].value = allocations[i].term;
+                tds[1].classList.remove('course-table-detail-input-empty');
+                tds[2].value = allocations[i].time;
+                tds[2].classList.remove('course-table-detail-input-empty');
+                tds[3].value = allocations[i].isCertain;
+                tds[3].classList.remove('course-table-detail-input-empty');
+                tds[4].value = allocations[i].description;
+                tds[4].classList.remove('course-table-detail-input-empty');
             });
         }
     });
@@ -543,11 +584,14 @@
 
             buttons[tabId].classList.add('course-detail-button-selected');
 
-            let selectedTabContent = document.getElementById(tabId + 'Content');
-            tabContents.forEach(function(tabContent) {
-                tabContent.classList.remove('active');
-            });
-            selectedTabContent.classList.add('active');
+            if (tabContents.length > 0) {
+                let selectedTabContent = document.getElementById(tabId + 'Content');
+                tabContents.forEach(function (tabContent) {
+                    tabContent.classList.remove('active');
+                });
+
+                selectedTabContent.classList.add('active');
+            }
         }
     }
 
@@ -555,10 +599,11 @@
         let select = tr.getElementsByClassName('course-table-detail-select');
         select.value = employees[0].id;
         let input = tr.getElementsByClassName('course-table-detail-input');
-        input[0].value = default_role;
-        input[1].value = default_time;
-        input[2].value = default_certain;
-        input[3].value = default_description;
+        input[0].value = newAllocation.role;
+        input[1].value = newAllocation.term;
+        input[1].value = newAllocation.time;
+        input[2].value = newAllocation.isCertain;
+        input[3].value = newAllocation.description;
     }
 
     let requiredDetailNotFilled = 0;
@@ -569,10 +614,10 @@
             if (requiredDetailNotFilled === 0)
                 btn[0].disabled = true;
             requiredDetailNotFilled++;
-            element.classList.add('project-detail-input-empty');
+            element.classList.add('course-detail-input-empty');
             return false;
         } else {
-            element.classList.remove('project-detail-input-empty');
+            element.classList.remove('course-detail-input-empty');
             requiredDetailNotFilled--;
             if (requiredDetailNotFilled === 0)
                 btn[0].disabled = false;
@@ -590,10 +635,10 @@
             if (requiredAllocationNotFilled[allIndex] === 0)
                 btn[0].disabled = true;
             requiredAllocationNotFilled[allIndex]++;
-            element.classList.add('course-allocations-input-empty');
+            element.classList.add('course-table-detail-input-empty');
             return false;
         } else {
-            element.classList.remove('course-allocations-input-empty');
+            element.classList.remove('course-table-detail-input-empty');
             requiredAllocationNotFilled[allIndex]--;
             if (requiredAllocationNotFilled[allIndex] === 0)
                 btn[0].disabled = false;
@@ -603,22 +648,22 @@
     let requiredNewAllocationNotFilled = 0;
 
     function onRequiredNewAllocationChange(element) {
-        let btn = document.getElementsByClassName('submit-btn');
+        let btn = document.getElementsByClassName('btn-confirm-new-all');
         if (element.value === '') {
             if (requiredNewAllocationNotFilled === 0)
                 btn[0].disabled = true;
             requiredNewAllocationNotFilled++;
-            element.classList.add('course-allocations-input-empty');
+            element.classList.add('course-table-detail-input-empty');
             return false;
         } else {
-            element.classList.remove('course-allocations-input-empty');
+            element.classList.remove('course-table-detail-input-empty');
             requiredNewAllocationNotFilled--;
             if (requiredNewAllocationNotFilled === 0)
                 btn[0].disabled = false;
         }
     }
 
-    // Zkontroluje povinna pole detailu projektu pri aktualizaci
+    // Zkontroluje povinna pole detailu predmetu pri aktualizaci
     function checkAllocation(allocationId) {
         let trs = document.getElementsByClassName("course-allocations");
         let select = trs[allocationId].getElementsByClassName("course-allocations-select");
@@ -629,7 +674,7 @@
         let tds = trs[allocationId].getElementsByClassName("course-allocations-input");
         Array.from(tds).forEach(function (td) {
             if (td.value === '') {
-                td.classList.add('course-allocations-input-empty');
+                td.classList.add('course-table-detail-input-empty');
                 return false;
             }
         });

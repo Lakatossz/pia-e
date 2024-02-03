@@ -260,7 +260,7 @@ public class FunctionV1Controller {
         newAllocation.setWorkerId(1);
         newAllocation.setRole("nový");
         newAllocation.setIsCertain(1.0F);
-        newAllocation.setAllocationScope(1.0F);
+        newAllocation.setAllocationScope(1);
         newAllocation.setDateFrom(utils.convertToLocalDateTime(function.getDateFrom()));
         newAllocation.setDateUntil(utils.convertToLocalDateTime(function.getDateUntil()));
         newAllocation.setDescription("description");
@@ -278,7 +278,7 @@ public class FunctionV1Controller {
             allocationVO.setRole(allocation.getRole());
             allocationVO.setDateFrom(utils.convertToLocalDateTime(allocation.getDateFrom()));
             allocationVO.setDateUntil(utils.convertToLocalDateTime(allocation.getDateUntil()));
-            allocationVO.setAllocationScope(allocation.getTime());
+            allocationVO.setAllocationScope((float) allocation.getAllocationScope() / (40 * 60));
             allocationVO.setIsCertain(allocation.getIsCertain());
             allocationVO.setDescription(allocation.getDescription());
             allocationsVO.add(allocationVO);

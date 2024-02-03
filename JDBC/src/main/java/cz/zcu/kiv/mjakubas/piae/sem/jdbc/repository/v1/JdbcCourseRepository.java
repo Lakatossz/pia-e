@@ -127,7 +127,7 @@ public class JdbcCourseRepository implements ICourseRepository {
                 UPDATE course
                 SET crs_name = :crs_name, crs_shortcut = :crs_shortcut, crs_number_of_students = :crs_number_of_students, crs_term = :crs_term,
                 crs_lecture_length = :crs_lecture_length, crs_exercise_length = :crs_exercise_length, crs_credits = :crs_credits,
-                crs_lecture_required = :crs_lecture_required, crs_exercise_require = :crs_exercise_require,
+                crs_lecture_required = :crs_lecture_required, crs_exercise_required = :crs_exercise_required,
                 crs_date_until = :crs_date_until, crs_probability = :crs_probability, crs_manager_id = :crs_manager_id,
                 crs_workplace_id = :crs_workplace_id
                 WHERE course_id = :course_id

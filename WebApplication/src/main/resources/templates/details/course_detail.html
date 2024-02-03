@@ -35,14 +35,6 @@
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
 
-        <div th:if="(${(param.edit != null)} and ${(param.edit[0] == 'failure')}
-        or ${(param.create != null)} and ${(param.create[0] == 'failure')})"
-             class="alert alert-danger alert-dismissible fade show">
-            <strong th:if="${(param.edit != null)} and ${(param.edit[0] == 'failure')}" th:text="#{view.course.alert.edit.failure}"></strong>
-            <strong th:if="${(param.create != null)}" th:text="#{view.course.alert.create}"></strong>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-
         <h1 class="text-center mt-5" th:text="#{view.course_detail.header} + ' ' + ${course.getName()}"></h1>
 
         <div class="course-detail-collapsible-header" style="display: flex">
@@ -201,8 +193,7 @@
         <div style="float:right">
             <button class="btn btn-add" type="button"></button>
         </div>
-        <th:block th:each="allList, allListStats : ${allocationsByYears}">
-            <table style="width: 1400px" class="course-detail-tab-content" th:id="${allListStats.index} + 'Content'">
+            <table style="width: 1400px">
                 <thead>
                     <tr class="course-table-detail-row">
                         <td class="course-allocations-header"
@@ -221,99 +212,104 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <th:block th:each="all, allStats: ${allList}">
-                        <!-- Allocation-->
-                        <form method="post"
-                              th:action="@{'/a/' + ${all.id} + '/edit/c/' + ${id}}"
-                              th:object="${all}" th:method="POST" novalidate>
-                            <th:block>
-                                <tr class="course-allocation"  th:id="${allStats.index}">
-                                    <td class="course-table-detail-cell">
-                                        <label>
-                                            <select class="course-table-detail-select"
-                                                    th:id="'allocationSelect' + ${all.id}"
-                                                    th:name="employeeId" disabled="disabled">
-                                                <option th:each="emp : ${employees}" th:value="${emp.getId()}"
-                                                        th:text="${emp.getLastName()} + ' ' + ${emp.getFirstName()}"
-                                                        th:selected="${emp.getId() eq all.worker.id}">
-                                                </option>
-                                            </select>
-                                        </label>
-                                    </td>
-                                    <td class="course-table-detail-cell">
-                                        <label>
-                                            <input class="course-table-detail-input" type="text" readonly="readonly"
-                                                   th:onchange="'onRequiredAllocationChange(this, ' + ${allStats.index} + ')'"
-                                                   th:name="role" th:value="*{role}">
-                                        </label>
-                                    </td>
-                                    <td class="course-table-detail-cell">
-                                        <label>
-                                            <select class="course-table-detail-select"
-                                                    th:name="term" th:id="term" disabled="disabled">
-                                                <option th:each="term : ${terms}" th:value="${term.value}"
-                                                        th:text="${term.value}"
-                                                        th:selected="${term.value eq all.term}">
-                                                </option>
-                                            </select>
-                                        </label>
-                                    </td>
-                                    <td class="course-table-detail-cell">
-                                        <label>
-                                            <input class="course-table-detail-input" type="text" readonly="readonly"
-                                                   th:onchange="'onRequiredAllocationChange(this, ' + ${allStats.index} + ')'"
-                                                   th:name="time" th:value="*{time}">
-                                        </label>
-                                    </td>
-                                    <td class="course-table-detail-cell">
-                                        <label>
-                                            <input class="course-table-detail-input" type="text" readonly="readonly"
-                                                   th:onchange="'onRequiredAllocationChange(this, ' + ${allStats.index} + ')'"
-                                                   th:name="isCertain" th:value="*{isCertain}">
-                                        </label>
-                                    </td>
-                                    <td class="course-table-detail-cell">
-                                        <label>
-                                            <input class="course-table-detail-input" type="text" readonly="readonly"
-                                                   th:name="description" th:value="*{description}">
-                                        </label>
-                                    </td>
-                                    <td>
-                                        <button class="btn btn-confirm" type="submit"
-                                                th:formaction="'/a/' + ${all.id} + '/edit/c/' + ${id} + '/' + ${all.worker.id} + '/' + ${all.term}"></button>
-                                    </td>
-                                    <td>
-                                        <button class="btn btn-cancel" th:id="${allStats.index}" type="button"></button>
-                                    </td>
-                                    <td>
-                                        <button class="btn btn-edit" th:id="${allStats.index}" type="button"></button>
-                                    </td>
-                                    <td>
-                                        <button class="btn btn-delete" type="submit"
-                                                th:formaction="'/a/' + ${all.id} + '/delete/c/' + ${id}"
-                                                th:data-confirm-delete="#{view.course_detail.delete_allocation.confirm}"
-                                                onclick="if (!confirm(this.getAttribute('data-confirm-delete'))) return false"></button>
-                                    </td>
-                                    <td>
-                                        <label>
-                                            <input class="course-table-detail-input" style="display : none"
-                                                   th:id="${allStats.index}" th:name="courseId" th:value="${id}">
-                                        </label>
-                                    </td>
-                                </tr>
-                            </th:block>
-                        </form>
-                    </th:block>
-
-                    <!-- Newly added allocation-->
+                <th:block th:each="allList, allListStats : ${allocationsByYears}">
+                    <div class="course-detail-tab-content" th:id="${allListStats.index} + 'Content'">
+                        <th:block th:each="all, allStats: ${allList}">
+                            <!-- Allocation-->
+                            <form th:id="allForm + ${allStats.index}"
+                                  th:action="@{'all'}"
+                                  th:object="${all}" th:method="POST" novalidate>
+                                <th:block>
+                                    <tr class="course-allocation"  th:id="${allStats.index}">
+                                        <td class="course-table-detail-cell">
+                                            <label>
+                                                <select class="course-table-detail-select"
+                                                        th:id="'allocationSelect' + ${allStats.index}"
+                                                        th:name="employeeId" disabled="disabled">
+                                                    <option th:each="emp : ${employees}" th:value="${emp.getId()}"
+                                                            th:text="${emp.getLastName()} + ' ' + ${emp.getFirstName()}"
+                                                            th:selected="${emp.getId() eq all.worker.id}">
+                                                    </option>
+                                                </select>
+                                            </label>
+                                        </td>
+                                        <td class="course-table-detail-cell">
+                                            <label>
+                                                <input class="course-table-detail-input" type="text" readonly="readonly"
+                                                       th:onchange="'onRequiredAllocationChange(this, ' + ${allStats.index} + ')'"
+                                                       th:name="role" th:value="*{role}">
+                                            </label>
+                                        </td>
+                                        <td class="course-table-detail-cell">
+                                            <label>
+                                                <select class="course-table-detail-select"
+                                                        th:name="term" th:id="term" disabled="disabled">
+                                                    <option th:each="term : ${terms}" th:value="${term.value}"
+                                                            th:text="${term.value}"
+                                                            th:selected="${term.value eq all.term}">
+                                                    </option>
+                                                </select>
+                                            </label>
+                                        </td>
+                                        <td class="course-table-detail-cell">
+                                            <label>
+                                                <input class="course-table-detail-input" readonly="readonly"
+                                                       th:onchange="'onRequiredAllocationChange(this, ' + ${allStats.index} + ')'"
+                                                       type="number" step="0.1" th:name="allocationScope" th:value="*{allocationScope}">
+                                            </label>
+                                        </td>
+                                        <td class="course-table-detail-cell">
+                                            <label>
+                                                <input class="course-table-detail-input" readonly="readonly"
+                                                       th:onchange="'onRequiredAllocationChange(this, ' + ${allStats.index} + ')'"
+                                                       type="number" step="0.1" th:name="isCertain" th:value="*{isCertain}">
+                                            </label>
+                                        </td>
+                                        <td class="course-table-detail-cell">
+                                            <label>
+                                                <input class="course-table-detail-input" type="text" readonly="readonly"
+                                                       th:name="description" th:value="*{description}">
+                                            </label>
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-confirm"
+                                                    th:attr="onclick=|updateFormActionAndSubmit('${allStats.index}')|"></button>
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-cancel" th:id="${allStats.index}" type="button"></button>
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-edit" th:id="${allStats.index}" type="button"></button>
+                                        </td>
+                                        <td>
+                                            <button class="btn btn-delete" type="submit"
+                                                    th:formaction="'/a/' + ${all.id} + '/delete/c/' + ${id}"
+                                                    th:data-confirm-delete="#{view.course_detail.delete_allocation.confirm}"
+                                                    onclick="if (!confirm(this.getAttribute('data-confirm-delete'))) return false"></button>
+                                        </td>
+                                        <td>
+                                            <label>
+                                                <input class="course-table-detail-input" style="display : none"
+                                                       th:id="${allStats.index}" th:name="courseId" th:value="${id}">
+                                            </label>
+                                        </td>
+                                    </tr>
+                                </th:block>
+                            </form>
+                        </th:block>
+                    </div>
+                </th:block>
+                <!-- Newly added allocation-->
+                <th:block>
                     <form method="post"
-                          th:action="@{'/a/create/course/' + ${id}}">
+                          th:action="@{'/a/create/course/' + ${id}}"
+                          th:object="${newAllocation}" th:method="POST" novalidate>
                         <th:block>
                             <tr class="course-allocation-new course-allocation-new-hidden">
                                 <td class="course-table-detail-cell">
                                     <label>
                                         <select class="course-table-detail-select"
-                                                th:name="employeeId" th:field="*{newAllocation.worker.id}">
+                                                th:name="employeeId" th:field="*{workerId}">
                                             <option th:each="emp : ${employees}" th:selected="${emp.getId()}"
                                                     th:value="${emp.getId()}"
                                                     th:text="${emp.getLastName()} + ' ' + ${emp.getFirstName()}">
@@ -325,17 +321,17 @@
                                     <label>
                                         <input class="course-table-detail-input"
                                                type="text" onchange="onRequiredNewAllocationChange(this)"
-                                               th:name="role" th:value="${newAllocation.role}">
+                                               th:name="role" th:field="*{role}">
                                     </label>
                                 </td>
                                 <td class="course-table-detail-cell">
                                     <label>
                                         <select class="course-table-detail-select"
-                                                th:name="term" th:field="${newAllocation.term}">
+                                                th:name="term" th:field="*{term}">
                                             <option th:each="term : ${terms}"
-                                                    th:value="${term.value}"
-                                                    th:text="${term.value}"
-                                                    th:selected="${term.value eq newAllocation.term}">
+                                                    th:value="${term}"
+                                                    th:text="${term}"
+                                                    th:selected="${term eq newAllocation.term}">
                                             </option>
                                         </select>
                                     </label>
@@ -343,26 +339,26 @@
                                 <td class="course-table-detail-cell">
                                     <label>
                                         <input class="course-table-detail-input"
-                                               type="text" onchange="onRequiredNewAllocationChange(this)"
-                                               th:name="time" th:value="${newAllocation.time}">
+                                               type="number" step="0.1" onchange="onRequiredNewAllocationChange(this)"
+                                               th:id="allocationScope" th:name="allocationScope" th:field="*{allocationScope}">
                                     </label>
                                 </td>
                                 <td class="course-table-detail-cell">
                                     <label>
                                         <input class="course-table-detail-input"
-                                               type="text" onchange="onRequiredNewAllocationChange(this)"
-                                               th:name="isCertain" th:value="${newAllocation.isCertain}">
+                                               type="number" step="0.1" onchange="onRequiredNewAllocationChange(this)"
+                                               th:name="isCertain" th:field="*{isCertain}">
                                     </label>
                                 </td>
                                 <td class="course-table-detail-cell">
                                     <label>
                                         <input class="course-table-detail-input" type="text"
-                                               th:name="description" th:value="${newAllocation.description}">
+                                               th:name="description" th:field="*{description}">
                                     </label>
                                 </td>
                                 <td>
                                     <button class="btn btn-confirm-new-all" type="submit"
-                                            style="visibility: visible" th:formaction="'/a/create/course/' + ${id} + '/' + ${newAllocation.worker.id} + '/' + ${newAllocation.term}"></button>
+                                            style="visibility: visible" th:formaction="'/a/create/course/' + ${id} + '/2024'"></button>
                                 </td>
                                 <td>
                                     <button class="btn btn-cancel-new-all"
@@ -383,9 +379,9 @@
                             </tr>
                         </th:block>
                     </form>
+                </th:block>
                 </tbody>
             </table>
-        </th:block>
     </div>
 </div>
 
@@ -398,6 +394,9 @@
 
     // Predmet
     let course = [[${course}]];
+
+    let id = [[${id}]];
+
     // Pole uzivatelu
     let employees = [[${employees}]];
 
@@ -405,11 +404,7 @@
 
     let newAllocation = [[${newAllocation}]];
 
-    // Konstanty pro naplneni defaultniho pole nove alokace
-    const default_role = 'nový';
-    const default_time = 1.0;
-    const default_certain = 1.0;
-    const default_description = 'description';
+    let currentYear;
 
     // Tabulka alokaci predmetu
     let course_allocations = document.getElementsByClassName("course-allocation"); // course-detail-tab-content
@@ -445,13 +440,10 @@
 
     // Tlacitko pro zobrazeni radku pro vyplneni nove alokace
     let add_button = document.getElementsByClassName("btn-add");
-    console.log('add_button: ' + add_button.length)
     Array.from(add_button).forEach(function (button) {
         button.addEventListener('click', function () {
             if (!allocation_being_added) {
                 allocation_being_added = true;
-
-                console.log('Kliknul jsem');
 
                 Array.from(new_allocation).forEach(function (allocation) {
                     allocation.classList.remove('course-allocation-new-hidden');
@@ -461,11 +453,8 @@
         })
     });
 
-    Array.from(course_allocations).forEach(function(trArray) {
-        let buttonsEdit = document.getElementsByClassName("btn-edit");
-        let buttonsConfirm = document.getElementsByClassName("btn-confirm");
+    Array.from(new_allocation).forEach(function (allocation) {
         let buttonsConfirmNewAll = document.getElementsByClassName("btn-confirm-new-all");
-        let buttonsCancel = document.getElementsByClassName("btn-cancel");
         let buttonsCancelNewAll = document.getElementsByClassName("btn-cancel-new-all");
 
         for (let i = 0; i < buttonsConfirmNewAll.length; ++i) {
@@ -479,7 +468,6 @@
                     allocation_being_added = false;
 
                 Array.from(new_allocation).forEach(function (allocation) {
-                    clearRow(allocation);
                     allocation.classList.remove('course-allocation-new-display');
                     allocation.classList.add('course-allocation-new-hidden');
                 });
@@ -493,13 +481,19 @@
                     clearRow(allocation);
                     allocation.classList.remove('course-allocation-new-display');
                     allocation.classList.add('course-allocation-new-hidden');
-                    let inputs = allocation.getElementsByClassName('course-allocations-input')
+                    let inputs = allocation.getElementsByClassName('course-table-detail-input')
                     Array.from(inputs).forEach(function (input) {
                         input.classList.remove('course-table-detail-input-empty');
                     });
                 });
             });
         }
+    });
+
+    Array.from(course_allocations).forEach(function(trArray) {
+        let buttonsEdit = document.getElementsByClassName("btn-edit");
+        let buttonsConfirm = document.getElementsByClassName("btn-confirm");
+        let buttonsCancel = document.getElementsByClassName("btn-cancel");
 
         for (let i = 0; i < buttonsEdit.length; ++i) {
             buttonsEdit[i].addEventListener("click", function() {
@@ -551,7 +545,7 @@
                 tds[0].classList.remove('course-table-detail-input-empty');
                 tds[1].value = allocations[i].term;
                 tds[1].classList.remove('course-table-detail-input-empty');
-                tds[2].value = allocations[i].time;
+                tds[2].value = allocations[i].allocationScope;
                 tds[2].classList.remove('course-table-detail-input-empty');
                 tds[3].value = allocations[i].isCertain;
                 tds[3].classList.remove('course-table-detail-input-empty');
@@ -562,6 +556,11 @@
     });
 
     function showTab(tabId) {
+
+        currentYear = course.years[tabId];
+
+        console.log('Zmenil jsem rok na: ' + currentYear);
+
         let tabContents = document.querySelectorAll('.course-detail-tab-content');
         tabContents.forEach(function(tabContent) {
             tabContent.classList.remove('active');
@@ -601,7 +600,7 @@
         let input = tr.getElementsByClassName('course-table-detail-input');
         input[0].value = newAllocation.role;
         input[1].value = newAllocation.term;
-        input[1].value = newAllocation.time;
+        input[1].value = newAllocation.allocationScope;
         input[2].value = newAllocation.isCertain;
         input[3].value = newAllocation.description;
     }
@@ -663,25 +662,11 @@
         }
     }
 
-    // Zkontroluje povinna pole detailu predmetu pri aktualizaci
-    function checkAllocation(allocationId) {
-        let trs = document.getElementsByClassName("course-allocations");
-        let select = trs[allocationId].getElementsByClassName("course-allocations-select");
-        Array.from(select).forEach(function (td) {
-            td.setAttribute('disabled', 'disabled');
-        });
-
-        let tds = trs[allocationId].getElementsByClassName("course-allocations-input");
-        Array.from(tds).forEach(function (td) {
-            if (td.value === '') {
-                td.classList.add('course-table-detail-input-empty');
-                return false;
-            }
-        });
-
-        select = document.getElementById('allocationSelect' + allocationId);
-        let realInput = document.getElementById('workerId' + allocationId);
-        realInput.value = select.options[select.selectedIndex].value;
+    function updateFormActionAndSubmit(formId) {
+        let form = document.getElementById('allForm' + formId);
+        let select = document.getElementById('allocationSelect' + formId);
+        form.action = '/a/' + allocations[formId].id + '/edit/c/' + id + '/' +
+            select.options[select.selectedIndex].value + '/' + currentYear;
     }
 
 </script>

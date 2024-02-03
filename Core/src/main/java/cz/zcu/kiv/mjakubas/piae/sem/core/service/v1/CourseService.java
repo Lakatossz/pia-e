@@ -8,17 +8,22 @@ import cz.zcu.kiv.mjakubas.piae.sem.core.exceptions.SecurityException;
 import cz.zcu.kiv.mjakubas.piae.sem.core.repository.ICourseRepository;
 import cz.zcu.kiv.mjakubas.piae.sem.core.repository.IEmployeeRepository;
 import cz.zcu.kiv.mjakubas.piae.sem.core.repository.IWorkplaceRepository;
+import cz.zcu.kiv.mjakubas.piae.sem.core.service.MyUtils;
 import cz.zcu.kiv.mjakubas.piae.sem.core.service.SecurityService;
 import cz.zcu.kiv.mjakubas.piae.sem.core.exceptions.ServiceException;
+import cz.zcu.kiv.mjakubas.piae.sem.core.vo.AllocationVO;
 import cz.zcu.kiv.mjakubas.piae.sem.core.vo.EmployeeVO;
 import cz.zcu.kiv.mjakubas.piae.sem.core.vo.CourseVO;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -36,15 +41,49 @@ import javafx.util.Pair;
  */
 @Service
 @Transactional(readOnly = true)
-@AllArgsConstructor
 public class CourseService {
 
-    private final ICourseRepository courseRepository;
-    private final IEmployeeRepository employeeRepository;
-    private final IWorkplaceRepository workplaceRepository;
+    @Value("${fisrt.semester.start.month}")
+    private String firstSemesterStartMonth;
 
-    private final AllocationService allocationService;
-    private final SecurityService securityService;
+    @Value("${fisrt.semester.start.day}")
+    private String firstSemesterStartDay;
+
+    @Value("${fisrt.semester.end.month}")
+    private String firstSemesterEndMonth;
+
+    @Value("${fisrt.semester.end.day}")
+    private String firstSemesterEndDay;
+
+    @Value("${second.semester.start.month}")
+    private String secondSemesterStartMonth;
+
+    @Value("${second.semester.start.day}")
+    private String secondSemesterStartDay;
+
+    @Value("${second.semester.end.month}")
+    private String secondSemesterEndMonth;
+
+    @Value("${second.semester.end.day}")
+    private String secondSemesterEndDay;
+
+    @Autowired
+    private ICourseRepository courseRepository;
+
+    @Autowired
+    private IEmployeeRepository employeeRepository;
+
+    @Autowired
+    private IWorkplaceRepository workplaceRepository;
+
+    @Autowired
+    private AllocationService allocationService;
+
+    @Autowired
+    private SecurityService securityService;
+
+    @Autowired
+    private MyUtils utils;
 
     /**
      * Gets course by its id. Throws SQL error if course doesn't exist.
@@ -61,8 +100,8 @@ public class CourseService {
             course.setEmployees(courseRepository.fetchCourseEmployees(course.getId()));
             List<Allocation> sortedAllocations = new LinkedList<>(
                     allocations.stream().sorted(Comparator.comparing(Allocation::getDateFrom)).toList());
-            course.setYears(getYearsOfAllocations(sortedAllocations));
-            course.setAllocationsByYears(getAllocationsByYears(sortedAllocations, course.getYears().get(0)));
+            course.setYears(getYears(course));
+            course.setAllocationsByYears(getAllocationsByYears_(sortedAllocations, course.getYears().get(0), course.getYears().size()));
         }
 
         return course;
@@ -143,6 +182,7 @@ public class CourseService {
 
         Course course = new Course()
                 .name(courseVO.getName())
+                .shortcut(courseVO.getShortcut())
                 .dateFrom(courseVO.getDateFrom())
                 .dateUntil(courseVO.getDateUntil() != null ?
                         courseVO.getDateUntil() : Date.from(
@@ -192,13 +232,12 @@ public class CourseService {
      */
     @Transactional
     public void editCourse(@NonNull CourseVO courseVO, long id) {
-        if (securityService.isCourseManager(id)) {
-            var data = employeeRepository.fetchEmployee(courseVO.getCourseManagerId());
-            if (courseVO.getDateUntil() != null && (courseVO.getDateFrom().after(courseVO.getDateUntil())))
-            {throw new ServiceException();
-            }
+        var data = employeeRepository.fetchEmployee(courseVO.getCourseManagerId());
+        if (courseVO.getDateUntil() != null && (courseVO.getDateFrom().after(courseVO.getDateUntil())))
+        {throw new ServiceException();
+        }
 
-            System.out.println(courseVO);
+        System.out.println(courseVO);
 
 //        var processed = allocationService.processAllocations(allocationService.getCourseAllocations(id).getAllocations());
 //        if (!processed.isEmpty() && (processed.get(0).getFrom().before(courseVO.getDateFrom())
@@ -206,26 +245,25 @@ public class CourseService {
 //                {throw new ServiceException();
 //        }
 
-            Course course = new Course()
-                    .id(id)
-                    .name(courseVO.getName())
-                    .dateFrom(courseVO.getDateFrom())
-                    .dateUntil(courseVO.getDateUntil() != null ?
-                            courseVO.getDateUntil() : Date.from(
-                            Instant.from(LocalDate.of(9999, 9, 9))))
-                    .probability(courseVO.getProbability())
-                    .courseManager(data)
-                    .courseWorkplace(Workplace.builder().id(courseVO.getCourseWorkplace()).build())
-                    .numberOfStudents(courseVO.getNumberOfStudents())
-                    .term(courseVO.getTerm())
-                    .lectureLength(courseVO.getLectureLength())
-                    .exerciseLength(courseVO.getExerciseLength())
-                    .credits(courseVO.getCredits());
+        Course course = new Course()
+                .id(id)
+                .name(courseVO.getName())
+                .shortcut(courseVO.getShortcut())
+                .dateFrom(courseVO.getDateFrom())
+                .dateUntil(courseVO.getDateUntil() != null ?
+                        courseVO.getDateUntil() : Date.from(
+                        Instant.from(LocalDate.of(9999, 9, 9))))
+                .probability(courseVO.getProbability())
+                .courseManager(data)
+                .courseWorkplace(Workplace.builder().id(courseVO.getCourseWorkplace()).build())
+                .numberOfStudents(courseVO.getNumberOfStudents())
+                .term(courseVO.getTerm())
+                .lectureLength(courseVO.getLectureLength())
+                .exerciseLength(courseVO.getExerciseLength())
+                .credits(courseVO.getCredits());
 
-            if (!courseRepository.updateCourse(course, id))
-                throw new ServiceException();
-        } else
-            throw new SecurityException();
+        if (!courseRepository.updateCourse(course, id))
+            throw new ServiceException();
     }
 
     /**
@@ -315,9 +353,26 @@ public class CourseService {
         return firstAllocations;
     }
 
+    public List<Integer> getYears(Course course) {
+        List<Integer> years = new LinkedList<>();
+
+        Calendar dateFrom = Calendar.getInstance();
+        Calendar dateUntil = Calendar.getInstance();
+
+        dateFrom.setTime(course.getDateFrom());
+        dateUntil.setTime(course.getDateUntil());
+
+        int numberOfYears = dateUntil.get(Calendar.YEAR) - dateFrom.get(Calendar.YEAR);
+
+        for (int i = 0; i <= numberOfYears; ++i)
+            years.add(dateFrom.get(Calendar.YEAR) + i);
+
+        return years;
+    }
+
     public List<Integer> getYearsOfAllocations(List<Allocation> allocations) {
         List<Integer> years = new LinkedList<>();
-        Calendar date = new GregorianCalendar();
+        Calendar date = Calendar.getInstance();
         int lastAllYear = 0;
         int index = -1;
 
@@ -373,6 +428,51 @@ public class CourseService {
         return splitAllocations;
     }
 
+    /* Tady pocitam s alokacema max na rok - koukam jen na zacatek. */
+    public List<List<Allocation>> getAllocationsByYears_(List<Allocation> allocations, int firstYear, int numberOfYears) {
+        List<List<Allocation>> splitAllocations = new ArrayList<>();
+        if (!allocations.isEmpty()) {
+            Calendar date = Calendar.getInstance();
+            int thisYear = firstYear;
+
+            List<Allocation> tempList = new ArrayList<>();
+
+            int offset = 0;
+            date.setTime(allocations.get(0).getDateFrom());
+            while (thisYear + offset < date.get(Calendar.YEAR)) {
+                splitAllocations.add(new ArrayList<>());
+                offset++;
+            }
+
+            for (Allocation allocation : allocations) {
+                date.setTime(allocation.getDateFrom());
+                if (thisYear == date.get(Calendar.YEAR)) {
+                    tempList.add(allocation);
+                } else {
+                    date.setTime(allocation.getDateFrom());
+                    thisYear = date.get(Calendar.YEAR);
+                    splitAllocations.add(tempList);
+                    tempList = new ArrayList<>();
+                    tempList.add(allocation);
+                    offset++;
+                }
+            }
+
+            if (!tempList.isEmpty()) {
+                offset++;
+                splitAllocations.add(tempList);
+            }
+
+            date.setTime(allocations.get(0).getDateFrom());
+            while (offset < numberOfYears) {
+                splitAllocations.add(new ArrayList<>());
+                offset++;
+            }
+        }
+
+        return splitAllocations;
+    }
+
     /**
      * Formats allocations times for using on FE.
      * @param allocations allocations
@@ -422,5 +522,42 @@ public class CourseService {
         dateFrom.setTime(allocation.getDateFrom());
         dateUntil.setTime(allocation.getDateUntil());
         return dateFrom.get(Calendar.YEAR) == LocalDate.now().getYear() || dateUntil.get(Calendar.YEAR) == LocalDate.now().getYear();
+    }
+
+    /**
+     * Nastaveni datumu pri zmene semestru.
+     * Pokud ma term hodnotu "Z" nastavi se datumy od zari do unora (roky jsou zachovane).
+     * Pokud ma term hodnotu "L" nastavi se datumy od brezna (rok se pricte) do srpna (rok se zachova).
+     * Pokud ma term hodnotu "N" zachovaji se datumy predmetu.
+     */
+    public void addCoursesValues(AllocationVO allocationVO, int year) {
+        if (allocationVO.getTerm().equals("Z")) {
+            allocationVO.setDateFrom(LocalDate.of(
+                    year,
+                    Integer.parseInt(firstSemesterStartMonth),
+                    Integer.parseInt(firstSemesterStartDay)));
+            allocationVO.setDateUntil(LocalDate.of(
+                    year + 1,
+                    Integer.parseInt(firstSemesterEndMonth),
+                    Integer.parseInt(firstSemesterEndDay)));
+        } else if (allocationVO.getTerm().equals("L")) {
+            allocationVO.setDateFrom(LocalDate.of(
+                    year + 1,
+                    Integer.parseInt(secondSemesterStartMonth),
+                    Integer.parseInt(secondSemesterStartDay)));
+            allocationVO.setDateUntil(LocalDate.of(
+                    year + 1,
+                    Integer.parseInt(secondSemesterEndMonth),
+                    Integer.parseInt(secondSemesterEndDay)));
+        } else {
+            allocationVO.setDateFrom(LocalDate.of(
+                    year,
+                    Integer.parseInt(firstSemesterStartMonth),
+                    Integer.parseInt(firstSemesterStartDay)));
+            allocationVO.setDateUntil(LocalDate.of(
+                    year + 1,
+                    Integer.parseInt(secondSemesterEndMonth),
+                    Integer.parseInt(secondSemesterEndDay)));
+        }
     }
 }

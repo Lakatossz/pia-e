@@ -164,7 +164,7 @@ public class FunctionService {
      */
     @Transactional
     public void removeFunction(long functionId) {
-        if (securityService.isProjectManager(functionId)) {
+        if (securityService.isFunctionManager(functionId)) {
             var function = getFunction(functionId);
             for (Allocation allocation : function.getFunctionAllocations())
                 allocationService.removeAllocation(allocation.getId());
@@ -182,31 +182,29 @@ public class FunctionService {
      */
     @Transactional
     public void editFunction(@NonNull FunctionVO functionVO, long id) {
-        if (securityService.isProjectManager(id)) {
-            var manager = employeeRepository.fetchEmployee(functionVO.getFunctionManagerId());
-            if (functionVO.getDateUntil() != null && (functionVO.getDateFrom().after(functionVO.getDateUntil())))
-            {throw new ServiceException();
-            }
-            var processed = allocationService.processAllocations(allocationService.getFunctionAllocations(id).getAllocations());
-            if (!processed.isEmpty() && (processed.get(0).getFrom().before(functionVO.getDateFrom())
-                    || processed.get(processed.size() - 1).getUntil().after(functionVO.getDateUntil())))
-                throw new ServiceException();
-
-            Function function = new Function()
-                    .id(id)
-                    .name(functionVO.getName())
-                    .dateFrom(functionVO.getDateFrom())
-                    .dateUntil(functionVO.getDateUntil() != null ? functionVO.getDateUntil() : Date.from(
-                            Instant.from(LocalDate.of(9999, 9, 9))))
-                    .probability(functionVO.getProbability())
-                    .functionManager(manager)
-                    .functionWorkplace(Workplace.builder().id(functionVO.getFunctionWorkplace()).build())
-                    .defaultTime(functionVO.getDefaultTime())
-                    .description(functionVO.getDescription());
-
-            if (!functionRepository.updateFunction(function, id))
-                throw new ServiceException();
+        var manager = employeeRepository.fetchEmployee(functionVO.getFunctionManagerId());
+        if (functionVO.getDateUntil() != null && (functionVO.getDateFrom().after(functionVO.getDateUntil())))
+        {throw new ServiceException();
         }
+//            var processed = allocationService.processAllocations(allocationService.getFunctionAllocations(id).getAllocations());
+//            if (!processed.isEmpty() && (processed.get(0).getFrom().before(functionVO.getDateFrom())
+//                    || processed.get(processed.size() - 1).getUntil().after(functionVO.getDateUntil())))
+//                throw new ServiceException();
+
+        Function function = new Function()
+                .id(id)
+                .name(functionVO.getName())
+                .dateFrom(functionVO.getDateFrom())
+                .dateUntil(functionVO.getDateUntil() != null ? functionVO.getDateUntil() : Date.from(
+                        Instant.from(LocalDate.of(9999, 9, 9))))
+                .probability(functionVO.getProbability())
+                .functionManager(manager)
+                .functionWorkplace(Workplace.builder().id(functionVO.getFunctionWorkplace()).build())
+                .defaultTime(functionVO.getDefaultTime())
+                .description(functionVO.getDescription());
+
+        if (!functionRepository.updateFunction(function, id))
+            throw new ServiceException();
     }
 
     /**

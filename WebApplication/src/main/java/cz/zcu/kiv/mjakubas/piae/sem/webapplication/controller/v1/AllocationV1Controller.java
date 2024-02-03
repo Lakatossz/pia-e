@@ -48,17 +48,18 @@ public class AllocationV1Controller {
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT, " +
             "@securityService.isProjectManager(#projectId), " +
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN)")
-    @PostMapping("/create/project/{projectId}/{employeeId}")
+    @PostMapping("/create/project/{projectId}")
     public String createAllocationForProject(Model model,
                                              @ModelAttribute AllocationVO allocationVO,
-                                             @PathVariable long projectId,
-                                             @PathVariable long employeeId) {
+                                             @PathVariable long projectId) {
         Project project = projectService.getProject(projectId);
 
         System.out.println(allocationVO);
 
-        addAditionalActivityValues(allocationVO, 0, employeeId);
+//        addAditionalActivityValues(allocationVO, 0, employeeId);
         setAllocationDates(allocationVO, project);
+
+        allocationVO.setTerm(TermState.N.getValue());
 
         var rules = allocationService.getProjectAllocationsRules(projectId, allocationVO.getWorkerId());
         model.addAttribute("rules", rules);
@@ -71,17 +72,19 @@ public class AllocationV1Controller {
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT, " +
             "@securityService.isCourseManager(#courseId), " +
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN)")
-    @PostMapping("/create/course/{courseId}/{employeeId}/{term}")
+    @PostMapping("/create/course/{courseId}/{year}")
     public String createAllocationForCourse(Model model,
                                             @ModelAttribute AllocationVO allocationVO,
                                             @PathVariable long courseId,
-                                            @PathVariable long employeeId,
-                                            @PathVariable String term) {
+                                            @PathVariable long year) {
         Course course = courseService.getCourse(courseId);
 
-        addCoursesValues(allocationVO, course, term);
-        addAditionalActivityValues(allocationVO, 0, employeeId);
+        System.out.println("year: " + year);
+
+        System.out.println(allocationVO);
+
         setAllocationDates(allocationVO, course);
+        courseService.addCoursesValues(allocationVO, (int) year);
 
         var rules = allocationService.getCourseAllocationsRules(courseId, 1);
         model.addAttribute("rules", rules);
@@ -94,15 +97,17 @@ public class AllocationV1Controller {
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT, " +
             "@securityService.isFunctionManager(#functionId), " +
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN)")
-    @PostMapping("/create/function/{functionId}/{employeeId}")
+    @PostMapping("/create/function/{functionId}")
     public String createAllocationForFunction(Model model,
                                               @ModelAttribute AllocationVO allocationVO,
-                                              @PathVariable long functionId,
-                                              @PathVariable long employeeId) {
+                                              @PathVariable long functionId) {
         var function = functionService.getFunction(functionId);
 
-        addAditionalActivityValues(allocationVO, 0, employeeId);
+        System.out.println(allocationVO);
+
+//        addAditionalActivityValues(allocationVO, 0, employeeId);
         setAllocationDates(allocationVO, function);
+        allocationVO.setTerm(TermState.N.getValue());
 
         var rules = allocationService.getFunctionAllocationsRules(functionId, 1);
         model.addAttribute("rules", rules);
@@ -130,18 +135,20 @@ public class AllocationV1Controller {
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT, " +
             "@securityService.isCourseManager(#courseId), " +
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN)")
-    @PostMapping("/{allocationId}/edit/c/{courseId}/{employeeId}/{term}")
+    @PostMapping("/{allocationId}/edit/c/{courseId}/{employeeId}")
     public String editCourseAllocation(Model model,
                                        @ModelAttribute AllocationVO allocationVO,
                                        @PathVariable long allocationId,
                                        @PathVariable long courseId,
-                                       @PathVariable long employeeId,
-                                       @PathVariable String term) {
+                                       @PathVariable long employeeId) {
+
         Course course = courseService.getCourse(courseId);
         Allocation allocation = allocationService.getAllocation(allocationId);
         addAditionalActivityValues(allocationVO, allocationId, employeeId);
-        if (!term.equals(allocation.getTerm().getValue()))
-            addCoursesValues(allocationVO, course, term);
+//        if (!term.equals(allocation.getTerm().getValue()))
+//            addCoursesValues(allocationVO, course);
+
+        System.out.println(allocationVO);
 
         allocationService.updateAllocation(allocationVO, allocationId);
 
@@ -158,8 +165,14 @@ public class AllocationV1Controller {
                                          @PathVariable long allocationId,
                                          @PathVariable long functionId,
                                          @PathVariable long employeeId) {
+        System.out.println(allocationVO);
+
         Function function = functionService.getFunction(functionId);
         addAditionalActivityValues(allocationVO, allocationId, employeeId);
+
+        System.out.println(employeeId);
+
+        System.out.println(allocationVO);
 
         allocationService.updateAllocation(allocationVO, allocationId);
 
@@ -235,7 +248,6 @@ public class AllocationV1Controller {
         allocationVO.setDateFrom(utils.convertToLocalDateTime(activity.getDateFrom()));
         allocationVO.setDateUntil(utils.convertToLocalDateTime(activity.getDateUntil()));
         allocationVO.setIsActive(true);
-        allocationVO.setTerm(TermState.ZADNY.getValue());
     }
 
     private void addAditionalActivityValues(AllocationVO allocationVO,
@@ -243,26 +255,5 @@ public class AllocationV1Controller {
                                             long employeeId) {
         allocationVO.setId(allocationId);
         allocationVO.setWorkerId(employeeId);
-    }
-
-    /**
-     * Nastaveni datumu pri zmene semestru.
-     * Pokud ma term hodnotu "Z" nastavi se datumy od zari do unora (roky jsou zachovane).
-     * Pokud ma term hodnotu "L" nastavi se datumy od brezna (rok se pricte) do srpna (rok se zachova).
-     * Pokud ma term hodnotu "N" zachovaji se datumy predmetu.
-     */
-    private void addCoursesValues(AllocationVO allocationVO, Course course, String term) {
-        allocationVO.setTerm(term);
-        if (term.equals("Z")) {
-            allocationVO.setDateFrom(utils.convertToLocalDateTime(course.getDateFrom()).withMonth(9));
-            allocationVO.setDateUntil(utils.convertToLocalDateTime(course.getDateUntil()).withMonth(2));
-        } else if (term.equals("L")) {
-            LocalDate temp = utils.convertToLocalDateTime(course.getDateFrom());
-            allocationVO.setDateFrom(temp.withYear(temp.getYear() + 1).withMonth(3));
-            allocationVO.setDateUntil(utils.convertToLocalDateTime(course.getDateUntil()).withMonth(8));
-        } else {
-            allocationVO.setDateFrom(utils.convertToLocalDateTime(course.getDateFrom()));
-            allocationVO.setDateUntil(utils.convertToLocalDateTime(course.getDateUntil()));
-        }
     }
 }

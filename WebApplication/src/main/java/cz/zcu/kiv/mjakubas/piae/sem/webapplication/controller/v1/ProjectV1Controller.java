@@ -258,7 +258,7 @@ public class ProjectV1Controller {
         newAllocation.setWorkerId(1);
         newAllocation.setRole("nový");
         newAllocation.setIsCertain(1.0F);
-        newAllocation.setAllocationScope(15);
+        newAllocation.setAllocationScope(1);
         newAllocation.setDateFrom(utils.convertToLocalDateTime(project.getDateFrom()));
         newAllocation.setDateUntil(utils.convertToLocalDateTime(project.getDateUntil()));
         newAllocation.setDescription("description");
@@ -276,7 +276,7 @@ public class ProjectV1Controller {
             allocationVO.setRole(allocation.getRole());
             allocationVO.setDateFrom(utils.convertToLocalDateTime(allocation.getDateFrom()));
             allocationVO.setDateUntil(utils.convertToLocalDateTime(allocation.getDateUntil()));
-            allocationVO.setAllocationScope(allocation.getTime());
+            allocationVO.setAllocationScope((float) allocation.getAllocationScope() / (40 * 60));
             allocationVO.setIsCertain(allocation.getIsCertain());
             allocationVO.setDescription(allocation.getDescription());
             allocationsVO.add(allocationVO);

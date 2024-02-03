@@ -19,6 +19,7 @@ import cz.zcu.kiv.mjakubas.piae.sem.core.service.v1.WorkplaceService;
 import cz.zcu.kiv.mjakubas.piae.sem.core.vo.EmployeeVO;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
+import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -48,7 +49,7 @@ public class SecurityService {
      * @param orionLogin existing {@link Employee} orion login
      * @param password   plaintext password
      */
-    public void createUser(@NonNull String orionLogin, @NonNull String password) {
+    public void createUser(@NonNull String orionLogin, @NonNull String password) throws ServiceException {
         var employee = employeeRepository.fetchEmployee(orionLogin);
         createUserUser(employee.getId(), password);
         createUserRole(employee.getOrionLogin());
@@ -61,7 +62,7 @@ public class SecurityService {
      * @param id       user id
      * @param password plaintext password
      */
-    public long createUserUser(@NonNull long id, @NonNull String password) {
+    public long createUserUser(@NonNull long id, @NonNull String password) throws ServiceException {
         var pw = passwordEncoder.encode(password);
         long userId = userRepository.createNewUser(id, pw);
 
@@ -243,9 +244,13 @@ public class SecurityService {
      * @param employee employee
      */
     @Transactional
-    public long createUserAccount(@NonNull Employee employee) {
-        long id = employeeRepository.createEmployee(employee);
-        createUser(employee.getOrionLogin(), "heslo");
-        return id;
+    public long createUserAccount(@NonNull Employee employee) throws ServiceException {
+        try {
+            long id = employeeRepository.createEmployee(employee);
+            createUser(employee.getOrionLogin(), "heslo");
+            return id;
+        } catch (InvalidDataAccessApiUsageException e) {
+            throw new ServiceException();
+        }
     }
 }

@@ -30,7 +30,7 @@
         or ${(param.delete != null)} or ${(param.subordinate != null)})"
              class="alert alert-success alert-dismissible fade show">
             <strong th:if="${(param.edit != null)} and ${(param.edit[0] == 'success')}" th:text="#{view.employee.alert.edit.success}"></strong>
-            <strong th:if="${(param.create != null)}" th:text="#{view.employee.alert.create}"></strong>
+            <strong th:if="${(param.create != null)} and ${(param.create[0] == 'success')}" th:text="#{view.employee.alert.create}"></strong>
             <strong th:if="${(param.subordinate != null)}" th:text="#{view.employee.alert.subordinate}"></strong>
             <strong th:if="${(param.delete != null)}" th:text="#{not-implemented}"></strong>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -40,7 +40,8 @@
         or ${(param.create != null)} and ${(param.create[0] == 'failure')})"
              class="alert alert-danger alert-dismissible fade show">
             <strong th:if="${(param.edit != null)} and ${(param.edit[0] == 'failure')}" th:text="#{view.employee.alert.edit.failure}"></strong>
-            <strong th:if="${(param.create != null)}" th:text="#{view.employee.alert.create}"></strong>
+            <strong th:if="${(param.edit != null)} and ${(param.edit[0] == 'failure')}" th:text="#{view.employee.alert.edit.failure}"></strong>
+            <strong th:if="${(param.create != null)} and ${(param.create[0] == 'failure')}" th:text="#{view.employee.alert.create.failure}"></strong>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
 
@@ -73,13 +74,24 @@
                     </td>
                 </tr>
                 <tr>
-                    <td class="employee-detail-div">
-                        <label class="employee-detail-label" for="orion_login"
-                               th:text="#{view.employee_detail.orion_login}" th:required="true"/>
-                        <input class="employee-detail-input" type="text"
-                               onchange="onRequiredDetailChange(this)" th:required="true"
-                               id="orion_login" name="orion_login" th:field="*{orionLogin}">
-                    </td>
+                    <th:block th:if="*{orionLogin == null}">
+                        <td class="employee-detail-div">
+                            <label class="employee-detail-label" for="orion_login"
+                                   th:text="#{view.employee_detail.orion_login}" th:required="true"/>
+                            <input class="employee-detail-input" type="text"
+                                   onchange="onRequiredDetailChange(this)" th:required="true"
+                                   id="orion_login" name="orion_login" th:field="*{orionLogin}">
+                        </td>
+                    </th:block>
+                    <th:block th:if="*{orionLogin != null}">
+                        <td class="employee-detail-div">
+                            <label class="employee-detail-label" for="orion_login_wrong"
+                                   th:text="#{view.employee_detail.orion_login}" th:required="true"/>
+                            <input class="employee-detail-input" type="text"
+                                   onchange="onRequiredDetailChange(this)" th:required="true"
+                                   id="orion_login_wrong" name="orion_login" th:field="*{orionLogin}">
+                        </td>
+                    </th:block>
                 </tr>
                 <tr>
                     <td class="employee-detail-div">
@@ -94,13 +106,24 @@
                     </td>
                 </tr>
                 <tr>
-                    <td class="employee-detail-div">
-                        <label class="employee-detail-label" for="email"
-                               th:text="#{view.employee_detail.email}" th:required="true"/>
-                        <input class="employee-detail-input" type="text"
-                               onchange="onRequiredDetailChange(this)" th:required="true"
-                               id="email" name="email" th:field="*{emailAddress}">
-                    </td>
+                    <th:block th:if="*{orionLogin != null}">
+                        <td class="employee-detail-div">
+                            <label class="employee-detail-label" for="email"
+                                   th:text="#{view.employee_detail.email}" th:required="true"/>
+                            <input class="employee-detail-input" type="text"
+                                   onchange="onRequiredDetailChange(this)" th:required="true"
+                                   id="email" name="email" th:field="*{emailAddress}">
+                        </td>
+                    </th:block>
+                    <th:block th:if="*{orionLogin == null}">
+                        <td class="employee-detail-div">
+                            <label class="employee-detail-label" for="email_wrong"
+                                   th:text="#{view.employee_detail.email}" th:required="true"/>
+                            <input class="employee-detail-input" type="text"
+                                   onchange="onRequiredDetailChange(this)" th:required="true"
+                                   id="email_wrong" name="email" th:field="*{emailAddress}">
+                        </td>
+                    </th:block>
                 </tr>
                 <tr>
                     <td class="employee-detail-div">

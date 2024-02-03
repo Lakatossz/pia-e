@@ -27,7 +27,7 @@ public class AllocationMapper implements RowMapper<Allocation> {
         var description = rs.getString("ass_description");
         var active = rs.getBoolean("ass_active");
         var time = rs.getFloat("ass_time");
-        var isCertain = rs.getLong("ass_is_certain");
+        var isCertain = rs.getFloat("ass_is_certain");
         var role = rs.getString("ass_role");
 
         Project project = new Project().id(projectId);

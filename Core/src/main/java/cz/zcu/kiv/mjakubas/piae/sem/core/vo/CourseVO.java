@@ -1,5 +1,6 @@
 package cz.zcu.kiv.mjakubas.piae.sem.core.vo;
 
+import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Allocation;
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Course;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -48,7 +49,7 @@ public class CourseVO {
     private int exerciseRequired;
     private String description;
 
-    private List<List<AllocationVO>> allocationsByYears = new ArrayList<>();
+    private List<List<Allocation>> allocationsByYears = new ArrayList<>();
     private List<Integer> years = new ArrayList<>();
 
     public CourseVO id(long id) {
@@ -147,7 +148,7 @@ public class CourseVO {
         return this;
     }
 
-    public CourseVO allocationsByYears(List<List<AllocationVO>> allocationsByYears) {
+    public CourseVO allocationsByYears(List<List<Allocation>> allocationsByYears) {
         this.allocationsByYears.addAll(allocationsByYears);
         return this;
     }

@@ -193,39 +193,36 @@ public class ProjectService {
      */
     @Transactional
     public void editProject(@NonNull ProjectVO projectVO, long id) {
-        if (securityService.isProjectManager(id)) {
-            var manager = employeeRepository.fetchEmployee(projectVO.getProjectManagerId());
-            if (projectVO.getDateUntil() != null && (projectVO.getDateFrom().after(projectVO.getDateUntil()))) {
-                throw new ServiceException();
-            }
+        var manager = employeeRepository.fetchEmployee(projectVO.getProjectManagerId());
+        if (projectVO.getDateUntil() != null && (projectVO.getDateFrom().after(projectVO.getDateUntil()))) {
+            throw new ServiceException();
+        }
 //        var processed = allocationService.processAllocations(allocationService.getProjectAllocations(id).getAllocations());
 //        if (!processed.isEmpty() && (processed.get(0).getFrom().before(projectVO.getDateFrom())
 //                    || processed.get(processed.size() - 1).getUntil().after(projectVO.getDateUntil())))
 //                {throw new ServiceException();
 //        }
 
-            Project project = new Project()
-                    .id(id)
-                    .name(projectVO.getName())
-                    .shortcut(projectVO.getShortcut())
-                    .dateFrom(projectVO.getDateFrom())
-                    .dateUntil(projectVO.getDateUntil() != null ? projectVO.getDateUntil() : Date.from(
-                            Instant.from(LocalDate.of(9999, 9, 9))))
-                    .probability(projectVO.getProbability())
-                    .projectManager(manager)
-                    .projectWorkplace(Workplace.builder().id(projectVO.getWorkplaceId()).build())
-                    .description(projectVO.getDescription())
-                    .budget(projectVO.getBudget())
-                    .budgetParticipation(projectVO.getBudgetParticipation())
-                    .totalTime(projectVO.getTotalTime())
-                    .agency(projectVO.getAgency())
-                    .state(ProjectState.getByValue(projectVO.getState()))
-                    .grantTitle(projectVO.getGrantTitle());
+        Project project = new Project()
+                .id(id)
+                .name(projectVO.getName())
+                .shortcut(projectVO.getShortcut())
+                .dateFrom(projectVO.getDateFrom())
+                .dateUntil(projectVO.getDateUntil() != null ? projectVO.getDateUntil() : Date.from(
+                        Instant.from(LocalDate.of(9999, 9, 9))))
+                .probability(projectVO.getProbability())
+                .projectManager(manager)
+                .projectWorkplace(Workplace.builder().id(projectVO.getWorkplaceId()).build())
+                .description(projectVO.getDescription())
+                .budget(projectVO.getBudget())
+                .budgetParticipation(projectVO.getBudgetParticipation())
+                .totalTime(projectVO.getTotalTime())
+                .agency(projectVO.getAgency())
+                .state(ProjectState.getByValue(projectVO.getState()))
+                .grantTitle(projectVO.getGrantTitle());
 
-            if (!projectRepository.updateProject(project, id))
-                throw new ServiceException();
-        } else
-            throw new SecurityException();
+        if (!projectRepository.updateProject(project, id))
+            throw new ServiceException();
     }
 
     /**

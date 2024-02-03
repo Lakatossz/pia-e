@@ -141,7 +141,7 @@ CREATE TABLE IF NOT EXISTS `piae_v1_db`.`assignment`
     `ass_description` varchar(2000) CHARACTER SET utf8mb3 COLLATE utf8mb3_czech_ci NULL,
     `ass_time` float DEFAULT NULL,
     `ass_recalculation` float NOT NULL DEFAULT '1',
-    `ass_is_certain` tinyint(1) NOT NULL DEFAULT '1',
+    `ass_is_certain` float NOT NULL DEFAULT '1',
     `ass_role` varchar(50) COLLATE utf8mb3_czech_ci NOT NULL,
     PRIMARY KEY (`assignment_id`),
     KEY `fk_ass_employee_id_idx` (`ass_employee_id`),
@@ -440,22 +440,22 @@ INSERT INTO `piae_v1_db`.`assignment` (`assignment_id`, `ass_enabled`, `ass_empl
                                        `ass_course_id`, `ass_function_id`, `ass_active_from`, `ass_active_until`,
                                        `ass_term`, `ass_scope`, `ass_description`, `ass_active`, `ass_time`,
                                        `ass_recalculation`, `ass_is_certain`, `ass_role`)
-VALUES ('1', '1', '5', '1', null, null, '2020-01-01', '2025-01-01', 'N','600', 'al1', '1', '1.0', '1.0', '1', 'pracovník');
+VALUES ('1', '1', '5', '1', null, null, '2020-01-01', '2025-01-01', 'N','600', 'al1', '1', '1.0', '1.0', '1.0', 'pracovník');
 INSERT INTO `piae_v1_db`.`assignment` (`assignment_id`, `ass_enabled`, `ass_employee_id`, `ass_project_id`,
                                        `ass_course_id`, `ass_function_id`, `ass_active_from`, `ass_active_until`,
                                        `ass_term`, `ass_scope`, `ass_description`, `ass_active`, `ass_time`,
                                        `ass_recalculation`, `ass_is_certain`, `ass_role`)
-VALUES ('2', '1', '5', '1', null, null, '2023-03-01', '2023-08-31', 'N', '1000', 'al2', '1', '1.0', '1.0', '1', 'někdo');
+VALUES ('2', '1', '5', '1', null, null, '2023-03-01', '2023-08-31', 'N', '1000', 'al2', '1', '1.0', '1.0', '1.0', 'někdo');
 INSERT INTO `piae_v1_db`.`assignment` (`assignment_id`, `ass_enabled`, `ass_employee_id`, `ass_project_id`,
                                        `ass_course_id`, `ass_function_id`, `ass_active_from`, `ass_active_until`,
                                        `ass_term`, `ass_scope`, `ass_description`, `ass_active`, `ass_time`,
                                        `ass_recalculation`, `ass_is_certain`, `ass_role`)
-VALUES ('3', '1', '1', null, '1', null, '2023-01-01', '2027-01-01', 'L', '500', 'al3', '1', '1.0', '1.0', '1', 'někdo');
+VALUES ('3', '1', '1', null, '1', null, '2023-01-01', '2027-01-01', 'L', '500', 'al3', '1', '1.0', '1.0', '1.0', 'někdo');
 INSERT INTO `piae_v1_db`.`assignment` (`assignment_id`, `ass_enabled`, `ass_employee_id`, `ass_project_id`,
                                        `ass_course_id`, `ass_function_id`, `ass_active_from`, `ass_active_until`,
                                        `ass_term`, `ass_scope`, `ass_description`, `ass_active`, `ass_time`,
                                        `ass_recalculation`, `ass_is_certain`, `ass_role`)
-VALUES ('4', '1', '1', null, null, '1', '2023-01-01', '2024-03-01', 'N', '500', 'al3', '1', '1.0', '1.0', '1', 'někdo');
+VALUES ('4', '1', '1', null, null, '1', '2023-01-01', '2024-03-01', 'N', '500', 'al3', '1', '1.0', '1.0', '1.0', 'někdo');
 
 INSERT INTO `piae_v1_db`.`course` (`course_id`, `crs_enabled`, `crs_name`, `crs_number_of_students`, `crs_term`,
                                    `crs_lecture_length`, `crs_exercise_length`, `crs_credits`, `crs_date_from`,

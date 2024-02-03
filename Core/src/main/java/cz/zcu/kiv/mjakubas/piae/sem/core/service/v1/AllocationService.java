@@ -52,6 +52,8 @@ public class AllocationService {
 //                || allocationVO.getDateUntil().after(allocationProject.getDateUntil()))
 //            throw new ServiceException();
 
+        System.out.println("AllocationVO: " + allocationVO);
+
         Allocation allocation = new Allocation()
                 .worker(new Employee().id(allocationVO.getWorkerId()))
                 .project(new Project().id(allocationVO.getProjectId()))
@@ -59,6 +61,7 @@ public class AllocationService {
                 .function(new Function().id(allocationVO.getFunctionId()))
                 .role(allocationVO.getRole())
                 .allocationScope(scope)
+                .isCertain(allocationVO.getIsCertain())
                 .dateFrom(utils.convertToDate(allocationVO.getDateFrom()))
                 .dateUntil(utils.convertToDate(allocationVO.getDateUntil()))
                 .term(TermState.getByValue(allocationVO.getTerm()))
@@ -98,6 +101,7 @@ public class AllocationService {
                 .role(allocationVO.getRole())
                 .allocationScope(scope)
                 .description(allocationVO.getDescription())
+                .isCertain(allocationVO.getIsCertain())
                 .active(Boolean.TRUE);
 
         if (allocationVO.getDateFrom() != null && allocationVO.getDateUntil() != null) {
@@ -105,10 +109,6 @@ public class AllocationService {
                     .dateFrom(utils.convertToDate(allocationVO.getDateFrom()))
                     .dateUntil(utils.convertToDate(allocationVO.getDateUntil()));
         }
-
-        allocation = allocation
-                .dateFrom(utils.convertToDate(allocationVO.getDateFrom()))
-                .dateUntil(utils.convertToDate(allocationVO.getDateUntil()));
 
         if (allocationVO.getProjectId() > 0) {
             allocation = allocation.project(projectRepository.fetchProject(allocationVO.getProjectId()));

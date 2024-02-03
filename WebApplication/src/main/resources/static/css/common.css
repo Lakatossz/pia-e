@@ -504,6 +504,11 @@ footer {
     outline: none; /* Remove default outline on focus */
 }
 
+.course-table-detail-input-empty {
+    border-color: red;
+    border-radius: 4px;
+}
+
 .course-detail-button {
     padding: 10px;
     cursor: pointer;

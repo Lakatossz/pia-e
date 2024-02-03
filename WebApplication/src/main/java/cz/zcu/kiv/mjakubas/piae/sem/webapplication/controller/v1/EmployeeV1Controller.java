@@ -3,6 +3,8 @@ package cz.zcu.kiv.mjakubas.piae.sem.webapplication.controller.v1;
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Allocation;
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Employee;
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Workplace;
+import cz.zcu.kiv.mjakubas.piae.sem.core.exceptions.ServiceException;
+import cz.zcu.kiv.mjakubas.piae.sem.core.service.MyUtils;
 import cz.zcu.kiv.mjakubas.piae.sem.core.service.SecurityService;
 import cz.zcu.kiv.mjakubas.piae.sem.core.service.v1.AllocationService;
 import cz.zcu.kiv.mjakubas.piae.sem.core.service.v1.CourseService;
@@ -13,6 +15,7 @@ import cz.zcu.kiv.mjakubas.piae.sem.core.service.v1.WorkplaceService;
 import cz.zcu.kiv.mjakubas.piae.sem.core.vo.EmployeeVO;
 import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.SerializationException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -20,6 +23,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -41,6 +45,8 @@ public class EmployeeV1Controller {
     private final CourseService courseService;
     private final FunctionService functionService;
     private final AllocationService allocationService;
+
+    private final MyUtils utils;
 
     private static final String RESTRICITONS = "restrictions";
     private static final String WORKLPACES = "workplaces";
@@ -79,9 +85,14 @@ public class EmployeeV1Controller {
         model.addAttribute(RESTRICITONS, employees);
         model.addAttribute(WORKLPACES, workplaces);
 
+        String orion = RandomStringUtils.random(4, true, true);
+
         var employeeVO = new EmployeeVO();
         employeeVO.setFirstName("Nový");
         employeeVO.setLastName("Uživatel");
+        employeeVO.setOrionLogin(orion);
+        employeeVO.setEmailAddress(orion + "@zcu.cz");
+        employeeVO.setDateCreated(utils.convertToDate(LocalDate.now()));
         employeeVO.setPassword(RandomStringUtils.random(7, true, false));
         model.addAttribute("employee", employeeVO);
         return "forms/employee/create_employee_form";
@@ -94,6 +105,7 @@ public class EmployeeV1Controller {
     public String createEmployee(@ModelAttribute EmployeeVO employeeVO,
                                  BindingResult errors, Model model,
                                  RedirectAttributes redirectAttributes) {
+
         Employee employee = new Employee()
                 .firstName(employeeVO.getFirstName())
                 .lastName(employeeVO.getLastName())
@@ -103,9 +115,21 @@ public class EmployeeV1Controller {
                 .dateCreated(employeeVO.getDateCreated())
                 .description(employeeVO.getDescription());
 
-        long id = securityService.createUserAccount(employee);
-        redirectAttributes.addAttribute("id", id);
-        return "redirect:/e/{id}/detail?create=success";
+        try {
+            long id = securityService.createUserAccount(employee);
+            redirectAttributes.addAttribute("id", id);
+            return "redirect:/e/{id}/detail?create=success";
+        } catch (ServiceException e) {
+
+            var workplaces = workplaceService.getWorkplaces();
+            model.addAttribute(WORKLPACES, workplaces);
+
+            employeeVO.setOrionLogin(null);
+            employeeVO.setEmailAddress(null);
+
+            model.addAttribute("employee", employeeVO);
+            return "forms/employee/create_employee_form";
+        }
     }
 
     @GetMapping("/{id}/detail")

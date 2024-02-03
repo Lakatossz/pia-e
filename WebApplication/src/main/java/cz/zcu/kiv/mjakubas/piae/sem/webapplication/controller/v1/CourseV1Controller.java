@@ -3,7 +3,6 @@ package cz.zcu.kiv.mjakubas.piae.sem.webapplication.controller.v1;
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Allocation;
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Course;
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.TermState;
-import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Workplace;
 import cz.zcu.kiv.mjakubas.piae.sem.core.service.MyUtils;
 import cz.zcu.kiv.mjakubas.piae.sem.core.service.v1.AllocationService;
 import cz.zcu.kiv.mjakubas.piae.sem.core.service.v1.CourseService;
@@ -12,8 +11,8 @@ import cz.zcu.kiv.mjakubas.piae.sem.core.service.v1.WorkplaceService;
 import cz.zcu.kiv.mjakubas.piae.sem.core.vo.AllocationVO;
 import cz.zcu.kiv.mjakubas.piae.sem.core.vo.CourseVO;
 import cz.zcu.kiv.mjakubas.piae.sem.core.vo.EmployeeVO;
-import cz.zcu.kiv.mjakubas.piae.sem.core.vo.WorkplaceVO;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -37,15 +36,23 @@ import java.util.List;
  */
 @Controller
 @RequestMapping("/c")
-@AllArgsConstructor
 @PreAuthorize("hasAuthority(T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT)")
 public class CourseV1Controller {
 
-    private final CourseService courseService;
-    private final EmployeeService employeeService;
-    private final WorkplaceService workplaceService;
-    private final AllocationService allocationService;
-    private final MyUtils utils;
+    @Autowired
+    private CourseService courseService;
+
+    @Autowired
+    private EmployeeService employeeService;
+
+    @Autowired
+    private WorkplaceService workplaceService;
+
+    @Autowired
+    private AllocationService allocationService;
+
+    @Autowired
+    private MyUtils utils;
 
     private static final String EMPLOYEES = "employees";
     private static final String RESTRICTIONS = "restrictions";
@@ -127,8 +134,9 @@ public class CourseV1Controller {
                 .dateUntil(course.getDateUntil())
                 .introduced(course.getIntroduced())
                 .term(course.getTerm())
-                .lectureRequired(course.getLectureRequired())
-                .exerciseRequired(course.getExerciseRequired());
+                .numberOfStudents(course.getNumberOfStudents())
+                .lectureLength(course.getLectureLength())
+                .exerciseLength(course.getExerciseLength());
 
         model.addAttribute(COURSE, courseVO);
 
@@ -180,15 +188,10 @@ public class CourseV1Controller {
             " or @securityService.isCourseManager(#id) or @securityService.isWorkplaceManager(#id)")
     public String detailCourse(Model model, @PathVariable long id,
                                @RequestParam(required = false) Boolean manage) {
+
         Course course = courseService.getCourse(id);
 
         var allocations = allocationService.getCourseAllocations(id).getAllocations();
-        model.addAttribute("allocations", mapAllocations(allocations));
-
-        List<List<AllocationVO>> allocationsByEars = new ArrayList<>();
-        for (List<Allocation> allList : course.getAllocationsByYears()) {
-            allocationsByEars.add(mapAllocations(allList));
-        }
 
         CourseVO courseVO = new CourseVO()
                 .name(course.getName())
@@ -199,17 +202,20 @@ public class CourseV1Controller {
                 .dateFrom(course.getDateFrom())
                 .dateUntil(course.getDateUntil())
                 .introduced(new Date())
-                .term(course.getTerm())
-                .lectureRequired(course.getLectureRequired())
-                .exerciseRequired(course.getExerciseRequired())
-                .allocationsByYears(allocationsByEars)
-                .years(course.getYears());
+                .lectureLength(course.getLectureLength())
+                .exerciseLength(course.getExerciseLength())
+                .allocationsByYears(course.getAllocationsByYears())
+                .numberOfStudents(course.getNumberOfStudents())
+                .years(courseService.getYears(course));
 
         model.addAttribute(COURSE, courseVO);
 
+//        model.addAttribute("allocations", mapAllocations(course.getAllocationsByYears()));
+
         model.addAttribute("terms", TermState.values());
         model.addAttribute("newAllocation", newCourseAllocation(course));
-        model.addAttribute("allocationsByYears", allocationsByEars);
+
+        model.addAttribute("allocationsByYears", mapAllocations(course.getAllocationsByYears()));
 
         var employees = employeeService.getEmployees();
         model.addAttribute(EMPLOYEES, employees);
@@ -269,31 +275,36 @@ public class CourseV1Controller {
     private AllocationVO newCourseAllocation(Course course) {
         AllocationVO newAllocation = new AllocationVO();
         newAllocation.setCourseId(course.getId());
+        newAllocation.setWorkerId(1);
         newAllocation.setRole("nový");
         newAllocation.setIsCertain(1.0F);
-        newAllocation.setAllocationScope(1.0F);
-        newAllocation.setDateFrom(utils.convertToLocalDateTime(course.getDateFrom()));
-        newAllocation.setDateUntil(utils.convertToLocalDateTime(course.getDateUntil()));
+        newAllocation.setAllocationScope(1);
+        newAllocation.setTerm("Z");
+        newAllocation.setDateFrom(utils.convertToLocalDateTime(course.getDateFrom()).withMonth(9));
+        newAllocation.setDateUntil(utils.convertToLocalDateTime(course.getDateUntil()).withMonth(2));
         newAllocation.setDescription("description");
         return newAllocation;
     }
 
-    private List<AllocationVO> mapAllocations(List<Allocation> allocations) {
-        List<AllocationVO> allocationsVO = new LinkedList<>();
-        for (Allocation allocation : allocations) {
-            AllocationVO allocationVO = new AllocationVO();
-            allocationVO.setId(allocation.getId());
-            allocationVO.setCourseId(allocation.getCourse().getId());
-            allocationVO.setWorkerId(allocation.getWorker().getId());
-            allocationVO.setRole(allocation.getRole());
-            allocationVO.setDateFrom(utils.convertToLocalDateTime(allocation.getDateFrom()));
-            allocationVO.setDateUntil(utils.convertToLocalDateTime(allocation.getDateUntil()));
-            allocationVO.setAllocationScope(allocation.getTime());
-            allocationVO.setIsCertain(allocation.getIsCertain());
-            allocationVO.setDescription(allocation.getDescription());
-            allocationsVO.add(allocationVO);
+    private List<List<AllocationVO>> mapAllocations(List<List<Allocation>> allocations) {
+        List<List<AllocationVO>> listOfLists = new LinkedList<>();
+        for (List<Allocation> list : allocations) {
+            List<AllocationVO> allocationsVO = new LinkedList<>();
+            for (Allocation allocation : list) {
+                AllocationVO allocationVO = new AllocationVO();
+                allocationVO.setId(allocation.getId());
+                allocationVO.setCourseId(allocation.getCourse().getId());
+                allocationVO.setWorkerId(allocation.getWorker().getId());
+                allocationVO.setRole(allocation.getRole());
+                allocationVO.setDateFrom(utils.convertToLocalDateTime(allocation.getDateFrom()));
+                allocationVO.setDateUntil(utils.convertToLocalDateTime(allocation.getDateUntil()));
+                allocationVO.setAllocationScope((float) (allocation.getAllocationScope() / (40 * 60)));
+                allocationVO.setIsCertain(allocation.getIsCertain());
+                allocationVO.setDescription(allocation.getDescription());
+                allocationsVO.add(allocationVO);
+            }
         }
 
-        return allocationsVO;
+        return listOfLists;
     }
 }

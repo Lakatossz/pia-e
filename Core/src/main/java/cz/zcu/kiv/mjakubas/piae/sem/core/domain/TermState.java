@@ -4,9 +4,9 @@ import lombok.Getter;
 
 @Getter
 public enum TermState {
-    ZIMNI("Z"),
-    LETNI("L"),
-    ZADNY("N");
+    Z("Z"),
+    L("L"),
+    N("N");
 
     private final String value;
 
@@ -16,9 +16,9 @@ public enum TermState {
 
     public static TermState getByValue(String value) {
         return switch (value) {
-            case "Z" -> TermState.ZIMNI;
-            case "L" -> TermState.LETNI;
-            default -> TermState.ZADNY;
+            case "Z" -> TermState.Z;
+            case "L" -> TermState.L;
+            default -> TermState.N;
         };
     }
 }

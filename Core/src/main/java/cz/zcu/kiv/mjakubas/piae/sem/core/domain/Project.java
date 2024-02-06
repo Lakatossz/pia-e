@@ -21,7 +21,7 @@ public class Project extends Activity {
     private Workplace projectWorkplace;
     private Integer budget;
     private Integer budgetParticipation;
-    private Integer totalTime;
+    private float totalTime;
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date introduced;
     private String agency;
@@ -97,7 +97,7 @@ public class Project extends Activity {
         return this;
     }
 
-    public Project totalTime(Integer totalTime) {
+    public Project totalTime(float totalTime) {
         this.totalTime = totalTime;
         return this;
     }

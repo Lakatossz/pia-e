@@ -44,6 +44,17 @@
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
 
+        <div th:if="${permissionError} == true"
+             class="alert alert-danger alert-dismissible fade show">
+            <strong th:text="#{no-permission.failure}"></strong>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <div th:if="${generalError} == true"
+             class="alert alert-danger alert-dismissible fade show">
+            <strong th:text="#{general.failure}"></strong>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
         <h1 class="text-center mt-5" th:text="#{view.employee_detail.header} + ' ' + ${employee.getFirstName()} + ' ' + ${employee.getLastName()}"></h1>
 
         <div class="employee-detail-collapsible-header" style="display: flex">
@@ -59,6 +70,7 @@
                         <label class="employee-detail-label" for="first_name"
                                th:text="#{view.employee_detail.first_name}" th:required="true"/>
                         <input class="employee-detail-input" type="text"
+                               onchange="onRequiredDetailChange(this)"
                                id="first_name" name="first_name" th:field="*{firstName}">
                     </td>
                 </tr>
@@ -67,6 +79,7 @@
                         <label class="employee-detail-label" for="last_name"
                                th:text="#{view.employee_detail.last_name}" th:required="true"/>
                         <input class="employee-detail-input" type="text"
+                               onchange="onRequiredDetailChange(this)"
                                id="last_name" name="last_name" th:field="*{lastName}">
                     </td>
                 </tr>
@@ -75,6 +88,7 @@
                         <label class="employee-detail-label" for="orion_login"
                                th:text="#{view.employee_detail.orion_login}" th:required="true"/>
                         <input class="employee-detail-input" type="text"
+                               onchange="onRequiredDetailChange(this)"
                                id="orion_login" name="orion_login" th:field="*{orionLogin}">
                     </td>
                 </tr>
@@ -95,6 +109,7 @@
                         <label class="employee-detail-label" for="email"
                                th:text="#{view.employee_detail.email}" th:required="true"/>
                         <input class="employee-detail-input" type="text"
+                               onchange="onRequiredDetailChange(this)"
                                id="email" name="email" th:field="*{emailAddress}">
                     </td>
                 </tr>
@@ -103,6 +118,7 @@
                         <label class="employee-detail-label" for="introduced"
                                th:text="#{view.employee_detail.introduced}" th:required="true"/>
                         <input class="employee-detail-input" type="date"
+                               onchange="onRequiredDetailChange(this)"
                                id="introduced" name="introduced" th:field="${employee.dateCreated}">
                     </td>
                 </tr>
@@ -117,7 +133,7 @@
                 </tr>
                 <tr>
                     <td class="flex-duo">
-                        <input id="form-submit" class="employee-detail-btn"
+                        <input id="form-submit" class="employee-detail-btn form-submit"
                                th:attr="onclick=|return empty('#{view.employee_detail.submit.empty}')|"
                                th:formaction="'/e/' + ${id} + '/edit'" type="submit"
                                th:value="#{view.employee_detail.submit}">
@@ -138,7 +154,7 @@
                 <th:block th:if="${projects.size()} > 0">
                     <h3 class="text-center mt-5" th:text="#{view.employee_detail.activity.projects.header}"></h3>
 
-                    <table class="employee-detail-projects-table">
+                    <table class="table employee-detail-projects-table">
                         <thead>
                         <tr class="employee-detail-tr">
                             <td class="employee-name" th:text="#{view.employee_detail.activity.projects_table.name}"></td>
@@ -260,7 +276,7 @@
                 <th:block th:if="${courses.size()} > 0">
                     <h3 class="text-center mt-5" th:text="#{view.employee_detail.activity.courses.header}"></h3>
 
-                    <table class="employee-detail-courses-table">
+                    <table class="table employee-detail-courses-table">
                         <thead>
                         <tr class="employee-detail-tr">
                             <td class="employee-name" th:text="#{view.employee_detail.activity.course_table.name}"></td>
@@ -385,7 +401,7 @@
                 <h3 class="text-center mt-5" th:text="#{view.employee_detail.activity.functions.header}"></h3>
 
                 <th:block th:if="${functions.size()} > 0">
-                    <table class="employee-detail-functions-table">
+                    <table class="table employee-detail-functions-table">
                         <thead>
                         <tr class="employee-detail-tr">
                             <td class="employee-name" th:text="#{view.employee_detail.activity.functions_table.name}"></td>
@@ -538,112 +554,22 @@
         });
         div.append(button);
     });
-</script>
 
-<script>
-    let employees = /*[[${employees}]]*/ 'default';
-    let projects_times = document.getElementsByClassName("employee-projects-times");
-    let courses_times = document.getElementsByClassName("employee-coures-times");
-    let functions_times = document.getElementsByClassName("employee-funtions-times");
-    let index = 0;
-    const opts = { minimumFractionDigits: 1 };
-    let year_offsets = {};
-    console.log('employees: ' + employees.length);
-    for (let i = 0; i < employees.length; ++i)
-        year_offsets[i] = 0;
+    let requiredDetailNotFilled = 0;
 
-
-    Array.from(projects_times).forEach(function(trArray) {
-        if (employees.length > index && employees[index].projectsAllocationCells.length > 0) {
-            let last = employees[index].projectsAllocationCells[0][0].time;
-            for (let j = 0; j < 12; ++j) {
-                let td = document.createElement("td");
-                if (last !== employees[index].projectsAllocationCells[0][j].time) {
-                    last = employees[index].projectsAllocationCells[0][j].time;
-                    td.className = "project-cell-times-values project-cell-times-values-changed";
-                } else
-                    td.className = "project-cell-times-values";
-                td.innerHTML = (employees[index].projectsAllocationCells[0][j].time)
-                    .toLocaleString(undefined, opts).replace(',', '.');
-                trArray.append(td);
-            }
-            let td = document.createElement("td");
-            td.className = "project-detail-table-cell";
-            trArray.append(td);
-        }
-        index++;
-    });
-
-    let project_allocations = document.getElementsByClassName("project-allocations");
-    Array.from(project_allocations).forEach(function(trArray) {
-        let buttonsEdit = document.getElementsByClassName("btn-edit");
-        let buttonsConfirm = document.getElementsByClassName("btn-confirm");
-        let buttonsCancel = document.getElementsByClassName("btn-cancel");
-        for (let i = 0; i < buttonsEdit.length; ++i) {
-            buttonsEdit[i].addEventListener("click", function(evt) {
-                let tds = trArray.getElementsByClassName("project-allocations-input");
-                Array.from(tds).forEach(function(td) {
-                    td.removeAttribute("readonly");
-                    buttonsConfirm[i].style.visibility = "visible";
-                    buttonsCancel[i].style.visibility = "visible";
-                    buttonsEdit[i].style.visibility = "hidden";
-                });
-            });
-
-            buttonsConfirm[i].addEventListener("click", function(evt) {
-                let tds = trArray.getElementsByClassName("project-allocations-input");
-                Array.from(tds).forEach(function(td) {
-                    td.setAttribute('readonly', 'readonly');
-                    buttonsConfirm[i].style.visibility = 'hidden';
-                    buttonsCancel[i].style.visibility = 'hidden';
-                    buttonsEdit[i].style.visibility = 'visible';
-                });
-            });
-
-            buttonsCancel[i].addEventListener("click", function(evt) {
-                let tds = trArray.getElementsByClassName("project-allocations-input");
-                Array.from(tds).forEach(function(td) {
-                    td.setAttribute('readonly', 'readonly');
-                    buttonsConfirm[i].style.visibility = 'hidden';
-                    buttonsCancel[i].style.visibility = 'hidden';
-                    buttonsEdit[i].style.visibility = 'visible'
-                });
-            });
-        }
-    });
-
-    function empty(message) {
-        var x;
-        console.log(message);
-        x = document.getElementById("first_name").value;
-        if (x === "") {
-            window.location.replace(location.protocol + '//' + location.host + location.pathname + '?edit=failure');
+    function onRequiredDetailChange(element) {
+        let btn = document.getElementsByClassName('form-submit');
+        if (element.value === '') {
+            if (requiredDetailNotFilled === 0)
+                btn[0].disabled = true;
+            requiredDetailNotFilled++;
+            element.classList.add('employee-detail-input-empty');
             return false;
-        }
-        x = document.getElementById("last_name").value;
-        if (x === "") {
-            window.location.replace(location.protocol + '//' + location.host + location.pathname + '?edit=failure');
-            return false;
-        }
-        x = document.getElementById("orion_login").value;
-        if (x === "") {
-            window.location.replace(location.protocol + '//' + location.host + location.pathname + '?edit=failure');
-            return false;
-        }
-        x = document.getElementById("from").value;
-        if (x === "") {
-            window.location.replace(location.protocol + '//' + location.host + location.pathname + '?edit=failure');
-            return false;
-        }
-        x = document.getElementById("workplace").value;
-        if (x === "") {
-            window.location.replace(location.protocol + '//' + location.host + location.pathname + '?edit=failure');
-            return false;
-        }
-        x = document.getElementById("email").value;
-        if (x === "") {
-            window.location.replace(location.protocol + '//' + location.host + location.pathname + '?edit=failure');
-            return false;
+        } else {
+            element.classList.remove('employee-detail-input-empty');
+            requiredDetailNotFilled--;
+            if (requiredDetailNotFilled === 0)
+                btn[0].disabled = false;
         }
     }
 </script>

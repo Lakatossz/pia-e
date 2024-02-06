@@ -177,3 +177,5 @@ NCore/src/main/java/cz/zcu/kiv/mjakubas/piae/sem/core/domain/MergingObject.java
 VCore/src/main/java/cz/zcu/kiv/mjakubas/piae/sem/core/exceptions/SecurityException.java,3/0/30610f17fac051fee293cb9dbdeb5d450a86e75b
 …
 UCore/src/main/java/cz/zcu/kiv/mjakubas/piae/sem/core/exceptions/ServiceException.java,7/9/799bd309bfe0e8ab25ffee474d2bb6df91d43b03
+‡
+WCore/src/main/java/cz/zcu/kiv/mjakubas/piae/sem/core/exceptions/CollisionException.java,7/c/7c33c28e56ff6262add4b86f394007acaa968516

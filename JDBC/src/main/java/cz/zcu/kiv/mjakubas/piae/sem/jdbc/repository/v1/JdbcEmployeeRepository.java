@@ -96,9 +96,9 @@ public class JdbcEmployeeRepository implements IEmployeeRepository {
     public long createEmployee(@NonNull Employee employee) {
         var sql = """
                 INSERT INTO employee
-                (emp_enabled, emp_workplace_id, emp_first_name, emp_last_name, emp_orion_login, emp_email, emp_description)
+                (emp_enabled, emp_workplace_id, emp_first_name, emp_last_name, emp_orion_login, emp_email, emp_date_created, emp_description)
                 VALUES
-                (:emp_enabled, :emp_workplace_id, :emp_first_name, :emp_last_name, :emp_orion_login, :emp_email, :emp_description)
+                (:emp_enabled, :emp_workplace_id, :emp_first_name, :emp_last_name, :emp_orion_login, :emp_email, :emp_date_created, :emp_description)
                 """;
 
         GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
@@ -113,7 +113,7 @@ public class JdbcEmployeeRepository implements IEmployeeRepository {
                 UPDATE employee
                 SET emp_enabled = :emp_enabled, emp_workplace_id = :emp_workplace_id, emp_first_name = :emp_first_name,
                  emp_last_name = :emp_last_name, emp_orion_login = :emp_orion_login, emp_email = :emp_email, 
-                 emp_description = :emp_description
+                 emp_date_created = :emp_date_created, emp_description = :emp_description
                 WHERE emp_enabled=:emp_enabled AND employee_id = :employee_id
                 """;
 
@@ -183,6 +183,7 @@ public class JdbcEmployeeRepository implements IEmployeeRepository {
         params.addValue("emp_last_name", employee.getLastName());
         params.addValue("emp_orion_login", employee.getOrionLogin());
         params.addValue("emp_email", employee.getEmailAddress());
+        params.addValue("emp_date_created", employee.getDateCreated());
         params.addValue("emp_description", employee.getDescription());
 
         return params;

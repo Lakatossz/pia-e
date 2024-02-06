@@ -94,8 +94,15 @@ public class ProjectService {
     public List<Employee> getProjectEmployees(long id) {
         List<Employee> employees = projectRepository.fetchProjectEmployees(id);
         employees.forEach(employee -> {
-            employee.setUncertainTime((float) 0.0);
-            employee.setCertainTime((float) 0.0);
+            List<Allocation> allocations = allocationService.getEmployeeAllocations(employee.getId());
+            allocations.forEach(allocation -> {
+                if (allocation.getProject() != null && allocation.getProject().getId() == id) {
+                    if (allocation.getIsCertain() == 1)
+                        employee.setCertainTime(employee.getCertainTime() + allocation.getTime());
+                    else
+                        employee.setUncertainTime(employee.getUncertainTime() + allocation.getTime());
+                }
+            });
         });
         return employees;
     }
@@ -172,7 +179,7 @@ public class ProjectService {
      * @param projectId id of removed project.
      */
     @Transactional
-    public void removeProject(long projectId) {
+    public void removeProject(long projectId) throws SecurityException, ServiceException {
         if (securityService.isProjectManager(projectId)) {
             var project = getProject(projectId);
             for (Allocation allocation : project.getProjectAllocations())

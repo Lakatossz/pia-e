@@ -43,6 +43,22 @@
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
 
+        <div th:if="${permissionError} == true"
+             class="alert alert-danger alert-dismissible fade show">
+            <strong th:text="#{no-permission.failure}"></strong>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <div th:if="${generalError} == true"
+             class="alert alert-danger alert-dismissible fade show">
+            <strong th:text="#{general.failure}"></strong>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <div th:if="${collisionError} == true"
+             class="alert alert-danger alert-dismissible fade show">
+            <strong th:text="#{collison.failure}"></strong>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
         <h1 class="text-center mt-5" th:text="#{view.project_detail.header} + ' ' + ${project.getName()}"></h1>
 
         <div class="project-detail-collapsible-header" style="display: flex">
@@ -115,10 +131,11 @@
                 </tr>
                 <tr>
                     <td class="project-detail-div">
-                        <label class="project-detail-label" for="total_time"
+                        <label class="project-detail-label" for="totalTime"
                                th:text="#{view.project_detail.total_time}" th:required="true"/>
                         <input class="project-detail-input" type="number" onchange="onRequiredDetailChange(this)"
-                               id="total_time" name="total_time" th:field="*{totalTime}">
+                               th:attr="min=0, step=0.1"
+                               id="totalTime" name="totalTime" th:field="*{totalTime}">
                     </td>
                 </tr>
                 <tr>
@@ -142,7 +159,7 @@
                         <label class="project-detail-label" for="call_year"
                                th:text="#{view.project_detail.call_year}"/>
                         <input class="project-detail-input" type="number" onchange="onRequiredDetailChange(this)"
-                               min="1900" max="2099" step="1"
+                               th:attr="min=1900, max=2099, step=1"
                                id="call_year" name="call_year" th:value="*{#dates.year(dateFrom)}">
                     </td>
                 </tr>
@@ -155,7 +172,8 @@
                     <td class="project-detail-div">
                         <label class="project-detail-label" for="budget"
                                th:text="#{view.project_detail.budget}"/>
-                        <input class="project-detail-input" type="number" step="100"
+                        <input class="project-detail-input" type="number"
+                               th:attr="min=0, step=1, step=100"
                                id="budget" name="budget" th:field="*{budget}">
                     </td>
                 </tr>
@@ -163,7 +181,8 @@
                     <td class="project-detail-div">
                         <label class="project-detail-label" for="budget_participation"
                                th:text="#{view.project_detail.budget_participation}"/>
-                        <input class="project-detail-input" type="number" step="100"
+                        <input class="project-detail-input" type="number"
+                               th:attr="min=0, step=100"
                                id="budget_participation" name="budget_participation" th:field="*{budgetParticipation}">
                     </td>
                 </tr>
@@ -269,6 +288,7 @@
                                         <label>
                                             <input class="project-allocations-input" type="number" step="0.1"
                                                    th:name="allocationScope" readonly="readonly"
+                                                   th:attr="min=0, max=1.0, step=0.1"
                                                    th:value="*{allocationScope}" th:onchange="'onRequiredAllocationChange(this, ' + ${allStats.index} + ')'">
                                         </label>
                                     </td>
@@ -276,6 +296,7 @@
                                         <label>
                                             <input class="project-allocations-input" type="number" step="0.1"
                                                    th:name="isCertain" th:value="*{isCertain}"
+                                                   th:attr="min=0, max=1.0, step=0.1"
                                                    readonly="readonly" th:onchange="'onRequiredAllocationChange(this, ' + ${allStats.index} + ')'">
                                         </label>
                                     </td>
@@ -369,6 +390,7 @@
                                     <label>
                                         <input class="project-allocations-input"
                                                type="number" step="0.1" onchange="onRequiredNewAllocationChange(this)"
+                                               th:attr="min=0, max=1.0, step=0.1"
                                                th:id="isCertain" th:name="isCertain" th:field="*{isCertain}">
                                     </label>
                                 </td>
@@ -402,14 +424,17 @@
         <!-- Times per months -->
         <h4 th:text="#{view.project_detail.members.title.times-per-months}"/>
         <div class="table">
-            <table class="table">
+            <table class="table project-detail-table">
                 <thead>
                 <tr class="project-row-header">
                     <!-- Labels -->
-                    <td class="project-row-year" th:colspan="16" th:id="${0}"></td>
+                    <td class="project-detail-table-cell-name"></td>
+                    <td></td>
+                    <td class="project-row-year" th:colspan="12" th:id="${0}"></td>
+                    <td></td>
                 </tr>
                 <tr class="project-row-header">
-                    <td style="text-align: left" th:text="#{view.project_detail.members.table.name}"></td>
+                    <td class="project-detail-table-cell-name" th:text="#{view.project_detail.members.table.name}"></td>
                     <td class="btn-left"></td>
                     <td class="project-detail-table-cell" th:text="#{month.january}"></td>
                     <td class="project-detail-table-cell" th:text="#{month.february}"></td>
@@ -462,6 +487,8 @@
     let allocation_being_added = false;
 
     let project = [[${project}]];
+
+    let yearValue = project.firstYear;
 
     let id = [[${id}]];
 
@@ -627,7 +654,7 @@
 
     // Handling table with month allocation of every worker
 
-    let years = document.getElementsByClassName("main-row-year");
+    let years = document.getElementsByClassName("project-row-year");
     let monthlyAllocations = [[${monthlyAllocations}]];
     let certainAllocations = [[${certainAllocations}]];
     let uncertainAllocations = [[${uncertainAllocations}]];
@@ -641,7 +668,7 @@
     let numberOfYears = monthlyAllocations.length > 0 ? monthlyAllocations[0].length / 12 : 0;
 
     Array.from(years).forEach(function(year) {
-        year.textContent = employees[year.id].firstYear;
+        year.textContent = project.firstYear;
     });
 
     Array.from(certain_times).forEach(function (trArray) {
@@ -704,6 +731,9 @@
         if (current_index > 0 && current_index !== undefined) {
             current_index--;
             renderTimes(certain_times, uncertain_times, projects_times);
+            let previousYear = yearValue - 1;
+            yearValue = previousYear;
+            years[0].textContent = previousYear.toString();
         }
     });
 
@@ -713,6 +743,9 @@
         if ((current_index + 1) < numberOfYears && current_index !== undefined) {
             current_index++;
             renderTimes(certain_times, uncertain_times, projects_times);
+            let nextYear = yearValue + 1;
+            yearValue = nextYear;
+            years[0].textContent = nextYear.toString();
         }
     });
 
@@ -724,8 +757,10 @@
         for (let j = 0; j < 12; ++j) {
             certain_times_tds[j].innerHTML = (certainAllocations[current_index * 12 + j].time)
                 .toLocaleString(undefined, opts).replace(',', '.');
+            certain_times_tds[j].classList.add('certain-highlight');
             uncertain_times_tds[j].innerHTML = (uncertainAllocations[current_index * 12 + j].time)
                 .toLocaleString(undefined, opts).replace(',', '.');
+            uncertain_times_tds[j].classList.add('uncertain-highlight');
         }
 
         for (let i = 0; i < projects_times.length; ++i) {

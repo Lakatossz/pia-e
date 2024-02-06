@@ -24,7 +24,7 @@ public class ProjectMapper implements RowMapper<Project> {
         var budget = rs.getInt("pro_budget");
         var budgetParticipation = rs.getInt("pro_budget_participation");
         var probability = rs.getFloat("pro_probability");
-        var totalTime = rs.getInt("pro_total_time");
+        var totalTime = rs.getFloat("pro_total_time");
         var agency = rs.getString("pro_agency");
         var grantTitle = rs.getString("pro_grant_title");
         var state = rs.getString("pro_state");
@@ -54,6 +54,6 @@ public class ProjectMapper implements RowMapper<Project> {
                 .grantTitle(grantTitle)
                 .projectWorkplace(Workplace.builder().id(wrkId).abbreviation(abbrevation).build())
                 .projectManager(manager)
-                .state(ProjectState.BEZI);
+                .state(ProjectState.getByValue(state));
     }
 }

@@ -45,6 +45,22 @@
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
 
+        <div th:if="${orionEmailError} == true"
+             class="alert alert-danger alert-dismissible fade show">
+            <strong th:text="#{view.employee.alert.orion-email.failure}"></strong>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <div th:if="${permissionError} == true"
+             class="alert alert-danger alert-dismissible fade show">
+            <strong th:text="#{no-permission.failure}"></strong>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <div th:if="${generalError} == true"
+             class="alert alert-danger alert-dismissible fade show">
+            <strong th:text="#{general.failure}"></strong>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
         <h1 class="text-center mt-5" th:text="#{view.employee_detail.header} + ' ' + ${employee.getFirstName()} + ' ' + ${employee.getLastName()}"></h1>
 
         <div class="employee-detail-collapsible-header" style="display: flex">
@@ -74,7 +90,7 @@
                     </td>
                 </tr>
                 <tr>
-                    <th:block th:if="*{orionLogin == null}">
+                    <th:block th:if="${orionEmailError} != true">
                         <td class="employee-detail-div">
                             <label class="employee-detail-label" for="orion_login"
                                    th:text="#{view.employee_detail.orion_login}" th:required="true"/>
@@ -83,11 +99,11 @@
                                    id="orion_login" name="orion_login" th:field="*{orionLogin}">
                         </td>
                     </th:block>
-                    <th:block th:if="*{orionLogin != null}">
+                    <th:block th:if="${orionEmailError} == true">
                         <td class="employee-detail-div">
                             <label class="employee-detail-label" for="orion_login_wrong"
                                    th:text="#{view.employee_detail.orion_login}" th:required="true"/>
-                            <input class="employee-detail-input" type="text"
+                            <input class="employee-detail-input employee-detail-input-empty" type="text"
                                    onchange="onRequiredDetailChange(this)" th:required="true"
                                    id="orion_login_wrong" name="orion_login" th:field="*{orionLogin}">
                         </td>
@@ -106,7 +122,7 @@
                     </td>
                 </tr>
                 <tr>
-                    <th:block th:if="*{orionLogin != null}">
+                    <th:block th:if="${orionEmailError} != true">
                         <td class="employee-detail-div">
                             <label class="employee-detail-label" for="email"
                                    th:text="#{view.employee_detail.email}" th:required="true"/>
@@ -115,9 +131,9 @@
                                    id="email" name="email" th:field="*{emailAddress}">
                         </td>
                     </th:block>
-                    <th:block th:if="*{orionLogin == null}">
+                    <th:block th:if="${orionEmailError} == true">
                         <td class="employee-detail-div">
-                            <label class="employee-detail-label" for="email_wrong"
+                            <label class="employee-detail-label employee-detail-input-empty" for="email_wrong"
                                    th:text="#{view.employee_detail.email}" th:required="true"/>
                             <input class="employee-detail-input" type="text"
                                    onchange="onRequiredDetailChange(this)" th:required="true"

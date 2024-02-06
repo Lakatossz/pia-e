@@ -35,12 +35,13 @@ public class ProjectVO {
     private String description;
     private Integer budget;
     private Integer budgetParticipation;
-    private Integer totalTime;
+    private float totalTime;
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date introduced;
     private String agency;
     private String grantTitle;
     private String state;
+    private long firstYear;
 
     public ProjectVO name(String name) {
         this.name = name;
@@ -97,7 +98,7 @@ public class ProjectVO {
         return this;
     }
 
-    public ProjectVO totalTime(Integer totalTime) {
+    public ProjectVO totalTime(float totalTime) {
         this.totalTime = totalTime;
         return this;
     }
@@ -122,6 +123,11 @@ public class ProjectVO {
         return this;
     }
 
+    public ProjectVO firstYear(long firstYear) {
+        this.firstYear = firstYear;
+        return this;
+    }
+
     @Override
     public String toString() {
         return "ProjectVO{" +
@@ -137,6 +143,7 @@ public class ProjectVO {
                 ", agency=" + agency +
                 ", grantTitle=" + grantTitle +
                 ", state=" + state +
+                ", firstYear=" + firstYear +
                 ", introduced=" + introduced +
                 ", description='" + description + '\'' +
                 '}';

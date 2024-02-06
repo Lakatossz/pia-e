@@ -19,6 +19,7 @@ public class EmployeeMapper implements RowMapper<Employee> {
         String lastName = rs.getString("emp_last_name");
         String orionLogin = rs.getString("emp_orion_login");
         String email = rs.getString("emp_email");
+        Date dateCreated = rs.getDate("emp_date_created");
         String description = rs.getString("emp_description");
 
         long workplaceId = rs.getLong("emp_workplace_id");
@@ -38,7 +39,7 @@ public class EmployeeMapper implements RowMapper<Employee> {
                 .orionLogin(orionLogin)
                 .emailAddress(email)
                 .workplace(workplace)
-                .dateCreated(new Date())
+                .dateCreated(dateCreated)
                 .description(description);
     }
 }

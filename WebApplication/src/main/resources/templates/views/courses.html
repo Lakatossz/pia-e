@@ -22,6 +22,18 @@
 <div th:replace="~{fragments/navbar}">Navbar</div>
 
 <div class="container-fluid  content">
+
+    <div th:if="${permissionError} == true"
+         class="alert alert-danger alert-dismissible fade show">
+        <strong th:text="#{no-permission.failure}"></strong>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <div th:if="${generalError} == true"
+         class="alert alert-danger alert-dismissible fade show">
+        <strong th:text="#{general.failure}"></strong>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
     <!-- content -->
     <div class="container">
         <!-- table -->
@@ -35,7 +47,7 @@
                     <th scope="col" class="course-cell" ></th>
                     <th scope="col" class="course-cell" th:text="#{view.course.table.shortcut}"></th>
                     <th scope="col" class="course-cell" th:text="#{view.course.table.students}"></th>
-                    <th scope="col" class="course-cell" th:text="#{view.course.table.ra}"></th>
+                    <th scope="col" class="course-cell" th:text="#{view.course.table.credits}"></th>
                     <th scope="col" class="course-cell" th:text="#{view.course.table.lecturer}"></th>
                     <th scope="col" class="course-cell" th:text="#{view.course.table.role}"></th>
                     <th scope="col" class="course-cell" th:text="#{view.course.table.lecture_hours}"></th>
@@ -57,18 +69,48 @@
                                 <td class="course-cell" th:rowspan="${crs.getCourseAllocations().size() + 1}" th:text="${crs.getCredits()}"></td>
                                 <td class="course-cell" th:text="${firstAllocations.get(crsStats.index).getWorker().getLastName()}"></td>
                                 <td class="course-cell" th:text="${firstAllocations.get(crsStats.index).getRole()}"></td>
-                                <td class="course-cell" th:text="${firstAllocations.get(crsStats.index).getTime()}"></td>
-                                <td class="course-cell" th:text="${firstAllocations.get(crsStats.index).getTime()}"></td>
-                                <td class="course-cell" th:text="${firstAllocations.get(crsStats.index).getIsCertain()}"></td>
+                                <th:block th:if="${firstAllocations.get(crsStats.index).getRole()} == ${courseLectureRole}">
+                                    <td class="course-cell" th:text="${firstAllocations.get(crsStats.index).getTime() * 60}"></td>
+                                </th:block>
+                                <th:block th:if="${firstAllocations.get(crsStats.index).getRole()} != ${courseLectureRole}">
+                                    <td class="course-cell" th:text="0"></td>
+                                </th:block>
+                                <th:block th:if="${firstAllocations.get(crsStats.index).getRole()} == ${courseExerciseRole}">
+                                    <td class="course-cell" th:text="${firstAllocations.get(crsStats.index).getTime() * 60}"></td>
+                                </th:block>
+                                <th:block th:if="${firstAllocations.get(crsStats.index).getRole()} != ${courseExerciseRole}">
+                                    <td class="course-cell" th:text="0"></td>
+                                </th:block>
+                                <th:block th:if="${firstAllocations.get(crsStats.index).getRole()} != ${courseExerciseRole} and ${firstAllocations.get(crsStats.index).getRole()} != ${courseLectureRole}">
+                                    <td class="course-cell" th:text="${firstAllocations.get(crsStats.index).getTime() * 60}"></td>
+                                </th:block>
+                                <th:block th:if="${firstAllocations.get(crsStats.index).getRole()} == ${courseExerciseRole} or ${firstAllocations.get(crsStats.index).getRole()} == ${courseLectureRole}">
+                                    <td class="course-cell" th:text="0"></td>
+                                </th:block>
                                 <td class="course-cell" th:text="${firstAllocations.get(crsStats.index).getIsCertain()}"></td>
                             </tr>
                             <th:block th:each="all : ${crs.getCourseAllocations()}">
                                 <tr>
                                     <td class="course-cell" th:text="${all.getWorker().getLastName()}"></td>
                                     <td class="course-cell" th:text="${all.getRole()}"></td>
-                                    <td class="course-cell" th:text="${all.getTime()}"></td>
-                                    <td class="course-cell" th:text="${all.getTime()}"></td>
-                                    <td class="course-cell" th:text="${all.getIsCertain()}"></td>
+                                    <th:block th:if="${all.getRole()} == ${courseLectureRole}">
+                                        <td class="course-cell" th:text="${all.getTime() * 60}"></td>
+                                    </th:block>
+                                    <th:block th:if="${all.getRole()} != ${courseLectureRole}">
+                                        <td class="course-cell" th:text="0"></td>
+                                    </th:block>
+                                    <th:block th:if="${all.getRole()} == ${courseExerciseRole}">
+                                        <td class="course-cell" th:text="${all.getTime() * 60}"></td>
+                                    </th:block>
+                                    <th:block th:if="${all.getRole()} != ${courseExerciseRole}">
+                                        <td class="course-cell" th:text="0"></td>
+                                    </th:block>
+                                    <th:block th:if="${all.getRole()} != ${courseExerciseRole} and ${all.getRole()} != ${courseLectureRole}">
+                                        <td class="course-cell" th:text="${all.getTime() * 60}"></td>
+                                    </th:block>
+                                    <th:block th:if="${all.getRole()} == ${courseExerciseRole} or ${all.getRole()} == ${courseLectureRole}">
+                                        <td class="course-cell" th:text="0"></td>
+                                    </th:block>
                                     <td class="course-cell" th:text="${all.getIsCertain()}"></td>
                                 </tr>
                             </th:block>

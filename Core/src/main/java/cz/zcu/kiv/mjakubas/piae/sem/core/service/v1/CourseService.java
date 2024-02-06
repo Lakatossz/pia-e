@@ -21,9 +21,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -67,6 +68,12 @@ public class CourseService {
     @Value("${second.semester.end.day}")
     private String secondSemesterEndDay;
 
+    @Value("${course.lecture.role}")
+    private String courseLectureRole;
+
+    @Value("${course.exercise.role}")
+    private String courseExerciseRole;
+
     @Autowired
     private ICourseRepository courseRepository;
 
@@ -101,7 +108,13 @@ public class CourseService {
             List<Allocation> sortedAllocations = new LinkedList<>(
                     allocations.stream().sorted(Comparator.comparing(Allocation::getDateFrom)).toList());
             course.setYears(getYears(course));
-            course.setAllocationsByYears(getAllocationsByYears_(sortedAllocations, course.getYears().get(0), course.getYears().size()));
+            course.setAllocationsByYears(getAllocationsByYears(
+                    sortedAllocations,
+                    utils.convertToLocalDateTime(course.getDateFrom()),
+                    utils.convertToLocalDateTime(course.getDateUntil())));
+        } else {
+            course.setYears(getYears(course));
+            course.setAllocationsByYears(new LinkedList<>());
         }
 
         return course;
@@ -134,8 +147,15 @@ public class CourseService {
     public List<Employee> getCourseEmployees(long id) {
         List<Employee> employees = courseRepository.fetchCourseEmployees(id);
         employees.forEach(employee -> {
-            employee.setUncertainTime((float) 0.0);
-            employee.setCertainTime((float) 0.0);
+            List<Allocation> allocations = allocationService.getEmployeeAllocations(employee.getId());
+            allocations.forEach(allocation -> {
+                if (allocation.getCourse() != null && allocation.getCourse().getId() == id) {
+                    if (allocation.getIsCertain() == 1)
+                        employee.setCertainTime(employee.getCertainTime() + allocation.getTime());
+                    else
+                        employee.setUncertainTime(employee.getUncertainTime() + allocation.getTime());
+                }
+            });
         });
         return employees;
     }
@@ -213,7 +233,7 @@ public class CourseService {
      * @param courseId id of removed course.
      */
     @Transactional
-    public void removeCourse(long courseId) {
+    public void removeCourse(long courseId) throws SecurityException, ServiceException {
         if (securityService.isCourseManager(courseId)) {
             var course = getCourse(courseId);
             for (Allocation allocation : course.getCourseAllocations())
@@ -236,8 +256,6 @@ public class CourseService {
         if (courseVO.getDateUntil() != null && (courseVO.getDateFrom().after(courseVO.getDateUntil())))
         {throw new ServiceException();
         }
-
-        System.out.println(courseVO);
 
 //        var processed = allocationService.processAllocations(allocationService.getCourseAllocations(id).getAllocations());
 //        if (!processed.isEmpty() && (processed.get(0).getFrom().before(courseVO.getDateFrom())
@@ -356,101 +374,92 @@ public class CourseService {
     public List<Integer> getYears(Course course) {
         List<Integer> years = new LinkedList<>();
 
-        Calendar dateFrom = Calendar.getInstance();
-        Calendar dateUntil = Calendar.getInstance();
+        LocalDate firstDay = utils.convertToLocalDateTime(course.getDateFrom());
+        LocalDate lastDay = utils.convertToLocalDateTime(course.getDateUntil());
 
-        dateFrom.setTime(course.getDateFrom());
-        dateUntil.setTime(course.getDateUntil());
+        LocalDate realFirstDay = LocalDate.of(
+                utils.convertToLocalDateTime(course.getDateFrom()).getYear(),
+                Integer.parseInt(firstSemesterStartMonth),
+                Integer.parseInt(firstSemesterStartDay));
 
-        int numberOfYears = dateUntil.get(Calendar.YEAR) - dateFrom.get(Calendar.YEAR);
+        if (firstDay.isBefore(realFirstDay))
+            realFirstDay = realFirstDay.withYear(firstDay.getYear() - 1);
 
-        for (int i = 0; i <= numberOfYears; ++i)
-            years.add(dateFrom.get(Calendar.YEAR) + i);
+        LocalDate realLastDay = LocalDate.of(
+                lastDay.getYear(),
+                Integer.parseInt(secondSemesterEndMonth),
+                Integer.parseInt(secondSemesterEndDay));
 
-        return years;
-    }
+        if (lastDay.isAfter(realLastDay))
+            realLastDay = realLastDay.withYear(lastDay.getYear() + 1);
 
-    public List<Integer> getYearsOfAllocations(List<Allocation> allocations) {
-        List<Integer> years = new LinkedList<>();
-        Calendar date = Calendar.getInstance();
-        int lastAllYear = 0;
-        int index = -1;
+        int numberOfYears = (int) (ChronoUnit.DAYS.between(realFirstDay, realLastDay) + 2) / 365;
 
-        List<Pair<Integer, Integer>> pairs = new LinkedList<>();
-
-        for (Allocation allocation : allocations)  {
-            date.setTime(allocation.getDateFrom());
-            if (lastAllYear == date.get(Calendar.YEAR)) {
-                int currentValue = pairs.get(index).getValue() + 1;
-                pairs.set(index, new Pair<>(lastAllYear, currentValue));
-            } else {
-                date.setTime(allocation.getDateFrom());
-                pairs.add(new Pair<>(date.get(Calendar.YEAR), 1));
-                lastAllYear = date.get(Calendar.YEAR);
-                index++;
-            }
-        }
-
-        for (Pair<Integer, Integer> pair : pairs) {
-            years.add(pair.getKey());
+        for (int i = 0; i < numberOfYears; ++i) {
+            years.add(realFirstDay.getYear() + i);
         }
 
         return years;
     }
 
-    /* Tady pocitam s alokacema max na rok - koukam jen na zacatek. */
-    public List<List<Allocation>> getAllocationsByYears(List<Allocation> allocations, int firstYear) {
+    public List<List<Allocation>> getAllocationsByYears(List<Allocation> allocations, LocalDate firstDate, LocalDate lastDate) {
         List<List<Allocation>> splitAllocations = new ArrayList<>();
         if (!allocations.isEmpty()) {
-            Calendar date = Calendar.getInstance();
-            int thisYear = firstYear;
+            int thisYear = firstDate.getYear();
 
-            List<Allocation> tempList = new ArrayList<>();
+            LocalDate firstDayOfCurrentAcademicYear =
+                    LocalDate.of(
+                            firstDate.getYear(),
+                            Integer.parseInt(firstSemesterStartMonth),
+                            Integer.parseInt(firstSemesterStartDay)).minusDays(1);
 
-            for (Allocation allocation : allocations) {
-                date.setTime(allocation.getDateFrom());
-                if (thisYear == date.get(Calendar.YEAR)) {
-                    tempList.add(allocation);
-                } else {
-                    date.setTime(allocation.getDateFrom());
-                    thisYear = date.get(Calendar.YEAR);
-                    splitAllocations.add(tempList);
-                    tempList = new ArrayList<>();
-                    tempList.add(allocation);
-                }
-            }
+            if (firstDate.isBefore(firstDayOfCurrentAcademicYear))
+                firstDayOfCurrentAcademicYear = firstDayOfCurrentAcademicYear.withYear(firstDate.getYear() - 1);
 
-            if (!tempList.isEmpty()) {
-                splitAllocations.add(tempList);
-            }
-        }
+            LocalDate lastDayOfCurrentAcademicYear =
+                    LocalDate.of(
+                            firstDate.getYear(),
+                            Integer.parseInt(secondSemesterEndMonth),
+                            Integer.parseInt(secondSemesterEndDay)).plusDays(1);
 
-        return splitAllocations;
-    }
+            if (firstDate.isBefore(LocalDate.of(firstDate.getYear(), 1, 1)))
+                lastDayOfCurrentAcademicYear = lastDayOfCurrentAcademicYear.withYear(lastDate.getYear() + 1);
 
-    /* Tady pocitam s alokacema max na rok - koukam jen na zacatek. */
-    public List<List<Allocation>> getAllocationsByYears_(List<Allocation> allocations, int firstYear, int numberOfYears) {
-        List<List<Allocation>> splitAllocations = new ArrayList<>();
-        if (!allocations.isEmpty()) {
-            Calendar date = Calendar.getInstance();
-            int thisYear = firstYear;
+            int numberOfYears = (int) Math.ceil(((double) (ChronoUnit.DAYS.between(firstDate, lastDate) + 2) / 365));
 
             List<Allocation> tempList = new ArrayList<>();
 
             int offset = 0;
-            date.setTime(allocations.get(0).getDateFrom());
-            while (thisYear + offset < date.get(Calendar.YEAR)) {
+            LocalDate date = utils.convertToLocalDateTime(allocations.get(0).getDateFrom());
+
+            while (!(firstDayOfCurrentAcademicYear.isBefore(date) && lastDayOfCurrentAcademicYear.isAfter(date))) {
+                firstDayOfCurrentAcademicYear =
+                        LocalDate.of(
+                                lastDayOfCurrentAcademicYear.getYear(),
+                                Integer.parseInt(firstSemesterStartMonth),
+                                Integer.parseInt(firstSemesterStartDay)).minusDays(1);
+                lastDayOfCurrentAcademicYear = LocalDate.of(
+                        lastDayOfCurrentAcademicYear.getYear() + 1,
+                        Integer.parseInt(secondSemesterEndMonth),
+                        Integer.parseInt(secondSemesterEndDay)).plusDays(1);
                 splitAllocations.add(new ArrayList<>());
                 offset++;
             }
 
             for (Allocation allocation : allocations) {
-                date.setTime(allocation.getDateFrom());
-                if (thisYear == date.get(Calendar.YEAR)) {
+                date = utils.convertToLocalDateTime(allocation.getDateFrom());
+                if (date.isAfter(firstDayOfCurrentAcademicYear) && date.isBefore(lastDayOfCurrentAcademicYear)) {
                     tempList.add(allocation);
                 } else {
-                    date.setTime(allocation.getDateFrom());
-                    thisYear = date.get(Calendar.YEAR);
+                    firstDayOfCurrentAcademicYear = LocalDate.of(
+                            thisYear,
+                            Integer.parseInt(firstSemesterStartMonth),
+                            Integer.parseInt(firstSemesterStartDay)).minusDays(1);
+                    thisYear++;
+                    lastDayOfCurrentAcademicYear = LocalDate.of(
+                            thisYear,
+                            Integer.parseInt(secondSemesterEndMonth),
+                            Integer.parseInt(secondSemesterEndDay)).plusDays(1);
                     splitAllocations.add(tempList);
                     tempList = new ArrayList<>();
                     tempList.add(allocation);
@@ -463,7 +472,6 @@ public class CourseService {
                 splitAllocations.add(tempList);
             }
 
-            date.setTime(allocations.get(0).getDateFrom());
             while (offset < numberOfYears) {
                 splitAllocations.add(new ArrayList<>());
                 offset++;
@@ -559,5 +567,13 @@ public class CourseService {
                     Integer.parseInt(secondSemesterEndMonth),
                     Integer.parseInt(secondSemesterEndDay)));
         }
+    }
+
+    public String getCourseLectureRole() {
+        return courseLectureRole;
+    }
+
+    public String getCourseExerciseRole() {
+        return courseExerciseRole;
     }
 }

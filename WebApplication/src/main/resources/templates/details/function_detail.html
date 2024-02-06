@@ -43,6 +43,22 @@
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
 
+        <div th:if="${permissionError} == true"
+             class="alert alert-danger alert-dismissible fade show">
+            <strong th:text="#{no-permission.failure}"></strong>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <div th:if="${generalError} == true"
+             class="alert alert-danger alert-dismissible fade show">
+            <strong th:text="#{general.failure}"></strong>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <div th:if="${collisionError} == true"
+             class="alert alert-danger alert-dismissible fade show">
+            <strong th:text="#{collison.failure}"></strong>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
         <h1 class="text-center mt-5" th:text="#{view.function_detail.header} + ' ' + ${function.getName()}"></h1>
 
         <div class="function-detail-collapsible-header" style="display: flex">
@@ -212,16 +228,18 @@
                                     </td>
                                     <td class="function-allocation-cell">
                                         <label>
-                                            <input class="function-allocations-input" type="number" step="0.1"
+                                            <input class="function-allocations-input" type="number"
                                                    th:name="allocationScope" readonly="readonly"
+                                                   th:attr="min=0, max=1.0, step=0.1"
                                                    th:value="*{allocationScope}"
                                                    th:onchange="'onRequiredAllocationChange(this, ' + ${allStats.index} + ')'">
                                         </label>
                                     </td>
                                     <td class="function-allocation-cell">
                                         <label>
-                                            <input class="function-allocations-input" type="number" step="0.1"
+                                            <input class="function-allocations-input" type="number"
                                                    th:name="isCertain" th:value="*{isCertain}" readonly="readonly"
+                                                   th:attr="min=0, max=1.0, step=0.1"
                                                    th:onchange="'onRequiredAllocationChange(this, ' + ${allStats.index} + ')'">
                                         </label>
                                     </td>
@@ -302,16 +320,18 @@
                                     </td>
                                     <td class="function-allocation-cell">
                                         <label>
-                                            <input class="function-allocations-input" type="number" step="0.1"
+                                            <input class="function-allocations-input" type="number"
                                                    th:id="allocationScope"
+                                                   th:attr="min=0, max=1.0, step=0.1"
                                                    th:name="allocationScope" th:field="*{allocationScope}"
                                                    onchange="onRequiredNewAllocationChange(this)">
                                         </label>
                                     </td>
                                     <td class="function-allocation-cell">
                                         <label>
-                                            <input class="function-allocations-input" type="number" step="0.1"
+                                            <input class="function-allocations-input" type="number"
                                                    th:id="isCertain"
+                                                   th:attr="min=0, max=1.0, step=0.1"
                                                    th:name="isCertain" th:field="*{isCertain}"
                                                    onchange="onRequiredNewAllocationChange(this)">
                                         </label>
@@ -360,10 +380,13 @@
                 <thead>
                 <tr class="function-row-header">
                     <!-- Labels -->
-                    <td class="function-row-year" th:colspan="16" th:id="${0}"></td>
+                    <td class="function-detail-table-cell-name"></td>
+                    <td></td>
+                    <td class="function-row-year" th:colspan="12" th:id="${0}"></td>
+                    <td></td>
                 </tr>
                 <tr class="function-row-header">
-                    <td style="text-align: left" th:text="#{view.function_detail.members.table.name}"></td>
+                    <td class="function-detail-table-cell-name" th:text="#{view.function_detail.members.table.name}"></td>
                     <td class="btn-left"></td>
                     <td class="function-detail-table-cell" th:text="#{month.january}"></td>
                     <td class="function-detail-table-cell" th:text="#{month.february}"></td>
@@ -383,18 +406,18 @@
                 <tbody>
                 <tr class="function-certain-times">
                     <td class="function-detail-table-cell-name" th:text="#{view.function_detail.members.title.total}"></td>
-                    <td class="function-detail-table-cell"></td>
+                    <td></td>
                 </tr>
                 <tr class="function-uncertain-times">
                     <td class="function-detail-table-cell-name" th:text="#{view.function_detail.members.title.total-uncertain}"></td>
-                    <td class="function-detail-table-cell"></td>
+                    <td></td>
                 </tr>
                 <th:block th:each="allList, allStats: ${monthlyAllocations}">
                     <!-- Employee-->
                     <th:block th:if="${allList.size() > 0}">
                         <tr class="function-detail-times">
                             <td class="function-detail-table-cell-name" th:text="${employees[allStats.index].getLastName()}"></td>
-                            <td class="function-detail-table-cell"></td>
+                            <td></td>
                         </tr>
                     </th:block>
                 </th:block>
@@ -415,6 +438,9 @@
     let allocation_being_added = false;
 
     let function_ = [[${function}]];
+
+    let yearValue = function_.firstYear;
+
     let id = [[${id}]];
 
     // Pole uzivatelu
@@ -575,6 +601,7 @@
 
     // Handling table with month allocation of every worker
 
+    let years = document.getElementsByClassName("function-row-year");
     let monthlyAllocations = [[${monthlyAllocations}]];
     let certainAllocations = [[${certainAllocations}]];
     let uncertainAllocations = [[${uncertainAllocations}]];
@@ -586,6 +613,10 @@
     let index = 0;
     const opts = { minimumFractionDigits: 1 };
     let numberOfYears = monthlyAllocations.length > 0 ? monthlyAllocations[0].length / 12 : 0;
+
+    Array.from(years).forEach(function(year) {
+        year.textContent = function_.firstYear;
+    });
 
     Array.from(certain_times).forEach(function(trArray) {
         if (certainAllocations.length > index && certainAllocations.length > 0) {
@@ -647,6 +678,9 @@
         if (current_index > 0 && current_index !== undefined) {
             current_index--;
             renderTimes(certain_times, uncertain_times, functions_times);
+            let previousYear = yearValue - 1;
+            yearValue = previousYear;
+            years[0].textContent = previousYear.toString();
         }
     });
 
@@ -656,6 +690,9 @@
         if ((current_index + 1) < numberOfYears && current_index !== undefined) {
             current_index++;
             renderTimes(certain_times, uncertain_times, functions_times);
+            let nextYear = yearValue + 1;
+            yearValue = nextYear;
+            years[0].textContent = nextYear.toString();
         }
     });
 

@@ -92,8 +92,15 @@ public class FunctionService {
     public List<Employee> getFunctionEmployees(long id) {
         List<Employee> employees = functionRepository.fetchFunctionEmployees(id);
         employees.forEach(employee -> {
-            employee.setUncertainTime((float) 0.0);
-            employee.setCertainTime((float) 0.0);
+            List<Allocation> allocations = allocationService.getEmployeeAllocations(employee.getId());
+            allocations.forEach(allocation -> {
+                if (allocation.getFunction() != null && allocation.getFunction().getId() == id) {
+                    if (allocation.getIsCertain() == 1)
+                        employee.setCertainTime(employee.getCertainTime() + allocation.getTime());
+                    else
+                        employee.setUncertainTime(employee.getUncertainTime() + allocation.getTime());
+                }
+            });
         });
         return employees;
     }
@@ -163,7 +170,7 @@ public class FunctionService {
      * @param functionId
      */
     @Transactional
-    public void removeFunction(long functionId) {
+    public void removeFunction(long functionId) throws SecurityException, ServiceException {
         if (securityService.isFunctionManager(functionId)) {
             var function = getFunction(functionId);
             for (Allocation allocation : function.getFunctionAllocations())

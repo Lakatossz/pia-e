@@ -7,6 +7,8 @@ import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Function;
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.Project;
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.TermState;
 import cz.zcu.kiv.mjakubas.piae.sem.core.domain.payload.AllocationPayload;
+import cz.zcu.kiv.mjakubas.piae.sem.core.exceptions.CollisionException;
+import cz.zcu.kiv.mjakubas.piae.sem.core.exceptions.SecurityException;
 import cz.zcu.kiv.mjakubas.piae.sem.core.repository.IAllocationRepository;
 import cz.zcu.kiv.mjakubas.piae.sem.core.repository.ICourseRepository;
 import cz.zcu.kiv.mjakubas.piae.sem.core.repository.IEmployeeRepository;
@@ -16,12 +18,15 @@ import cz.zcu.kiv.mjakubas.piae.sem.core.rules.AllocationInterval;
 import cz.zcu.kiv.mjakubas.piae.sem.core.rules.AllocationRule;
 import cz.zcu.kiv.mjakubas.piae.sem.core.service.MyUtils;
 import cz.zcu.kiv.mjakubas.piae.sem.core.exceptions.ServiceException;
+import cz.zcu.kiv.mjakubas.piae.sem.core.service.SecurityService;
 import cz.zcu.kiv.mjakubas.piae.sem.core.vo.AllocationVO;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.*;
 
 /**
@@ -37,6 +42,9 @@ public class AllocationService {
     private final ICourseRepository courseRepository;
     private final IFunctionRepository functionRepository;
     private final IEmployeeRepository employeeRepository;
+
+    @Autowired
+    private SecurityService securityService;
     private final MyUtils utils = new MyUtils();
 
     /**
@@ -46,13 +54,14 @@ public class AllocationService {
      */
     @Transactional
     public long createAllocation(AllocationVO allocationVO) {
+        if (causeCollison(allocationVO))
+            throw new CollisionException();
+
         int scope = (int) (allocationVO.getAllocationScope() * 40 * 60); // fte to minutes
-//        var allocationProject = projectRepository.fetchProject(allocationVO.getProjectId());
+//        var allocationProject = projectRepository.fetchProject(allocationVO.getProjectId()); TODO Kontrola datumu
 //        if (allocationVO.getDateFrom().before(allocationProject.getDateFrom())
 //                || allocationVO.getDateUntil().after(allocationProject.getDateUntil()))
 //            throw new ServiceException();
-
-        System.out.println("AllocationVO: " + allocationVO);
 
         Allocation allocation = new Allocation()
                 .worker(new Employee().id(allocationVO.getWorkerId()))
@@ -68,7 +77,7 @@ public class AllocationService {
                 .description(allocationVO.getDescription())
                 .active(allocationVO.getIsActive());
 
-//        var processedAllocations = processAllocations(getEmployeeAllocations(allocationVO.getEmployeeId()));
+//        var processedAllocations = processAllocations(getEmployeeAllocations(allocationVO.getEmployeeId())); TODO kontrola alokace -> Muze jeste zamestnanec nejakou dostat?
 //        for (AllocationInterval interval : processedAllocations) {
 //            if (interval.isFromInterval(allocation)) {
 //                int sum = interval.getScopeOfPast() + interval.getScopeOfActive() + interval.getScopeOfUnrealized();
@@ -93,15 +102,17 @@ public class AllocationService {
      */
     @Transactional
     public void updateAllocation(AllocationVO allocationVO, long id) {
+        if (causeCollison(allocationVO))
+            throw new CollisionException();
+
         int scope = (int) (allocationVO.getAllocationScope() * 40 * 60); // fte to minutes
-
         Allocation allocation = assignmentRepository.fetchAllocation(id);
-
         allocation = allocation.worker(new Employee().id(allocationVO.getWorkerId()))
                 .role(allocationVO.getRole())
                 .allocationScope(scope)
                 .description(allocationVO.getDescription())
                 .isCertain(allocationVO.getIsCertain())
+                .term(TermState.valueOf(allocationVO.getTerm()))
                 .active(Boolean.TRUE);
 
         if (allocationVO.getDateFrom() != null && allocationVO.getDateUntil() != null) {
@@ -575,6 +586,54 @@ public class AllocationService {
     }
 
     public boolean removeAllocation(long id) {
-       return assignmentRepository.removeAllocation(id);
+        Allocation allocation = assignmentRepository.fetchAllocation(id);
+
+        if (allocation.getProject() != null && securityService.isProjectManager(allocation.getProject().getId())) {
+            return assignmentRepository.removeAllocation(id);
+        } else if (allocation.getCourse() != null && securityService.isCourseManager(allocation.getCourse().getId())) {
+            return assignmentRepository.removeAllocation(id);
+        } else if (allocation.getFunction() != null && securityService.isFunctionManager(allocation.getFunction().getId())) {
+            return assignmentRepository.removeAllocation(id);
+        } else {
+            throw new SecurityException();
+        }
+    }
+
+    private boolean causeCollison(AllocationVO newAllocation) {
+        List<Allocation> allocations;
+
+        if (newAllocation.getProjectId() > 0) {
+            allocations = getEmployeeAllocations(
+                    newAllocation.getWorkerId()).stream().filter(
+                            allocation -> allocation.getProject() != null && allocation.getProject().getId() == newAllocation.getProjectId()).toList();
+        } else if (newAllocation.getCourseId() > 0) {
+            allocations = getEmployeeAllocations(
+                    newAllocation.getWorkerId()).stream().filter(
+                            allocation -> allocation.getCourse() != null && allocation.getCourse().getId() == newAllocation.getCourseId()).toList();
+        } else {
+            allocations = getEmployeeAllocations(
+                    newAllocation.getWorkerId()).stream().filter(
+                            allocation -> allocation.getFunction() != null && allocation.getFunction().getId() == newAllocation.getFunctionId()).toList();
+        }
+
+        if (allocations.isEmpty())
+            return false;
+
+        LocalDate newAllocationFrom = newAllocation.getDateFrom();
+        LocalDate newAllocationUntil = newAllocation.getDateUntil();
+
+        for (Allocation allocation : allocations) {
+            LocalDate allocationFrom = utils.convertToLocalDateTime(allocation.getDateFrom());
+            LocalDate allocationUntil = utils.convertToLocalDateTime(allocation.getDateUntil());
+            if (allocation.getId() != newAllocation.getId() && allocation.getRole().equals(newAllocation.getRole())
+                    && (((newAllocationFrom.isAfter(allocationFrom) || newAllocationFrom.isEqual(allocationFrom))
+                    && (newAllocationFrom.isBefore(allocationUntil) || newAllocationFrom.isEqual(allocationUntil)))
+                    || ((newAllocationUntil.isAfter(allocationFrom) || newAllocationUntil.isEqual(allocationFrom))
+                    && (newAllocationUntil.isBefore(allocationUntil) || newAllocationUntil.isEqual(allocationUntil))))) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

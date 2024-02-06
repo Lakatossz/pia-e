@@ -22,6 +22,18 @@
 <body class="d-flex flex-column min-vh-100">
 <div th:replace="~{fragments/navbar}">Navbar</div>
 <div class="container-fluid main-content my_page">
+
+    <div th:if="${permissionError} == true"
+         class="alert alert-danger alert-dismissible fade show">
+        <strong th:text="#{no-permission.failure}"></strong>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <div th:if="${generalError} == true"
+         class="alert alert-danger alert-dismissible fade show">
+        <strong th:text="#{general.failure}"></strong>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
     <!-- content -->
     <div class="container">
         <a th:href="'a/of/employee/' + ${me.id}" class="btn btn-primary" th:text="#{index.my-allocations}"></a>
@@ -39,12 +51,12 @@
 
         <!-- table -->
         <h1 class="text-center mt-5" th:text="#{view.main.header}"></h1>
-        <!--        <a type="button" class="btn btn-primary common-border-radius"-->
-        <!--           th:href="@{/e/create}" th:text="#{view.employee.create}"></a>-->
-        <div class="row my-container">
-            <table class="main-row-table">
+
+
+        <div class="my-container">
+            <table class="index-inherit-table">
                 <thead>
-                <tr class="main-row-header">
+                <tr class="index-main-head-row">
                     <td class="main-row-header-eye"></td>
                     <td class="main-row-header-cell" th:text="#{view.main.table.fname}"></td>
                     <td class="main-row-header-cell" th:text="#{view.main.table.lname}"></td>
@@ -79,14 +91,14 @@
                                 <div th:if="${emp.getProjectOverviewAllocations.size()} > 0
                                 or ${emp.getCourseOverviewAllocations().size()} > 0
                                 or ${emp.getFunctionOverviewAllocations().size()} > 0">
-                                    <table class="main-row-table">
+                                    <table class="index-inherit-table">
                                         <thead>
                                         <!-- Header -->
-                                        <tr class="main-row-header">
+                                        <tr class="index-inherit-head-row">
                                             <!-- Labels -->
                                             <td class="main-row-year" th:colspan="16" th:id="${iStat.index}"></td>
                                         </tr>
-                                        <tr class="main-row-header">
+                                        <tr class="main-row">
                                             <!-- Labels -->
                                             <td class="main-row-name" th:text="#{view.main.table.activity.name}"></td>
                                             <td class="main-cell-times" th:text="#{view.main.table.activity.certain}"></td>
@@ -127,7 +139,7 @@
                         <th:block>
                             <th colspan="10" th:class="my-collapse">
                                 <div th:if="${emp.getProjectOverviewAllocations().size()} > 0">
-                                    <table class="main-row-table projects-table" th:id="${iStat.index}">
+                                    <table class="index-inherit-table projects-table" th:id="${iStat.index}">
                                         <thead>
                                         <!-- Projects header -->
                                         <tr class="main-row-title projects-highlight-background">
@@ -141,8 +153,6 @@
                                                 <td class="main-row-name">
                                                     <a th:text="${project.getActivityName()}" th:href="@{/p/{PRO_ID}/detail(PRO_ID=${project.activityId})}"></a>
                                                 </td>
-                                                <td class="main-cell-times" th:text="${project.getActivityCertain()}"></td>
-                                                <td class="main-cell-times"></td>
                                             </tr>
                                         </th:block>
                                         </tbody>
@@ -155,7 +165,7 @@
                         <th:block>
                             <th colspan="10" th:class="my-collapse">
                                 <div th:if="${emp.getCourseOverviewAllocations().size()} > 0">
-                                    <table class="main-row-table courses-table" th:id="${iStat.index}">
+                                    <table class="index-inherit-table courses-table" th:id="${iStat.index}">
                                         <thead>
                                         <!-- Courses header -->
                                         <tr class="main-row-title courses-highlight-background">
@@ -169,8 +179,6 @@
                                                     <td class="main-row-name">
                                                         <a th:text="${course.getActivityName()}" th:href="@{/p/{CRS_ID}/detail(CRS_ID=${course.activityId})}"></a>
                                                     </td>
-                                                    <td class="main-cell-times" th:text="${course.getActivityCertain()}"></td>
-                                                    <td class="main-cell-times"></td>
                                                 </tr>
                                             </th:block>
                                         </tbody>
@@ -183,7 +191,7 @@
                         <th:block>
                             <th colspan="10" th:class="my-collapse">
                                 <div th:if="${emp.getFunctionOverviewAllocations().size()} > 0">
-                                    <table class="main-row-table functions-table">
+                                    <table class="index-inherit-table functions-table">
                                         <thead>
                                         <!-- Functions header -->
                                         <tr class="main-row-title functions-highlight-background">
@@ -197,8 +205,6 @@
                                                 <td class="main-row-name">
                                                     <a th:text="${function.getActivityName()}" th:href="@{/p/{FNC_ID}/detail(FNC_ID=${function.activityId})}"></a>
                                                 </td>
-                                                <td class="main-cell-times" th:text="${function.getActivityCertain()}"></td>
-                                                <td class="main-cell-times"></td>
                                             </tr>
                                         </th:block>
                                         </tbody>
@@ -285,7 +291,7 @@
                 trArray.append(td);
             }
             let td = document.createElement("td");
-            td.className = "main-cell";
+            td.className = "empty-main-cell";
             trArray.append(td);
         }
         index++;
@@ -304,7 +310,7 @@
                 trArray.append(td);
             }
             let td = document.createElement("td");
-            td.className = "main-cell";
+            td.className = "empty-main-cell";
             trArray.append(td);
         }
         index++;
@@ -318,9 +324,19 @@
             index++;
         }
         Array.from(project_rows).forEach(function (trArray) {
+            let td = document.createElement("td");
+            if (employees[index].projectOverviewAllocations[trArray.id].isSameForWholeYear === 'true')
+                td.innerHTML = (employees[index].projectOverviewAllocations[trArray.id].isCertainForYear).toLocaleString(undefined, opts).replace(',', '.');
+            else
+                td.innerHTML = (employees[index].projectOverviewAllocations[trArray.id].isCertainForYear).toLocaleString(undefined, opts).replace(',', '.').concat('*');
+            td.className = "main-cell-probability-values";
+            trArray.append(td);
+            td = document.createElement("td");
+            td.className = "main-cell-times";
+            trArray.append(td);
             let last = employees[index].projectOverviewAllocations[trArray.id].activityAllocationCells[0].time;
             for (let j = 0; j < 12; ++j) {
-                let td = document.createElement("td");
+                td = document.createElement("td");
                 if (last !== employees[index].projectOverviewAllocations[trArray.id].activityAllocationCells[j].time) {
                     last = employees[index].projectOverviewAllocations[trArray.id].activityAllocationCells[j].time;
                     td.style.backgroundColor = "darkgoldenrod";
@@ -331,8 +347,8 @@
                     .toLocaleString(undefined, opts).replace(',', '.');
                 trArray.append(td);
             }
-            let td = document.createElement("td");
-            td.className = "main-cell";
+            td = document.createElement("td");
+            td.className = "empty-main-cell";
             trArray.append(td);
         });
         index++;
@@ -346,9 +362,19 @@
             index++;
         }
         Array.from(courses_rows).forEach(function(trArray) {
+            let td = document.createElement("td");
+            if (employees[index].courseOverviewAllocations[trArray.id].isSameForWholeYear === 'true')
+                td.innerHTML = (employees[index].courseOverviewAllocations[trArray.id].isCertainForYear).toLocaleString(undefined, opts).replace(',', '.');
+            else
+                td.innerHTML = (employees[index].courseOverviewAllocations[trArray.id].isCertainForYear).toLocaleString(undefined, opts).replace(',', '.').concat('*');
+            td.className = "main-cell-probability-values";
+            trArray.append(td);
+            td = document.createElement("td");
+            td.className = "main-cell-times";
+            trArray.append(td);
             let last = employees[index].courseOverviewAllocations[trArray.id].activityAllocationCells[0].time;
             for (let j = 0; j < 12; ++j) {
-                let td = document.createElement("td");
+                td = document.createElement("td");
                 if (last !== employees[index].courseOverviewAllocations[trArray.id].activityAllocationCells[j].time) {
                     last = employees[index].courseOverviewAllocations[trArray.id].activityAllocationCells[j].time;
                     td.style.backgroundColor = "darkgoldenrod";
@@ -359,8 +385,8 @@
                     .toLocaleString(undefined, opts).replace(',', '.');
                 trArray.append(td);
             }
-            let td = document.createElement("td");
-            td.className = "main-cell";
+            td = document.createElement("td");
+            td.className = "empty-main-cell";
             trArray.append(td);
         });
         index++;
@@ -374,9 +400,19 @@
             index++;
         }
         Array.from(functions_rows).forEach(function(trArray) {
+            let td = document.createElement("td");
+            if (employees[index].functionOverviewAllocations[trArray.id].isSameForWholeYear === 'true')
+                td.innerHTML = (employees[index].functionOverviewAllocations[trArray.id].isCertainForYear).toLocaleString(undefined, opts).replace(',', '.');
+            else
+                td.innerHTML = (employees[index].functionOverviewAllocations[trArray.id].isCertainForYear).toLocaleString(undefined, opts).replace(',', '.').concat('*');
+            td.className = "main-cell-probability-values";
+            trArray.append(td);
+            td = document.createElement("td");
+            td.className = "main-cell-times";
+            trArray.append(td);
             let last = employees[index].functionOverviewAllocations[trArray.id].activityAllocationCells[0].time;
             for (let j = 0; j < 12; ++j) {
-                let td = document.createElement("td");
+                td = document.createElement("td");
                 if (last !== employees[index].functionOverviewAllocations[trArray.id].activityAllocationCells[j].time) {
                     last = employees[index].functionOverviewAllocations[trArray.id].activityAllocationCells[j].time;
                     td.style.backgroundColor = "darkgoldenrod";
@@ -387,8 +423,8 @@
                     .toLocaleString(undefined, opts).replace(',', '.');
                 trArray.append(td);
             }
-            let td = document.createElement("td");
-            td.className = "main-cell";
+            td = document.createElement("td");
+            td.className = "empty-main-cell";
             trArray.append(td);
         });
         index++;
@@ -400,7 +436,6 @@
         left_btns[i].classList.add("btn");
         left_btns[i].addEventListener("click", function(evt) {
             if (current_index > 0 && current_index !== undefined) {
-                console.log('left');
                 let project_rows = projects_times[i].getElementsByClassName("main-projects-times");
                 let courses_rows = courses_times[i].getElementsByClassName("main-courses-times");
                 let function_rows = functions_times[i].getElementsByClassName("main-functions-times");
@@ -419,7 +454,6 @@
         right_btns[i].classList.add("btn");
         right_btns[i].addEventListener("click", function(evt) {
             if ((current_index + 1) < numberOfYears[i] && current_index !== undefined) {
-                console.log('right');
                 let project_rows = projects_times[i].getElementsByClassName("main-projects-times");
                 let courses_rows = courses_times[i].getElementsByClassName("main-courses-times");
                 let function_rows = functions_times[i].getElementsByClassName("main-functions-times");
@@ -490,6 +524,12 @@
             let indexOfLast = ((current_index - 1) * 12 + 11 > 0) ? (current_index - 1) * 12 + 11 : 0;
             let last_projects = employees[employee_index].projectOverviewAllocations[i].activityAllocationCells[indexOfLast].time;
             let projects_times_tds = projects_times[i].getElementsByClassName("main-cell-project-times-values");
+            let probability_tds = projects_times[i].getElementsByClassName("main-cell-probability-values");
+
+            if (employees[employee_index].projectOverviewAllocations[i].isSameForWholeYear === 'true')
+                probability_tds[0].innerHTML = (employees[employee_index].projectOverviewAllocations[i].isCertainForYear).toLocaleString(undefined, opts).replace(',', '.');
+            else
+                probability_tds[0].innerHTML = (employees[employee_index].projectOverviewAllocations[i].isCertainForYear).toLocaleString(undefined, opts).replace(',', '.').concat('*');
 
             for (let j = 0; j < 12; ++j) {
                 if (last_projects !== employees[employee_index].projectOverviewAllocations[i].activityAllocationCells[current_index * 12 + j].time) {
@@ -506,6 +546,12 @@
             let indexOfLast = ((current_index - 1) * 12 + 11 > 0) ? (current_index - 1) * 12 + 11 : 0;
             let last_courses = employees[employee_index].courseOverviewAllocations[i].activityAllocationCells[indexOfLast].time;
             let courses_times_tds = courses_times[i].getElementsByClassName("main-cell-course-times-values");
+            let probability_tds = courses_times[i].getElementsByClassName("main-cell-probability-values");
+
+            if (employees[employee_index].courseOverviewAllocations[i].isSameForWholeYear === 'true')
+                probability_tds[0].innerHTML = (employees[employee_index].courseOverviewAllocations[i].isCertainForYear).toLocaleString(undefined, opts).replace(',', '.');
+            else
+                probability_tds[0].innerHTML = (employees[employee_index].courseOverviewAllocations[i].isCertainForYear).toLocaleString(undefined, opts).replace(',', '.').concat('*');
 
             for (let j = 0; j < 12; ++j) {
                 if (last_courses !== employees[employee_index].courseOverviewAllocations[i].activityAllocationCells[current_index * 12 + j].time) {
@@ -522,6 +568,12 @@
             let indexOfLast = ((current_index - 1) * 12 + 11 > 0) ? (current_index - 1) * 12 + 11 : 0;
             let last_functions = employees[employee_index].functionOverviewAllocations[i].activityAllocationCells[indexOfLast].time;
             let functions_times_tds = functions_times[i].getElementsByClassName("main-cell-function-times-values");
+            let probability_tds = functions_times[i].getElementsByClassName("main-cell-probability-values");
+
+            if (employees[employee_index].functionOverviewAllocations[i].isSameForWholeYear === 'true')
+                probability_tds[0].innerHTML = (employees[employee_index].functionOverviewAllocations[i].isCertainForYear).toLocaleString(undefined, opts).replace(',', '.');
+            else
+                probability_tds[0].innerHTML = (employees[employee_index].functionOverviewAllocations[i].isCertainForYear).toLocaleString(undefined, opts).replace(',', '.').concat('*');
 
             for (let j = 0; j < 12; ++j) {
                 if (last_functions !== employees[employee_index].functionOverviewAllocations[i].activityAllocationCells[current_index * 12 + j].time) {

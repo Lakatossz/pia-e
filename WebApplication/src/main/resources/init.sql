@@ -53,6 +53,7 @@ CREATE TABLE IF NOT EXISTS `piae_v1_db`.`employee`
     `emp_orion_login`  VARCHAR(100) NOT NULL,
     `emp_personal_number`  VARCHAR(100) NULL,
     `emp_email`        VARCHAR(100) NOT NULL,
+    `emp_date_created` date DEFAULT NULL,
     `emp_description` varchar(2000) COLLATE utf8mb3_czech_ci NOT NULL,
     PRIMARY KEY (`employee_id`),
     INDEX `fk_emp_workplace_id_idx` (`emp_workplace_id` ASC) VISIBLE,
@@ -110,7 +111,7 @@ CREATE TABLE IF NOT EXISTS `piae_v1_db`.`project` (
     `pro_probability` float NOT NULL,
     `pro_budget` int NULL,
     `pro_budget_participation` int NULL,
-    `pro_total_time` int NOT NULL,
+    `pro_total_time` float NOT NULL,
     `pro_agency` varchar(200) COLLATE utf8mb3_czech_ci NULL,
     `pro_grant_title` varchar(200) COLLATE utf8mb3_czech_ci NULL,
     `pro_state` varchar(25) COLLATE utf8mb3_czech_ci NOT NULL,
@@ -356,8 +357,8 @@ INSERT INTO workplace (workplace_id, wrk_enabled, wrk_abbrevation, wrk_name, wrk
 VALUES (2, 1, "FET", "Fakulta elektrotechnická", "poznámka");
 
 INSERT INTO employee (employee_id, emp_enabled, emp_workplace_id, emp_first_name, emp_last_name, emp_orion_login,
-                      emp_email, emp_personal_number, emp_description)
-VALUES (1, 1, 1, "Admin", "Admin", "admin", "admin@admin.adm", "N123456789", "Tohle je poznámka");
+                      emp_email, emp_date_created, emp_personal_number, emp_description)
+VALUES (1, 1, 1, "Admin", "Admin", "admin", "admin@admin.adm", '2010-01-01', "N123456789", "Tohle je poznámka");
 INSERT INTO user (user_id, password, enabled, us_employee, us_is_temp, role)
 VALUES (1, '$2a$10$lP26wQKz2CF9DsFPXPqd1euMPDNzVC6NVOgogsrMtBKyzsY0ypSby', 1, 1, 1, 'pracovník');
 INSERT INTO authority (authority_id, auth_user_id, auth_authotity)
@@ -366,40 +367,40 @@ INSERT INTO authority (authority_id, auth_user_id, auth_authotity)
 VALUES (2, 1, 'SECRETARIAT');
 
 INSERT INTO employee (employee_id, emp_enabled, emp_workplace_id, emp_first_name, emp_last_name, emp_orion_login,
-                      emp_email, emp_personal_number, emp_description)
-VALUES (2, 1, 1, "Homer", "Simpson", "homer", "homer@zcu.cz", "N987654321", "Je pracovitý");
+                      emp_email, emp_date_created, emp_personal_number, emp_description)
+VALUES (2, 1, 1, "Homer", "Simpson", "homer", "homer@zcu.cz", '2010-01-01', "N987654321", "Je pracovitý");
 INSERT INTO user (user_id, password, enabled, us_employee, us_is_temp, role)
 VALUES (2, '$2a$10$lP26wQKz2CF9DsFPXPqd1euMPDNzVC6NVOgogsrMtBKyzsY0ypSby', 1, 2, 1, 'pracovník');
 INSERT INTO authority (authority_id, auth_user_id, auth_authotity)
 VALUES (3, 2, 'SECRETARIAT');
 
 INSERT INTO employee (employee_id, emp_enabled, emp_workplace_id, emp_first_name, emp_last_name, emp_orion_login,
-                      emp_email, emp_personal_number, emp_description)
-VALUES (3, 1, 1, "Marge", "Simpsonová", "marge", "marge@zcu.cz", "N654987321", "Není pracovitý");
+                      emp_email, emp_date_created, emp_personal_number, emp_description)
+VALUES (3, 1, 1, "Marge", "Simpsonová", "marge", "marge@zcu.cz", '2010-01-01', "N654987321", "Není pracovitý");
 INSERT INTO user (user_id, password, enabled, us_employee, us_is_temp, role)
 VALUES (3, '$2a$10$lP26wQKz2CF9DsFPXPqd1euMPDNzVC6NVOgogsrMtBKyzsY0ypSby', 1, 3, 0, 'pracovník');
 INSERT INTO authority (authority_id, auth_user_id, auth_authotity)
 VALUES (4, 3, 'USER');
 
 INSERT INTO employee (employee_id, emp_enabled, emp_workplace_id, emp_first_name, emp_last_name, emp_orion_login,
-                      emp_email, emp_personal_number, emp_description)
-VALUES (4, 1, 1, "Bart", "Simpson", "bart", "bart@zcu.cz", "N321987654", "Chodí pozdě");
+                      emp_email, emp_date_created, emp_personal_number, emp_description)
+VALUES (4, 1, 1, "Bart", "Simpson", "bart", "bart@zcu.cz", '2010-01-01', "N321987654", "Chodí pozdě");
 INSERT INTO user (user_id, password, enabled, us_employee, us_is_temp, role)
 VALUES (4, '$2a$10$lP26wQKz2CF9DsFPXPqd1euMPDNzVC6NVOgogsrMtBKyzsY0ypSby', 1, 4, 0, 'pracovník');
 INSERT INTO authority (authority_id, auth_user_id, auth_authotity)
 VALUES (5, 4, 'USER');
 
 INSERT INTO employee (employee_id, emp_enabled, emp_workplace_id, emp_first_name, emp_last_name, emp_orion_login,
-                      emp_email, emp_personal_number, emp_description)
-VALUES (5, 1, 1, "Líza", "Simpsonová", "liza", "liza@zcu.cz", "N654321987", "Chodí včas");
+                      emp_email, emp_date_created, emp_personal_number, emp_description)
+VALUES (5, 1, 1, "Líza", "Simpsonová", "liza", "liza@zcu.cz", '2010-01-01', "N654321987", "Chodí včas");
 INSERT INTO user (user_id, password, enabled, us_employee, us_is_temp, role)
 VALUES (5, '$2a$10$lP26wQKz2CF9DsFPXPqd1euMPDNzVC6NVOgogsrMtBKyzsY0ypSby', 1, 5, 0, 'pracovník');
 INSERT INTO authority (authority_id, auth_user_id, auth_authotity)
 VALUES (6, 5, 'USER');
 
 INSERT INTO employee (employee_id, emp_enabled, emp_workplace_id, emp_first_name, emp_last_name, emp_orion_login,
-                      emp_email, emp_personal_number, emp_description)
-VALUES (6, 1, 1, "Maggie", "Simpsonová", "maggie", "maggie@zcu.cz", "N321654987", "Nemyje se");
+                      emp_email, emp_date_created, emp_personal_number, emp_description)
+VALUES (6, 1, 1, "Maggie", "Simpsonová", "maggie", "maggie@zcu.cz", '2010-01-01', "N321654987", "Nemyje se");
 INSERT INTO user (user_id, password, enabled, us_employee, us_is_temp, role)
 VALUES (6, '$2a$10$lP26wQKz2CF9DsFPXPqd1euMPDNzVC6NVOgogsrMtBKyzsY0ypSby', 1, 6, 0, 'pracovník');
 INSERT INTO authority (authority_id, auth_user_id, auth_authotity)

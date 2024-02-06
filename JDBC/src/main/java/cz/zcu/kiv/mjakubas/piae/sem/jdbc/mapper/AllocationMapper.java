@@ -34,6 +34,8 @@ public class AllocationMapper implements RowMapper<Allocation> {
         Course course = new Course().id(courseId);
         Function function = new Function().id(functionId);
 
+
+
         return new Allocation()
                 .id(id)
                 .worker(new Employee().id(employeeId))

@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.ZoneId;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
@@ -61,8 +62,8 @@ public class EmployeeService {
     public Employee getEmployee(long id) {
         Employee employee = employeeRepository.fetchEmployee(id);
         setAllocations(employee);
-        employee.setCertainTime(sumTime(employee));
-        employee.setUncertainTime(sumTime(employee));
+        employee.setCertainTime(sumCertainTime(employee));
+        employee.setUncertainTime(sumUncertainTime(employee));
         return employee;
     }
 
@@ -76,8 +77,8 @@ public class EmployeeService {
 
         employees.forEach(employee -> {
             setAllocations(employee);
-            employee.setCertainTime(sumTime(employee));
-            employee.setUncertainTime(sumTime(employee));
+            employee.setCertainTime(sumCertainTime(employee));
+            employee.setUncertainTime(sumUncertainTime(employee));
         });
 
         return employees;
@@ -231,6 +232,7 @@ public class EmployeeService {
         employee.setProjectOverviewAllocations(prepareActivityCells(employee, projectAllocationsByFunctionAndRole));
         employee.setCourseOverviewAllocations(prepareActivityCells(employee, courseAllocationsByFunctionAndRole));
         employee.setFunctionOverviewAllocations(prepareActivityCells(employee, functionAllocationsByFunctionAndRole));
+
         prepareTotalCells(employee);
     }
 
@@ -401,20 +403,27 @@ public class EmployeeService {
             List<AllocationCell> cellsList = new java.util.ArrayList<>(Collections.nCopies(cellsSize, new AllocationCell()));
             object.getAllocations().forEach(allocation -> addAllocationsPerMonth(allocation, cellsList, totalFirstYear));
             allocationDetail.setActivityAllocationCells(cellsList);
+
             if (object.getAllocations().get(0).getProject().getId() > 0) {
                 allocationDetail.setActivityId(object.getAllocations().get(0).getProject().getId());
                 allocationDetail.setActivityName(object.getAllocations().get(0).getProject().getName());
-                allocationDetail.setActivityCertain(object.getAllocations().get(0).getProject().getProbability()); // TODO mozna prumer?
+                allocationDetail.setActivityCertain(1);
+                allocationDetail.setIsCertainForYear(1);
+                allocationDetail.setIsSameForWholeYear("false");
                 allocationDetail.setActivityRole(object.getAllocations().get(0).getRole());
             } else if (object.getAllocations().get(0).getCourse().getId() > 0) {
                 allocationDetail.setActivityId(object.getAllocations().get(0).getCourse().getId());
                 allocationDetail.setActivityName(object.getAllocations().get(0).getCourse().getShortcut());
-                allocationDetail.setActivityCertain(object.getAllocations().get(0).getCourse().getProbability());
+                allocationDetail.setActivityCertain(1);
+                allocationDetail.setIsCertainForYear(0.5F);
+                allocationDetail.setIsSameForWholeYear("true");
                 allocationDetail.setActivityRole(object.getAllocations().get(0).getRole());
             } else {
                 allocationDetail.setActivityId(object.getAllocations().get(0).getFunction().getId());
                 allocationDetail.setActivityName(object.getAllocations().get(0).getFunction().getName());
-                allocationDetail.setActivityCertain(object.getAllocations().get(0).getFunction().getProbability());
+                allocationDetail.setActivityCertain(1);
+                allocationDetail.setIsCertainForYear(1);
+                allocationDetail.setIsSameForWholeYear("true");
                 allocationDetail.setActivityRole(object.getAllocations().get(0).getRole());
             }
             activityAllocationDetailList.add(allocationDetail);
@@ -431,7 +440,6 @@ public class EmployeeService {
      */
     public List<ActivityAllocationDetail> prepareActivityCells(Employee employee,
                                                            List<MergingObject> allocationsByActivityAndRole) {
-
         return prepareAllocationCells(
                 allocationsByActivityAndRole,
                 (int) employee.getFirstYear(),
@@ -525,12 +533,27 @@ public class EmployeeService {
      * @param employee
      * @return
      */
-    private float sumTime(Employee employee) {
-
+    private float sumCertainTime(Employee employee) {
         float sum = 0;
+        for (Allocation allocation : allocationRepository.fetchEmployeeAllocations(employee.getId())) {
+            if ((allocation.getIsCertain() == 1))
+                sum += allocation.getTime();
+        }
 
-        for (Allocation allocation : employee.getAllocations())
-            sum += allocation.getTime();
+        return sum;
+    }
+
+    /**
+     *
+     * @param employee
+     * @return
+     */
+    private float sumUncertainTime(Employee employee) {
+        float sum = 0;
+        for (Allocation allocation : allocationRepository.fetchEmployeeAllocations(employee.getId())) {
+            if ((allocation.getIsCertain() != 1))
+                sum += allocation.getTime();
+        }
 
         return sum;
     }

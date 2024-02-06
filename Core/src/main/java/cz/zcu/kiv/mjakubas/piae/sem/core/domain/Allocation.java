@@ -19,7 +19,7 @@ public class Allocation {
     private Project project;
     private Course course;
     private Function function;
-    private float time; /* TODO - pro zobrazeni nevalidni alokace pouzivam time = -1 */
+    private float time;
     private float isCertain;
     private int allocationScope;
     @DateTimeFormat(pattern = "yyyy-MM-dd")

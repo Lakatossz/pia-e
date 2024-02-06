@@ -29,6 +29,7 @@ public class FunctionVO {
     private String functionManagerName;
     private Long functionWorkplace;
     private String description;
+    private long firstYear;
 
     public FunctionVO id(long id) {
         this.id = id;
@@ -85,6 +86,11 @@ public class FunctionVO {
         return this;
     }
 
+    public FunctionVO firstYear(long firstYear) {
+        this.firstYear = firstYear;
+        return this;
+    }
+
     @Override
     public String toString() {
         return "FunctionVO{" +
@@ -98,6 +104,7 @@ public class FunctionVO {
                 ", functionManagerId=" + functionManagerId +
                 ", functionManagerName=" + functionManagerName +
                 ", functionWorkplace=" + functionWorkplace +
+                ", firstYear=" + firstYear +
                 ", description=" + description +
                 '}';
     }

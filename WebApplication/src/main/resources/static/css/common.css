@@ -49,6 +49,8 @@
     background-repeat: no-repeat;
     background-position: center;
     padding: 12px;
+    height: 40px;
+    width: 50px;
 }
 
 .btn-right {
@@ -56,6 +58,8 @@
     background-repeat: no-repeat;
     background-position: center;
     padding: 12px;
+    height: 40px;
+    width: 50px;
 }
 
 .btn-detail {
@@ -193,6 +197,15 @@ footer {
 
 .function-detail-div {
     margin-bottom: 10px;
+}
+
+.function-detail-table-cell-name {
+    width: 200px;
+    text-align: right;
+}
+
+.function-row-year {
+    text-align: center;
 }
 
 .function-detail-label {
@@ -563,14 +576,11 @@ footer {
 
 .project-row-title {
     text-align: center;
+    height: 20px;
 }
 
-.project-row-value {
-
-}
-
-.project-cell {
-    padding:10px;
+.project-row {
+    height: 30px;
 }
 
 .project-input {
@@ -665,12 +675,21 @@ footer {
     resize: none;
 }
 
+.project-detail-table {
+    width: 70%;
+}
+
+.project-row-year {
+    text-align: center;
+}
+
 .project-detail-table-cell-name {
-    max-width: 20%;
+    width: 200px;
+    text-align: right;
 }
 
 .project-detail-table-cell, .project-cell-times-values {
-    width:5%;
+    min-width: 50px;
     /*border: 1px solid black;*/
 }
 
@@ -678,10 +697,6 @@ footer {
     width: auto;
     text-align: center;
     margin: 10px;
-}
-
-.project-cell {
-    padding:10px;
 }
 
 .project-allocations-btn {
@@ -697,8 +712,10 @@ footer {
 }
 
 .project-cell, .project-cell-times, .project-cell-times-values {
-    width:5%;
     text-align: center;
+    padding:10px;
+    width: 30px;
+    border-radius: 4px;
 }
 
 .project-cell-times-values-changed {
@@ -1035,7 +1052,13 @@ footer {
     text-align: center;
 }
 
-.main-row-header {
+.index-main-head-row {
+    width: 100%;
+    text-align: center;
+    margin: 10px;
+}
+
+.index-inherit-head-row {
     width: 100%;
     text-align: center;
     margin: 10px;
@@ -1054,11 +1077,20 @@ footer {
     text-align: right;
 }
 
-.main-uncertain-times, .main-certain-times, .main-projects-times, .main-courses-times, .main-functions-times {
+.index-main-table {
     width: 100%;
 }
 
-.main-row-table {
+.index-inherit-table {
+    width: 100%;
+}
+
+.main-uncertain-times, .main-certain-times {
+    width: 100%;
+    height: 50px;
+}
+
+.main-projects-times, .main-courses-times, .main-functions-times {
     width: 100%;
 }
 
@@ -1071,11 +1103,30 @@ footer {
 }
 
 .main-cell, .main-cell-times, .main-cell-times-values {
-    width:40px;
-    min-width:40px;
-    max-width:40px;
+    width:50px;
+    min-width:50px;
+    max-width:50px;
     /*border: 1px solid black;*/
     text-align: center;
+    height: 50px;
+}
+
+.main-cell {
+    width:50px;
+    /*border: 1px solid black;*/
+    text-align: center;
+    border-radius: 8%;
+    padding: 10px;
+    margin: 20px;
+}
+
+.empty-main-cell {
+    width:50px;
+    /*border: 1px solid black;*/
+    text-align: center;
+    border-radius: 4%;
+    padding: 10px;
+    margin: 20px;
 }
 
 .certain-highlight {
@@ -1114,10 +1165,20 @@ footer {
 .main-cell-uncertain-times-values,
 .main-cell-project-times-values,
 .main-cell-course-times-values,
-.main-cell-function-times-values {
+.main-cell-function-times-values,
+.main-cell-probability-values
+{
     width:50px;
     /*border: 1px solid black;*/
     text-align: center;
+}
+
+.main-cell-project-times-values.required:after,
+.main-cell-course-times-values.required:after,
+.main-cell-function-times-values.required:after,
+.main-cell-probability-values.required:after {
+    content:" *";
+    color: blue;
 }
 
 .main-cell-times-values-changed {

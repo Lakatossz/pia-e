@@ -1,5 +1,6 @@
 package cz.zcu.kiv.mjakubas.piae.sem.webapplication.controller;
 
+import cz.zcu.kiv.mjakubas.piae.sem.core.exceptions.SecurityException;
 import cz.zcu.kiv.mjakubas.piae.sem.core.service.v1.AllocationService;
 import cz.zcu.kiv.mjakubas.piae.sem.core.service.v1.EmployeeService;
 import cz.zcu.kiv.mjakubas.piae.sem.core.service.v1.ProjectService;
@@ -23,7 +24,8 @@ public class IndexController {
 
     private final ProjectService projectService;
 
-    private final AllocationService allocationService;
+    private static final String PERMISSION_ERROR = "permissionError";
+    private static final String GENEREAL_ERROR = "generalError";
 
     @GetMapping("/")
     public String red() {
@@ -32,22 +34,30 @@ public class IndexController {
 
     @GetMapping("/index")
     public String viewIndex(Model model) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        var me = employeeService.getEmployee(auth.getName());
-        var myProjects = projectService.getManagerProjects(me.getId());
-        var managerProjects = projectService.getWorkplaceManagerProjects(me.getId());
+        try {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            var me = employeeService.getEmployee(auth.getName());
+            var myProjects = projectService.getManagerProjects(me.getId());
+            var managerProjects = projectService.getWorkplaceManagerProjects(me.getId());
 
-        var employees = employeeService.getEmployees();
-        employees.forEach(employee ->
-                employee.getSubordinates().addAll(employeeService.getSubordinates(employee.getId())));
+            var employees = employeeService.getEmployees();
+            employees.forEach(employee ->
+                    employee.getSubordinates().addAll(employeeService.getSubordinates(employee.getId())));
 
-        employees.forEach(employeeService::prepareAllocationsCells);
+            employees.forEach(employeeService::prepareAllocationsCells);
 
-        model.addAttribute("employees", employees);
+            model.addAttribute("employees", employees);
 
-        model.addAttribute("me", me);
-        model.addAttribute("myProjects", myProjects);
-        model.addAttribute("workplaceProjects", managerProjects);
-        return "main";
+            model.addAttribute("me", me);
+            model.addAttribute("myProjects", myProjects);
+            model.addAttribute("workplaceProjects", managerProjects);
+            return "main";
+        } catch (SecurityException e) {
+            model.addAttribute(PERMISSION_ERROR, true);
+            return "main";
+        } catch (Exception e) {
+            model.addAttribute(GENEREAL_ERROR, true);
+            return "main";
+        }
     }
 }

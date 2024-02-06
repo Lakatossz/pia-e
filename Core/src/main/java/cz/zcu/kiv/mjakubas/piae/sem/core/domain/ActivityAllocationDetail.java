@@ -16,11 +16,13 @@ import java.util.List;
 @NoArgsConstructor
 
 /*
- * Objekt predstavujici aktivitu v prehledu po mesicich.
+ * Objekt predstavujici aktivitu v prehledu po mesicich - radek v prehledu.
  */
 public class ActivityAllocationDetail {
 
     private List<AllocationCell> activityAllocationCells = new LinkedList<>();
+    private float isCertainForYear;
+    private String isSameForWholeYear;
     private long activityId;
     private String activityName;
     private float activityCertain;

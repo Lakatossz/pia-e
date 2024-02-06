@@ -144,11 +144,14 @@ public class SecurityService {
      * @return true if yes, otherwise no
      */
     public boolean isProjectManager(Long projectId) {
-        var auth = SecurityContextHolder.getContext().getAuthentication();
-        var employee = employeeRepository.fetchEmployee(auth.getName());
-        var project = projectRepository.fetchProject(projectId);
+        if (projectId > 0) {
+            var auth = SecurityContextHolder.getContext().getAuthentication();
+            var employee = employeeRepository.fetchEmployee(auth.getName());
+            var project = projectRepository.fetchProject(projectId);
 
-        return project.getProjectManager().getId() == employee.getId();
+            return project.getProjectManager().getId() == employee.getId();
+        } else
+            return false;
     }
 
     /**
@@ -158,11 +161,14 @@ public class SecurityService {
      * @return true if yes, otherwise no
      */
     public boolean isCourseManager(Long courseId) {
-        var auth = SecurityContextHolder.getContext().getAuthentication();
-        var employee = employeeRepository.fetchEmployee(auth.getName());
-        var course = courseRepository.fetchCourse(courseId);
+        if (courseId > 0) {
+            var auth = SecurityContextHolder.getContext().getAuthentication();
+            var employee = employeeRepository.fetchEmployee(auth.getName());
+            var course = courseRepository.fetchCourse(courseId);
 
-        return course.getCourseManager().getId() == employee.getId();
+            return course.getCourseManager().getId() == employee.getId();
+        } else
+            return false;
     }
 
     /**
@@ -172,11 +178,14 @@ public class SecurityService {
      * @return true if yes, otherwise no
      */
     public boolean isFunctionManager(Long functionId) {
-        var auth = SecurityContextHolder.getContext().getAuthentication();
-        var employee = employeeRepository.fetchEmployee(auth.getName());
-        var function = functionRepository.fetchFunction(functionId);
+        if (functionId > 0) {
+            var auth = SecurityContextHolder.getContext().getAuthentication();
+            var employee = employeeRepository.fetchEmployee(auth.getName());
+            var function = functionRepository.fetchFunction(functionId);
 
-        return function.getFunctionManager().getId() == employee.getId();
+            return function.getFunctionManager().getId() == employee.getId();
+        } else
+            return false;
     }
 
     /**

@@ -1087,7 +1087,7 @@ footer {
 
 .main-uncertain-times, .main-certain-times {
     width: 100%;
-    height: 50px;
+    height: 35px;
 }
 
 .main-projects-times, .main-courses-times, .main-functions-times {
@@ -1108,7 +1108,7 @@ footer {
     max-width:50px;
     /*border: 1px solid black;*/
     text-align: center;
-    height: 50px;
+    height: 35px;
 }
 
 .main-cell {

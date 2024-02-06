@@ -36,18 +36,18 @@
 
     <!-- content -->
     <div class="container">
-        <a th:href="'a/of/employee/' + ${me.id}" class="btn btn-primary" th:text="#{index.my-allocations}"></a>
-        <a th:href="'a/of/superior/' + ${me.id}" class="btn btn-primary" th:text="#{index.my-sub-allocations}"></a>
-        <tr th:each="p : ${myProjects}">
-            <a th:href="'p/' + ${p.id} + '/manage'" class="btn btn-primary"
-               th:text="'Projekt: ' + ${p.name}"></a>
-        </tr>
-        <tr th:each="p : ${workplaceProjects}">
-            <a th:href="'p/' + ${p.id} + '/manage'" class="btn btn-primary"
-               th:text="'Projekt: ' + ${p.name}"></a>
-        </tr>
-        <a th:href="'a/workload'" class="btn btn-primary" th:text="#{index.workload}"
-           th:if="${myProjects.size() > 0}"></a>
+<!--        <a th:href="'a/of/employee/' + ${me.id}" class="btn btn-primary" th:text="#{index.my-allocations}"></a>-->
+<!--        <a th:href="'a/of/superior/' + ${me.id}" class="btn btn-primary" th:text="#{index.my-sub-allocations}"></a>-->
+<!--        <tr th:each="p : ${myProjects}">-->
+<!--            <a th:href="'p/' + ${p.id} + '/manage'" class="btn btn-primary"-->
+<!--               th:text="'Projekt: ' + ${p.name}"></a>-->
+<!--        </tr>-->
+<!--        <tr th:each="p : ${workplaceProjects}">-->
+<!--            <a th:href="'p/' + ${p.id} + '/manage'" class="btn btn-primary"-->
+<!--               th:text="'Projekt: ' + ${p.name}"></a>-->
+<!--        </tr>-->
+<!--        <a th:href="'a/workload'" class="btn btn-primary" th:text="#{index.workload}"-->
+<!--           th:if="${myProjects.size() > 0}"></a>-->
 
         <!-- table -->
         <h1 class="text-center mt-5" th:text="#{view.main.header}"></h1>
@@ -82,8 +82,8 @@
                         <td class="main-row-header-cell" th:text="${emp.getProjectOverviewAllocations().size()}"></td>
                         <td class="main-row-header-cell" th:text="${emp.getCourseOverviewAllocations().size()}"></td>
                         <td class="main-row-header-cell" th:text="${emp.getFunctionOverviewAllocations().size()}"></td>
-                        <td class="main-row-header-cell" th:text="${emp.getCertainTime()}"></td>
-                        <td class="main-row-header-cell" th:text="${emp.getUncertainTime()}"></td>
+                        <td class="main-row-header-cell certain-value"></td>
+                        <td class="main-row-header-cell uncertain-value"></td>
                     </tr>
                     <tr class="main-row">
                         <th:block>
@@ -230,7 +230,38 @@
 
     let employeeTr = document.querySelectorAll(".main-row-employee");
 
+    const opts = { minimumFractionDigits: 1 };
+
+    // Handling table with month allocation of every worker
+
+    let employees = [[${employees}]];
+
+    let years = document.getElementsByClassName("main-row-year");
+    let certain_times = document.getElementsByClassName("main-certain-times");
+    let uncertain_times = document.getElementsByClassName("main-uncertain-times");
+    let projects_times = document.getElementsByClassName("projects-table");
+    let courses_times = document.getElementsByClassName("courses-table");
+    let functions_times = document.getElementsByClassName("functions-table");
+
+    let index = 0;
+    let numberOfYears = {};
+    for (let i = 0; i < employees.length; ++i) {
+        numberOfYears[i] = employees[i].totalCertainAllocationCells.length / 12;
+        yearsArray[i] = employees[i].firstYear;
+    }
+
+    Array.from(years).forEach(function(year) {
+        year.textContent = employees[year.id].firstYear;
+    });
+
     Array.from(employeeTr).forEach(function(trArray) {
+        let certainTd = trArray.getElementsByClassName('certain-value');
+        certainTd[0].innerHTML = (employees[trArray.id].certainTime).toLocaleString(undefined, opts).replace(',', '.');
+        console.log(employees[trArray.id].certainTime.toLocaleString(undefined, opts).replace(',', '.'));
+        let uncertainId = trArray.getElementsByClassName('uncertain-value');
+        uncertainId[0].innerHTML = (employees[trArray.id].uncertainTime).toLocaleString(undefined, opts).replace(',', '.');
+        console.log(employees[trArray.id].uncertainTime.toLocaleString(undefined, opts).replace(',', '.'));
+
         let button = document.createElement("button");
         let td = document.createElement("td");
         td.style.textAlign = "center";
@@ -255,29 +286,6 @@
         });
         td.append(button);
         trArray.append(td);
-    });
-
-    // Handling table with month allocation of every worker
-
-    let employees = [[${employees}]];
-
-    let years = document.getElementsByClassName("main-row-year");
-    let certain_times = document.getElementsByClassName("main-certain-times");
-    let uncertain_times = document.getElementsByClassName("main-uncertain-times");
-    let projects_times = document.getElementsByClassName("projects-table");
-    let courses_times = document.getElementsByClassName("courses-table");
-    let functions_times = document.getElementsByClassName("functions-table");
-
-    let index = 0;
-    const opts = { minimumFractionDigits: 1 };
-    let numberOfYears = {};
-    for (let i = 0; i < employees.length; ++i) {
-        numberOfYears[i] = employees[i].totalCertainAllocationCells.length / 12;
-        yearsArray[i] = employees[i].firstYear;
-    }
-
-    Array.from(years).forEach(function(year) {
-        year.textContent = employees[year.id].firstYear;
     });
 
     Array.from(certain_times).forEach(function(trArray) {
@@ -325,10 +333,10 @@
         }
         Array.from(project_rows).forEach(function (trArray) {
             let td = document.createElement("td");
-            if (employees[index].projectOverviewAllocations[trArray.id].isSameForWholeYear === 'true')
-                td.innerHTML = (employees[index].projectOverviewAllocations[trArray.id].isCertainForYear).toLocaleString(undefined, opts).replace(',', '.');
+            if (employees[index].projectOverviewAllocations[trArray.id].isSameForWholeYear[0] === 'true')
+                td.innerHTML = (employees[index].projectOverviewAllocations[trArray.id].isCertainForYear[0]).toLocaleString(undefined, opts).replace(',', '.');
             else
-                td.innerHTML = (employees[index].projectOverviewAllocations[trArray.id].isCertainForYear).toLocaleString(undefined, opts).replace(',', '.').concat('*');
+                td.innerHTML = (employees[index].projectOverviewAllocations[trArray.id].isCertainForYear[0]).toLocaleString(undefined, opts).replace(',', '.').concat('*');
             td.className = "main-cell-probability-values";
             trArray.append(td);
             td = document.createElement("td");
@@ -363,10 +371,10 @@
         }
         Array.from(courses_rows).forEach(function(trArray) {
             let td = document.createElement("td");
-            if (employees[index].courseOverviewAllocations[trArray.id].isSameForWholeYear === 'true')
-                td.innerHTML = (employees[index].courseOverviewAllocations[trArray.id].isCertainForYear).toLocaleString(undefined, opts).replace(',', '.');
+            if (employees[index].courseOverviewAllocations[trArray.id].isSameForWholeYear[0] === 'true')
+                td.innerHTML = (employees[index].courseOverviewAllocations[trArray.id].isCertainForYear[0]).toLocaleString(undefined, opts).replace(',', '.');
             else
-                td.innerHTML = (employees[index].courseOverviewAllocations[trArray.id].isCertainForYear).toLocaleString(undefined, opts).replace(',', '.').concat('*');
+                td.innerHTML = (employees[index].courseOverviewAllocations[trArray.id].isCertainForYear[0]).toLocaleString(undefined, opts).replace(',', '.').concat('*');
             td.className = "main-cell-probability-values";
             trArray.append(td);
             td = document.createElement("td");
@@ -401,10 +409,10 @@
         }
         Array.from(functions_rows).forEach(function(trArray) {
             let td = document.createElement("td");
-            if (employees[index].functionOverviewAllocations[trArray.id].isSameForWholeYear === 'true')
-                td.innerHTML = (employees[index].functionOverviewAllocations[trArray.id].isCertainForYear).toLocaleString(undefined, opts).replace(',', '.');
+            if (employees[index].functionOverviewAllocations[trArray.id].isSameForWholeYear[0] === 'true')
+                td.innerHTML = (employees[index].functionOverviewAllocations[trArray.id].isCertainForYear[0]).toLocaleString(undefined, opts).replace(',', '.');
             else
-                td.innerHTML = (employees[index].functionOverviewAllocations[trArray.id].isCertainForYear).toLocaleString(undefined, opts).replace(',', '.').concat('*');
+                td.innerHTML = (employees[index].functionOverviewAllocations[trArray.id].isCertainForYear[0]).toLocaleString(undefined, opts).replace(',', '.').concat('*');
             td.className = "main-cell-probability-values";
             trArray.append(td);
             td = document.createElement("td");
@@ -526,10 +534,10 @@
             let projects_times_tds = projects_times[i].getElementsByClassName("main-cell-project-times-values");
             let probability_tds = projects_times[i].getElementsByClassName("main-cell-probability-values");
 
-            if (employees[employee_index].projectOverviewAllocations[i].isSameForWholeYear === 'true')
-                probability_tds[0].innerHTML = (employees[employee_index].projectOverviewAllocations[i].isCertainForYear).toLocaleString(undefined, opts).replace(',', '.');
+            if (employees[employee_index].projectOverviewAllocations[i].isSameForWholeYear[current_index] === 'true')
+                probability_tds[0].innerHTML = (employees[employee_index].projectOverviewAllocations[i].isCertainForYear[current_index]).toLocaleString(undefined, opts).replace(',', '.');
             else
-                probability_tds[0].innerHTML = (employees[employee_index].projectOverviewAllocations[i].isCertainForYear).toLocaleString(undefined, opts).replace(',', '.').concat('*');
+                probability_tds[0].innerHTML = (employees[employee_index].projectOverviewAllocations[i].isCertainForYear[current_index]).toLocaleString(undefined, opts).replace(',', '.').concat('*');
 
             for (let j = 0; j < 12; ++j) {
                 if (last_projects !== employees[employee_index].projectOverviewAllocations[i].activityAllocationCells[current_index * 12 + j].time) {
@@ -548,10 +556,10 @@
             let courses_times_tds = courses_times[i].getElementsByClassName("main-cell-course-times-values");
             let probability_tds = courses_times[i].getElementsByClassName("main-cell-probability-values");
 
-            if (employees[employee_index].courseOverviewAllocations[i].isSameForWholeYear === 'true')
-                probability_tds[0].innerHTML = (employees[employee_index].courseOverviewAllocations[i].isCertainForYear).toLocaleString(undefined, opts).replace(',', '.');
+            if (employees[employee_index].courseOverviewAllocations[i].isSameForWholeYear[current_index] === 'true')
+                probability_tds[0].innerHTML = (employees[employee_index].courseOverviewAllocations[i].isCertainForYear[current_index]).toLocaleString(undefined, opts).replace(',', '.');
             else
-                probability_tds[0].innerHTML = (employees[employee_index].courseOverviewAllocations[i].isCertainForYear).toLocaleString(undefined, opts).replace(',', '.').concat('*');
+                probability_tds[0].innerHTML = (employees[employee_index].courseOverviewAllocations[i].isCertainForYear[current_index]).toLocaleString(undefined, opts).replace(',', '.').concat('*');
 
             for (let j = 0; j < 12; ++j) {
                 if (last_courses !== employees[employee_index].courseOverviewAllocations[i].activityAllocationCells[current_index * 12 + j].time) {
@@ -570,10 +578,10 @@
             let functions_times_tds = functions_times[i].getElementsByClassName("main-cell-function-times-values");
             let probability_tds = functions_times[i].getElementsByClassName("main-cell-probability-values");
 
-            if (employees[employee_index].functionOverviewAllocations[i].isSameForWholeYear === 'true')
-                probability_tds[0].innerHTML = (employees[employee_index].functionOverviewAllocations[i].isCertainForYear).toLocaleString(undefined, opts).replace(',', '.');
+            if (employees[employee_index].functionOverviewAllocations[i].isSameForWholeYear[current_index] === 'true')
+                probability_tds[0].innerHTML = (employees[employee_index].functionOverviewAllocations[i].isCertainForYear[current_index]).toLocaleString(undefined, opts).replace(',', '.');
             else
-                probability_tds[0].innerHTML = (employees[employee_index].functionOverviewAllocations[i].isCertainForYear).toLocaleString(undefined, opts).replace(',', '.').concat('*');
+                probability_tds[0].innerHTML = (employees[employee_index].functionOverviewAllocations[i].isCertainForYear[current_index]).toLocaleString(undefined, opts).replace(',', '.').concat('*');
 
             for (let j = 0; j < 12; ++j) {
                 if (last_functions !== employees[employee_index].functionOverviewAllocations[i].activityAllocationCells[current_index * 12 + j].time) {
@@ -586,6 +594,12 @@
                     .toLocaleString(undefined, opts).replace(',', '.');
             }
         }
+    }
+
+    function roundNumber(number) {
+        const opts = { minimumFractionDigits: 1 };
+        console.log(number.toLocaleString(undefined, opts).replace(',', '.'));
+        return number.toLocaleString(undefined, opts).replace(',', '.');
     }
 
 </script>

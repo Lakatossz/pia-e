@@ -21,8 +21,8 @@ import java.util.List;
 public class ActivityAllocationDetail {
 
     private List<AllocationCell> activityAllocationCells = new LinkedList<>();
-    private float isCertainForYear;
-    private String isSameForWholeYear;
+    private List<Float> isCertainForYear;
+    private List<String> isSameForWholeYear;
     private long activityId;
     private String activityName;
     private float activityCertain;

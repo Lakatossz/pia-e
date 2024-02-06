@@ -62,8 +62,6 @@ public class EmployeeService {
     public Employee getEmployee(long id) {
         Employee employee = employeeRepository.fetchEmployee(id);
         setAllocations(employee);
-        employee.setCertainTime(sumCertainTime(employee));
-        employee.setUncertainTime(sumUncertainTime(employee));
         return employee;
     }
 
@@ -75,11 +73,7 @@ public class EmployeeService {
     public List<Employee> getEmployees() {
         List<Employee> employees = employeeRepository.fetchEmployees();
 
-        employees.forEach(employee -> {
-            setAllocations(employee);
-            employee.setCertainTime(sumCertainTime(employee));
-            employee.setUncertainTime(sumUncertainTime(employee));
-        });
+        employees.forEach(this::setAllocations);
 
         return employees;
     }
@@ -304,15 +298,33 @@ public class EmployeeService {
         List<AllocationCell> uncertains = new java.util.ArrayList<>(Collections.nCopies(
                 (int)employee.getNumberOfYears() * 12, new AllocationCell()));
 
-        for (ActivityAllocationDetail a : employee.getProjectOverviewAllocations())
-            addToTotal(a, certains, uncertains);
+        float maxCertain = 0;
+        float maxUncertain = 0;
 
-        for (ActivityAllocationDetail a : employee.getCourseOverviewAllocations())
+        for (ActivityAllocationDetail a : employee.getProjectOverviewAllocations()) {
             addToTotal(a, certains, uncertains);
+        }
 
-        for (ActivityAllocationDetail a : employee.getFunctionOverviewAllocations())
+        for (ActivityAllocationDetail a : employee.getCourseOverviewAllocations()) {
             addToTotal(a, certains, uncertains);
+        }
 
+        for (ActivityAllocationDetail a : employee.getFunctionOverviewAllocations()) {
+            addToTotal(a, certains, uncertains);
+        }
+
+        for (AllocationCell cell : certains) {
+            if (cell.getTime() > maxCertain)
+                maxCertain = cell.getTime();
+        }
+
+        for (AllocationCell cell : uncertains) {
+            if (cell.getTime() > maxUncertain)
+                maxUncertain = cell.getTime();
+        }
+
+        employee.setCertainTime(maxCertain);
+        employee.setUncertainTime(maxUncertain);
         employee.totalCertainAllocationCells(certains);
         employee.totalUncertainAllocationCells(uncertains);
     }
@@ -386,6 +398,38 @@ public class EmployeeService {
         }
     }
 
+    private void prepareYear(List<AllocationCell> cellsList,
+                             int i,
+                             List<Float> isCertainForYearList,
+                             List<String> isSameForWholeYearList) {
+        float isCertainForYearValue = 0;
+        for (int j = 0; j < 12; ++j) {
+            if (cellsList.get(i * 12 + j).getCertain() > 0) {
+                if (isCertainForYearValue == 0) {
+                    isCertainForYearList.set(i, cellsList.get(i * 12 + j).getCertain());
+                    isCertainForYearValue = cellsList.get(i * 12 + j).getCertain();
+                } else if (cellsList.get(i * 12 + j).getCertain() != isCertainForYearValue) {
+                    isSameForWholeYearList.set(i, "false");
+                    return;
+                }
+            } else if (isCertainForYearValue != 0) {
+                isSameForWholeYearList.set(i, "false");
+                return;
+            }
+        }
+        isCertainForYearList.set(i, 0F);
+        isSameForWholeYearList.set(i, "true");
+    }
+
+    private void prepare(List<AllocationCell> cellsList,
+                         long totalNumberOfYears,
+                         List<Float> isCertainForYearList,
+                         List<String> isSameForWholeYearList) {
+        for (int i = 0; i < totalNumberOfYears; ++i) {
+            prepareYear(cellsList, i, isCertainForYearList, isSameForWholeYearList);
+        }
+    }
+
     /**
      *
      * @param allocationsByActivityAndRole
@@ -404,28 +448,25 @@ public class EmployeeService {
             object.getAllocations().forEach(allocation -> addAllocationsPerMonth(allocation, cellsList, totalFirstYear));
             allocationDetail.setActivityAllocationCells(cellsList);
 
+            List<Float> isCertainForYearList = new java.util.ArrayList<>(Collections.nCopies(totalNumberOfYears, 0F));
+            List<String> isSameForWholeYearList = new java.util.ArrayList<>(Collections.nCopies(totalNumberOfYears, "true"));
+
+            prepare(cellsList, totalNumberOfYears, isCertainForYearList, isSameForWholeYearList);
+
             if (object.getAllocations().get(0).getProject().getId() > 0) {
                 allocationDetail.setActivityId(object.getAllocations().get(0).getProject().getId());
                 allocationDetail.setActivityName(object.getAllocations().get(0).getProject().getName());
-                allocationDetail.setActivityCertain(1);
-                allocationDetail.setIsCertainForYear(1);
-                allocationDetail.setIsSameForWholeYear("false");
-                allocationDetail.setActivityRole(object.getAllocations().get(0).getRole());
             } else if (object.getAllocations().get(0).getCourse().getId() > 0) {
                 allocationDetail.setActivityId(object.getAllocations().get(0).getCourse().getId());
                 allocationDetail.setActivityName(object.getAllocations().get(0).getCourse().getShortcut());
-                allocationDetail.setActivityCertain(1);
-                allocationDetail.setIsCertainForYear(0.5F);
-                allocationDetail.setIsSameForWholeYear("true");
-                allocationDetail.setActivityRole(object.getAllocations().get(0).getRole());
             } else {
                 allocationDetail.setActivityId(object.getAllocations().get(0).getFunction().getId());
                 allocationDetail.setActivityName(object.getAllocations().get(0).getFunction().getName());
-                allocationDetail.setActivityCertain(1);
-                allocationDetail.setIsCertainForYear(1);
-                allocationDetail.setIsSameForWholeYear("true");
-                allocationDetail.setActivityRole(object.getAllocations().get(0).getRole());
             }
+            allocationDetail.setActivityCertain(1);
+            allocationDetail.setIsCertainForYear(isCertainForYearList);
+            allocationDetail.setIsSameForWholeYear(isSameForWholeYearList);
+            allocationDetail.setActivityRole(object.getAllocations().get(0).getRole());
             activityAllocationDetailList.add(allocationDetail);
         }
 

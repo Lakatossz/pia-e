@@ -20,6 +20,7 @@ services:
       - pia_bridge
     command: --skip-ssl
     build:
+      context: ./
       dockerfile: mysql/mysql.dockerfile
   #    volumes:
   #      - eess-pg-data:/var/lib/postgresql/data

@@ -14,14 +14,12 @@ import cz.zcu.kiv.mjakubas.piae.sem.core.exceptions.ServiceException;
 import cz.zcu.kiv.mjakubas.piae.sem.core.vo.AllocationVO;
 import cz.zcu.kiv.mjakubas.piae.sem.core.vo.EmployeeVO;
 import cz.zcu.kiv.mjakubas.piae.sem.core.vo.CourseVO;
-import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
@@ -35,7 +33,6 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
-import javafx.util.Pair;
 
 /**
  * Service for working with allocations.
@@ -575,5 +572,29 @@ public class CourseService {
 
     public String getCourseExerciseRole() {
         return courseExerciseRole;
+    }
+
+    public boolean canCreateCourse() {
+        return true;
+    }
+
+    public boolean canEditCourse(long courseId) {
+        return securityService.isCourseManager(courseId);
+    }
+
+    public boolean canDeleteCourse(long courseId) {
+        return securityService.isCourseManager(courseId);
+    }
+
+    public boolean canCreateAllocation(long courseId) {
+        return securityService.isCourseManager(courseId);
+    }
+
+    public boolean canEditAllocation(long courseId) {
+        return securityService.isCourseManager(courseId);
+    }
+
+    public boolean canDeleteAllocation(long courseId) {
+        return securityService.isCourseManager(courseId);
     }
 }

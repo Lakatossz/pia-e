@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" lang="">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:sec="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" lang="">
 <head>
     <meta charset="UTF-8">
     <title th:text="#{view.project.title}"></title>
@@ -38,7 +38,9 @@
     <div class="container">
         <!-- table -->
         <h1 class="text-center mt-5" th:text="#{view.project.header}"></h1>
-        <a type="button" class="project-btn" th:href="@{/p/create}" th:text="#{view.project.create}"></a>
+        <th:block sec:authorize="hasAnyAuthority('ADMIN', 'SECRETARIAT', 'PROJECT_ADMIN')">
+            <a type="button" class="project-btn" th:href="@{/p/create}" th:text="#{view.project.create}"></a>
+        </th:block>
         <div class="row" style="margin-top: 40px; margin-bottom: 100px">
             <table class="table">
                 <thead>

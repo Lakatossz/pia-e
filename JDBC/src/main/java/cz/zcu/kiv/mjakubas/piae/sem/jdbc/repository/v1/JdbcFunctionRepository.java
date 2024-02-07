@@ -122,7 +122,7 @@ public class JdbcFunctionRepository implements IFunctionRepository {
     public boolean updateFunction(@NonNull Function function, long functionId) {
         var sql = """
                 UPDATE `function`
-                SET fnc_enabled = :fnc_enabled, fnc_name = :fnc_name, fnc_manager_id = :fnc_manager_id, 
+                SET fnc_enabled = :fnc_enabled, fnc_name = :fnc_name, fnc_shortcut = :fnc_shortcut, fnc_manager_id = :fnc_manager_id, 
                 fnc_workplace_id = :fnc_workplace_id, fnc_date_from = :fnc_date_from, fnc_date_until = :fnc_date_until,
                 fnc_description = :fnc_description, fnc_probability = :fnc_probability, 
                 fnc_default_time = :fnc_default_time, fnc_description = :fnc_description

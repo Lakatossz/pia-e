@@ -81,10 +81,10 @@
                 </tr>
                 <tr>
                     <td class="workplace-detail-div">
-                        <label class="workplace-detail-label" for="supervisor"
+                        <label class="workplace-detail-label" for="manager"
                                th:text="#{view.workplace_detail.supervisor}" th:required="true"/>
                         <select class="workplace-detail-input"
-                                id="supervisor" name="supervisor" th:field="*{manager}">
+                                id="manager" name="manager" th:field="*{manager}">
                             <option th:each="mng : ${employees}" th:value="${mng.getId()}"
                                     th:text="${mng.getLastName()} + ' ' + ${mng.getFirstName()}">
                             </option>
@@ -102,16 +102,19 @@
                 </tr>
                 <tr>
                     <td class="flex-duo">
-                        <input id="form-submit" class="workplace-detail-btn form-submit"
-                               th:formaction="'/w/' + ${id} + '/edit'" type="submit"
-                               th:value="#{view.workplace_detail.submit}">
-                        <!-- an delete button link -->
-                        <input id="form-delete" class="workplace-detail-btn"
-                                th:method="GET"
-                                th:formaction="'/w/' + ${id} + '/delete'" type="submit"
-                                th:value="#{view.workplace_detail.delete}"
-                                th:data-confirm-delete="#{view.workplace_detail.delete.confirm}"
-                                onclick="if (!confirm(this.getAttribute('data-confirm-delete'))) return false">
+                        <th:block th:if="${canEdit}">
+                            <input id="form-submit" class="workplace-detail-btn form-submit"
+                                   th:formaction="'/w/' + ${id} + '/edit'" type="submit"
+                                   th:value="#{view.workplace_detail.submit}">
+                        </th:block>
+                        <th:block th:if="${canDelete}">
+                            <input id="form-delete" class="workplace-detail-btn"
+                                   th:method="GET"
+                                   th:formaction="'/w/' + ${id} + '/delete'" type="submit"
+                                   th:value="#{view.workplace_detail.delete}"
+                                   th:data-confirm-delete="#{view.workplace_detail.delete.confirm}"
+                                   onclick="if (!confirm(this.getAttribute('data-confirm-delete'))) return false">
+                        </th:block>
                     </td>
                 </tr>
             </table>

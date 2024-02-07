@@ -43,6 +43,8 @@ public class SecurityService {
 
     private PasswordEncoder passwordEncoder;
 
+    private final String DEFAULT_PASSWORD = "piae";
+
     /**
      * Creates new user. Proper {@link Employee} must already exist as this only creates wrapper for spring boot.
      *
@@ -236,13 +238,13 @@ public class SecurityService {
     /**
      * Check if current logged user is workplace manager of project.
      *
-     * @param projectId project id
+     * @param workplaceId project id
      * @return true if yes, otherwise false
      */
-    public boolean isWorkplaceManager(int projectId) {
+    public boolean isWorkplaceManager(int workplaceId) {
         var auth = SecurityContextHolder.getContext().getAuthentication();
         var employee = employeeRepository.fetchEmployee(auth.getName());
-        var workplace = workplaceRepository.fetchWorkplace(projectId);
+        var workplace = workplaceRepository.fetchWorkplace(workplaceId);
 
         return workplace.getManager().getId() == employee.getId();
     }
@@ -256,7 +258,7 @@ public class SecurityService {
     public long createUserAccount(@NonNull Employee employee) throws ServiceException {
         try {
             long id = employeeRepository.createEmployee(employee);
-            createUser(employee.getOrionLogin(), "heslo");
+            createUser(employee.getOrionLogin(), "DEFAULT_PASSWORD");
             return id;
         } catch (InvalidDataAccessApiUsageException e) {
             throw new ServiceException();

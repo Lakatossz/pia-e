@@ -179,3 +179,9 @@ VCore/src/main/java/cz/zcu/kiv/mjakubas/piae/sem/core/exceptions/SecurityExcepti
 UCore/src/main/java/cz/zcu/kiv/mjakubas/piae/sem/core/exceptions/ServiceException.java,7/9/799bd309bfe0e8ab25ffee474d2bb6df91d43b03
 ‡
 WCore/src/main/java/cz/zcu/kiv/mjakubas/piae/sem/core/exceptions/CollisionException.java,7/c/7c33c28e56ff6262add4b86f394007acaa968516
+›
+kWebApplication/src/main/java/cz/zcu/kiv/mjakubas/piae/sem/webapplication/controller/PasswordController.java,2/7/2765b297e84c960b070330f077cf7fa2c32585fe
+•
+eWebApplication/src/main/java/cz/zcu/kiv/mjakubas/piae/sem/webapplication/security/SecurityConfig.java,b/b/bbf87481eda27f28985128905926eff36efdc554
+–
+fWebApplication/src/main/java/cz/zcu/kiv/mjakubas/piae/sem/webapplication/i18n/I18nLanguageService.java,9/0/90735a8a3299314969f4405ba0fa8b2685b7a6bd

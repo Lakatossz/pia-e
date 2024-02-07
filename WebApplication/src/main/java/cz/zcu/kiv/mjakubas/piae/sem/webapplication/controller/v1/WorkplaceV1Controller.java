@@ -36,11 +36,13 @@ public class WorkplaceV1Controller {
     @GetMapping()
     @PreAuthorize("hasAnyAuthority(" +
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).USER, " +
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN)")
-    public String viewWorkplaces(Model model,
+    public String getWorkplaces(Model model,
                                  RedirectAttributes redirectAttributes) {
         try {
             model.addAttribute("workplaces", workplaceService.getWorkplaces());
+            model.addAttribute("canCreate", workplaceService.canCreateWorkplace());
             return "views/workplaces";
         } catch (SecurityException e) {
             redirectAttributes.addFlashAttribute(PERMISSION_ERROR, true);
@@ -99,19 +101,25 @@ public class WorkplaceV1Controller {
 
     @PreAuthorize("hasAnyAuthority(" +
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).USER, " +
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN) " +
             " or @securityService.isWorkplaceManager(#id)")
     @GetMapping("/{id}/detail")
     public String detailWorkplace(Model model, @PathVariable long id,
                                   RedirectAttributes redirectAttributes) {
         try {
-            Workplace data = workplaceService.getWorkplace(id);
+            Workplace workplace = workplaceService.getWorkplace(id);
+            var employees = employeeService.getEmployees();
+            model.addAttribute("employees", employees);
             model.addAttribute("workplace", new WorkplaceVO(
-                    data.getId(),
-                    data.getFullName(),
-                    data.getAbbreviation(),
-                    data.getManager().getId(),
-                    data.getDescription()));
+                    workplace.getId(),
+                    workplace.getFullName(),
+                    workplace.getAbbreviation(),
+                    workplace.getManager().getId(),
+                    workplace.getDescription()));
+
+            model.addAttribute("canEdit", workplaceService.canEditWorkplace((int) id));
+            model.addAttribute("canDelete", workplaceService.canDeleteWorkplace((int) id));
             return "details/workplace_detail";
         } catch (SecurityException e) {
             redirectAttributes.addFlashAttribute(PERMISSION_ERROR, true);
@@ -129,6 +137,9 @@ public class WorkplaceV1Controller {
     public String editWorkplace(@PathVariable long id, @ModelAttribute WorkplaceVO workplaceVO,
                                 RedirectAttributes redirectAttributes) {
         try {
+
+            System.out.println(workplaceVO);
+
             workplaceService.updateWorkplace(workplaceVO, id);
             return "redirect:/w/{id}/detail?edit=success";
         } catch (SecurityException e) {

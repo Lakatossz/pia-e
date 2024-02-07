@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" lang="">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" lang="" xmlns:sec="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
     <title th:text="#{view.course.title}"></title>
@@ -38,8 +38,10 @@
     <div class="container">
         <!-- table -->
         <h1 class="text-center mt-5" th:text="#{view.course.header}"></h1>
-        <a type="button" class="course-btn"
-           th:href="@{/c/create}" th:text="#{view.course.create}"></a>
+        <th:block sec:authorize="hasAnyAuthority('ADMIN', 'SECRETARIAT', 'COURSE_SCHEDULER', 'COURSE_SUPERVISOR')">
+            <a type="button" class="course-btn"
+               th:href="@{/c/create}" th:text="#{view.course.create}"></a>
+        </th:block>
         <div class="row"  style="margin-top: 40px; margin-bottom: 100px">
             <table class="table">
                 <thead>
@@ -61,7 +63,8 @@
                         <!-- Employee-->
                         <th:block th:if="${firstAllocations.get(crsStats.index).getTime() >= 0}">
                             <tr>
-                                <td class="course-cell" th:rowspan="${crs.getCourseAllocations().size() + 1}">
+                                <td class="course-cell" th:rowspan="${crs.getCourseAllocations().size() + 1}"
+                                    sec:authorize="hasAnyAuthority('USER', 'ADMIN', 'SECRETARIAT', 'COURSE_SCHEDULER', 'COURSE_SUPERVISOR')">
                                     <a type="button" class="btn collapsible btn-detail" th:href="@{/c/{CRS_ID}/detail(CRS_ID=${crs.getId()})}"></a>
                                 </td>
                                 <td class="course-cell" th:rowspan="${crs.getCourseAllocations().size() + 1}" th:text="${crs.getShortcut()}"></td>
@@ -117,7 +120,7 @@
                         </th:block>
                         <th:block th:if="${firstAllocations.get(crsStats.index).getTime() == -1}">
                             <tr>
-                                <td class="course-cell">
+                                <td class="course-cell" sec:authorize="hasAnyAuthority('USER', 'ADMIN', 'SECRETARIAT', 'COURSE_SCHEDULER', 'COURSE_SUPERVISOR')">
                                     <a type="button" class="btn collapsible btn-detail" th:href="@{/c/{CRS_ID}/detail(CRS_ID=${crs.getId()})}"></a>
                                 </td>
                                 <td class="course-cell" th:text="${crs.getShortcut()}"></td>

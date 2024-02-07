@@ -21,8 +21,10 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -52,6 +54,7 @@ public class ProjectV1Controller {
     @GetMapping()
     @PreAuthorize("hasAnyAuthority(" +
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).USER, " +
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).PROJECT_ADMIN, " +
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN)")
     public String getProjects(Model model,
@@ -64,6 +67,7 @@ public class ProjectV1Controller {
 
             model.addAttribute("projects", projects);
             model.addAttribute("firstAllocations", firstAllocations);
+            model.addAttribute("canCreateProject", projectService.canCreateProject());
             return "views/projects";
         } catch (SecurityException e) {
             redirectAttributes.addFlashAttribute(PERMISSION_ERROR, true);
@@ -117,6 +121,7 @@ public class ProjectV1Controller {
 
     @PreAuthorize("hasAnyAuthority(" +
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).USER, " +
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).PROJECT_ADMIN, " +
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN) " +
             " or @securityService.isProjectManager(#id) or @securityService.isWorkplaceManager(#id)")
@@ -216,6 +221,8 @@ public class ProjectV1Controller {
         ProjectVO projectVO = new ProjectVO();
         projectVO.setState(ProjectState.NOVY.getValue());
         projectVO.setName("Nový projekt");
+        projectVO.setDateFrom(utils.convertToDate(LocalDate.now()));
+        projectVO.setDateUntil(utils.convertToDate(LocalDate.now().plusYears(1)));
         return projectVO;
     }
 
@@ -309,5 +316,10 @@ public class ProjectV1Controller {
         model.addAttribute(EMPLOYEES, employees);
         List<Workplace> workplaces = workplaceService.getWorkplaces();
         model.addAttribute("workplaces", workplaces);
+        model.addAttribute("canEdit", projectService.canEditProject(project.getId()));
+        model.addAttribute("canDelete", projectService.canDeleteProject(project.getId()));
+        model.addAttribute("canCreateAllocation", projectService.canCreateAllocation(project.getId()));
+        model.addAttribute("canEditAllocation", projectService.canEditAllocation(project.getId()));
+        model.addAttribute("canDeleteAllocation", projectService.canDeleteAllocation(project.getId()));
     }
 }

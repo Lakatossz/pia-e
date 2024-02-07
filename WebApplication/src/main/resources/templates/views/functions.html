@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" lang="">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml" lang="">
 <head>
     <meta charset="UTF-8">
     <title th:text="#{view.function.title}"></title>
@@ -40,9 +40,10 @@
         <!-- table -->
         <h1 class="text-center mt-5" th:text="#{view.function.header}"></h1>
 
+        <th:block sec:authorize="hasAnyAuthority('ADMIN', 'SECRETARIAT', 'FUNCTION_ADMIN')">
+            <a type="button" class="function-btn" th:href="@{/f/create}" th:text="#{view.function.create}"></a>
+        </th:block>
 
-        <a type="button" class="function-btn"
-           th:href="@{/f/create}" th:text="#{view.function.create}"></a>
         <div class="row">
             <table class="table" style="margin-top: 40px; margin-bottom: 100px">
                 <thead>

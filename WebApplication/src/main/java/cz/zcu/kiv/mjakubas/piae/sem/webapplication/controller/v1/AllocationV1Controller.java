@@ -63,15 +63,16 @@ public class AllocationV1Controller {
 
     @PreAuthorize("hasAnyAuthority(" +
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT, " +
-            "@securityService.isProjectManager(#projectId), " +
-            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN)")
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN) " +
+            "or @securityService.isProjectManager(#projectId)")
     @PostMapping("/create/project/{projectId}")
     public String createAllocationForProject(RedirectAttributes redirectAttributes,
                                              Model model,
                                              @ModelAttribute AllocationVO allocationVO,
                                              @PathVariable long projectId) {
         Project project = projectService.getProject(projectId);
-        setAllocationDates(allocationVO, project);
+
+        allocationVO.setIsActive(true);
         allocationVO.setTerm(TermState.N.getValue());
 
         try {
@@ -88,8 +89,8 @@ public class AllocationV1Controller {
 
     @PreAuthorize("hasAnyAuthority(" +
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT, " +
-            "@securityService.isCourseManager(#courseId), " +
-            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN)")
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN) " +
+            "or @securityService.isCourseManager(#courseId)")
     @PostMapping("/create/course/{courseId}/{year}")
     public String createAllocationForCourse(RedirectAttributes redirectAttributes,
                                             Model model,
@@ -98,6 +99,7 @@ public class AllocationV1Controller {
                                             @PathVariable long year) {
         Course course = courseService.getCourse(courseId);
         setAllocationDates(allocationVO, course);
+        allocationVO.setIsActive(true);
         courseService.addCoursesValues(allocationVO, (int) year);
 
         try {
@@ -114,15 +116,15 @@ public class AllocationV1Controller {
 
     @PreAuthorize("hasAnyAuthority(" +
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT, " +
-            "@securityService.isFunctionManager(#functionId), " +
-            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN)")
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN)" +
+            "or @securityService.isFunctionManager(#functionId)")
     @PostMapping("/create/function/{functionId}")
     public String createAllocationForFunction(RedirectAttributes redirectAttributes,
                                               Model model,
                                               @ModelAttribute AllocationVO allocationVO,
                                               @PathVariable long functionId) {
         var function = functionService.getFunction(functionId);
-        setAllocationDates(allocationVO, function);
+        allocationVO.setIsActive(true);
         allocationVO.setTerm(TermState.N.getValue());
 
         try {
@@ -139,8 +141,8 @@ public class AllocationV1Controller {
 
     @PreAuthorize("hasAnyAuthority(" +
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT, " +
-            "@securityService.isProjectManager(#projectId), " +
-            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN)")
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN) " +
+            "or @securityService.isProjectManager(#projectId)")
     @PostMapping("/{allocationId}/edit/p/{projectId}/{employeeId}")
     public String editProjectAllocation(RedirectAttributes redirectAttributes,
                                         @ModelAttribute AllocationVO allocationVO,
@@ -162,8 +164,8 @@ public class AllocationV1Controller {
 
     @PreAuthorize("hasAnyAuthority(" +
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT, " +
-            "@securityService.isCourseManager(#courseId), " +
-            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN)")
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN) " +
+            "or @securityService.isCourseManager(#courseId)")
     @PostMapping("/{allocationId}/edit/c/{courseId}/{employeeId}/{term}")
     public String editCourseAllocation(RedirectAttributes redirectAttributes,
                                        @ModelAttribute AllocationVO allocationVO,
@@ -188,8 +190,8 @@ public class AllocationV1Controller {
 
     @PreAuthorize("hasAnyAuthority(" +
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT, " +
-            "@securityService.isFunctionManager(#functionId), " +
-            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN)")
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN)" +
+            "or @securityService.isFunctionManager(#functionId)")
     @PostMapping("/{allocationId}/edit/f/{functionId}/{employeeId}")
     public String editFunctionAllocation(RedirectAttributes redirectAttributes,
                                          @ModelAttribute AllocationVO allocationVO,
@@ -212,8 +214,8 @@ public class AllocationV1Controller {
 
     @PreAuthorize("hasAnyAuthority(" +
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT, " +
-            "@securityService.isProjectManager(#projectId), " +
-            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN)")
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN)" +
+            "or @securityService.isProjectManager(#projectId)")
     @PostMapping("/{allocationId}/delete/p/{projectId}")
     public String deleteProjectAllocation(RedirectAttributes redirectAttributes,
                                           @PathVariable long projectId,
@@ -232,8 +234,8 @@ public class AllocationV1Controller {
 
     @PreAuthorize("hasAnyAuthority(" +
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT, " +
-            "@securityService.isCourseManager(#courseId), " +
-            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN)")
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN)" +
+            "or @securityService.isCourseManager(#courseId)")
     @PostMapping("/{allocationId}/delete/c/{courseId}")
     public String deleteCourseAllocation(RedirectAttributes redirectAttributes,
                                          @PathVariable long courseId,
@@ -253,8 +255,8 @@ public class AllocationV1Controller {
 
     @PreAuthorize("hasAnyAuthority(" +
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT, " +
-            "@securityService.isFunctionManager(#functionId), " +
-            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN)")
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN)" +
+            "or @securityService.isFunctionManager(#functionId)")
     @PostMapping("/{allocationId}/delete/f/{functionId}")
     public String deleteFunctionAllocation(RedirectAttributes redirectAttributes,
                                            @PathVariable long functionId,
@@ -308,7 +310,6 @@ public class AllocationV1Controller {
     private void setAllocationDates(AllocationVO allocationVO, Activity activity) {
         allocationVO.setDateFrom(utils.convertToLocalDateTime(activity.getDateFrom()));
         allocationVO.setDateUntil(utils.convertToLocalDateTime(activity.getDateUntil()));
-        allocationVO.setIsActive(true);
     }
 
     private void addAditionalActivityValues(AllocationVO allocationVO,

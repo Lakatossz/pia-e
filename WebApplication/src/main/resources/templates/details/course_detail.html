@@ -185,15 +185,18 @@
 <!--                </tr>-->
                 <tr>
                     <td class="flex-duo">
-                        <input id="form-submit" class="course-detail-btn submit-btn"
-                               th:formaction="'/c/' + ${id} + '/edit'" type="submit"
-                               th:value="#{view.course_detail.submit}">
-                        <!-- an delete button link -->
-                        <input id="form-delete" class="course-detail-btn"
-                                th:formaction="'/c/' + ${id} + '/delete'" type="submit"
-                                th:value="#{view.course_detail.delete}"
-                                th:data-confirm-delete="#{view.course_detail.delete.confirm}"
-                                onclick="if (!confirm(this.getAttribute('data-confirm-delete'))) return false">
+                        <th:block th:if="${canEdit}">
+                            <input id="form-submit" class="course-detail-btn submit-btn"
+                                   th:formaction="'/c/' + ${id} + '/edit'" type="submit"
+                                   th:value="#{view.course_detail.submit}">
+                        </th:block>
+                        <th:block th:if="${canDelete}">
+                            <input id="form-delete" class="course-detail-btn"
+                                   th:formaction="'/c/' + ${id} + '/delete'" type="submit"
+                                   th:value="#{view.course_detail.delete}"
+                                   th:data-confirm-delete="#{view.course_detail.delete.confirm}"
+                                   onclick="if (!confirm(this.getAttribute('data-confirm-delete'))) return false">
+                        </th:block>
                     </td>
                 </tr>
             </table>
@@ -207,9 +210,11 @@
             <button class="course-table-detail-top-btn" th:text="${year} + '/' + (${year} + 1)" th:id="${yearStats.index}"
                     th:onclick="'showTab(' + ${yearStats.index} + ')'" type="button"></button>
         </th:block>
-        <div style="float:right">
-            <button class="btn btn-add" type="button"></button>
-        </div>
+        <th:block th:if="${canCreateAllocation}">
+            <div style="float:right">
+                <button class="btn btn-add" type="button"></button>
+            </div>
+        </th:block>
             <table style="width: 1400px">
                 <thead>
                     <tr class="course-table-detail-row">
@@ -298,15 +303,19 @@
                                         <td>
                                             <button class="btn btn-cancel" th:id="${allStats.index}" type="button"></button>
                                         </td>
-                                        <td>
-                                            <button class="btn btn-edit" th:id="${allStats.index}" type="button"></button>
-                                        </td>
-                                        <td>
-                                            <button class="btn btn-delete" type="submit"
-                                                    th:formaction="'/a/' + ${all.id} + '/delete/c/' + ${id}"
-                                                    th:data-confirm-delete="#{view.course_detail.delete_allocation.confirm}"
-                                                    onclick="if (!confirm(this.getAttribute('data-confirm-delete'))) return false"></button>
-                                        </td>
+                                        <th:block th:if="${canEditAllocation}">
+                                            <td>
+                                                <button class="btn btn-edit" th:id="${allStats.index}" type="button"></button>
+                                            </td>
+                                        </th:block>
+                                        <th:block th:if="${canDeleteAllocation}">
+                                            <td>
+                                                <button class="btn btn-delete" type="submit"
+                                                        th:formaction="'/a/' + ${all.id} + '/delete/c/' + ${id}"
+                                                        th:data-confirm-delete="#{view.course_detail.delete_allocation.confirm}"
+                                                        onclick="if (!confirm(this.getAttribute('data-confirm-delete'))) return false"></button>
+                                            </td>
+                                        </th:block>
                                         <td>
                                             <label>
                                                 <input class="course-table-detail-input" style="display : none"

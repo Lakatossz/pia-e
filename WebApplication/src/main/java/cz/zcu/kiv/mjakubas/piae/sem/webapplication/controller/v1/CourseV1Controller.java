@@ -58,6 +58,7 @@ public class CourseV1Controller {
     @GetMapping()
     @PreAuthorize("hasAnyAuthority(" +
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).USER, " +
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).COURSE_SCHEDULER, " +
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).COURSE_SUPERVISOR, " +
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN)")
@@ -69,6 +70,8 @@ public class CourseV1Controller {
 
             model.addAttribute("courses", courses);
             model.addAttribute("firstAllocations", firstAllocations);
+            model.addAttribute("canCreateCourse", courseService.canCreateCourse());
+            model.addAttribute("canCreateCourse", courseService.canCreateCourse());
             return "views/courses";
         } catch (SecurityException e) {
             redirectAttributes.addFlashAttribute(PERMISSION_ERROR, true);
@@ -133,6 +136,7 @@ public class CourseV1Controller {
     @GetMapping("/{id}/detail")
     @PreAuthorize("hasAnyAuthority(" +
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).USER, " +
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).COURSE_SCHEDULER, " +
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).COURSE_SUPERVISOR, " +
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN) " +
@@ -265,8 +269,6 @@ public class CourseV1Controller {
                 .numberOfStudents(course.getNumberOfStudents())
                 .years(course.getYears());
 
-        System.out.println("course.getYears(): " + course.getYears().size());
-
         model.addAttribute(COURSE, courseVO);
 
         model.addAttribute("terms", TermState.values());
@@ -279,5 +281,10 @@ public class CourseV1Controller {
         var employees = employeeService.getEmployees();
         model.addAttribute(EMPLOYEES, employees);
         model.addAttribute(WORKPLACES, workplaceService.getWorkplaces());
+        model.addAttribute("canEdit", courseService.canEditCourse(course.getId()));
+        model.addAttribute("canDelete", courseService.canDeleteCourse(course.getId()));
+        model.addAttribute("canCreateAllocation", courseService.canCreateAllocation(course.getId()));
+        model.addAttribute("canEditAllocation", courseService.canDeleteAllocation(course.getId()));
+        model.addAttribute("canDeleteAllocation", courseService.canDeleteAllocation(course.getId()));
     }
 }

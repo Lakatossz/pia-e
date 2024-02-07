@@ -557,4 +557,28 @@ public class ProjectService {
 
         return list;
     }
+
+    public boolean canCreateProject() {
+        return true;
+    }
+
+    public boolean canEditProject(long projectId) {
+        return securityService.isProjectManager(projectId);
+    }
+
+    public boolean canDeleteProject(long projectId) {
+        return securityService.isProjectManager(projectId);
+    }
+
+    public boolean canCreateAllocation(long projectId) {
+        return securityService.isProjectManager(projectId);
+    }
+
+    public boolean canEditAllocation(long projectId) {
+        return securityService.isProjectManager(projectId);
+    }
+
+    public boolean canDeleteAllocation(long projectId) {
+        return securityService.isProjectManager(projectId);
+    }
 }

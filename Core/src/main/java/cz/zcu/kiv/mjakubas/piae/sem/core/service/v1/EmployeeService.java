@@ -598,4 +598,16 @@ public class EmployeeService {
 
         return sum;
     }
+
+    public boolean canCreateEmployee() {
+        return true;
+    }
+
+    public boolean canEditEmployee(long employeeId) {
+        return true;
+    }
+
+    public boolean canDeleteEmployee(long employeeId) {
+        return true;
+    }
 }

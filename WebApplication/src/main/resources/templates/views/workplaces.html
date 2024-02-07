@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" lang="">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml" lang="">
 <head>
     <meta charset="UTF-8">
     <title th:text="#{view.workplace.title}"></title>
@@ -36,8 +36,9 @@
     <!-- content -->
     <div class="container">
         <h1 class="text-center mt-5" th:text="#{view.workplace.header}"></h1>
-        <a type="button" class="workplace-btn"
-           th:href="@{/w/create}" th:text="#{view.workplace.create}"></a>
+        <th:block sec:authorize="hasAnyAuthority('ADMIN', 'SECRETARIAT')">
+            <a type="button" class="workplace-btn" th:href="@{/w/create}" th:text="#{view.workplace.create}"></a>
+        </th:block>
         <div class="row"  style="margin-top: 40px; margin-bottom: 100px">
             <table class="table">
                 <thead>
@@ -53,6 +54,7 @@
                 <tbody>
                 <tr th:each="wrk, iStat : ${workplaces}">
                     <td class="function-cell">
+                        <sec:authorize access="hasAuthority('SECRETARIAT')" var="isAdmin"></sec:authorize>
                         <a type="button" class="btn collapsible btn-detail" th:href="@{/w/{WRK_ID}/detail(WRK_ID=${wrk.getId()})}"></a>
                     </td>
                     <td th:text="${wrk.abbreviation}"></td>

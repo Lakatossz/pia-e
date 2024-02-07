@@ -53,6 +53,7 @@ public class FunctionV1Controller {
     @GetMapping()
     @PreAuthorize("hasAnyAuthority(" +
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).USER, " +
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).FUNCTION_ADMIN, " +
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN)")
     public String getFunctions(Model model,
@@ -63,6 +64,7 @@ public class FunctionV1Controller {
 
             model.addAttribute("functions", functions);
             model.addAttribute("firstAllocations", firstAllocations);
+            model.addAttribute("canCreateFunction", functionService.canCreateFunction());
             return "views/functions";
         } catch (SecurityException e) {
             redirectAttributes.addFlashAttribute(PERMISSION_ERROR, true);
@@ -114,6 +116,7 @@ public class FunctionV1Controller {
     @GetMapping("/{id}/detail")
     @PreAuthorize("hasAnyAuthority(" +
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).USER, " +
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).FUNCTION_ADMIN, " +
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN) " +
             " or @securityService.isFunctionManager(#id) or @securityService.isWorkplaceManager(#id)")
@@ -264,6 +267,10 @@ public class FunctionV1Controller {
 
         model.addAttribute(EMPLOYEES, employeeService.getEmployees());
         model.addAttribute("workplaces", workplaceService.getWorkplaces());
-        model.addAttribute(RESTRICTIONS, functionService.getFunctions());
+        model.addAttribute("canEdit", functionService.canEditFunction(function.getId()));
+        model.addAttribute("canDelete", functionService.canDeleteFunction(function.getId()));
+        model.addAttribute("canCreateAllocation", functionService.canCreateAllocation(function.getId()));
+        model.addAttribute("canEditAllocation", functionService.canEditAllocation(function.getId()));
+        model.addAttribute("canDeleteAllocation", functionService.canDeleteAllocation(function.getId()));
     }
 }

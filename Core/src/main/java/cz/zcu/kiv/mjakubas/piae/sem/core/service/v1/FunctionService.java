@@ -201,6 +201,7 @@ public class FunctionService {
         Function function = new Function()
                 .id(id)
                 .name(functionVO.getName())
+                .shortcut(functionVO.getShortcut())
                 .dateFrom(functionVO.getDateFrom())
                 .dateUntil(functionVO.getDateUntil() != null ? functionVO.getDateUntil() : Date.from(
                         Instant.from(LocalDate.of(9999, 9, 9))))
@@ -480,5 +481,29 @@ public class FunctionService {
         }
 
         return list;
+    }
+
+    public boolean canCreateFunction() {
+        return true;
+    }
+
+    public boolean canEditFunction(long functionId) {
+        return securityService.isFunctionManager(functionId);
+    }
+
+    public boolean canDeleteFunction(long functionId) {
+        return securityService.isFunctionManager(functionId);
+    }
+
+    public boolean canCreateAllocation(long functionId) {
+        return securityService.isFunctionManager(functionId);
+    }
+
+    public boolean canEditAllocation(long functionId) {
+        return securityService.isFunctionManager(functionId);
+    }
+
+    public boolean canDeleteAllocation(long functionId) {
+        return securityService.isFunctionManager(functionId);
     }
 }

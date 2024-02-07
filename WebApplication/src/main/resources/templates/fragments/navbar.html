@@ -10,19 +10,19 @@
                 <li class="nav-item">
                     <a class="nav-link btn-page-head" th:href="@{/}" th:text="#{link.home}"></a>
                 </li>
-                <li class="nav-item" sec:authorize="hasAuthority('SECRETARIAT')">
+                <li class="nav-item" sec:authorize="hasAnyAuthority('USER', 'ADMIN', 'SECRETARIAT')">
                     <a class="nav-link btn-page-head" th:href="@{/w}" th:text="#{link.workplace}"></a>
                 </li>
-                <li class="nav-item" sec:authorize="hasAuthority('SECRETARIAT')">
+                <li class="nav-item" sec:authorize="hasAnyAuthority('USER', 'ADMIN', 'SECRETARIAT')">
                     <a class="nav-link btn-page-head" th:href="@{/e}" th:text="#{link.employee}"></a>
                 </li>
-                <li class="nav-item" sec:authorize="hasAuthority('SECRETARIAT')">
+                <li class="nav-item" sec:authorize="hasAnyAuthority('USER', 'ADMIN', 'SECRETARIAT', 'PROJECT_GUARANTOR', 'PROJECT_ADMIN')">
                     <a class="nav-link btn-page-head" th:href="@{/p}" th:text="#{link.project}"></a>
                 </li>
-                <li class="nav-item" sec:authorize="hasAuthority('SECRETARIAT')">
+                <li class="nav-item" sec:authorize="hasAnyAuthority('USER', 'ADMIN', 'SECRETARIAT', 'COURSE_SCHEDULER', 'COURSE_SUPERVISOR')">
                     <a class="nav-link btn-page-head" th:href="@{/c}" th:text="#{link.course}"></a>
                 </li>
-                <li class="nav-item" sec:authorize="hasAuthority('SECRETARIAT')">
+                <li class="nav-item" sec:authorize="hasAnyAuthority('USER', 'ADMIN', 'SECRETARIAT', 'FUNCTION_MEMBER', 'FUNCTION_ADMIN', 'FUNCTION_GUARANTOR')">
                     <a class="nav-link btn-page-head" th:href="@{/f}" th:text="#{link.function}"></a>
                 </li>
             </div>

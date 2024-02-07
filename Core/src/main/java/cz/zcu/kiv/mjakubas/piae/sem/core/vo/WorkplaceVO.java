@@ -22,6 +22,6 @@ public class WorkplaceVO {
     private long id;
     private String name;
     private String abbreviation;
-    private long manager;      // manager orion login
-    private String description;      // manager orion login
+    private long manager;
+    private String description;
 }

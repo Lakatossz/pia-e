@@ -197,15 +197,18 @@
                 </tr>
                 <tr>
                     <td class="flex-duo">
-                        <input id="form-submit" class="project-detail-btn form-submit"
-                               th:formaction="'/p/' + ${id} + '/edit'" type="submit"
-                               th:value="#{view.project_detail.submit}">
-                        <!-- an delete button link -->
-                        <input id="form-delete" class="project-detail-btn"
-                               th:formaction="'/p/' + ${id} + '/delete'" type="submit"
-                               th:value="#{view.project_detail.delete}"
-                               th:data-confirm-delete="#{view.project_detail.delete.confirm}"
-                               onclick="if (!confirm(this.getAttribute('data-confirm-delete'))) return false">
+                        <th:block th:if="${canEdit}">
+                            <input id="form-submit" class="project-detail-btn form-submit"
+                                   th:formaction="'/p/' + ${id} + '/edit'" type="submit"
+                                   th:value="#{view.project_detail.submit}">
+                        </th:block>
+                        <th:block th:if="${canDelete}">
+                            <input id="form-delete" class="project-detail-btn"
+                                   th:formaction="'/p/' + ${id} + '/delete'" type="submit"
+                                   th:value="#{view.project_detail.delete}"
+                                   th:data-confirm-delete="#{view.project_detail.delete.confirm}"
+                                   onclick="if (!confirm(this.getAttribute('data-confirm-delete'))) return false">
+                        </th:block>
                     </td>
                 </tr>
             </table>
@@ -217,11 +220,13 @@
             <div class="table">
                 <table class="table table-add">
                     <thead>
-                    <tr align="right">
-                        <td colspan="15" align="right">
-                            <button class="btn btn-add" type="button"></button>
-                        </td>
-                    </tr>
+                    <th:block th:if="${canCreateAllocation}">
+                        <tr align="right">
+                            <td colspan="15" align="right">
+                                <button class="btn btn-add" type="button"></button>
+                            </td>
+                        </tr>
+                    </th:block>
                     <tr>
                         <td class="project-allocations-header project-allocations-cell-name"
                             th:text="#{view.project_detail.members.table.name}" required="required"></td>
@@ -326,15 +331,19 @@
                                     <td>
                                         <button class="btn btn-cancel" type="button"></button>
                                     </td>
-                                    <td>
-                                        <button class="btn btn-edit" type="button"></button>
-                                    </td>
-                                    <td>
-                                        <button class="btn btn-delete" type="submit"
-                                                th:formaction="'/a/' + ${all.id} + '/delete/p/' + ${id}"
-                                                th:data-confirm-delete="#{view.project_detail.delete_allocation.confirm}"
-                                                onclick="if (!confirm(this.getAttribute('data-confirm-delete'))) return false"></button>
-                                    </td>
+                                    <th:block th:if="${canEditAllocation}">
+                                        <td>
+                                            <button class="btn btn-edit" type="button"></button>
+                                        </td>
+                                    </th:block>
+                                    <th:block th:if="${canDeleteAllocation}">
+                                        <td>
+                                            <button class="btn btn-delete" type="submit"
+                                                    th:formaction="'/a/' + ${all.id} + '/delete/p/' + ${id}"
+                                                    th:data-confirm-delete="#{view.project_detail.delete_allocation.confirm}"
+                                                    onclick="if (!confirm(this.getAttribute('data-confirm-delete'))) return false"></button>
+                                        </td>
+                                    </th:block>
                                 </tr>
                             </th:block>
                         </form>

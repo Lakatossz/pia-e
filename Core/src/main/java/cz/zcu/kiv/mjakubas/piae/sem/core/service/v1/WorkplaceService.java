@@ -118,4 +118,16 @@ public class WorkplaceService {
         if (!securityService.isWorkplaceManager((int) workplaceId) || !workplaceRepository.removeWorkplace(workplaceId))
             throw new ServiceException();
     }
+
+    public boolean canCreateWorkplace() {
+        return true;
+    }
+
+    public boolean canEditWorkplace(int workplaceId) {
+        return securityService.isWorkplaceManager(workplaceId);
+    }
+
+    public boolean canDeleteWorkplace(int workplaceId) {
+        return securityService.isWorkplaceManager(workplaceId);
+    }
 }

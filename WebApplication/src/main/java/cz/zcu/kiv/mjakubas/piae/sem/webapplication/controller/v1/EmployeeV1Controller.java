@@ -59,6 +59,7 @@ public class EmployeeV1Controller {
     @GetMapping()
     @PreAuthorize("hasAnyAuthority(" +
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).USER, " +
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).PROJECT_ADMIN, " +
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).PROJECT_GUARANTOR, " +
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).COURSE_SCHEDULER, " +
@@ -66,7 +67,7 @@ public class EmployeeV1Controller {
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).FUNCTION_ADMIN, " +
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).FUNCTION_GUARANTOR, " +
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).ADMIN)")
-    public String viewEmployees(Model model,
+    public String getEmployees(Model model,
                                 RedirectAttributes redirectAttributes) {
         try {
             var employees = employeeService.getEmployees();
@@ -77,6 +78,8 @@ public class EmployeeV1Controller {
 
             model.addAttribute("employees", employees);
             model.addAttribute("firstAllocations", firstAllocations);
+            model.addAttribute("firstAllocations", firstAllocations);
+            model.addAttribute("canCreateEmployee", employeeService.canCreateEmployee());
             return "views/employees";
         } catch (SecurityException e) {
             redirectAttributes.addFlashAttribute(PERMISSION_ERROR, true);
@@ -155,6 +158,7 @@ public class EmployeeV1Controller {
     @GetMapping("/{id}/detail")
     @PreAuthorize("hasAnyAuthority(" +
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).USER, " +
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).PROJECT_ADMIN, " +
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).PROJECT_GUARANTOR, " +
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).COURSE_SCHEDULER, " +
@@ -178,6 +182,7 @@ public class EmployeeV1Controller {
 
     @PreAuthorize("hasAnyAuthority(" +
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).SECRETARIAT, " +
+            "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).USER, " +
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).PROJECT_ADMIN, " +
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).PROJECT_GUARANTOR, " +
             "T(cz.zcu.kiv.mjakubas.piae.sem.webapplication.security.SecurityAuthority).COURSE_SCHEDULER, " +
@@ -310,5 +315,7 @@ public class EmployeeV1Controller {
         model.addAttribute("firstCoursesAllocations", firstCoursesAllocations);
         List<Allocation> firstFunctionsAllocations = functionService.prepareFirst(functions);
         model.addAttribute("firstFunctionsAllocations", firstFunctionsAllocations);
+        model.addAttribute("canEdit", employeeService.canEditEmployee(employee.getId()));
+        model.addAttribute("canDelete", employeeService.canDeleteEmployee(employee.getId()));
     }
 }

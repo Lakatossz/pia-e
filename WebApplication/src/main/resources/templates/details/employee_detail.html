@@ -133,16 +133,19 @@
                 </tr>
                 <tr>
                     <td class="flex-duo">
-                        <input id="form-submit" class="employee-detail-btn form-submit"
-                               th:attr="onclick=|return empty('#{view.employee_detail.submit.empty}')|"
-                               th:formaction="'/e/' + ${id} + '/edit'" type="submit"
-                               th:value="#{view.employee_detail.submit}">
-                        <!-- an delete button link -->
-                        <input id="form-delete" class="employee-detail-btn"
-                               th:formaction="'/e/' + ${id} + '/delete'" type="submit"
-                               th:value="#{view.employee_detail.delete}"
-                               th:data-confirm-delete="#{view.employee_detail.delete.confirm}"
-                               onclick="if (!confirm(this.getAttribute('data-confirm-delete'))) return false">
+                        <th:block th:if="${canEdit}">
+                            <input id="form-submit" class="employee-detail-btn form-submit"
+                                   th:attr="onclick=|return empty('#{view.employee_detail.submit.empty}')|"
+                                   th:formaction="'/e/' + ${id} + '/edit'" type="submit"
+                                   th:value="#{view.employee_detail.submit}">
+                        </th:block>
+                        <th:block th:if="${canDelete}">
+                            <input id="form-delete" class="employee-detail-btn"
+                                   th:formaction="'/e/' + ${id} + '/delete'" type="submit"
+                                   th:value="#{view.employee_detail.delete}"
+                                   th:data-confirm-delete="#{view.employee_detail.delete.confirm}"
+                                   onclick="if (!confirm(this.getAttribute('data-confirm-delete'))) return false">
+                        </th:block>
                     </td>
                 </tr>
             </table>

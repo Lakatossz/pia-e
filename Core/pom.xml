@@ -15,7 +15,7 @@
     <description>core content for web application for KIV/PIA-E semester work</description>
 
     <properties>
-        <java.version>11</java.version>
+        <java.version>17</java.version>
     </properties>
 
     <dependencies>

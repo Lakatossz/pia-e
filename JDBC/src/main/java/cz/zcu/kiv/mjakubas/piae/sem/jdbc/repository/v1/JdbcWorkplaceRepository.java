@@ -31,11 +31,9 @@ public class JdbcWorkplaceRepository implements IWorkplaceRepository {
 
     @Override
     public Workplace fetchWorkplace(long workplaceId) {
-        var sql = """
-                SELECT w.*, e.* FROM workplace w
-                LEFT JOIN employee e ON e.employee_id=w.wrk_manager_id
-                WHERE wrk_enabled=:isEnabled AND workplace_id=:wrk_id
-                """;
+        var sql = "SELECT w.*, e.* FROM workplace w " +
+                "LEFT JOIN employee e ON e.employee_id=w.wrk_manager_id " +
+                "WHERE wrk_enabled=:isEnabled AND workplace_id=:wrk_id;";
 
         var params = new MapSqlParameterSource();
         params.addValue("wrk_id", workplaceId);
@@ -46,11 +44,9 @@ public class JdbcWorkplaceRepository implements IWorkplaceRepository {
 
     @Override
     public Workplace fetchWorkplace(String abbrevation) {
-        var sql = """
-                SELECT w.*, e.* FROM workplace w
-                LEFT JOIN employee e ON e.employee_id=w.wrk_manager_id
-                WHERE wrk_enabled=:isEnabled AND wrk_abbrevation=:wrk_abbrevation
-                """;
+        var sql = "SELECT w.*, e.* FROM workplace w " +
+                "LEFT JOIN employee e ON e.employee_id=w.wrk_manager_id " +
+                "WHERE wrk_enabled=:isEnabled AND wrk_abbrevation=:wrk_abbrevation;";
 
         var params = new MapSqlParameterSource();
         params.addValue("wrk_abbrevation", abbrevation);
@@ -61,25 +57,19 @@ public class JdbcWorkplaceRepository implements IWorkplaceRepository {
 
     @Override
     public List<Workplace> fetchWorkplaces() {
-        var sql = """
-                SELECT w.*, e.* FROM workplace w
-                LEFT JOIN employee e ON e.employee_id=w.wrk_manager_id
-                WHERE w.wrk_enabled=1
-                """;
+        var sql = "SELECT w.*, e.* FROM workplace w " +
+                "LEFT JOIN employee e ON e.employee_id=w.wrk_manager_id " +
+                "WHERE w.wrk_enabled=1;";
 
         return jdbcTemplate.query(sql, WORKPLACE_MAPPER);
     }
 
     @Override
     public List<Employee> fetchWorkplaceEmployees(long workplaceId) {
-        var sql = """
-                SELECT 
-                        e.*, 
-                        w.wrk_abbrevation
-                FROM employee e
-                INNER JOIN workplace w ON w.workplace_id=e.emp_workplace_id
-                WHERE emp_enabled=:isEnabled AND w.workplace_id=:id
-                """;
+        var sql = "SELECT e.*,  w.wrk_abbrevation " +
+                "FROM employee e " +
+                "INNER JOIN workplace w ON w.workplace_id=e.emp_workplace_id " +
+                "WHERE emp_enabled=:isEnabled AND w.workplace_id=:id;";
 
         var params = new MapSqlParameterSource();
         params.addValue(IS_ENABLED, true);
@@ -90,12 +80,10 @@ public class JdbcWorkplaceRepository implements IWorkplaceRepository {
 
     @Override
     public long createWorkplace(@NonNull Workplace workplace) {
-        var sql = """
-                INSERT INTO workplace
-                (wrk_enabled, wrk_abbrevation, wrk_name, wrk_description, wrk_manager_id)
-                VALUES
-                (:wrk_enabled, :wrk_abbreviation, :wrk_name, :wrk_description, :wrk_manager_id)
-                """;
+        var sql = "INSERT INTO workplace " +
+                "(wrk_enabled, wrk_abbrevation, wrk_name, wrk_description, wrk_manager_id) " +
+                "VALUES " +
+                "(:wrk_enabled, :wrk_abbreviation, :wrk_name, :wrk_description, :wrk_manager_id);";
 
         var params = new MapSqlParameterSource();
         params.addValue("wrk_enabled", true);
@@ -112,12 +100,10 @@ public class JdbcWorkplaceRepository implements IWorkplaceRepository {
 
     @Override
     public boolean updateWorkplace(@NonNull Workplace workplace, long workplaceId) {
-        var sql = """
-                UPDATE workplace
-                SET wrk_enabled = :wrk_enabled, wrk_abbrevation = :wrk_abbrevation,
-                 wrk_name = :wrk_name, wrk_manager_id = :wrk_manager_id, wrk_description = :wrk_description
-                WHERE workplace_id = :workplace_id;
-                """;
+        var sql = "UPDATE workplace " +
+                "SET wrk_enabled = :wrk_enabled, wrk_abbrevation = :wrk_abbrevation, " +
+                "wrk_name = :wrk_name, wrk_manager_id = :wrk_manager_id, wrk_description = :wrk_description " +
+                "WHERE workplace_id = :workplace_id;";
 
         var params = new MapSqlParameterSource();
         params.addValue("wrk_enabled", 1);
@@ -135,12 +121,9 @@ public class JdbcWorkplaceRepository implements IWorkplaceRepository {
 
     @Override
     public boolean removeWorkplace(long workplaceId) {
-        var sql = """
-                UPDATE workplace
-                SET wrk_enabled = :wrk_enabled
-                WHERE workplace_id = :workplace_id;
-                """;
-
+        var sql = "UPDATE workplace " +
+                "SET wrk_enabled = :wrk_enabled " +
+                "WHERE workplace_id = :workplace_id;";
         var params = new MapSqlParameterSource();
         params.addValue("wrk_enabled", 0);
         params.addValue("workplace_id", workplaceId);

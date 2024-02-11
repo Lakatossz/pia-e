@@ -15,10 +15,20 @@ public enum TermState {
     }
 
     public static TermState getByValue(String value) {
-        return switch (value) {
-            case "Z" -> TermState.Z;
-            case "L" -> TermState.L;
-            default -> TermState.N;
-        };
+        TermState returnValue;
+
+        switch (value) {
+            case "Z":
+                returnValue = TermState.Z;
+                break;
+            case "L":
+                returnValue = TermState.L;
+                break;
+            default:
+                returnValue = TermState.N;
+                break;
+        }
+
+        return returnValue;
     }
 }

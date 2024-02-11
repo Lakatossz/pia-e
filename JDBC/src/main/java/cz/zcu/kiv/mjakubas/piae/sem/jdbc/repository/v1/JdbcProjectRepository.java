@@ -35,12 +35,10 @@ public class JdbcProjectRepository implements IProjectRepository {
 
     @Override
     public Project fetchProject(long projectId) {
-        var sql = """
-                SELECT p.*, w.wrk_abbrevation, w.workplace_id, e.* FROM project p
-                INNER JOIN workplace w ON w.workplace_id=p.pro_workplace_id
-                INNER JOIN employee e ON e.employee_id=p.pro_manager_id
-                WHERE p.pro_enabled=:isEnabled AND p.project_id=:project_id
-                """;
+        var sql = "SELECT p.*, w.wrk_abbrevation, w.workplace_id, e.* FROM project p " +
+                "INNER JOIN workplace w ON w.workplace_id=p.pro_workplace_id " +
+                "INNER JOIN employee e ON e.employee_id=p.pro_manager_id " +
+                "WHERE p.pro_enabled=:isEnabled AND p.project_id=:project_id;";
 
         var params = new MapSqlParameterSource();
         params.addValue(PROJECT_ID, projectId);
@@ -51,12 +49,10 @@ public class JdbcProjectRepository implements IProjectRepository {
 
     @Override
     public Project fetchProject(String name) {
-        var sql = """
-                SELECT p.*, w.wrk_abbrevation, e.* FROM project p
-                INNER JOIN workplace w ON w.workplace_id=p.pro_workplace_id
-                INNER JOIN employee e ON e.employee_id=p.pro_manager_id
-                WHERE p.pro_enabled=:isEnabled AND p.pro_name=:name
-                """;
+        var sql = "SELECT p.*, w.wrk_abbrevation, e.* FROM project p " +
+                "INNER JOIN workplace w ON w.workplace_id=p.pro_workplace_id " +
+                "INNER JOIN employee e ON e.employee_id=p.pro_manager_id " +
+                "WHERE p.pro_enabled=:isEnabled AND p.pro_name=:name;";
 
         var params = new MapSqlParameterSource();
         params.addValue("name", name);
@@ -67,12 +63,10 @@ public class JdbcProjectRepository implements IProjectRepository {
 
     @Override
     public List<Project> fetchProjects() {
-        var sql = """
-                SELECT p.*, w.wrk_abbrevation, e.* FROM project p
-                INNER JOIN workplace w ON w.workplace_id=p.pro_workplace_id
-                INNER JOIN employee e ON e.employee_id=p.pro_manager_id
-                WHERE p.pro_enabled=:isEnabled
-                """;
+        var sql = "SELECT p.*, w.wrk_abbrevation, e.* FROM project p " +
+                "INNER JOIN workplace w ON w.workplace_id=p.pro_workplace_id " +
+                "INNER JOIN employee e ON e.employee_id=p.pro_manager_id " +
+                "WHERE p.pro_enabled=:isEnabled;";
 
         var params = new MapSqlParameterSource();
         params.addValue(IS_ENABLED, true);
@@ -82,15 +76,11 @@ public class JdbcProjectRepository implements IProjectRepository {
 
     @Override
     public List<Employee> fetchProjectEmployees(long projectId) {
-        var sql = """
-                SELECT 
-                        e.*, 
-                        w.wrk_abbrevation
-                FROM assignment pe
-                INNER JOIN employee e ON e.employee_id=pe.ass_employee_id
-                INNER JOIN workplace w ON w.workplace_id=e.emp_workplace_id
-                WHERE pe.ass_enabled=:isEnabled AND pe.ass_project_id=:project_id
-                """;
+        var sql = "SELECT e.*, w.wrk_abbrevation " +
+                "FROM assignment pe " +
+                "INNER JOIN employee e ON e.employee_id=pe.ass_employee_id " +
+                "INNER JOIN workplace w ON w.workplace_id=e.emp_workplace_id " +
+                "WHERE pe.ass_enabled=:isEnabled AND pe.ass_project_id=:project_id;";
 
         var params = new MapSqlParameterSource();
         params.addValue(IS_ENABLED, true);
@@ -101,18 +91,16 @@ public class JdbcProjectRepository implements IProjectRepository {
 
     @Override
     public long createProject(@NonNull Project project) {
-        var sql = """
-                INSERT INTO project
-                (pro_enabled, pro_name, pro_manager_id, pro_workplace_id,
-                pro_date_from, pro_date_until, pro_description, pro_probability, 
-                pro_budget, pro_budget_participation, pro_total_time, pro_state, 
-                pro_shortcut, pro_agency, pro_grant_title)
-                VALUES
-                (:pro_enabled, :pro_name, :pro_manager_id, :pro_workplace_id,
-                :pro_date_from, :pro_date_until, :pro_description, :pro_probability,
-                :pro_budget, :pro_budget_participation, :pro_total_time, :pro_state,
-                :pro_shortcut, :pro_agency, :pro_grant_title);
-                """;
+        var sql = "INSERT INTO project " +
+                "(pro_enabled, pro_name, pro_manager_id, pro_workplace_id, " +
+                "pro_date_from, pro_date_until, pro_description, pro_probability, " +
+                "pro_budget, pro_budget_participation, pro_total_time, pro_state, " +
+                "pro_shortcut, pro_agency, pro_grant_title) " +
+                "VALUES " +
+                "(:pro_enabled, :pro_name, :pro_manager_id, :pro_workplace_id, " +
+                ":pro_date_from, :pro_date_until, :pro_description, :pro_probability, " +
+                ":pro_budget, :pro_budget_participation, :pro_total_time, :pro_state, " +
+                ":pro_shortcut, :pro_agency, :pro_grant_title);";
 
         GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(sql, prepareParams(project), keyHolder);
@@ -122,15 +110,13 @@ public class JdbcProjectRepository implements IProjectRepository {
 
     @Override
     public boolean updateProject(@NonNull Project project, long projectId) {
-        var sql = """
-                UPDATE project
-                SET pro_enabled = :pro_enabled, pro_name = :pro_name, pro_manager_id = :pro_manager_id,
-                pro_workplace_id = :pro_workplace_id, pro_date_from = :pro_date_from, pro_description = :pro_description,
-                pro_probability = :pro_probability, pro_budget = :pro_budget, pro_agency = :pro_agency,
-                pro_budget_participation = :pro_budget_participation, pro_state = :pro_state,
-                pro_total_time = :pro_total_time, pro_grant_title = :pro_grant_title
-                WHERE project_id = :project_id
-                """;
+        var sql = "UPDATE project " +
+                "SET pro_enabled = :pro_enabled, pro_name = :pro_name, pro_manager_id = :pro_manager_id, " +
+                "pro_workplace_id = :pro_workplace_id, pro_date_from = :pro_date_from, pro_description = :pro_description, " +
+                "pro_probability = :pro_probability, pro_budget = :pro_budget, pro_agency = :pro_agency, " +
+                "pro_budget_participation = :pro_budget_participation, pro_state = :pro_state, " +
+                "pro_total_time = :pro_total_time, pro_grant_title = :pro_grant_title " +
+                "WHERE project_id = :project_id;";
 
         var params = prepareParams(project);
         params.addValue(PROJECT_ID, projectId);
@@ -140,11 +126,9 @@ public class JdbcProjectRepository implements IProjectRepository {
 
     @Override
     public boolean removeProject(long projectId) {
-        var sql = """
-                UPDATE project
-                SET pro_enabled = :pro_enabled
-                WHERE pro_enabled =:isEnabled AND project_id = :project_id
-                """;
+        var sql = "UPDATE project " +
+                "SET pro_enabled = :pro_enabled " +
+                "WHERE pro_enabled =:isEnabled AND project_id = :project_id;";
 
         var params = new MapSqlParameterSource();
         params.addValue("pro_enabled", false);
@@ -159,12 +143,10 @@ public class JdbcProjectRepository implements IProjectRepository {
 
     @Override
     public boolean addEmployee(long employeeId, long projectId) {
-        var sql = """
-                INSERT INTO project_employee
-                (ass_enabled, ass_project_id, ass_employee_id)
-                VALUES
-                (:isEnabled, :project_id, :ass_employee_id)
-                """;
+        var sql = "INSERT INTO project_employee " +
+                "(ass_enabled, ass_project_id, ass_employee_id) " +
+                "VALUES " +
+                "(:isEnabled, :project_id, :ass_employee_id);";
 
         var params = new MapSqlParameterSource();
         params.addValue(IS_ENABLED, true);
@@ -177,11 +159,9 @@ public class JdbcProjectRepository implements IProjectRepository {
 
     @Override
     public boolean removeEmployee(long employeeId, long projectId) {
-        var sql = """
-                UPDATE project_employee
-                SET ass_enabled = :pro_enabled
-                WHERE pro_enabled =:isEnabled AND ass.project_id = :project_id AND ass.employee_id=:employee_id
-                """;
+        var sql = "UPDATE project_employee " +
+                "SET ass_enabled = :pro_enabled " +
+                "WHERE pro_enabled =:isEnabled AND ass.project_id = :project_id AND ass.employee_id=:employee_id;";
 
         var params = new MapSqlParameterSource();
         params.addValue("ass_enabled", false);

@@ -15,10 +15,19 @@ public enum ProjectState {
     }
 
     public static ProjectState getByValue(String value) {
-        return switch (value) {
-            case "nový" -> ProjectState.NOVY;
-            case "běží" -> ProjectState.BEZI;
-            default -> ProjectState.DOKONCENY;
-        };
+        ProjectState returnValue;
+        switch (value) {
+            case "nový":
+                returnValue = ProjectState.NOVY;
+                break;
+            case "běží":
+                returnValue = ProjectState.BEZI;
+                break;
+            default:
+                returnValue = ProjectState.DOKONCENY;
+                break;
+        }
+
+        return returnValue;
     }
 }

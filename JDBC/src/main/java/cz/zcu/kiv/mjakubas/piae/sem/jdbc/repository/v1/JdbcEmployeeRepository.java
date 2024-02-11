@@ -33,11 +33,9 @@ public class JdbcEmployeeRepository implements IEmployeeRepository {
 
     @Override
     public Employee fetchEmployee(long employeeId) {
-        var sql = """
-                SELECT e.*, w.wrk_abbrevation FROM employee e
-                INNER JOIN workplace w ON w.workplace_id = e.emp_workplace_id
-                WHERE emp_enabled=:isEnabled AND employee_id=:employee_id;
-                """;
+        var sql = "SELECT e.*, w.wrk_abbrevation FROM employee e " +
+                "INNER JOIN workplace w ON w.workplace_id = e.emp_workplace_id " +
+                "WHERE emp_enabled=:isEnabled AND employee_id=:employee_id;";
 
         var params = new MapSqlParameterSource();
         params.addValue(IS_ENABLED, 1);
@@ -48,11 +46,9 @@ public class JdbcEmployeeRepository implements IEmployeeRepository {
 
     @Override
     public Employee fetchEmployee(String orionLogin) {
-        var sql = """
-                SELECT e.*, w.wrk_abbrevation FROM employee e
-                INNER JOIN workplace w ON w.workplace_id = e.emp_workplace_id
-                WHERE emp_enabled=:isEnabled AND emp_orion_login=:orionLogin;
-                """;
+        var sql = "SELECT e.*, w.wrk_abbrevation FROM employee e " +
+                "INNER JOIN workplace w ON w.workplace_id = e.emp_workplace_id " +
+                "WHERE emp_enabled=:isEnabled AND emp_orion_login=:orionLogin;";
 
         var params = new MapSqlParameterSource();
         params.addValue(IS_ENABLED, 1);
@@ -63,12 +59,10 @@ public class JdbcEmployeeRepository implements IEmployeeRepository {
 
     @Override
     public List<Employee> fetchEmployees() {
-        var sql = """
-                SELECT e.*, w.wrk_abbrevation
-                FROM employee e
-                INNER JOIN workplace w ON w.workplace_id = e.emp_workplace_id
-                WHERE emp_enabled=:isEnabled;
-                """;
+        var sql = "SELECT e.*, w.wrk_abbrevation " +
+                "FROM employee e " +
+                "INNER JOIN workplace w ON w.workplace_id = e.emp_workplace_id " +
+                "WHERE emp_enabled=:isEnabled;";
 
         var params = new MapSqlParameterSource();
         params.addValue(IS_ENABLED, 1);
@@ -78,12 +72,10 @@ public class JdbcEmployeeRepository implements IEmployeeRepository {
 
     @Override
     public List<Employee> fetchSubordinates(long superiorId) {
-        var sql = """
-                SELECT e.*, w.wrk_abbrevation FROM employee e
-                INNER JOIN superior s ON s.sup_employee_id=e.employee_id
-                INNER JOIN workplace w ON w.workplace_id=e.emp_workplace_id
-                WHERE sup_enabled=:isEnabled AND s.sup_superior_id=:superior_id;
-                """;
+        var sql = "SELECT e.*, w.wrk_abbrevation FROM employee e " +
+                "INNER JOIN superior s ON s.sup_employee_id=e.employee_id " +
+                "INNER JOIN workplace w ON w.workplace_id=e.emp_workplace_id " +
+                "WHERE sup_enabled=:isEnabled AND s.sup_superior_id=:superior_id;";
 
         var params = new MapSqlParameterSource();
         params.addValue(IS_ENABLED, 1);
@@ -94,12 +86,10 @@ public class JdbcEmployeeRepository implements IEmployeeRepository {
 
     @Override
     public long createEmployee(@NonNull Employee employee) {
-        var sql = """
-                INSERT INTO employee
-                (emp_enabled, emp_workplace_id, emp_first_name, emp_last_name, emp_orion_login, emp_email, emp_date_created, emp_description)
-                VALUES
-                (:emp_enabled, :emp_workplace_id, :emp_first_name, :emp_last_name, :emp_orion_login, :emp_email, :emp_date_created, :emp_description)
-                """;
+        var sql = "INSERT INTO employee" +
+                "(emp_enabled, emp_workplace_id, emp_first_name, emp_last_name, emp_orion_login, emp_email, emp_date_created, emp_description) " +
+                "VALUES " +
+                "(:emp_enabled, :emp_workplace_id, :emp_first_name, :emp_last_name, :emp_orion_login, :emp_email, :emp_date_created, :emp_description);";
 
         GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(sql, prepareParams(employee), keyHolder);
@@ -109,13 +99,11 @@ public class JdbcEmployeeRepository implements IEmployeeRepository {
 
     @Override
     public boolean updateEmployee(@NonNull Employee employee, long employeeId) {
-        var sql = """
-                UPDATE employee
-                SET emp_enabled = :emp_enabled, emp_workplace_id = :emp_workplace_id, emp_first_name = :emp_first_name,
-                 emp_last_name = :emp_last_name, emp_orion_login = :emp_orion_login, emp_email = :emp_email, 
-                 emp_date_created = :emp_date_created, emp_description = :emp_description
-                WHERE emp_enabled=:emp_enabled AND employee_id = :employee_id
-                """;
+        var sql = "UPDATE employee " +
+                "SET emp_enabled = :emp_enabled, emp_workplace_id = :emp_workplace_id, emp_first_name = :emp_first_name, " +
+                "emp_last_name = :emp_last_name, emp_orion_login = :emp_orion_login, emp_email = :emp_email, " +
+                "emp_date_created = :emp_date_created, emp_description = :emp_description " +
+                "WHERE emp_enabled=:emp_enabled AND employee_id = :employee_id;";
 
         var params = prepareParams(employee);
         params.addValue(EMPLOYEE_ID, employeeId);
@@ -125,11 +113,9 @@ public class JdbcEmployeeRepository implements IEmployeeRepository {
 
     @Override
     public boolean removeEmployee(long employeeId) {
-        var sql = """
-                UPDATE employee
-                SET emp_enabled = :remove
-                WHERE emp_enabled=:isEnabled AND employee_id = :employee_id
-                """;
+        var sql = "UPDATE employee " +
+                "SET emp_enabled = :remove " +
+                "WHERE emp_enabled=:isEnabled AND employee_id = :employee_id;";
 
         var params = new MapSqlParameterSource();
         params.addValue(IS_ENABLED, 1);
@@ -144,12 +130,10 @@ public class JdbcEmployeeRepository implements IEmployeeRepository {
 
     @Override
     public boolean addSubordinate(long superiorId, long subordinateId) {
-        var sql = """
-                INSERT INTO superior
-                (sup_enabled, sup_superior_id, sup_employee_id)
-                VALUES
-                (:sup_enabled, :sup_superior_id, :sup_employee_id)
-                """;
+        var sql = "INSERT INTO superior " +
+                "(sup_enabled, sup_superior_id, sup_employee_id) " +
+                "VALUES " +
+                "(:sup_enabled, :sup_superior_id, :sup_employee_id);";
 
         var params = new MapSqlParameterSource();
         params.addValue("sup_enabled", 1);
@@ -161,11 +145,9 @@ public class JdbcEmployeeRepository implements IEmployeeRepository {
 
     @Override
     public boolean removeSubordinate(long subordinateItemId) {
-        var sql = """
-                UPDATE superior
-                SET emp_enabled = :remove
-                WHERE sup_enabled=:isEnabled
-                """;
+        var sql = "UPDATE superior " +
+                "SET emp_enabled = :remove " +
+                "WHERE sup_enabled=:isEnabled;";
 
         var params = new MapSqlParameterSource();
         params.addValue(IS_ENABLED, 1);

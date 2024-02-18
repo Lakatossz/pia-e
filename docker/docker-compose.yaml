@@ -10,10 +10,6 @@ services:
       MYSQL_PASSWORD: heslo
       MYSQL_DATABASE: piae_v1_db
       MYSQL_ROOT_PASSWORD: heslo
-    healthcheck:
-      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
-      timeout: 20s
-      retries: 10
     ports:
       - "3306:3306"
     networks:
@@ -28,6 +24,10 @@ services:
   springboot-application:
     image: springboot-application
     container_name: springboot-application
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      timeout: 60s
+      retries: 10
     ports:
       - "8080:8080"
     networks:

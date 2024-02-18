@@ -35,9 +35,9 @@ public class JdbcFunctionRepository implements IFunctionRepository {
 
     @Override
     public Function fetchFunction(long functionId) {
-        var sql = "SELECT f.*, w.wrk_abbrevation, w.workplace_id, e.* FROM `function` f" +
-                "INNER JOIN workplace w ON w.workplace_id=f.fnc_workplace_id" +
-                "INNER JOIN employee e ON e.employee_id=f.fnc_manager_id" +
+        var sql = "SELECT f.*, w.wrk_abbrevation, w.workplace_id, e.* FROM `function` f " +
+                "INNER JOIN workplace w ON w.workplace_id=f.fnc_workplace_id " +
+                "INNER JOIN employee e ON e.employee_id=f.fnc_manager_id " +
                 "WHERE f.fnc_enabled=:isEnabled AND f.function_id=:function_id;";
 
         var params = new MapSqlParameterSource();
@@ -49,9 +49,9 @@ public class JdbcFunctionRepository implements IFunctionRepository {
 
     @Override
     public Function fetchFunction(String name) {
-        var sql = "SELECT f.*, w.wrk_abbrevation, e.* FROM `function` f" +
-                "INNER JOIN workplace w ON w.workplace_id=f.fnc_workplace_id" +
-                "INNER JOIN employee e ON e.employee_id=f.fnc_manager_id" +
+        var sql = "SELECT f.*, w.wrk_abbrevation, e.* FROM `function` f " +
+                "INNER JOIN workplace w ON w.workplace_id=f.fnc_workplace_id " +
+                "INNER JOIN employee e ON e.employee_id=f.fnc_manager_id " +
                 "WHERE f.fnc_enabled=:isEnabled AND f.fnc_name=:name;";
 
         var params = new MapSqlParameterSource();
@@ -63,9 +63,9 @@ public class JdbcFunctionRepository implements IFunctionRepository {
 
     @Override
     public List<Function> fetchFunctions() {
-        var sql = "SELECT f.*, w.wrk_abbrevation, e.* FROM `function` f" +
-                "INNER JOIN workplace w ON w.workplace_id=f.fnc_workplace_id" +
-                "INNER JOIN employee e ON e.employee_id=f.fnc_manager_id" +
+        var sql = "SELECT f.*, w.wrk_abbrevation, e.* FROM `function` f " +
+                "INNER JOIN workplace w ON w.workplace_id=f.fnc_workplace_id " +
+                "INNER JOIN employee e ON e.employee_id=f.fnc_manager_id " +
                 "WHERE f.fnc_enabled=:isEnabled;";
 
         var params = new MapSqlParameterSource();
@@ -76,10 +76,10 @@ public class JdbcFunctionRepository implements IFunctionRepository {
 
     @Override
     public List<Employee> fetchFunctionEmployees(long functionId) {
-        var sql = "SELECT e.*,  w.wrk_abbrevation" +
-                "FROM assignment fe" +
-                "INNER JOIN employee e ON e.employee_id=fe.ass_employee_id" +
-                "INNER JOIN workplace w ON w.workplace_id=e.emp_workplace_id" +
+        var sql = "SELECT e.*,  w.wrk_abbrevation " +
+                "FROM assignment fe " +
+                "INNER JOIN employee e ON e.employee_id=fe.ass_employee_id " +
+                "INNER JOIN workplace w ON w.workplace_id=e.emp_workplace_id " +
                 "WHERE fe.ass_enabled=:isEnabled AND fe.ass_function_id=:function_id;";
 
         var params = new MapSqlParameterSource();
@@ -91,11 +91,11 @@ public class JdbcFunctionRepository implements IFunctionRepository {
 
     @Override
     public long createFunction(@NonNull Function function) {
-        var sql = "INSERT INTO `function`" +
+        var sql = "INSERT INTO `function` " +
                 "(fnc_enabled, fnc_name, fnc_shortcut, fnc_manager_id, fnc_workplace_id, " +
                 "fnc_date_from, fnc_date_until, fnc_description, fnc_probability, " +
-                "fnc_default_time)" +
-                "VALUES" +
+                "fnc_default_time) " +
+                "VALUES " +
                 "(:fnc_enabled, :fnc_name, :fnc_shortcut, :fnc_manager_id, :fnc_workplace_id, " +
                 ":fnc_date_from, :fnc_date_until, :fnc_description, :fnc_probability, " +
                 ":fnc_default_time);";

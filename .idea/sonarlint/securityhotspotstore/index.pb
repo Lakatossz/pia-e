@@ -185,3 +185,9 @@ kWebApplication/src/main/java/cz/zcu/kiv/mjakubas/piae/sem/webapplication/contro
 eWebApplication/src/main/java/cz/zcu/kiv/mjakubas/piae/sem/webapplication/security/SecurityConfig.java,b/b/bbf87481eda27f28985128905926eff36efdc554
 –
 fWebApplication/src/main/java/cz/zcu/kiv/mjakubas/piae/sem/webapplication/i18n/I18nLanguageService.java,9/0/90735a8a3299314969f4405ba0fa8b2685b7a6bd
+<
+JDBC/pom.xml,a/6/a6ccabdbba8d996e997f2ce56d8d576d4871d428
+9
+	README.dm,e/2/e25087cfcc8dba9ad5a1207f55f660d59e8978fb
+9
+	README.md,8/e/8ec9a00bfd09b3190ac6b22251dbb1aa95a0579d

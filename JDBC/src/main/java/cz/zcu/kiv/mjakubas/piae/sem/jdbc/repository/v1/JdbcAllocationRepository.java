@@ -61,7 +61,7 @@ public class JdbcAllocationRepository implements IAllocationRepository {
     @Override
     public List<Allocation> fetchSubordinatesAllocations(long superiorId) {
         var sql = "SELECT a.* FROM assignment a " +
-                "INNER JOIN superior s ON s.sup_employee_id=a.ass_employee_id" +
+                "INNER JOIN superior s ON s.sup_employee_id=a.ass_employee_id " +
                 "WHERE a.ass_enabled=:isEnabled AND s.sup_superior_id=:id;";
 
         var params = new MapSqlParameterSource();
@@ -109,9 +109,9 @@ public class JdbcAllocationRepository implements IAllocationRepository {
 
     @Override
     public List<Allocation> fetchWorkplaceAllocations(long workplaceId) { /* TODO */
-        var sql = "SELECT a.* FROM workplace w" +
-                "INNER JOIN project p ON p.pro_workplace_id=w.workplace_id" +
-                "INNER JOIN assignment a ON a.ass_project_id=p.project_id" +
+        var sql = "SELECT a.* FROM workplace w " +
+                "INNER JOIN project p ON p.pro_workplace_id=w.workplace_id " +
+                "INNER JOIN assignment a ON a.ass_project_id=p.project_id " +
                 "WHERE a.ass_enabled=:isEnabled AND w.workplace_id=:id;";
 
         var params = new MapSqlParameterSource();
@@ -124,10 +124,10 @@ public class JdbcAllocationRepository implements IAllocationRepository {
     @Override
     public long createAllocation(@NonNull Allocation allocation) {
 
-        var sql = "INSERT INTO assignment" +
+        var sql = "INSERT INTO assignment " +
                 "(ass_enabled, ass_employee_id, ass_project_id, ass_course_id, ass_function_id, ass_is_certain, " +
-                "ass_active_from, ass_active_until, ass_term, ass_scope, ass_time, ass_description, ass_active, ass_role)" +
-                "VALUES" +
+                "ass_active_from, ass_active_until, ass_term, ass_scope, ass_time, ass_description, ass_active, ass_role) " +
+                "VALUES " +
                 "(:isEnabled, :eId, :pId, :cId, :fId, :isCertain, :aFrom, :aUntil, :aTerm, :scope, :time, :descr, :active, :role);";
 
         GeneratedKeyHolder keyHolder = new GeneratedKeyHolder();
@@ -138,11 +138,11 @@ public class JdbcAllocationRepository implements IAllocationRepository {
 
     @Override
     public boolean updateAllocation(@NonNull Allocation allocation, long allocationId) {
-        var sql = "UPDATE assignment" +
+        var sql = "UPDATE assignment " +
                 "SET ass_enabled=:isEnabled, ass_employee_id=:eId, ass_project_id=:pId, " +
                 "ass_course_id=:cId, ass_function_id=:fId, ass_active_from=:aFrom, " +
                 "ass_active_until=:aUntil, ass_term=:aTerm, ass_scope=:scope, ass_time=:time, ass_description=:descr, " +
-                "ass_active=:active, ass_is_certain=:isCertain, ass_role=:role" +
+                "ass_active=:active, ass_is_certain=:isCertain, ass_role=:role " +
                 "WHERE assignment_id=:id;";
 
         var params = prepareParams(allocation);
@@ -153,8 +153,8 @@ public class JdbcAllocationRepository implements IAllocationRepository {
 
     @Override
     public boolean disableAllocation(boolean disable, long allocationId) {
-        var sql = "UPDATE assignment" +
-                "SET ass_active=:active" +
+        var sql = "UPDATE assignment " +
+                "SET ass_active=:active " +
                 "WHERE assignment_id=:id;";
 
         var params = new MapSqlParameterSource();
@@ -167,8 +167,8 @@ public class JdbcAllocationRepository implements IAllocationRepository {
 
     @Override
     public boolean removeAllocation(long allocationId) {
-        var sql = "UPDATE assignment" +
-                "SET ass_enabled=:active" +
+        var sql = "UPDATE assignment " +
+                "SET ass_enabled=:active " +
                 "WHERE assignment_id=:id;";
 
         var params = new MapSqlParameterSource();

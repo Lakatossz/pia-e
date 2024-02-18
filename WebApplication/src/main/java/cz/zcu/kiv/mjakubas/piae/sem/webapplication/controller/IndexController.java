@@ -57,6 +57,7 @@ public class IndexController {
             return "main";
         } catch (Exception e) {
             model.addAttribute(GENEREAL_ERROR, true);
+            e.printStackTrace();
             return "main";
         }
     }

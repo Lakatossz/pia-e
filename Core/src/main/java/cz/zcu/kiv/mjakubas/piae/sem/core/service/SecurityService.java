@@ -258,7 +258,7 @@ public class SecurityService {
     public long createUserAccount(@NonNull Employee employee) throws ServiceException {
         try {
             long id = employeeRepository.createEmployee(employee);
-            createUser(employee.getOrionLogin(), "DEFAULT_PASSWORD");
+            createUser(employee.getOrionLogin(), DEFAULT_PASSWORD);
             return id;
         } catch (InvalidDataAccessApiUsageException e) {
             throw new ServiceException();

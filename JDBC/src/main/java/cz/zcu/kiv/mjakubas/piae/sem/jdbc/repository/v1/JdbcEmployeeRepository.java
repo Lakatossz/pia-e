@@ -86,7 +86,7 @@ public class JdbcEmployeeRepository implements IEmployeeRepository {
 
     @Override
     public long createEmployee(@NonNull Employee employee) {
-        var sql = "INSERT INTO employee" +
+        var sql = "INSERT INTO employee " +
                 "(emp_enabled, emp_workplace_id, emp_first_name, emp_last_name, emp_orion_login, emp_email, emp_date_created, emp_description) " +
                 "VALUES " +
                 "(:emp_enabled, :emp_workplace_id, :emp_first_name, :emp_last_name, :emp_orion_login, :emp_email, :emp_date_created, :emp_description);";

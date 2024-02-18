@@ -51,6 +51,15 @@ ENV MYSQL_USER root
 ENV MYSQL_PASSWORD heslo
 ENV MYSQL_ROOT_PASSWORD heslo
 
+RUN #apt-get -y install locales
+
+# Set the locale
+#RUN sed -i '/cs_CZ.UTF-8/s/^# //g' /etc/locale.gen && \
+#    locale-gen
+ENV LANG cs_CZ.UTF-8
+ENV LANGUAGE cs_CZ:cz
+ENV LC_ALL cs_CZ.UTF-8
+
 COPY /mysql/init/init.sql /docker-entrypoint-initdb.d
 
 EXPOSE 3306
